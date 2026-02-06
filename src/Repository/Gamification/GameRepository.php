@@ -16,28 +16,56 @@ class GameRepository extends ServiceEntityRepository
         parent::__construct($registry, Game::class);
     }
 
-    //    /**
-    //     * @return Game[] Returns an array of Game objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('g')
-    //            ->andWhere('g.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('g.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+    * Find all active games
+    */
+    public function findAllActive(): array
+    {
+        return $this->createQueryBuilder('g')
+        ->where('g.isActive = :active')
+        ->setParameter('active', true)
+        ->orderBy('g.createdAt', 'DESC')
+        ->getQuery()
+        ->getResult();
+    }
+    
+    /**
+    * Find games by type
+    */
+    public function findByType(string $type): array
+    {
+        return $this->createQueryBuilder('g')
+        ->where('g.type = :type')
+        ->andWhere('g.isActive = :active')
+        ->setParameter('type', $type)
+        ->setParameter('active', true)
+        ->getQuery()
+        ->getResult();
+    }
+    /**
+    * Find games by difficulty
+    */
+    public function findByDifficulty(string $difficulty): array
+    {
+        return $this->createQueryBuilder('g')
+        ->where('g.difficulty = :difficulty')
+        ->andWhere('g.isActive = :active')
+        ->setParameter('difficulty', $difficulty)
+        ->setParameter('active', true)
+        ->getQuery()
+        ->getResult();
+    }
+    /**
+    * Find free games (tokenCost = 0)
+    */
+    public function findFreeGames(): array
+    {
+        return $this->createQueryBuilder('g')
+        ->where('g.tokenCost = 0')
+        ->andWhere('g.isActive = :active')
+        ->setParameter('active', true)
+        ->getQuery()
+        ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Game
-    //    {
-    //        return $this->createQueryBuilder('g')
-    //            ->andWhere('g.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }

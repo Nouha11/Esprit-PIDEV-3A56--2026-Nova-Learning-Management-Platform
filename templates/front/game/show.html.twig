@@ -1,0 +1,31 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}{{ game.name }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ game.name }}</h1>
+            <div class="mb-3">
+                <span class="badge bg-info">{{ game.type }}</span>
+                <span class="badge bg-warning">{{ game.difficulty }}</span>
+            </div>
+
+            <p class="lead">{{ game.description }}</p>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5>Game Details</h5>
+                    <ul>
+                        <li><strong>Cost to Play:</strong> {{ game.tokenCost }} tokens</li>
+                        <li><strong>Reward:</strong> {{ game.rewardTokens }} tokens + {{ game.rewardXP }}XP</li>
+                        <li><strong>Type:</strong> {{ game.type }}</li>
+                        <li><strong>Difficulty:</strong> {{ game.difficulty }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <a href="{{ path('front_game_play', {id: game.id}) }}" class="btn btn-lg btn-success">Play Now</a>
+            <a href="{{ path('front_game_index') }}" class="btn btn-lg btn-secondary">Back to Games</a>
+        </div>
+    </div>
+{% endblock %}

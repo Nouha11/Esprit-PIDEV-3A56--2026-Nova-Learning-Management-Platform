@@ -1,0 +1,30 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}Play {{ game.name }}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>{{ game.name }}</h1>
+            <p class="lead">{{ game.description }}</p>
+            
+            <div class="alert alert-info">
+                <strong>Rewards:</strong> Complete this game to earn {{ game.rewardTokens }} tokens and {{ game.rewardXP }} XP!
+            </div>
+
+            <!-- Game Interface Placeholder -->
+            <div class="card p-5 my-4" style="min-height: 400px; background-color: #f8f9fa;">
+                <h3>Game Interface</h3>
+                <p>This is where the actual game will be rendered</p>
+                <p>(Memory cards, Puzzle pieces, Trivia questions, etc.)</p>
+
+                <!-- Temporary completion button -->
+                <form method="post" action="{{ path('front_game_complete', {id: game.id}) }}">
+                    <button type="submit" class="btn btn-success btn-lg mt-4">Complete Game (Temporary)</button>
+                </form>
+            </div>
+            
+            <a href="{{ path('front_game_show', {id: game.id}) }}" class="btn btn-secondary">Exit Game</a>
+        </div>
+    </div>
+{% endblock %}
