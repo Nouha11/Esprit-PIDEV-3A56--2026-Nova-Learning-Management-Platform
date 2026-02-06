@@ -18,8 +18,11 @@
     <h2>Recent Questions</h2>
     {% for post in posts %}
         <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px;">
-            <h4>{{ post.title }} <small>(by {{ post.author.username }})</small></h4>
-            <p>{{ post.content }}</p>
+        <h4>
+        <a href="{{ path('app_forum_show', {'id': post.id}) }}">{{ post.title }}</a> 
+        <small>(by {{ post.author.username }})</small>
+        </h4>            
+        <p>{{ post.content }}</p>
             <small>Likes: {{ post.upvotes }} | Posted: {{ post.createdAt|date('Y-m-d H:i') }}</small>
         </div>
     {% else %}

@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 class Post
@@ -18,9 +19,13 @@ class Post
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Title cannot be empty!")]
+    #[Assert\Length(min: 5, max: 255, minMessage: "Title must be at least 5 characters long")]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "Please write a question!")]
+    #[Assert\Length(min: 10, minMessage: "Your question is too short! Describe it more.")]
     private ?string $content = null;
 
     #[ORM\Column]
@@ -33,10 +38,11 @@ class Post
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null; 
 
+    
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post')]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['remove'])]
     private Collection $comments;
 
     public function __construct()

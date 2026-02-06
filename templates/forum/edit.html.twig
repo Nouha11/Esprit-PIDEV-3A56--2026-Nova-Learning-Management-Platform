@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div style="max-width: 600px; margin: 50px auto; padding: 20px; border: 1px solid #ccc;">
+    <h1>Edit Question</h1>
+    
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+        {{ form_row(form.title) }}
+        {{ form_row(form.content) }}
+        
+        <button type="submit" class="btn btn-warning">Update Question</button>
+        <a href="{{ path('app_forum_show', {'id': app.request.get('id') }) }}" class="btn btn-secondary">Cancel</a>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
