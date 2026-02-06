@@ -5,6 +5,9 @@ namespace App\Entity\StudySession;
 use App\Repository\StudySession\CourseRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 class Course
@@ -13,6 +16,11 @@ class Course
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    // Course.php relation OneToMany
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Planning::class)]
+    private Collection $plannings;
+
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Course name is required")]
@@ -86,6 +94,7 @@ class Course
         $this->progress = 0;
         $this->isPublished = false;
         $this->status = 'NOT_STARTED';
+        $this->plannings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -212,4 +221,35 @@ class Course
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Planning>
+     */
+    public function getPlannings(): Collection
+    {
+        return $this->plannings;
+    }
+
+    public function addPlanning(Planning $planning): static
+    {
+        if (!$this->plannings->contains($planning)) {
+            $this->plannings->add($planning);
+            $planning->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlanning(Planning $planning): static
+    {
+        if ($this->plannings->removeElement($planning)) {
+            if ($planning->getCourse() === $this) {
+                $planning->setCourse(null);
+            }
+        }
+
+        return $this;
+    }
+
+
 }
