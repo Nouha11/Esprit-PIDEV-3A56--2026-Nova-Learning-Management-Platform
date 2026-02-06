@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h4 class="mb-0">Edit User: {{ user.username }}</h4>
+                </div>
+                <div class="card-body">
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+
+                    <form method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="username" class="form-label">Username *</label>
+                                <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required minlength="3">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="password" name="password" minlength="8">
+                                <small class="text-muted">Leave blank to keep current password</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="role" class="form-label">Role *</label>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="ROLE_ADMIN" {% if user.role == 'ROLE_ADMIN' %}selected{% endif %}>Administrator</option>
+                                    <option value="ROLE_STUDENT" {% if user.role == 'ROLE_STUDENT' %}selected{% endif %}>Student</option>
+                                    <option value="ROLE_TUTOR" {% if user.role == 'ROLE_TUTOR' %}selected{% endif %}>Tutor</option>
+                                    <option value="ROLE_USER" {% if user.role == 'ROLE_USER' %}selected{% endif %}>User</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isActive" name="isActive" value="1" {% if user.isActive %}checked{% endif %}>
+                                <label class="form-check-label" for="isActive">
+                                    Active Account
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <strong>Warning:</strong> Changing the role may affect the user's access to certain features. Make sure the user has the appropriate profile (Student or Tutor) if you assign those roles.
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning">Update User</button>
+                            <a href="{{ path('app_admin_users_list') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
