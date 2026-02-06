@@ -1,108 +1,293 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Tutor Sign Up - Eduport LMS</title>
 
-{% block title %}Tutor Sign Up{% endblock %}
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Webestica.com">
+	<meta name="description" content="Eduport- LMS, Education and Course Theme">
 
-{% block body %}
-<div class="container">
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-body p-5">
-                    <div class="text-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-person-workspace text-success" viewBox="0 0 16 16">
-                            <path d="M4 16s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H4Zm4-5.95a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
-                            <path d="M2 1a2 2 0 0 0-2 2v9.5A1.5 1.5 0 0 0 1.5 14h.653a5.373 5.373 0 0 1 1.066-2H1V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v9h-2.219c.554.654.89 1.373 1.066 2h.653a1.5 1.5 0 0 0 1.5-1.5V3a2 2 0 0 0-2-2H2Z"/>
-                        </svg>
-                        <h1 class="mt-3">Tutor Sign Up</h1>
-                        <p class="text-muted">Create your tutor account</p>
-                    </div>
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+ 
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'light'
+		}
 
-                    {% for message in app.flashes('error') %}
-                        <div class="alert alert-danger">{{ message }}</div>
-                    {% endfor %}
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
 
-                    <form method="post">
-                        <h5 class="mb-3">Account Information</h5>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="username" class="form-label">Username *</label>
-                                <input type="text" class="form-control" id="username" name="username" required minlength="3">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="email" class="form-label">Email *</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-                        </div>
+		setTheme(getPreferredTheme())
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="password" class="form-label">Password *</label>
-                                <input type="password" class="form-control" id="password" name="password" required minlength="8">
-                                <small class="text-muted">Minimum 8 characters</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="confirmPassword" class="form-label">Confirm Password *</label>
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-                            </div>
-                        </div>
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
 
-                        <hr class="my-4">
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
 
-                        <h5 class="mb-3">Personal Information</h5>
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="firstName" class="form-label">First Name *</label>
-                                <input type="text" class="form-control" id="firstName" name="firstName" required minlength="2">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="lastName" class="form-label">Last Name *</label>
-                                <input type="text" class="form-control" id="lastName" name="lastName" required minlength="2">
-                            </div>
-                        </div>
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
 
-                        <div class="mb-3">
-                            <label for="expertise" class="form-label">Expertise *</label>
-                            <textarea class="form-control" id="expertise" name="expertise" rows="3" required minlength="10" placeholder="Describe your areas of expertise..."></textarea>
-                            <small class="text-muted">Minimum 10 characters</small>
-                        </div>
+			showActiveTheme(getPreferredTheme())
 
-                        <div class="mb-3">
-                            <label for="qualifications" class="form-label">Qualifications</label>
-                            <textarea class="form-control" id="qualifications" name="qualifications" rows="3" placeholder="List your degrees, certifications, etc."></textarea>
-                        </div>
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="yearsOfExperience" class="form-label">Years of Experience *</label>
-                                <input type="number" class="form-control" id="yearsOfExperience" name="yearsOfExperience" required min="0" max="50" value="0">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="hourlyRate" class="form-label">Hourly Rate ($)</label>
-                                <input type="number" class="form-control" id="hourlyRate" name="hourlyRate" min="0" max="1000" step="0.01" placeholder="e.g., 25.00">
-                            </div>
-                        </div>
+			}
+		})
+		
+	</script>
 
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">Create Tutor Account</button>
-                            <a href="{{ path('app_signup') }}" class="btn btn-outline-secondary">Back to Role Selection</a>
-                        </div>
-                    </form>
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
 
-                    <hr class="my-4">
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap">
 
-                    <div class="text-center">
-                        <p class="mb-0">Already have an account? 
-                            <a href="{{ path('app_login') }}">Login here</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
 
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+
+</head>
+
+<body>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+	<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
+	
+		<div class="container-fluid">
+			<div class="row">
+				<!-- left -->
+				<div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-success bg-opacity-10 vh-lg-100">
+					<div class="p-3 p-lg-5">
+						<!-- Title -->
+						<div class="text-center">
+							<h2 class="fw-bold">Join Our Teaching Community</h2>
+							<p class="mb-0 h6 fw-light">Share your knowledge and inspire students!</p>
+						</div>
+						<!-- SVG Image -->
+						<img src="{{ asset('assets/images/element/02.svg') }}" class="mt-5" alt="">
+						<!-- Info -->
+						<div class="d-sm-flex mt-5 align-items-center justify-content-center">
+							<!-- Avatar group -->
+							<ul class="avatar-group mb-2 mb-sm-0">
+								<li class="avatar avatar-sm">
+									<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+								</li>
+								<li class="avatar avatar-sm">
+									<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/02.jpg') }}" alt="avatar">
+								</li>
+								<li class="avatar avatar-sm">
+									<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar">
+								</li>
+								<li class="avatar avatar-sm">
+									<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/04.jpg') }}" alt="avatar">
+								</li>
+							</ul>
+							<!-- Content -->
+							<p class="mb-0 h6 fw-light ms-0 ms-sm-3">200+ Expert tutors teaching worldwide.</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Right -->
+				<div class="col-12 col-lg-6 m-auto">
+					<div class="row my-5">
+						<div class="col-sm-10 col-xl-8 m-auto">
+							<!-- Title -->
+							<div class="text-center mb-4">
+								<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-person-workspace text-success" viewBox="0 0 16 16">
+									<path d="M4 16s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H4Zm4-5.95a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+									<path d="M2 1a2 2 0 0 0-2 2v9.5A1.5 1.5 0 0 0 1.5 14h.653a5.373 5.373 0 0 1 1.066-2H1V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v9h-2.219c.554.654.89 1.373 1.066 2h.653a1.5 1.5 0 0 0 1.5-1.5V3a2 2 0 0 0-2-2H2Z"/>
+								</svg>
+								<h1 class="fs-2 mt-3">Tutor Sign Up</h1>
+								<p class="lead mb-4">Create your tutor account</p>
+							</div>
+
+							<!-- Flash Messages -->
+							{% for message in app.flashes('error') %}
+								<div class="alert alert-danger alert-dismissible fade show" role="alert">
+									{{ message }}
+									<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+								</div>
+							{% endfor %}
+							
+							{% for message in app.flashes('success') %}
+								<div class="alert alert-success alert-dismissible fade show" role="alert">
+									{{ message }}
+									<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+								</div>
+							{% endfor %}
+
+							<!-- Form START -->
+							<form method="post">
+								<!-- Account Information -->
+								<h5 class="mb-3">Account Information</h5>
+								
+								<div class="row mb-3">
+									<div class="col-md-6">
+										<label for="username" class="form-label">Username *</label>
+										<div class="input-group input-group-lg">
+											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person-fill"></i></span>
+											<input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="username" name="username" required minlength="3" placeholder="Username">
+										</div>
+									</div>
+									<div class="col-md-6">
+										<label for="email" class="form-label">Email *</label>
+										<div class="input-group input-group-lg">
+											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-envelope-fill"></i></span>
+											<input type="email" class="form-control border-0 bg-light rounded-end ps-1" id="email" name="email" required placeholder="E-mail">
+										</div>
+									</div>
+								</div>
+
+								<div class="row mb-3">
+									<div class="col-md-6">
+										<label for="password" class="form-label">Password *</label>
+										<div class="input-group input-group-lg">
+											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
+											<input type="password" class="form-control border-0 bg-light rounded-end ps-1" id="password" name="password" required minlength="8" placeholder="Password">
+										</div>
+										<div class="form-text">Your password must be 8 characters at least</div>
+									</div>
+									<div class="col-md-6">
+										<label for="confirmPassword" class="form-label">Confirm Password *</label>
+										<div class="input-group input-group-lg">
+											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
+											<input type="password" class="form-control border-0 bg-light rounded-end ps-1" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password">
+										</div>
+									</div>
+								</div>
+
+								<!-- Divider -->
+								<hr class="my-4">
+
+								<!-- Personal Information -->
+								<h5 class="mb-3">Personal Information</h5>
+
+								<div class="row mb-3">
+									<div class="col-md-6">
+										<label for="firstName" class="form-label">First Name *</label>
+										<div class="input-group input-group-lg">
+											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person"></i></span>
+											<input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="firstName" name="firstName" required minlength="2" placeholder="First Name">
+										</div>
+									</div>
+									<div class="col-md-6">
+										<label for="lastName" class="form-label">Last Name *</label>
+										<div class="input-group input-group-lg">
+											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person"></i></span>
+											<input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="lastName" name="lastName" required minlength="2" placeholder="Last Name">
+										</div>
+									</div>
+								</div>
+
+								<div class="mb-3">
+									<label for="expertise" class="form-label">Expertise *</label>
+									<div class="input-group input-group-lg">
+										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3 align-items-start pt-3"><i class="bi bi-award"></i></span>
+										<textarea class="form-control border-0 bg-light rounded-end ps-1" id="expertise" name="expertise" rows="3" required minlength="10" placeholder="Describe your areas of expertise..."></textarea>
+									</div>
+									<div class="form-text">Minimum 10 characters</div>
+								</div>
+
+								<div class="mb-3">
+									<label for="qualifications" class="form-label">Qualifications</label>
+									<div class="input-group input-group-lg">
+										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3 align-items-start pt-3"><i class="bi bi-file-earmark-text"></i></span>
+										<textarea class="form-control border-0 bg-light rounded-end ps-1" id="qualifications" name="qualifications" rows="3" placeholder="List your degrees, certifications, etc."></textarea>
+									</div>
+								</div>
+
+								<div class="row mb-4">
+									<div class="col-md-6">
+										<label for="yearsOfExperience" class="form-label">Years of Experience *</label>
+										<div class="input-group input-group-lg">
+											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-calendar-check"></i></span>
+											<input type="number" class="form-control border-0 bg-light rounded-end ps-1" id="yearsOfExperience" name="yearsOfExperience" required min="0" max="50" value="0" placeholder="Years">
+										</div>
+									</div>
+									<div class="col-md-6">
+										<label for="hourlyRate" class="form-label">Hourly Rate ($)</label>
+										<div class="input-group input-group-lg">
+											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-currency-dollar"></i></span>
+											<input type="number" class="form-control border-0 bg-light rounded-end ps-1" id="hourlyRate" name="hourlyRate" min="0" max="1000" step="0.01" placeholder="e.g., 25.00">
+										</div>
+									</div>
+								</div>
+
+								<!-- Button -->
+								<div class="align-items-center mt-0">
+									<div class="d-grid mb-3">
+										<button class="btn btn-success btn-lg mb-0" type="submit">Create Tutor Account</button>
+									</div>
+									<div class="d-grid">
+										<a href="{{ path('app_signup') }}" class="btn btn-outline-secondary">Back to Role Selection</a>
+									</div>
+								</div>
+							</form>
+							<!-- Form END -->
+
+							<!-- Sign in link -->
+							<div class="mt-4 text-center">
+								<span>Already have an account? <a href="{{ path('app_login') }}">Login here</a></span>
+							</div>
+						</div>
+					</div> <!-- Row END -->
+				</div>
+			</div> <!-- Row END -->
+		</div>
+	</section>
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<!-- Bootstrap JS -->
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+
+<!-- Template Functions -->
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+
+<!-- Password Validation -->
 <script>
 document.querySelector('form').addEventListener('submit', function(e) {
     const password = document.getElementById('password').value;
@@ -114,4 +299,6 @@ document.querySelector('form').addEventListener('submit', function(e) {
     }
 });
 </script>
-{% endblock %}
+
+</body>
+</html>
