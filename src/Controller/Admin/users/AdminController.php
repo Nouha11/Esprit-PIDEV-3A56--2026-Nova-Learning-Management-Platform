@@ -25,13 +25,18 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/new', name: 'app_admin_users_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         if ($request->isMethod('POST')) {
             $user = new User();
             $user->setUsername($request->request->get('username'));
             $user->setEmail($request->request->get('email'));
-            $user->setPassword(password_hash($request->request->get('password'), PASSWORD_BCRYPT));
+            
+            // Hash password
+            $plaintextPassword = $request->request->get('password');
+            $hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
+            $user->setPassword($hashedPassword);
+            
             $user->setRole($request->request->get('role'));
             $user->setIsActive($request->request->get('isActive') === '1');
 
@@ -54,7 +59,7 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_admin_users_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         if ($request->isMethod('POST')) {
             $user->setUsername($request->request->get('username'));
@@ -63,7 +68,9 @@ final class AdminController extends AbstractController
             $user->setIsActive($request->request->get('isActive') === '1');
 
             if ($request->request->get('password')) {
-                $user->setPassword(password_hash($request->request->get('password'), PASSWORD_BCRYPT));
+                $plaintextPassword = $request->request->get('password');
+                $hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
+                $user->setPassword($hashedPassword);
             }
 
             $entityManager->flush();

@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Details{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">User Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>ID:</strong>
+                            <p>{{ user.id }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Username:</strong>
+                            <p>{{ user.username }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Email:</strong>
+                            <p>{{ user.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Role:</strong>
+                            <p>
+                                {% if user.role == 'ROLE_ADMIN' %}
+                                    <span class="badge bg-danger">Administrator</span>
+                                {% elseif user.role == 'ROLE_STUDENT' %}
+                                    <span class="badge bg-primary">Student</span>
+                                {% elseif user.role == 'ROLE_TUTOR' %}
+                                    <span class="badge bg-success">Tutor</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ user.role }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Status:</strong>
+                            <p>
+                                {% if user.isActive %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_admin_users_edit', {id: user.id}) }}" class="btn btn-warning">Edit User</a>
+                        <a href="{{ path('app_admin_users_list') }}" class="btn btn-outline-secondary">Back to List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

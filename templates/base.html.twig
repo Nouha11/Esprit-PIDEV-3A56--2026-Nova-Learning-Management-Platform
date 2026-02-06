@@ -43,9 +43,6 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_student_courses') }}">Courses</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_student_profile') }}">Profile</a>
-                            </li>
                         {% elseif 'ROLE_TUTOR' in app.user.roles %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_tutor_dashboard') }}">Dashboard</a>
@@ -53,10 +50,10 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_tutor_sessions') }}">Sessions</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_tutor_profile') }}">Profile</a>
-                            </li>
                         {% elseif 'ROLE_ADMIN' in app.user.roles %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_admin_dashboard') }}">Dashboard</a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_admin_users_list') }}">Users</a>
                             </li>
@@ -76,7 +73,13 @@
                                 {{ app.user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ path('app_user_profile') }}">My Profile</a></li>
+                                {% if 'ROLE_STUDENT' in app.user.roles %}
+                                    <li><a class="dropdown-item" href="{{ path('app_student_profile') }}">My Profile</a></li>
+                                {% elseif 'ROLE_TUTOR' in app.user.roles %}
+                                    <li><a class="dropdown-item" href="{{ path('app_tutor_profile') }}">My Profile</a></li>
+                                {% else %}
+                                    <li><a class="dropdown-item" href="{{ path('app_user_profile') }}">My Profile</a></li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{{ path('app_user_settings') }}">Settings</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}">Logout</a></li>
