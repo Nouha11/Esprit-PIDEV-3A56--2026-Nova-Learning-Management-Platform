@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">User Dashboard</h1>
+            
+            <div class="alert alert-info">
+                <h4>Welcome, {{ user.username }}!</h4>
+                <p class="mb-0">Email: {{ user.email }}</p>
+                <p class="mb-0">Role: {{ user.role }}</p>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_user_profile_edit') }}" class="btn btn-primary">Edit Profile</a>
+                        <a href="{{ path('app_user_settings') }}" class="btn btn-outline-secondary">Settings</a>
+                        <a href="{{ path('app_home') }}" class="btn btn-outline-secondary">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

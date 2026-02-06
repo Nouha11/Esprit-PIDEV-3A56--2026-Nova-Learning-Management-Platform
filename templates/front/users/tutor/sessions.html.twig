@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Sessions{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">My Tutoring Sessions</h1>
+    
+    <div class="alert alert-info">
+        <p class="mb-0">Session management coming soon! You'll be able to view and manage your tutoring sessions here.</p>
+    </div>
+
+    <a href="{{ path('app_tutor_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

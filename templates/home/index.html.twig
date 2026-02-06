@@ -1,0 +1,195 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Welcome to NOVA Learning Platform{% endblock %}
+
+{% block body %}
+<!-- Hero Section -->
+<div class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Welcome to NOVA</h1>
+                <p class="lead mb-4">
+                    Connect with expert tutors and enhance your learning journey. 
+                    Join our community of students and educators today!
+                </p>
+                {% if user %}
+                    <div class="d-flex gap-3 flex-wrap">
+                        {% if 'ROLE_STUDENT' in user.roles %}
+                            <a href="{{ path('app_student_dashboard') }}" class="btn btn-light btn-lg">
+                                Go to Dashboard
+                            </a>
+                            <a href="{{ path('app_student_courses') }}" class="btn btn-outline-light btn-lg">
+                                Browse Courses
+                            </a>
+                        {% elseif 'ROLE_TUTOR' in user.roles %}
+                            <a href="{{ path('app_tutor_dashboard') }}" class="btn btn-light btn-lg">
+                                Go to Dashboard
+                            </a>
+                            <a href="{{ path('app_tutor_sessions') }}" class="btn btn-outline-light btn-lg">
+                                My Sessions
+                            </a>
+                        {% elseif 'ROLE_ADMIN' in user.roles %}
+                            <a href="{{ path('app_admin_users_list') }}" class="btn btn-light btn-lg">
+                                Admin Panel
+                            </a>
+                        {% else %}
+                            <a href="{{ path('app_user_dashboard') }}" class="btn btn-light btn-lg">
+                                Go to Dashboard
+                            </a>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="d-flex gap-3">
+                        <a href="{{ path('app_signup') }}" class="btn btn-light btn-lg">
+                            Get Started
+                        </a>
+                        <a href="{{ path('app_login') }}" class="btn btn-outline-light btn-lg">
+                            Login
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16">
+                    <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+    <h2 class="text-center mb-5">Why Choose NOVA?</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-people text-primary" viewBox="0 0 16 16">
+                            <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816ZM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/>
+                        </svg>
+                    </div>
+                    <h4>Expert Tutors</h4>
+                    <p class="text-muted">Connect with qualified tutors who are passionate about teaching and helping you succeed.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-calendar-check text-success" viewBox="0 0 16 16">
+                            <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                        </svg>
+                    </div>
+                    <h4>Flexible Scheduling</h4>
+                    <p class="text-muted">Book sessions at times that work for you. Learn at your own pace with flexible scheduling options.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-graph-up text-info" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>
+                        </svg>
+                    </div>
+                    <h4>Track Progress</h4>
+                    <p class="text-muted">Monitor your learning journey with detailed progress tracking and performance analytics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <h2 class="display-4 fw-bold text-primary">500+</h2>
+                <p class="text-muted">Active Students</p>
+            </div>
+            <div class="col-md-3">
+                <h2 class="display-4 fw-bold text-success">100+</h2>
+                <p class="text-muted">Expert Tutors</p>
+            </div>
+            <div class="col-md-3">
+                <h2 class="display-4 fw-bold text-info">50+</h2>
+                <p class="text-muted">Subjects</p>
+            </div>
+            <div class="col-md-3">
+                <h2 class="display-4 fw-bold text-warning">1000+</h2>
+                <p class="text-muted">Sessions Completed</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="container my-5">
+    <h2 class="text-center mb-5">How It Works</h2>
+    <div class="row g-4">
+        <div class="col-md-3 text-center">
+            <div class="mb-3">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <h3 class="mb-0">1</h3>
+                </div>
+            </div>
+            <h5>Sign Up</h5>
+            <p class="text-muted">Create your account as a student or tutor in minutes.</p>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="mb-3">
+                <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <h3 class="mb-0">2</h3>
+                </div>
+            </div>
+            <h5>Find a Match</h5>
+            <p class="text-muted">Browse tutors or students based on your needs and preferences.</p>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="mb-3">
+                <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <h3 class="mb-0">3</h3>
+                </div>
+            </div>
+            <h5>Schedule Session</h5>
+            <p class="text-muted">Book a session at a time that works for both parties.</p>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="mb-3">
+                <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <h3 class="mb-0">4</h3>
+                </div>
+            </div>
+            <h5>Start Learning</h5>
+            <p class="text-muted">Connect and begin your personalized learning experience.</p>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+{% if not user %}
+<div class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Get Started?</h2>
+        <p class="lead mb-4">Join thousands of students and tutors on NOVA today!</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{{ path('app_signup') }}" class="btn btn-light btn-lg">
+                Sign Up Now
+            </a>
+            <a href="{{ path('app_login') }}" class="btn btn-outline-light btn-lg">
+                Login
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

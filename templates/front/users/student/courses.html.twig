@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Courses{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">My Courses</h1>
+    
+    <div class="alert alert-info">
+        <p class="mb-0">Course management coming soon! You'll be able to browse and enroll in courses here.</p>
+    </div>
+
+    <a href="{{ path('app_student_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}
