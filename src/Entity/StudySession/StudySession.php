@@ -2,7 +2,7 @@
 
 namespace App\Entity\StudySession;
 
-use App\Entity\User;
+use App\Entity\users\User;
 use App\Repository\StudySession\StudySessionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
