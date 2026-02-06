@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage Availability{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">Manage Availability</h1>
+            
+            {% if tutor %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Current Status</h5>
+                        <p>
+                            {% if tutor.isAvailable %}
+                                <span class="badge bg-success fs-5">Available</span>
+                            {% else %}
+                                <span class="badge bg-danger fs-5">Unavailable</span>
+                            {% endif %}
+                        </p>
+
+                        <form method="post" class="mt-4">
+                            <div class="mb-3">
+                                <label class="form-label">Change Availability Status</label>
+                                <select name="isAvailable" class="form-select">
+                                    <option value="1" {% if tutor.isAvailable %}selected{% endif %}>Available</option>
+                                    <option value="0" {% if not tutor.isAvailable %}selected{% endif %}>Unavailable</option>
+                                </select>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Update Availability</button>
+                                <a href="{{ path('app_tutor_dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    No tutor profile found.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

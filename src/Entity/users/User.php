@@ -10,9 +10,15 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+#[UniqueEntity(fields: ['email'], message: 'This email is already registered')]
+#[UniqueEntity(fields: ['username'], message: 'This username is already taken')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -20,18 +26,49 @@ class User
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'Email is required')]
+    #[Assert\Email(message: 'Please enter a valid email address')]
+    #[Assert\Length(
+        max: 180,
+        maxMessage: 'Email cannot be longer than {{ limit }} characters'
+    )]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Password is required')]
+    #[Assert\Length(
+        min: 8,
+        max: 255,
+        minMessage: 'Password must be at least {{ limit }} characters',
+        maxMessage: 'Password cannot be longer than {{ limit }} characters'
+    )]
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Username is required')]
+    #[Assert\Length(
+        min: 3,
+        max: 100,
+        minMessage: 'Username must be at least {{ limit }} characters',
+        maxMessage: 'Username cannot be longer than {{ limit }} characters'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9_]+$/',
+        message: 'Username can only contain letters, numbers and underscores'
+    )]
     private ?string $username = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: 'Role is required')]
+    #[Assert\Choice(
+        choices: ['ROLE_ADMIN', 'ROLE_STUDENT', 'ROLE_TUTOR', 'ROLE_USER'],
+        message: 'Please select a valid role'
+    )]
     private ?string $role = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Active status is required')]
+    #[Assert\Type(type: 'bool', message: 'Active status must be true or false')]
     private ?bool $isActive = null;
 
     /**
@@ -213,6 +250,22 @@ class User
         }
 
         return $this;
+    }
+
+    // UserInterface methods
+    public function getRoles(): array
+    {
+        return [$this->role];
+    }
+
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->username;
     }
 
 }

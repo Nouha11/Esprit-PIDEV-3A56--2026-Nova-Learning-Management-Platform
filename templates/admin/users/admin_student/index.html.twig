@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Student Management{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Student Management</h1>
+        <a href="{{ path('app_admin_students_new') }}" class="btn btn-primary">Add New Student</a>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% if students is empty %}
+        <div class="alert alert-info">
+            No students found. <a href="{{ path('app_admin_students_new') }}">Create the first student profile</a>.
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>University</th>
+                        <th>Major</th>
+                        <th>Academic Level</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                        <tr>
+                            <td>{{ student.id }}</td>
+                            <td>{{ student.firstName }} {{ student.lastName }}</td>
+                            <td>{{ student.university }}</td>
+                            <td>{{ student.major ?? 'N/A' }}</td>
+                            <td>{{ student.academicLevel ?? 'N/A' }}</td>
+                            <td>
+                                <a href="{{ path('app_admin_students_show', {id: student.id}) }}" class="btn btn-sm btn-info">View</a>
+                                <a href="{{ path('app_admin_students_edit', {id: student.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form method="post" action="{{ path('app_admin_students_delete', {id: student.id}) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ student.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

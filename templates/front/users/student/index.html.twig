@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Student Profile{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Student Profile</h1>
+            
+            {% if student %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                {% if student.profilePicture %}
+                                    <img src="{{ student.profilePicture }}" class="img-fluid rounded-circle mb-3" alt="Profile Picture" style="max-width: 150px;">
+                                {% else %}
+                                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                                        <h1 class="mb-0">{{ student.firstName|slice(0, 1) }}{{ student.lastName|slice(0, 1) }}</h1>
+                                    </div>
+                                {% endif %}
+                                <h4>{{ student.firstName }} {{ student.lastName }}</h4>
+                                <p class="text-muted">Student</p>
+                            </div>
+                            <div class="col-md-9">
+                                <h5 class="mb-3">Profile Information</h5>
+                                
+                                <div class="mb-3">
+                                    <strong>Bio:</strong>
+                                    <p>{{ student.bio ?? 'No bio provided yet.' }}</p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <strong>University:</strong>
+                                    <p>{{ student.university }}</p>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Major:</strong>
+                                        <p>{{ student.major ?? 'Not specified' }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Academic Level:</strong>
+                                        <p>{{ student.academicLevel ?? 'Not specified' }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <strong>Interests:</strong>
+                                    <p>{{ student.interests ?? 'Not specified' }}</p>
+                                </div>
+
+                                <div class="mt-4">
+                                    <a href="{{ path('app_student_profile_edit') }}" class="btn btn-primary">Edit Profile</a>
+                                    <a href="{{ path('app_student_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <h4>No Student Profile Found</h4>
+                    <p>You don't have a student profile yet. Please create one to get started.</p>
+                    <a href="{{ path('app_student_profile_edit') }}" class="btn btn-primary">Create Profile</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
