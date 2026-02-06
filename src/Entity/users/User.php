@@ -2,7 +2,10 @@
 
 namespace App\Entity;
 
+use App\Entity\StudySession\StudySession;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -27,6 +30,17 @@ class User
 
     #[ORM\Column]
     private ?bool $isActive = null;
+
+    /**
+     * @var Collection<int, StudySession>
+     */
+    #[ORM\OneToMany(targetEntity: StudySession::class, mappedBy: 'user')]
+    private Collection $studySessions;
+
+    public function __construct()
+    {
+        $this->studySessions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -89,6 +103,36 @@ class User
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StudySession>
+     */
+    public function getStudySessions(): Collection
+    {
+        return $this->studySessions;
+    }
+
+    public function addStudySession(StudySession $studySession): static
+    {
+        if (!$this->studySessions->contains($studySession)) {
+            $this->studySessions->add($studySession);
+            $studySession->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudySession(StudySession $studySession): static
+    {
+        if ($this->studySessions->removeElement($studySession)) {
+            // set the owning side to null (unless already changed)
+            if ($studySession->getUser() === $this) {
+                $studySession->setUser(null);
+            }
+        }
 
         return $this;
     }

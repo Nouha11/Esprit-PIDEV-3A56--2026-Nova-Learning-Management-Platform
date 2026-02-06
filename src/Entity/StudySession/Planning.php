@@ -3,6 +3,8 @@
 namespace App\Entity\StudySession;
 
 use App\Repository\StudySession\PlanningRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,10 +12,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: PlanningRepository::class)]
 class Planning
 {
+    public const STATUS_SCHEDULED = 'SCHEDULED';
+    public const STATUS_COMPLETED = 'COMPLETED';
+    public const STATUS_MISSED = 'MISSED';
+    public const STATUS_CANCELLED = 'CANCELLED';
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+        // Planning.php
+    #[Assert\NotNull(message: "A course must be selected")]
+    #[ORM\ManyToOne(inversedBy: 'plannings')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Course $course = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Title is required")]
@@ -57,11 +70,18 @@ class Planning
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    /**
+     * @var Collection<int, StudySession>
+     */
+    #[ORM\OneToMany(targetEntity: StudySession::class, mappedBy: 'planning')]
+    private Collection $studySessions;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->status = 'SCHEDULED';
         $this->reminder = false;
+        $this->studySessions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -149,6 +169,48 @@ class Planning
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getCourse(): ?Course
+    {
+        return $this->course;
+    }
+
+    public function setCourse(?Course $course): static
+    {
+        $this->course = $course;
+        return $this;
+    }
+
+
+    /**
+     * @return Collection<int, StudySession>
+     */
+    public function getStudySessions(): Collection
+    {
+        return $this->studySessions;
+    }
+
+    public function addStudySession(StudySession $studySession): static
+    {
+        if (!$this->studySessions->contains($studySession)) {
+            $this->studySessions->add($studySession);
+            $studySession->setPlanning($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudySession(StudySession $studySession): static
+    {
+        if ($this->studySessions->removeElement($studySession)) {
+            // set the owning side to null (unless already changed)
+            if ($studySession->getPlanning() === $this) {
+                $studySession->setPlanning(null);
+            }
+        }
 
         return $this;
     }
