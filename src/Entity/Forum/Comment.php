@@ -6,6 +6,7 @@ use App\Entity\users\User;
 use App\Repository\Forum\CommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert; // oour la controle de saisie
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -14,8 +15,10 @@ class Comment
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
+    
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "You cannot post an empty answer.")]
+    #[Assert\Length(min: 5, minMessage: "Your answer is too short.")]
     private ?string $content = null;
 
     #[ORM\Column]
