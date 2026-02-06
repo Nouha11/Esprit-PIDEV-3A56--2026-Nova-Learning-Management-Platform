@@ -1,0 +1,54 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Create Game{% endblock %}
+
+{% block body %}
+
+<h1>Create New Game</h1>
+
+{{ form_start(form) }}
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.name) }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form_row(form.type) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {{ form_row(form.description) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.difficulty) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.tokenCost) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.isActive) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.rewardTokens) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.rewardXP) }}
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Create Game</button>
+        <a href="{{ path('admin_game_index') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

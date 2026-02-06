@@ -1,0 +1,49 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}Browse Games{% endblock %}
+
+{% block body %}
+
+    <h1 class="mb-4">Available Games</h1>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="btn
+            btn-outline-primary">Puzzle</a>
+            <a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="btn
+            btn-outline-success">Memory</a>
+            <a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="btn
+            btn-outline-info">Trivia</a>
+            <a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="btn
+            btn-outline-warning">Arcade</a>
+            <a href="{{ path('front_game_index') }}" class="btn btn-outline-secondary">All</a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for game in games %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ game.name }}</h5>
+                        <p class="card-text">{{ game.description|slice(0, 100) }}...</p>
+                        <div class="mb-2">
+                            <span class="badge bg-info">{{ game.type }}</span>
+                            <span class="badge bg-warning">{{ game.difficulty }}</span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Cost:</strong> {{ game.tokenCost }} tokens<br>
+                            <strong>Rewards:</strong> {{ game.rewardTokens }} tokens, {{ game.rewardXP }} XP
+                        </div>
+                        <a href="{{ path('front_game_show', {id: game.id}) }}" class="btn btn-primary">View
+                        Details</a>
+                    </div>
+                </div>
+            </div>
+            
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">No games available at the moment.</div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

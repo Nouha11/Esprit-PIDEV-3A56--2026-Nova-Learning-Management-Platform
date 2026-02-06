@@ -16,28 +16,31 @@ class RewardRepository extends ServiceEntityRepository
         parent::__construct($registry, Reward::class);
     }
 
-    //    /**
-    //     * @return Reward[] Returns an array of Reward objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('r.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+    * Find all active rewards
+    */
+    public function findAllActive(): array
+    {
+        return $this->createQueryBuilder('r')
+        ->where('r.isActive = :active')
+        ->setParameter('active', true)
+        ->orderBy('r.type', 'ASC')
+        ->getQuery()
+        ->getResult();
+    }
+    
+    /**
+    * Find rewards by type
+    */
+    public function findByType(string $type): array
+    {
+    return $this->createQueryBuilder('r')
+        ->where('r.type = :type')
+        ->andWhere('r.isActive = :active')
+        ->setParameter('type', $type)
+        ->setParameter('active', true)
+        ->getQuery()
+        ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Reward
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }
