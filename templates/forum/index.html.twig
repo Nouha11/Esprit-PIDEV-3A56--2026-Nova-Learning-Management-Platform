@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div style="margin: 50px;">
+    <h1>Student Forum</h1>
+
+    <div style="background: #f0f0f0; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+        <h3>Ask a Question</h3>
+        {{ form_start(form) }}
+            {{ form_row(form.title) }}
+            {{ form_row(form.content) }}
+            <button type="submit" class="btn btn-primary">Post Question</button>
+        {{ form_end(form) }}
+    </div>
+
+    <hr>
+
+    <h2>Recent Questions</h2>
+    {% for post in posts %}
+        <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px;">
+        <h4>
+        <a href="{{ path('app_forum_show', {'id': post.id}) }}">{{ post.title }}</a> 
+        <small>(by {{ post.author.username }})</small>
+        </h4>            
+        <p>{{ post.content }}</p>
+            <small>Likes: {{ post.upvotes }} | Posted: {{ post.createdAt|date('Y-m-d H:i') }}</small>
+        </div>
+    {% else %}
+        <p>No questions yet. Be the first!</p>
+    {% endfor %}
+</div>
+{% endblock %}

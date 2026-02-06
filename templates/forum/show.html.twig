@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div style="max-width: 800px; margin: 50px auto;">
+    <a href="{{ path('app_forum') }}">&larr; Back to Forum</a>
+
+    <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin-top: 20px;">
+        <h1>{{ post.title }}</h1>
+        <p style="font-size: 1.2em;">{{ post.content }}</p>
+        <small>Asked by <strong>{{ post.author.username }}</strong> on {{ post.createdAt|date('M d, Y') }}</small>
+    </div>
+
+    <hr style="margin: 40px 0;">
+
+    <h3>{{ post.comments|length }} Answers</h3>
+
+    {% for comment in post.comments %}
+        <div style="border-left: 4px solid #4caf50; padding-left: 15px; margin-bottom: 20px;">
+            <p>{{ comment.content }}</p>
+            <small>Answered by <strong>{{ comment.author.username }}</strong></small>
+        </div>
+    {% else %}
+        <p>No answers yet. Be the first to help!</p>
+    {% endfor %}
+
+    <hr>
+
+    <div style="background: #f9f9f9; padding: 20px; border-radius: 10px;">
+        <h4>Add your Answer</h4>
+        {{ form_start(form) }}
+            {{ form_row(form.content) }}
+            <button class="btn btn-success" type="submit">Post Answer</button>
+        {{ form_end(form) }}
+    </div>
+    <div style="margin-top: 20px;">
+    <a href="{{ path('app_forum_edit', {'id': post.id}) }}" class="btn btn-warning">Edit Question</a>
+    
+
+</div>
+
+    <a href="{{ path('app_forum_delete', {'id': post.id}) }}" 
+   class="btn btn-danger" 
+   onclick="return confirm('Are you sure you want to delete this question?');">
+   Delete Question
+</a>
+</div>
+
+{% endblock %}
