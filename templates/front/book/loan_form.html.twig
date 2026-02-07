@@ -1,0 +1,13 @@
+{% block title %}Request Loan{% endblock %}
+
+{% block body %}
+<h1>Request loan for {{ book.title }}</h1>
+
+{{ form_start(form) }}
+    {{ form_row(form.libraryId) }}
+    {{ form_row(form.startAt) }}
+    {{ form_row(form.endAt) }}
+    <button class="btn btn-primary">Request</button>
+{{ form_end(form) }}
+
+{% endblock %}

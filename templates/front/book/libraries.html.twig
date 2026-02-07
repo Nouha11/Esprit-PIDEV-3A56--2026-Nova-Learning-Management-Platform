@@ -1,0 +1,15 @@
+{% block title %}Libraries with {{ book.title }}{% endblock %}
+
+{% block body %}
+<h1>Libraries carrying "{{ book.title }}"</h1>
+<ul>
+    {% for lib in libraries %}
+        <li>
+            <strong>{{ lib.name }}</strong> — {{ lib.address }}
+            <a class="btn btn-sm btn-outline-primary" href="{{ path('book_loan', {'id': book.id}) }}">Request loan</a>
+        </li>
+    {% else %}
+        <li>No libraries found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
