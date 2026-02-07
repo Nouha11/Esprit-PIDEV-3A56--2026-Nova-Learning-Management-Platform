@@ -25,7 +25,7 @@ class CourseController extends AbstractController
 
         $courses = $repository->findByFilters($difficulty, $category);
 
-        return $this->render('course/index.html.twig', [
+        return $this->render('front/course/index.html.twig', [
             'courses' => $courses
         ]);
     }
@@ -50,7 +50,7 @@ class CourseController extends AbstractController
             return $this->redirectToRoute('course_index');
         }
 
-        return $this->render('course/new.html.twig', [
+        return $this->render('front/course/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -71,7 +71,7 @@ class CourseController extends AbstractController
             return $this->redirectToRoute('course_index');
         }
 
-        return $this->render('course/edit.html.twig', [
+        return $this->render('front/course/edit.html.twig', [
             'form' => $form->createView()
         ]);
     }
