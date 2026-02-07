@@ -1,140 +1,246 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
-{% block title %}Student Dashboard{% endblock %}
+{% block title %}Student Dashboard - NOVA{% endblock %}
 
 {% block body %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            {% if student %}
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h1 class="mb-1">Welcome back, {{ student.firstName }}!</h1>
-                        <p class="text-muted">Continue your learning journey today.</p>
-                    </div>
-                    <div>
-                        <span class="badge bg-primary fs-6">{{ student.university }}</span>
-                    </div>
-                </div>
-            {% else %}
-                <h1 class="mb-4">Student Dashboard</h1>
-            {% endif %}
-
-            <!-- Stats Cards -->
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="card border-primary">
-                        <div class="card-body text-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-calendar-check text-primary mb-2" viewBox="0 0 16 16">
-                                <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
-                                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-                            </svg>
-                            <h3 class="text-primary mb-0">0</h3>
-                            <p class="text-muted mb-0 small">Active Sessions</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-success">
-                        <div class="card-body text-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-check-circle text-success mb-2" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
-                            </svg>
-                            <h3 class="text-success mb-0">0</h3>
-                            <p class="text-muted mb-0 small">Completed Sessions</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-info">
-                        <div class="card-body text-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-book text-info mb-2" viewBox="0 0 16 16">
-                                <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
-                            </svg>
-                            <h3 class="text-info mb-0">0</h3>
-                            <p class="text-muted mb-0 small">Enrolled Courses</p>
-                        </div>
-                    </div>
-                </div>
+<!-- Page Banner START -->
+<section class="py-0 bg-blue h-100px align-items-center d-flex h-200px rounded-0" style="background:url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size:cover;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="text-white">Student Dashboard</h1>
+                <p class="text-white mb-0">Welcome back, {{ student ? student.firstName : 'Student' }}!</p>
             </div>
-
-            <!-- Main Content -->
-            <div class="row">
-                <!-- Quick Actions -->
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">Quick Actions</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{{ path('app_student_courses') }}" class="btn btn-outline-primary">
-                                    <i class="bi bi-book"></i> Browse Courses
-                                </a>
-                                <a href="#" class="btn btn-outline-success">
-                                    <i class="bi bi-search"></i> Find a Tutor
-                                </a>
-                                <a href="{{ path('app_student_profile_edit') }}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-person-gear"></i> Edit Profile
-                                </a>
-                                <a href="{{ path('app_home') }}" class="btn btn-outline-info">
-                                    <i class="bi bi-house"></i> Back to Home
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- My Learning -->
-                <div class="col-md-8 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0">My Learning</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-info">
-                                <h5>Start Your Learning Journey!</h5>
-                                <p class="mb-0">You haven't enrolled in any courses yet. Browse our catalog to find courses that match your interests.</p>
-                                <a href="{{ path('app_student_courses') }}" class="btn btn-primary btn-sm mt-2">Browse Courses</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Profile Summary -->
-            {% if student %}
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Your Profile Summary</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Name:</strong> {{ student.firstName }} {{ student.lastName }}</p>
-                                    <p><strong>University:</strong> {{ student.university }}</p>
-                                    {% if student.major %}
-                                        <p><strong>Major:</strong> {{ student.major }}</p>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6">
-                                    {% if student.academicLevel %}
-                                        <p><strong>Academic Level:</strong> {{ student.academicLevel }}</p>
-                                    {% endif %}
-                                    {% if student.interests %}
-                                        <p><strong>Interests:</strong> {{ student.interests|slice(0, 100) }}...</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         </div>
     </div>
-</div>
+</section>
+<!-- Page Banner END -->
+
+<!-- Page content START -->
+<section class="pt-0">
+    <div class="container">
+        <div class="row">
+            <!-- Left sidebar START -->
+            <div class="col-xl-3">
+                <!-- Responsive offcanvas body START -->
+                <div class="offcanvas-xl offcanvas-end" tabindex="-1" id="offcanvasSidebar">
+                    <!-- Offcanvas header -->
+                    <div class="offcanvas-header bg-light">
+                        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">My profile</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasSidebar" aria-label="Close"></button>
+                    </div>
+                    <!-- Offcanvas body -->
+                    <div class="offcanvas-body p-3 p-xl-0">
+                        <div class="bg-dark border rounded-3 p-3 w-100">
+                            <!-- Dashboard menu -->
+                            <div class="list-group list-group-dark list-group-borderless collapse-list">
+                                <a class="list-group-item active" href="{{ path('app_student_dashboard') }}">
+                                    <i class="bi bi-ui-checks-grid fa-fw me-2"></i>Dashboard
+                                </a>
+                                <a class="list-group-item" href="{{ path('front_game_index') }}">
+                                    <i class="bi bi-controller fa-fw me-2"></i>Games
+                                </a>
+                                <a class="list-group-item" href="{{ path('front_reward_my_rewards') }}">
+                                    <i class="bi bi-trophy fa-fw me-2"></i>My Rewards
+                                </a>
+                                <a class="list-group-item" href="{{ path('front_reward_browse') }}">
+                                    <i class="bi bi-gift fa-fw me-2"></i>Browse Rewards
+                                </a>
+                                <a class="list-group-item" href="#">
+                                    <i class="bi bi-book fa-fw me-2"></i>My Courses
+                                </a>
+                                <a class="list-group-item" href="#">
+                                    <i class="bi bi-pencil-square fa-fw me-2"></i>Edit Profile
+                                </a>
+                                <a class="list-group-item" href="#">
+                                    <i class="bi bi-gear fa-fw me-2"></i>Settings
+                                </a>
+                                <a class="list-group-item text-danger bg-danger-soft-hover" href="{{ path('app_logout') }}">
+                                    <i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Responsive offcanvas body END -->
+            </div>
+            <!-- Left sidebar END -->
+
+            <!-- Main content START -->
+            <div class="col-xl-9">
+                {% if student %}
+                    <!-- Counter boxes START -->
+                    <div class="row mb-4">
+                        <!-- XP Counter -->
+                        <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
+                            <div class="d-flex justify-content-center align-items-center p-4 bg-warning bg-opacity-15 rounded-3">
+                                <span class="display-6 lh-1 text-warning mb-0"><i class="fas fa-bolt fa-fw"></i></span>
+                                <div class="ms-4">
+                                    <div class="d-flex">
+                                        <h5 class="mb-0 fw-bold">{{ student.totalXP }}</h5>
+                                    </div>
+                                    <p class="mb-0 h6 fw-light">Total XP</p>
+                                    <small class="text-muted">Level {{ student.level }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tokens Counter -->
+                        <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
+                            <div class="d-flex justify-content-center align-items-center p-4 bg-success bg-opacity-15 rounded-3">
+                                <span class="display-6 lh-1 text-success mb-0"><i class="fas fa-coins fa-fw"></i></span>
+                                <div class="ms-4">
+                                    <div class="d-flex">
+                                        <h5 class="mb-0 fw-bold">{{ student.totalTokens }}</h5>
+                                    </div>
+                                    <p class="mb-0 h6 fw-light">Tokens</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Games Won Counter -->
+                        <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
+                            <div class="d-flex justify-content-center align-items-center p-4 bg-purple bg-opacity-15 rounded-3">
+                                <span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-trophy fa-fw"></i></span>
+                                <div class="ms-4">
+                                    <div class="d-flex">
+                                        <h5 class="mb-0 fw-bold">{{ gameStats.totalGamesWon ?? 0 }}</h5>
+                                    </div>
+                                    <p class="mb-0 h6 fw-light">Games Won</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Counter boxes END -->
+
+                    <!-- Progress Card START -->
+                    <div class="card bg-transparent border rounded-3 mb-4">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h3 class="mb-0">Level Progress</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="mb-0">Level {{ student.level }}</h6>
+                                <h6 class="mb-0">{{ student.xpForNextLevel }} XP to Level {{ student.level + 1 }}</h6>
+                            </div>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                     style="width: {{ student.progressToNextLevel }}%" 
+                                     aria-valuenow="{{ student.progressToNextLevel }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ student.progressToNextLevel }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Progress Card END -->
+
+                    <!-- Recent Game Activity START -->
+                    <div class="card bg-transparent border rounded-3 mb-4">
+                        <div class="card-header bg-transparent border-bottom">
+                            <div class="d-sm-flex justify-content-between align-items-center">
+                                <h3 class="mb-2 mb-sm-0">Recent Game Activity</h3>
+                                <a href="{{ path('front_game_index') }}" class="btn btn-sm btn-primary-soft mb-0">View All Games</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if recentProgress is not empty %}
+                                <!-- Table START -->
+                                <div class="table-responsive border-0">
+                                    <table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="border-0 rounded-start">Game</th>
+                                                <th scope="col" class="border-0">Played</th>
+                                                <th scope="col" class="border-0">Won</th>
+                                                <th scope="col" class="border-0">Win Rate</th>
+                                                <th scope="col" class="border-0 rounded-end">XP Earned</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for progress in recentProgress %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar avatar-md flex-shrink-0">
+                                                                <div class="avatar-img rounded bg-primary bg-opacity-10 text-primary">
+                                                                    <i class="fas fa-gamepad"></i>
+                                                                </div>
+                                                            </div>
+                                                            <div class="ms-2">
+                                                                <h6 class="mb-0">
+                                                                    <a href="{{ path('front_game_show', {id: progress.game.id}) }}">
+                                                                        {{ progress.game.name }}
+                                                                    </a>
+                                                                </h6>
+                                                                <small class="text-muted">{{ progress.game.type }}</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ progress.timesPlayed }}</td>
+                                                    <td>{{ progress.timesWon }}</td>
+                                                    <td>
+                                                        <span class="badge bg-success bg-opacity-10 text-success">
+                                                            {{ progress.winRate }}%
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-warning bg-opacity-10 text-warning">
+                                                            +{{ progress.totalXPEarned }} XP
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Table END -->
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="bi bi-controller display-4 text-muted mb-3"></i>
+                                    <p class="text-muted">No games played yet. Start playing to see your activity!</p>
+                                    <a href="{{ path('front_game_index') }}" class="btn btn-primary">Browse Games</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Recent Game Activity END -->
+
+                    <!-- Rewards Summary START -->
+                    <div class="card bg-transparent border rounded-3">
+                        <div class="card-header bg-transparent border-bottom">
+                            <div class="d-sm-flex justify-content-between align-items-center">
+                                <h3 class="mb-2 mb-sm-0">My Rewards</h3>
+                                {% if unviewedRewards > 0 %}
+                                    <span class="badge bg-danger">{{ unviewedRewards }} New</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center py-4">
+                                <i class="bi bi-trophy-fill display-4 text-warning mb-3"></i>
+                                <p class="mb-3">Check out your earned rewards and badges!</p>
+                                <a href="{{ path('front_reward_my_rewards') }}" class="btn btn-warning-soft mb-0">
+                                    <i class="bi bi-trophy me-2"></i>View My Rewards
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Rewards Summary END -->
+
+                {% else %}
+                    <!-- No Profile Message -->
+                    <div class="card bg-transparent border rounded-3">
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-person-x display-1 text-muted mb-3"></i>
+                            <h4>Student Profile Not Found</h4>
+                            <p class="text-muted">Please contact support to set up your student profile.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- Main content END -->
+        </div>
+    </div>
+</section>
+<!-- Page content END -->
 {% endblock %}

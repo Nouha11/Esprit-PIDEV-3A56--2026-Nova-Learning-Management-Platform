@@ -104,11 +104,22 @@
                     <!-- Nav Main menu START -->
                     <ul class="navbar-nav navbar-nav-scroll">
                         <li class="nav-item">
-                            <a class="nav-link active" href=""><i class="bi bi-house me-2"></i>Home</a>
+                            <a class="nav-link" href="{{ path('app_home') }}"><i class="bi bi-house me-2"></i>Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('front_game_index') }}"><i class="bi bi-journals me-2"></i>Games</a>
                         </li>
+                        {% if app.user %}
+                            <li class="nav-item">
+                                {% if 'ROLE_STUDENT' in app.user.roles %}
+                                    <a class="nav-link" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>My Dashboard</a>
+                                {% elseif 'ROLE_TUTOR' in app.user.roles %}
+                                    <a class="nav-link" href="{{ path('app_tutor_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>My Dashboard</a>
+                                {% elseif 'ROLE_ADMIN' in app.user.roles %}
+                                    <a class="nav-link" href="{{ path('app_admin_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Admin Panel</a>
+                                {% endif %}
+                            </li>
+                        {% endif %}
                         <li class="nav-item">
                             <a class="nav-link" href="#"><i class="bi bi-headset me-2"></i>Contact</a>
                         </li>
@@ -367,7 +378,7 @@
                                 </div>
                                 <div class="col-lg-4 text-lg-end">
                                     {% if 'ROLE_STUDENT' in app.user.roles %}
-                                        <a href="{{ path('front_game_index') }}" class="btn btn-warning mb-0">
+                                        <a href="{{ path('app_student_dashboard') }}" class="btn btn-warning mb-0">
                                             <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
                                         </a>
                                     {% elseif 'ROLE_TUTOR' in app.user.roles %}
