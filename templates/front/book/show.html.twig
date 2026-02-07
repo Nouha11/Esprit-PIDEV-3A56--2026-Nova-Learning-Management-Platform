@@ -1,0 +1,20 @@
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block body %}
+<h1>{{ book.title }}</h1>
+<p>{{ book.description }}</p>
+
+<div>
+    <a class="btn btn-primary" href="{{ path('book_libraries', {'id': book.id}) }}">Borrow from library</a>
+    {% if book.isDigital %}
+        <a class="btn btn-success" href="{{ path('book_purchase', {'id': book.id}) }}">Buy digital</a>
+    {% endif %}
+</div>
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }}">{{ message }}</div>
+    {% endfor %}
+{% endfor %}
+
+{% endblock %}
