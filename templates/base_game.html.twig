@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}NOVA Quiz{% endblock %}</title>
+
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap">
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+</head>
+
+<body>
+
+    <header class="navbar-light navbar-sticky">
+        <nav class="navbar navbar-expand-xl">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <img class="light-mode-item navbar-brand-item" src="{{ asset('assets/images/nova_logo.png') }}" alt="logo">
+                </a>
+                <div class="navbar-collapse w-100 collapse">
+                    <ul class="navbar-nav navbar-nav-scroll mx-auto">
+                        <li class="nav-item"><a class="nav-link" href="#">Back to Home</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {# TOAST NOTIFICATION CONTAINER (Fixed top-right) #}
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="toast show align-items-center text-white bg-{{ label == 'success' ? 'success' : 'danger' }} border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body fs-6">
+                                <i class="bi {{ label == 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill' }} me-2"></i>
+                                {{ message }}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        {# END TOAST #}
+
+        {% block body %}{% endblock %}
+    </main>
+
+    <footer class="bg-dark p-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-12 text-center text-white">
+                    Copyrights ©2024 NOVA.
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/js/functions.js') }}"></script>
+</body>
+</html>
