@@ -87,6 +87,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(name: 'tutor_profile_id', referencedColumnName: 'id', nullable: true)]
     private ?TutorProfile $tutorProfile = null;
 
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    private ?int $xp = 0;
+
     /**
      * @var Collection<int, StudySession>
      */
@@ -98,6 +101,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->studySessions = new ArrayCollection();
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
+
+        $this->xp = 0; //xp 
     }
 
     /**
@@ -341,5 +346,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAtValue(): void
     {
         $this->updatedAt = new \DateTime();
+    }
+
+    
+
+    //get and set xp 
+
+    public function getXp(): ?int
+    {
+        return $this->xp;
+    }
+
+    public function setXp(int $xp): static
+    {
+        $this->xp = $xp;
+
+        return $this;
     }
 }
