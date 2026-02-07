@@ -3,6 +3,7 @@ namespace App\Controller\Front\Game;
 
 use App\Entity\Gamification\Game;
 use App\Repository\Gamification\GameRepository as GamificationGameRepository;
+use App\Repository\Gamification\StudentRewardRepository;
 use App\Service\game\GameService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +15,8 @@ class GameController extends AbstractController
 {
     public function __construct(
         private GameService $gameService,
-        private GamificationGameRepository $gameRepository
+        private GamificationGameRepository $gameRepository,
+        private StudentRewardRepository $studentRewardRepository
     ) {
     }
 
@@ -38,10 +40,22 @@ class GameController extends AbstractController
     {
         // Check if game is active
         if (!$game->isActive()) {
-        throw $this->createNotFoundException('This game is not available');
+            throw $this->createNotFoundException('This game is not available');
         }
+
+        $progress = null;
+        $student = null;
+
+        // Get student progress if logged in
+        if ($this->getUser() && $this->getUser()->getStudentProfile()) {
+            $student = $this->getUser()->getStudentProfile();
+            $progress = $this->gameService->getStudentGameProgress($student, $game);
+        }
+
         return $this->render('front/game/show.html.twig', [
-        'game' => $game,
+            'game' => $game,
+            'student' => $student,
+            'progress' => $progress,
         ]);
     }
 
@@ -49,20 +63,43 @@ class GameController extends AbstractController
     * Play game interface
     */
     #[Route('/{id}/play', name: 'front_game_play', methods: ['GET'])]
-    //#[IsGranted('ROLE_STUDENT')]
+    #[IsGranted('ROLE_STUDENT')]
     public function play(Game $game): Response
     {
         if (!$game->isActive()) {
             throw $this->createNotFoundException('This game is not available');
         }
-        // TODO: Check if user has enough tokens
-        // $user = $this->getUser();
-        // if (!$this->gameService->canUserPlayGame($user->getTokens(), $game)) {
-        // $this->addFlash('error', 'Not enough tokens to play this game');
-        // return $this->redirectToRoute('front_game_show', ['id' => $game->getId()]);
-        // }
+
+        $user = $this->getUser();
+        $student = $user->getStudentProfile();
+
+        if (!$student) {
+            $this->addFlash('error', 'Student profile not found');
+            return $this->redirectToRoute('front_game_index');
+        }
+
+        // Check if user has enough tokens
+        if (!$this->gameService->canUserPlayGame($student->getTotalTokens(), $game)) {
+            $this->addFlash('error', sprintf(
+                'Not enough tokens to play this game. You need %d tokens but only have %d.',
+                $game->getTokenCost(),
+                $student->getTotalTokens()
+            ));
+            return $this->redirectToRoute('front_game_show', ['id' => $game->getId()]);
+        }
+
+        // Deduct token cost
+        if ($game->getTokenCost() > 0) {
+            $this->gameService->deductGameCost($student, $game);
+        }
+
+        // Get student's progress for this game
+        $progress = $this->gameService->getStudentGameProgress($student, $game);
+
         return $this->render('front/game/play.html.twig', [
             'game' => $game,
+            'student' => $student,
+            'progress' => $progress,
         ]);
     }
 
@@ -70,18 +107,34 @@ class GameController extends AbstractController
     * Complete game and earn rewards
     */
     #[Route('/{id}/complete', name: 'front_game_complete', methods: ['POST'])]
-    //#[IsGranted('ROLE_STUDENT')]
+    #[IsGranted('ROLE_STUDENT')]
     public function complete(Game $game): Response
     {
-        // TODO: Get actual user ID from security
-        $userId = 1; // Placeholder
-        $rewards = $this->gameService->processGameCompletion($game, $userId);
-        $this->addFlash('success', sprintf(
+        $user = $this->getUser();
+        $student = $user->getStudentProfile();
+
+        if (!$student) {
+            $this->addFlash('error', 'Student profile not found');
+            return $this->redirectToRoute('front_game_index');
+        }
+
+        // Process game completion (assuming they won)
+        $rewards = $this->gameService->processGameCompletion($game, $student, true);
+
+        $message = sprintf(
             'Congratulations! You earned %d tokens and %d XP!',
             $rewards['tokens'],
             $rewards['xp']
-        ));
-        return $this->redirectToRoute('front_game_index');
+        );
+
+        // Add badge notifications
+        if (!empty($rewards['badges'])) {
+            $badgeNames = array_map(fn($badge) => $badge->getName(), $rewards['badges']);
+            $message .= ' New badges: ' . implode(', ', $badgeNames);
+        }
+
+        $this->addFlash('success', $message);
+        return $this->redirectToRoute('front_game_show', ['id' => $game->getId()]);
     }
 
     /**

@@ -50,15 +50,9 @@ class TutorProfile
     )]
     private ?string $bio = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Assert\NotBlank(message: 'Expertise is required')]
-    #[Assert\Length(
-        min: 10,
-        max: 1000,
-        minMessage: 'Expertise must be at least {{ limit }} characters',
-        maxMessage: 'Expertise cannot be longer than {{ limit }} characters'
-    )]
-    private ?string $expertise = null;
+    private ?array $expertise = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(
@@ -139,15 +133,14 @@ class TutorProfile
         return $this;
     }
 
-    public function getExpertise(): ?string
+    public function getExpertise(): ?array
     {
         return $this->expertise;
     }
 
-    public function setExpertise(?string $expertise): static
+    public function setExpertise(?array $expertise): static
     {
         $this->expertise = $expertise;
-
         return $this;
     }
 

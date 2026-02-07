@@ -129,7 +129,16 @@
                                 <div class="col-md-6">
                                     <p><strong>Name:</strong> {{ tutor.firstName }} {{ tutor.lastName }}</p>
                                     <p><strong>Experience:</strong> {{ tutor.yearsOfExperience }} years</p>
-                                    <p><strong>Expertise:</strong> {{ tutor.expertise|slice(0, 100) }}...</p>
+                                    <p><strong>Expertise:</strong> 
+                                        {% if tutor.expertise %}
+                                            {% for skill in tutor.expertise|slice(0, 3) %}
+                                                {{ skill }}{% if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                            {% if tutor.expertise|length > 3 %}...{% endif %}
+                                        {% else %}
+                                            Not specified
+                                        {% endif %}
+                                    </p>
                                 </div>
                                 <div class="col-md-6">
                                     <p><strong>Hourly Rate:</strong> ${{ tutor.hourlyRate ?? 'Not set' }}</p>
