@@ -1,0 +1,20 @@
+{% block title %}Payment for {{ book.title }}{% endblock %}
+
+{% block body %}
+<h1>Payment (stub) for {{ book.title }}</h1>
+
+<p>This is a placeholder payment form. In production integrate a payment gateway.</p>
+
+<form method="post">
+    <div class="mb-3">
+        <label>Card number</label>
+        <input class="form-control" name="card_number" />
+    </div>
+    <div class="mb-3">
+        <label>Expiry</label>
+        <input class="form-control" name="expiry" />
+    </div>
+    <button class="btn btn-success" type="submit">Pay</button>
+</form>
+
+{% endblock %}

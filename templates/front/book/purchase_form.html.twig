@@ -1,0 +1,11 @@
+{% block title %}Purchase {{ book.title }}{% endblock %}
+
+{% block body %}
+<h1>Purchase {{ book.title }}</h1>
+
+{{ form_start(form) }}
+    {{ form_row(form.method) }}
+    <button class="btn btn-primary">Continue</button>
+{{ form_end(form) }}
+
+{% endblock %}
