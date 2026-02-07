@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Quiz Manager{% endblock %}</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body class="container mt-5">
+        
+        <nav class="mb-4">
+            <a href="{{ path('app_quiz_question_index') }}" class="btn btn-outline-primary">← Back to List</a>
+        </nav>
+
+        <h1>Create a New Question</h1>
+        
+        {% block body %}{% endblock %}
+
+    </body>
+</html>
