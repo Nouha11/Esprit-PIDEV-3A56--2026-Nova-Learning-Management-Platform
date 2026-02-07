@@ -268,4 +268,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->username;
     }
 
+    // src/Entity/User.php
+
+
+
 }

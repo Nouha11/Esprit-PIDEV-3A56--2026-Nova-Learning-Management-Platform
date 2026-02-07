@@ -32,15 +32,18 @@ final class UserController extends AbstractController
     {
         $user = $this->getUser();
         
-        if (!$user) {
+        // 1. Check if user exists AND is the correct class
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
+        // Now PHP knows $user is your specific entity, so setUsername works
         if ($request->isMethod('POST')) {
             $user->setUsername($request->request->get('username'));
             $user->setEmail($request->request->get('email'));
 
             if ($request->request->get('password')) {
+                // Best practice: Use UserPasswordHasherInterface instead of native password_hash
                 $user->setPassword(password_hash($request->request->get('password'), PASSWORD_BCRYPT));
             }
 
@@ -69,16 +72,18 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/settings', name: 'app_user_settings', methods: ['GET', 'POST'])]
+   #[Route('/settings', name: 'app_user_settings', methods: ['GET', 'POST'])]
     public function settings(Request $request, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         
-        if (!$user) {
+        // ADD THIS CHECK HERE
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
         if ($request->isMethod('POST')) {
+            // Now PHP knows $user has the setEmail method
             $user->setEmail($request->request->get('email'));
 
             $entityManager->flush();
