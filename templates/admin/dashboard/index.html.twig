@@ -1,30 +1,205 @@
-{% extends 'admin/base_admin.html.twig' %}
+{% extends 'admin/base.html.twig' %}
 
 {% block title %}Dashboard - NOVA Admin{% endblock %}
 
 {% block admin_content %}
-<h1 class="h3 mb-4 text-gray-800">Dashboard</h1>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+</div>
 
+<!-- Statistics Cards Row -->
 <div class="row">
-    <!-- Card Example -->
+    <!-- Total Users Card -->
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Total Games
+                            Total Users
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">--</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalUsers }}</div>
                     </div>
                     <div class="col-auto">
-                        <i class="fas fa-gamepad fa-2x text-gray-300"></i>
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add more cards as needed -->
+    <!-- Total Students Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Students
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalStudents }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Tutors Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Tutors
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalTutors }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chalkboard-teacher fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admins Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Admins
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ adminCount }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-shield fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+    <!-- Role Distribution Chart -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">User Role Distribution</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Students</span>
+                        <span class="font-weight-bold">{{ studentCount }}</span>
+                    </div>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ totalUsers > 0 ? (studentCount / totalUsers * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tutors</span>
+                        <span class="font-weight-bold">{{ tutorCount }}</span>
+                    </div>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-info" role="progressbar" 
+                             style="width: {{ totalUsers > 0 ? (tutorCount / totalUsers * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Admins</span>
+                        <span class="font-weight-bold">{{ adminCount }}</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" role="progressbar" 
+                             style="width: {{ totalUsers > 0 ? (adminCount / totalUsers * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Users -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Users</h6>
+            </div>
+            <div class="card-body">
+                {% if recentUsers is empty %}
+                    <p class="text-muted text-center">No users yet</p>
+                {% else %}
+                    <div class="list-group list-group-flush">
+                        {% for user in recentUsers %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">{{ user.username }}</h6>
+                                        <small class="text-muted">{{ user.email }}</small>
+                                    </div>
+                                    <div>
+                                        {% if user.role == 'ROLE_ADMIN' %}
+                                            <span class="badge badge-warning">Admin</span>
+                                        {% elseif user.role == 'ROLE_STUDENT' %}
+                                            <span class="badge badge-success">Student</span>
+                                        {% elseif user.role == 'ROLE_TUTOR' %}
+                                            <span class="badge badge-info">Tutor</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">User</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('admin_game_index') }}" class="btn btn-primary btn-block">
+                            <i class="fas fa-gamepad mr-2"></i>Manage Games
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('admin_reward_index') }}" class="btn btn-success btn-block">
+                            <i class="fas fa-trophy mr-2"></i>Manage Rewards
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('app_admin_users_list') }}" class="btn btn-info btn-block">
+                            <i class="fas fa-users mr-2"></i>Manage Users
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('app_admin_students_list') }}" class="btn btn-warning btn-block">
+                            <i class="fas fa-user-graduate mr-2"></i>View Students
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

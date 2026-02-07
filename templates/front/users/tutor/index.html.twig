@@ -38,7 +38,15 @@
 
                                 <div class="mb-3">
                                     <strong>Expertise:</strong>
-                                    <p>{{ tutor.expertise ?? 'Not specified' }}</p>
+                                    <p>
+                                        {% if tutor.expertise %}
+                                            {% for skill in tutor.expertise %}
+                                                <span class="badge bg-primary me-1">{{ skill }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            Not specified
+                                        {% endif %}
+                                    </p>
                                 </div>
 
                                 <div class="mb-3">

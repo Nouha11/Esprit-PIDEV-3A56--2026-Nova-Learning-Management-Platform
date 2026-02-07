@@ -9,6 +9,7 @@ use App\Entity\Forum\Post;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -16,6 +17,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['email'], message: 'This email is already registered')]
 #[UniqueEntity(fields: ['username'], message: 'This username is already taken')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -70,6 +72,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotNull(message: 'Active status is required')]
     #[Assert\Type(type: 'bool', message: 'Active status must be true or false')]
     private ?bool $isActive = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\OneToOne(targetEntity: StudentProfile::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'student_profile_id', referencedColumnName: 'id', nullable: true)]
+    private ?StudentProfile $studentProfile = null;
+
+    #[ORM\OneToOne(targetEntity: TutorProfile::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'tutor_profile_id', referencedColumnName: 'id', nullable: true)]
+    private ?TutorProfile $tutorProfile = null;
 
     /**
      * @var Collection<int, StudySession>
@@ -268,8 +284,62 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->username;
     }
 
-    // src/Entity/User.php
+    // Timestamps
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
 
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
 
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
 
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    // Profile relations
+    public function getStudentProfile(): ?StudentProfile
+    {
+        return $this->studentProfile;
+    }
+
+    public function setStudentProfile(?StudentProfile $studentProfile): static
+    {
+        $this->studentProfile = $studentProfile;
+        return $this;
+    }
+
+    public function getTutorProfile(): ?TutorProfile
+    {
+        return $this->tutorProfile;
+    }
+
+    public function setTutorProfile(?TutorProfile $tutorProfile): static
+    {
+        $this->tutorProfile = $tutorProfile;
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
+    }
+
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
 }

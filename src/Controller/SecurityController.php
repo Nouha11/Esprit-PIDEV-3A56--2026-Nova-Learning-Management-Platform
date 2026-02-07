@@ -82,9 +82,12 @@ class SecurityController extends AbstractController
             $studentProfile->setMajor($request->request->get('major'));
             $studentProfile->setAcademicLevel($request->request->get('academicLevel'));
 
+            // Link profile to user
+            $user->setStudentProfile($studentProfile);
+
             try {
-                $entityManager->persist($user);
                 $entityManager->persist($studentProfile);
+                $entityManager->persist($user);
                 $entityManager->flush();
 
                 $this->addFlash('success', 'Student account created successfully! Please login.');
@@ -122,15 +125,23 @@ class SecurityController extends AbstractController
             $tutorProfile = new TutorProfile();
             $tutorProfile->setFirstName($request->request->get('firstName'));
             $tutorProfile->setLastName($request->request->get('lastName'));
-            $tutorProfile->setExpertise($request->request->get('expertise'));
+            
+            // Convert expertise string to array (split by comma or newline)
+            $expertiseString = $request->request->get('expertise');
+            $expertiseArray = array_filter(array_map('trim', preg_split('/[,\n]+/', $expertiseString)));
+            $tutorProfile->setExpertise($expertiseArray);
+            
             $tutorProfile->setQualifications($request->request->get('qualifications'));
             $tutorProfile->setYearsOfExperience((int)$request->request->get('yearsOfExperience'));
             $tutorProfile->setHourlyRate($request->request->get('hourlyRate'));
             $tutorProfile->setIsAvailable(true);
 
+            // Link profile to user
+            $user->setTutorProfile($tutorProfile);
+
             try {
-                $entityManager->persist($user);
                 $entityManager->persist($tutorProfile);
+                $entityManager->persist($user);
                 $entityManager->flush();
 
                 $this->addFlash('success', 'Tutor account created successfully! Please login.');

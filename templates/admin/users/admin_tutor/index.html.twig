@@ -39,7 +39,18 @@
                         <tr>
                             <td>{{ tutor.id }}</td>
                             <td>{{ tutor.firstName }} {{ tutor.lastName }}</td>
-                            <td>{{ tutor.expertise|slice(0, 50) }}...</td>
+                            <td>
+                                {% if tutor.expertise %}
+                                    {% for skill in tutor.expertise|slice(0, 2) %}
+                                        <span class="badge bg-info">{{ skill }}</span>
+                                    {% endfor %}
+                                    {% if tutor.expertise|length > 2 %}
+                                        <span class="badge bg-secondary">+{{ tutor.expertise|length - 2 }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
                             <td>{{ tutor.yearsOfExperience }} years</td>
                             <td>${{ tutor.hourlyRate ?? 'N/A' }}</td>
                             <td>

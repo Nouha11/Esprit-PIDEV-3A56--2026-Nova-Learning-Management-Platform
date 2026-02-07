@@ -1,0 +1,120 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Create New Reward{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Create New Reward</h1>
+        <a href="{{ path('admin_reward_index') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Rewards
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        <div class="mb-3">
+                            {{ form_label(form.name) }}
+                            {{ form_widget(form.name) }}
+                            {{ form_errors(form.name) }}
+                            <small class="form-text text-muted">Give your reward a clear, descriptive name</small>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.description) }}
+                            {{ form_widget(form.description) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.type) }}
+                                {{ form_widget(form.type) }}
+                                {{ form_errors(form.type) }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.value) }}
+                                {{ form_widget(form.value) }}
+                                {{ form_errors(form.value) }}
+                                <small class="form-text text-muted">For BONUS_XP or BONUS_TOKENS types</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.requirement) }}
+                            {{ form_widget(form.requirement) }}
+                            {{ form_errors(form.requirement) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.icon) }}
+                            {{ form_widget(form.icon) }}
+                            {{ form_errors(form.icon) }}
+                            <small class="form-text text-muted">Use emoji or icon URL (e.g., 🏆, 👑, ⭐)</small>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            {{ form_widget(form.isActive) }}
+                            {{ form_label(form.isActive) }}
+                            {{ form_errors(form.isActive) }}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Create Reward
+                            </button>
+                            <a href="{{ path('admin_reward_index') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Reward Types</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6><span class="badge bg-primary">BADGE</span></h6>
+                        <small>Collectible achievement badge. Automatically awarded based on milestones.</small>
+                    </div>
+                    <div class="mb-3">
+                        <h6><span class="badge bg-success">ACHIEVEMENT</span></h6>
+                        <small>Special achievement for completing specific tasks.</small>
+                    </div>
+                    <div class="mb-3">
+                        <h6><span class="badge bg-info">BONUS_XP</span></h6>
+                        <small>Bonus experience points. Set the value field.</small>
+                    </div>
+                    <div class="mb-3">
+                        <h6><span class="badge bg-warning">BONUS_TOKENS</span></h6>
+                        <small>Bonus tokens. Set the value field.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Recommended Badges</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">🏆 <strong>First Victory</strong> - First game win</li>
+                        <li class="mb-2">👑 <strong>Game Master</strong> - 10 wins on same game</li>
+                        <li class="mb-2">⭐ <strong>Perfect Score</strong> - 100% win rate</li>
+                        <li class="mb-2">🎓 <strong>Quick Learner</strong> - Reach level 5</li>
+                        <li class="mb-2">📚 <strong>Scholar</strong> - Reach level 10</li>
+                        <li>💰 <strong>Token Collector</strong> - Collect 1000 tokens</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
