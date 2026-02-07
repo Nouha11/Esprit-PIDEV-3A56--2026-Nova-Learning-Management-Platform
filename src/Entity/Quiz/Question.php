@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Validator as MyAssert;
 
 #[ORM\Entity(repositoryClass: QuestionRepository::class)]
 class Question
@@ -17,18 +19,28 @@ class Question
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "You must write a question!")]
+    #[Assert\Length(min: 5, minMessage: "The question is too short (min 5 characters).")]
     private ?string $text = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "Please define the XP value.")]
+    #[Assert\Positive(message: "XP cannot be negative.")]
+    #[Assert\Range(min: 10, max: 1000, notInRangeMessage: "XP must be between 10 and 1000.")]
     private ?int $xpValue = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Please select a difficulty level.")]
+    #[Assert\Choice(choices: ['Easy', 'Medium', 'Hard'], message: "Choose a valid difficulty: Easy, Medium, or Hard.")]
     private ?string $difficulty = null;
 
     /**
      * @var Collection<int, Choice>
      */
-    #[ORM\OneToMany(targetEntity: Choice::class, mappedBy: 'question', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: Choice::class, mappedBy: 'question', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Assert\Count(min: 2, minMessage: "You need at least 2 choices.")]
+    #[Assert\Valid] // to help validate the choices inside
+    #[MyAssert\SingleCorrectAnswer] // <--- for the validator
     private Collection $choices;
 
     public function __construct()

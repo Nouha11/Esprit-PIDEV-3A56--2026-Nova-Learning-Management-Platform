@@ -1,4 +1,78 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+
+{# 👇 THIS IS THE NET TO CATCH GHOST ERRORS 👇 #}
+    <div class="alert alert-danger" role="alert" style="{% if form.vars.errors|length == 0 %}display:none;{% endif %}">
+        {{ form_errors(form) }}
+        {{ form_errors(form.choices) }}
+    </div>
+    
+    <div class="mb-3">
+        {{ form_row(form.text, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.xpValue, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.difficulty, {'attr': {'class': 'form-select'}}) }}
+        </div>
+    </div>
+
+    <hr>
+    <h3>Answers</h3>
+
+    {#  THIS SHOW THE VALIDATION ERROR  #}
+    <div class="text-danger mb-2">
+        {{ form_errors(form.choices) }}
+    </div>
+    
+
+    {# This is the wrapper that holds the answers #}
+    <div class="choices-wrapper" 
+         data-index="{{ form.choices|length > 0 ? form.choices|last.vars.name + 1 : 0 }}"
+         data-prototype="{{ form_widget(form.choices.vars.prototype)|e('html_attr') }}">
+        
+        {% for choice in form.choices %}
+            <div class="card mb-2 p-2 bg-light">
+                {{ form_row(choice) }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <button type="button" class="add-choice btn btn-success btn-sm mb-3">+ Add Answer</button>
+
+    <div class="mt-3">
+        <button class="btn btn-primary">{{ button_label|default('Save Question') }}</button>
+    </div>
+
 {{ form_end(form) }}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Find the button and the wrapper
+        const addTagLink = document.querySelector('.add-choice');
+        const collectionHolder = document.querySelector('.choices-wrapper');
+    
+        // 2. Add "click" event listener
+        addTagLink.addEventListener("click", function(e) {
+            // Get the data-prototype defined in the div
+            let prototype = collectionHolder.dataset.prototype;
+            
+            // Get the current index
+            let index = collectionHolder.dataset.index;
+    
+            // Replace '__name__' in the prototype with the new index
+            let newForm = prototype.replace(/__name__/g, index);
+    
+            // Increase the index for the next item
+            collectionHolder.dataset.index = parseInt(index) + 1;
+    
+            // Display the new form on the page
+            let newFormDiv = document.createElement('div');
+            newFormDiv.classList.add('card', 'mb-2', 'p-2', 'bg-light');
+            newFormDiv.innerHTML = newForm;
+            collectionHolder.appendChild(newFormDiv);
+        });
+    });
+</script>

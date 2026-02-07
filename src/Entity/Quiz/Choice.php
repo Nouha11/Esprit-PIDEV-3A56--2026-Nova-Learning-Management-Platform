@@ -4,6 +4,8 @@ namespace App\Entity\Quiz;
 
 use App\Repository\Quiz\ChoiceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: ChoiceRepository::class)]
 class Choice
@@ -14,6 +16,7 @@ class Choice
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "The answer text cannot be empty.")]
     private ?string $content = null;
 
     #[ORM\Column]
