@@ -1,60 +1,271 @@
-<nav class="navbar navbar-expand-xl">
-    <div class="container">
-        <!-- Logo -->
-        <a class="navbar-brand" href="{{ path('app_home') }}">
-            <img class="light-mode-item navbar-brand-item" src="{{ asset('assets/images/logo.svg') }}" alt="NOVA">
-            <img class="dark-mode-item navbar-brand-item" src="{{ asset('assets/images/logo-light.svg') }}" alt="NOVA">
-        </a>
+<!-- Header START -->
+<header class="navbar-light navbar-sticky">
+    <nav class="navbar navbar-expand-xl z-index-9">
+        <div class="container">
+            <!-- Logo START -->
+            <a class="navbar-brand" href="{{ path('app_home') }}">
+                <img class="light-mode-item navbar-brand-item" src="{{ asset('assets/images/logo.svg') }}" alt="NOVA">
+                <img class="dark-mode-item navbar-brand-item" src="{{ asset('assets/images/logo-light.svg') }}" alt="NOVA">
+            </a>
+            <!-- Logo END -->
 
-        <!-- Responsive navbar toggler -->
-        <button class="navbar-toggler ms-sm-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-            <span class="navbar-toggler-animation">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
-        </button>
+            <!-- Responsive navbar toggler -->
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-animation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </button>
 
-        <!-- Main navbar -->
-        <div class="navbar-collapse collapse" id="navbarCollapse">
-            <!-- Nav Main menu -->
-            <ul class="navbar-nav navbar-nav-scroll ms-auto">
-                {% if app.user %}
+            <!-- Main navbar START -->
+            <div class="navbar-collapse collapse" id="navbarCollapse">
+                <!-- Nav Main menu START -->
+                <ul class="navbar-nav navbar-nav-scroll">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_student_dashboard') }}">
-                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
-                        </a>
+                        <a class="nav-link active" href="{{ path('app_home') }}"><i class="bi bi-house me-2"></i>Home</a>
                     </li>
-                {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('front_game_index') }}">Games</a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('course_index') }}"><i class="bi bi-book me-2"></i>Courses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('front_game_index') }}"><i class="bi bi-controller me-2"></i>Games</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('front_reward_my_rewards') }}"><i class="bi bi-trophy me-2"></i>Rewards</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi bi-headset me-2"></i>Contact</a>
+                    </li>
+                </ul>
+                <!-- Nav Main menu END -->
+            </div>
+            <!-- Main navbar END -->
+
+            <!-- Profile and notification START -->
+            {% if app.user %}
+            <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
+
+                <!-- Add to cart START -->
+                <li class="nav-item ms-2 dropdown">
+                    <!-- Cart button -->
+                    <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                        <i class="bi bi-cart3 fa-fw"></i>
+                    </a>
+                    <!-- badge -->
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-dark mt-xl-2 ms-n1">2 
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+
+                    <!-- Cart dropdown menu START -->
+                    <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
+                        <div class="card bg-transparent">
+                            <div class="card-header bg-transparent border-bottom py-4">
+                                <h5 class="m-0">Cart items</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <!-- Cart item START -->
+                                <div class="row p-3 g-2">
+                                    <!-- Image -->
+                                    <div class="col-3">
+                                        <img class="rounded-2" src="{{ asset('assets/images/book/02.jpg') }}" alt="avatar">
+                                    </div>
+                                    <div class="col-9">
+                                        <!-- Title -->
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="m-0">Angular 4 Tutorial in audio (Compact Disk)</h6>
+                                            <a href="#" class="small text-primary-hover"><i class="bi bi-x-lg"></i></a>
+                                        </div>
+                                        <!-- Select item -->
+                                        <form class="choices-sm pt-2 col-4">
+                                            <select class="form-select js-choice border-0 bg-transparent" data-search-enabled="false">
+                                                <option>1</option>
+                                                <option selected>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                                <option>5</option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- Cart item END -->
+
+                                <!-- Divider -->
+                                <hr class="m-0">
+
+                                <!-- Cart item START -->
+                                <div class="row p-3 g-2">
+                                    <!-- Image -->
+                                    <div class="col-3">
+                                        <img class="rounded-2" src="{{ asset('assets/images/book/04.jpg') }}" alt="avatar">
+                                    </div>
+                                    <div class="col-9">
+                                        <!-- Title -->
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="m-0">The Principles of Beautiful Graphics Design (Paperback)</h6>
+                                            <a href="#" class="small text-primary-hover"><i class="bi bi-x-lg"></i></a>
+                                        </div>
+                                        <!-- Select item -->
+                                        <form class="choices-sm pt-2 col-4">
+                                            <select class="form-select js-choice border-0 bg-transparent" data-search-enabled="false">
+                                                <option selected>1</option>
+                                                <option>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                                <option>5</option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- Cart item END -->
+                            </div>
+                            <!-- Button -->
+                            <div class="card-footer bg-transparent border-top py-3 text-center d-flex justify-content-between position-relative">
+                                <a href="#" class="btn btn-sm btn-light mb-0">View Cart</a>
+                                <a href="#" class="btn btn-sm btn-success mb-0">Checkout</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Cart dropdown menu END -->
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('front_reward_my_rewards') }}">My Rewards</a>
+                <!-- Add to cart END -->
+
+                <!-- Notification dropdown START -->
+                <li class="nav-item ms-2 ms-sm-3 dropdown d-none d-sm-block">
+                    <!-- Notification button -->
+                    <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                        <i class="bi bi-bell fa-fw"></i>
+                    </a>
+                    <!-- Notification dote -->
+                    <span class="notif-badge animation-blink"></span>
+
+                    <!-- Notification dropdown menu START -->
+                    <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
+                        <div class="card bg-transparent">
+                            <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
+                                <a class="small" href="#">Clear all</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="list-group list-unstyled list-group-flush">
+                                    <!-- Notif item -->
+                                    <li>
+                                        <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
+                                            <div class="me-3">
+                                                <div class="avatar avatar-md">
+                                                    <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">Update v2.3 completed successfully</h6>
+                                                <p class="small text-body m-0">What's new! Find out about new features</p>
+                                                <small class="text-body">5 min ago</small>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- Button -->
+                            <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
+                                <a href="#" class="stretched-link">See all incoming activity</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Notification dropdown menu END -->
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Courses</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Library</a>
+                <!-- Notification dropdown END -->
+
+                <!-- Profile dropdown START -->
+                <li class="nav-item ms-3 dropdown">
+                    <!-- Avatar -->
+                    <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+                    </a>
+
+                    <!-- Profile dropdown START -->
+                    <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
+                        <!-- Profile info -->
+                        <li class="px-3 mb-3">
+                            <div class="d-flex align-items-center">
+                                <!-- Avatar -->
+                                <div class="avatar me-3">
+                                    <img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+                                </div>
+                                <div>
+                                    <a class="h6" href="#">{{ app.user.username }}</a>
+                                    <p class="small m-0">{{ app.user.email }}</p>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- Links -->
+                        <li><hr class="dropdown-divider"></li>
+                        
+                        <!-- Role-based Dashboard Link -->
+                        {% if 'ROLE_STUDENT' in app.user.roles %}
+                            <li><a class="dropdown-item" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>My Dashboard</a></li>
+                        {% elseif 'ROLE_TUTOR' in app.user.roles %}
+                            <li><a class="dropdown-item" href="{{ path('admin_game_index') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>Tutor Dashboard</a></li>
+                        {% elseif 'ROLE_ADMIN' in app.user.roles %}
+                            <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}"><i class="bi bi-shield-lock fa-fw me-2"></i>Admin Panel</a></li>
+                        {% endif %}
+
+                        {% if 'ROLE_STUDENT' in app.user.roles %}
+                            <li><a class="dropdown-item" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
+                        {% elseif 'ROLE_TUTOR' in app.user.roles %}
+                            <li><a class="dropdown-item" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
+                        {% endif %}
+                        
+<!--                         <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Account Settings</a></li>
+ -->                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Help</a></li>
+                        <li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        
+                        <!-- Dark mode options START -->
+                        <li>
+                            <div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center p-1 rounded mt-2">
+                                <button type="button" class="btn btn-sm mb-0" data-bs-theme-value="light">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sun fa-fw mode-switch" viewBox="0 0 16 16">
+                                        <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                                        <use href="#"></use>
+                                    </svg> Light
+                                </button>
+                                <button type="button" class="btn btn-sm mb-0" data-bs-theme-value="dark">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon-stars fa-fw mode-switch" viewBox="0 0 16 16">
+                                        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
+                                        <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+                                        <use href="#"></use>
+                                    </svg> Dark
+                                </button>
+                                <button type="button" class="btn btn-sm mb-0 active" data-bs-theme-value="auto">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-half fa-fw mode-switch" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+                                        <use href="#"></use>
+                                    </svg> Auto
+                                </button>
+                            </div>
+                        </li> 
+                        <!-- Dark mode options END-->
+                    </ul>
+                    <!-- Profile dropdown END -->
                 </li>
             </ul>
+            {% else %}
+            <!-- Guest buttons START -->
+            <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
+                <li class="nav-item ms-2">
+                    <a href="{{ path('app_login') }}" class="btn btn-sm btn-outline-primary mb-0">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                    </a>
+                </li>
+                <li class="nav-item ms-2">
+                    <a href="{{ path('app_signup') }}" class="btn btn-sm btn-primary mb-0">
+                        <i class="bi bi-person-plus me-1"></i>Get Started
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+            <!-- Profile and notification END -->
         </div>
-
-        <!-- Profile -->
-        <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-            <li class="nav-item ms-3 dropdown">
-                <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" 
-                    data-bs-toggle="dropdown">
-                    <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}">
-                </a>
-                <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><a class="dropdown-item" href="#">Settings</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{{ path('app_logout') }}">Sign Out</a></li>
-                </ul>
-            </li>
-        </ul>
-    </div>
-</nav>
+    </nav>
+</header>
+<!-- Header END -->

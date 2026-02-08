@@ -1,71 +1,75 @@
-{% extends 'front/base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Browse Games - NOVA{% endblock %}
 
-{% block front_content %}
-<!-- Page Heading -->
-<section class="pt-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="fs-1">Discover Amazing Games</h1>
-            <p class="mb-0">Challenge yourself and earn rewards!</p>
-        </div>
-    </div>
+{% block body %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <!-- Page Heading -->
+        <section class="pt-5">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="fs-1">Discover Amazing Games</h1>
+                    <p class="mb-0">Challenge yourself and earn rewards!</p>
+                </div>
+            </div>
 
-    <!-- Filter Buttons -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <a href="{{ path('front_game_index') }}" class="btn btn-outline-primary">All Games</a>
-            <a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="btn btn-outline-success">
-                <i class="fas fa-puzzle-piece"></i> Puzzle
-            </a>
-            <a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="btn btn-outline-info">
-                <i class="fas fa-brain"></i> Memory
-            </a>
-            <a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="btn btn-outline-warning">
-                <i class="fas fa-question-circle"></i> Trivia
-            </a>
-            <a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="btn btn-outline-danger">
-                <i class="fas fa-gamepad"></i> Arcade
-            </a>
-        </div>
-    </div>
-
-    <!-- Games Grid -->
-    <div class="row g-4">
-        {% for game in games %}
-        <div class="col-sm-6 col-lg-4 col-xl-3">
-            <div class="card p-2 shadow h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge bg-info">{{ game.type }}</span>
-                        <span class="badge bg-warning text-dark">{{ game.difficulty }}</span>
-                    </div>
-                    
-                    <h5 class="card-title">{{ game.name }}</h5>
-                    <p class="card-text">{{ game.description|slice(0, 100) }}...</p>
-                    
-                    <div class="mb-3">
-                        <small class="text-muted">
-                            <i class="fas fa-coins"></i> Cost: {{ game.tokenCost }} tokens<br>
-                            <i class="fas fa-trophy"></i> Reward: {{ game.rewardTokens }}T + {{ game.rewardXP }}XP
-                        </small>
-                    </div>
-                    
-                    <a href="{{ path('front_game_show', {id: game.id}) }}" 
-                       class="btn btn-primary btn-sm w-100">
-                        View Details
+            <!-- Filter Buttons -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <a href="{{ path('front_game_index') }}" class="btn btn-outline-primary">All Games</a>
+                    <a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="btn btn-outline-success">
+                        <i class="fas fa-puzzle-piece"></i> Puzzle
+                    </a>
+                    <a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="btn btn-outline-info">
+                        <i class="fas fa-brain"></i> Memory
+                    </a>
+                    <a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="btn btn-outline-warning">
+                        <i class="fas fa-question-circle"></i> Trivia
+                    </a>
+                    <a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="btn btn-outline-danger">
+                        <i class="fas fa-gamepad"></i> Arcade
                     </a>
                 </div>
             </div>
-        </div>
-        {% else %}
-        <div class="col-12">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> No games available at the moment.
+
+            <!-- Games Grid -->
+            <div class="row g-4">
+                {% for game in games %}
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card p-2 shadow h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-info">{{ game.type }}</span>
+                                <span class="badge bg-warning text-dark">{{ game.difficulty }}</span>
+                            </div>
+                            
+                            <h5 class="card-title">{{ game.name }}</h5>
+                            <p class="card-text">{{ game.description|slice(0, 100) }}...</p>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-coins"></i> Cost: {{ game.tokenCost }} tokens<br>
+                                    <i class="fas fa-trophy"></i> Reward: {{ game.rewardTokens }}T + {{ game.rewardXP }}XP
+                                </small>
+                            </div>
+                            
+                            <a href="{{ path('front_game_show', {id: game.id}) }}" 
+                                class="btn btn-primary btn-sm w-100">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No games available at the moment.
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-        </div>
-        {% endfor %}
+        </section>
     </div>
-</section>
+</div>
 {% endblock %}

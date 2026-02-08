@@ -61,6 +61,7 @@ class GameController extends AbstractController
     #[IsGranted('ROLE_STUDENT')]
     public function play(Game $game): Response
     {
+        
         if (!$game->isActive()) {
             throw $this->createNotFoundException('This game is not available');
         }
