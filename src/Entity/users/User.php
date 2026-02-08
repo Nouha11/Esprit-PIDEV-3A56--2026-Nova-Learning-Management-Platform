@@ -1,454 +1,346 @@
-<?php
+{% extends 'base.html.twig' %}
 
-namespace App\Entity\users;
+{% block title %}Books{% endblock %}
 
-use App\Entity\StudySession\StudySession;
-use App\Entity\Forum\Comment;
-use App\Entity\Forum\Post;
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+{% block body %}
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\HasLifecycleCallbacks]
-#[UniqueEntity(fields: ['email'], message: 'This email is already registered')]
-#[UniqueEntity(fields: ['username'], message: 'This username is already taken')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
-{
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
-<<<<<<< HEAD
-#[ORM\Column(unique: true)]
-=======
-    #[ORM\Column(length: 180, unique: true)]
->>>>>>> refs/remotes/origin/main
-    #[Assert\NotBlank(message: 'Email is required')]
-    #[Assert\Email(message: 'Please enter a valid email address')]
-    #[Assert\Length(
-        max: 180,
-        maxMessage: 'Email cannot be longer than {{ limit }} characters'
-    )]
-    private ?string $email = null;
+<!-- Main Content START -->
+<main>
+    <div class="container">
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mt-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        {% block front_content %}
+        <!-- =======================
+        Page Banner START -->
+        <section class="py-0 mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="bg-light p-4 rounded-3 position-relative overflow-hidden">
+                        <!-- Svg decoration -->
+                        <figure class="position-absolute top-0 end-0 mt-5">
+                            <svg width="566.3px" height="353.7px" viewBox="0 0 566.3 353.7">
+                                <path stroke="#17a2b8" fill="none" d="M525.1,4c8.1,0.7,14.9,7.2,17.9,14.8c3,7.6,3,16,2.1,24.1c-4.7,44.3-32.1,84.7-69.4,108.9 c-37.4,24.2-83.7,32.8-127.9,27.6c-32.3-3.8-63.5-14.5-95.9-16.6c-21.6-1.4-45.6,2.1-60.1,18.3c-7.7,8.5-11.8,19.6-14.8,30.7 c-7.9,29.5-9,60.8-19.7,89.5c-5.5,14.8-14,29.1-27.1,38c-15.6,10.5-35.6,12-54.2,9.5c-18.6-2.5-36.5-8.6-55-12.1"/>
+                                <path stroke="#F99D2B" fill="none" d="M560.7,0.2c10,18.3,3.7,41.1-5,60.1c-11.8,25.9-28,50.3-50.2,68.2c-29,23.3-66.3,34-103.2,38.6 c-36.9,4.6-74.3,3.8-111.3,7.2c-22.3,2-45.3,5.9-63.5,19c-26.8,19.2-39,55.3-68.3,70.4c-38.2,19.6-89.7-4.9-125.6,18.8 c-22.6,15-30.7,44.2-33.3,71.2"/>
+                            </svg>
+                        </figure>
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Password is required')]
-    #[Assert\Length(
-        min: 8,
-        max: 255,
-        minMessage: 'Password must be at least {{ limit }} characters',
-        maxMessage: 'Password cannot be longer than {{ limit }} characters'
-    )]
-    private ?string $password = null;
+                        <div class="row position-relative align-items-center">
+                            <!-- Content -->
+                            <div class="col-md-6 px-md-5">
+                                <!-- Title -->
+                                <h1 class="mb-3">Welcome to our online book store!</h1>
+                                <p class="mb-3">Expand knowledge by reading book Two before narrow not relied on how except moment myself Dejection assurance. </p>
 
-    #[ORM\Column(length: 100, unique: true)]
-    #[Assert\NotBlank(message: 'Username is required')]
-    #[Assert\Length(
-        min: 3,
-        max: 100,
-        minMessage: 'Username must be at least {{ limit }} characters',
-        maxMessage: 'Username cannot be longer than {{ limit }} characters'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z0-9_]+$/',
-        message: 'Username can only contain letters, numbers and underscores'
-    )]
-    private ?string $username = null;
+                                <!-- Search -->
+                                <form class="bg-body rounded p-2" method="get" action="{{ path('book_list') }}">
+                                    <div class="input-group position-relative">
+                                        <input class="form-control border-0 me-1" type="search" name="search" id="searchInput" placeholder="Search book" value="{{ currentSearch }}" autocomplete="off">
+                                        <button type="submit" class="btn btn-primary mb-0 rounded">Search</button>
+                                        
+                                        <!-- Search results dropdown -->
+                                        <div id="searchResults" class="position-absolute bg-white border rounded shadow-lg w-100" style="top: 100%; left: 0; z-index: 1000; display: none; max-height: 400px; overflow-y: auto;">
+                                            <!-- Results will be inserted here by JavaScript -->
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
 
-    #[ORM\Column(length: 50)]
-    #[Assert\NotBlank(message: 'Role is required')]
-    #[Assert\Choice(
-        choices: ['ROLE_ADMIN', 'ROLE_STUDENT', 'ROLE_TUTOR', 'ROLE_USER'],
-        message: 'Please select a valid role'
-    )]
-    private ?string $role = null;
+                            <!-- Image -->
+                            <div class="col-md-6 text-center">
+                                <img src="{{ asset('assets/images/book/book-bg.svg') }}" alt="">
+                            </div>
+                        </div> <!-- Row END -->
+                    </div>
+                </div>
+            </div> <!-- Row END -->
+        </section>
+        <!-- =======================
+        Page Banner END -->
 
-    #[ORM\Column]
-    #[Assert\NotNull(message: 'Active status is required')]
-    #[Assert\Type(type: 'bool', message: 'Active status must be true or false')]
-    private ?bool $isActive = null;
+        <!-- =======================
+        Page content START -->
+        <section class="py-5">
+            <div class="row">
+                <!-- Main content START -->
+                <div class="col-12">
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+                    <!-- Search option START -->
+                    <div class="row mb-4 align-items-center">
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $updatedAt = null;
+                        <!-- Title -->
+                        <div class="col-md-4">
+                            <h5 class="mb-0">All Listed Books</h5>
+                        </div>
 
-    #[ORM\OneToOne(targetEntity: StudentProfile::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'student_profile_id', referencedColumnName: 'id', nullable: true)]
-    private ?StudentProfile $studentProfile = null;
+                        <!-- Select Product Type -->
+                        <div class="col-md-4 mt-3 mt-xl-0">
+                            <form method="get" action="{{ path('book_list') }}" id="productTypeForm">
+                                <input type="hidden" name="search" value="{{ currentSearch }}">
+                                <input type="hidden" name="author" value="{{ currentAuthor }}">
+                                <select class="form-select" name="product_type" onchange="this.form.submit()">
+                                    <option value="">All Product Types</option>
+                                    <option value="digital" {% if currentProductType == 'digital' %}selected{% endif %}>Digital (PDF)</option>
+                                    <option value="physical" {% if currentProductType == 'physical' %}selected{% endif %}>Physical Book</option>
+                                </select>
+                            </form>
+                        </div>
 
-    #[ORM\OneToOne(targetEntity: TutorProfile::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'tutor_profile_id', referencedColumnName: 'id', nullable: true)]
-    private ?TutorProfile $tutorProfile = null;
+                        <!-- Select Author (Category) -->
+                        <div class="col-md-4 mt-3 mt-xl-0">
+                            <form method="get" action="{{ path('book_list') }}" id="authorForm">
+                                <input type="hidden" name="search" value="{{ currentSearch }}">
+                                <input type="hidden" name="product_type" value="{{ currentProductType }}">
+                                <select class="form-select" name="author" onchange="this.form.submit()">
+                                    <option value="">All Authors</option>
+                                    {% for author in authors %}
+                                        <option value="{{ author }}" {% if currentAuthor == author %}selected{% endif %}>{{ author }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
 
-    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
-    private ?int $xp = 0;
+                    </div>
+                    <!-- Search option END -->
 
-    /**
-     * @var Collection<int, StudySession>
-     */
-    #[ORM\OneToMany(targetEntity: StudySession::class, mappedBy: 'user')]
-    private Collection $studySessions;
+                    <!-- Book Grid START -->
+                    <div class="row g-4">
 
-    /**
-     * @var Collection<int, Post>
-     */
-    #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'author')]   
-    private Collection $posts;
+                        {% for book in books %}
+                        <!-- Card item START -->
+                        <div class="col-sm-6 col-lg-4 col-xl-3">
+                            <div class="card shadow h-100">
+                                <div class="position-relative">
+                                    <!-- Image -->
+                                    {% if book.coverImage is defined and book.coverImage %}
+                                        <img src="{{ asset(book.coverImage) }}" class="card-img-top" alt="{{ book.title }}">
+                                    {% else %}
+                                        <img src="{{ asset('assets/images/book/01.jpg') }}" class="card-img-top" alt="{{ book.title }}">
+                                    {% endif %}
+                                    <!-- Overlay -->
+                                    <div class="card-img-overlay d-flex z-index-0 p-3">
+                                        <!-- Card overlay Top -->
+                                        <div class="w-100 mb-auto d-flex justify-content-end">
+                                            <!-- Card format icon -->
+                                            <div class="icon-md bg-dark rounded-circle fs-5">
+                                                {% if book.isDigital %}
+                                                    <a href="#" class="text-white"><i class="bi bi-file-earmark-pdf"></i></a>
+                                                {% else %}
+                                                    <a href="#" class="text-white"><i class="bi bi-book"></i></a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-    /**
-     * @var Collection<int, Comment>
-     */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'author')]
-    private Collection $comments;
+                                <!-- Card body -->
+                                <div class="card-body px-3">
+                                    <!-- Title -->
+                                    <h5 class="card-title mb-0">
+                                        <a href="{{ path('book_show', {'id': book.id}) }}" class="stretched-link">{{ book.title }}</a>
+                                    </h5>
+                                </div>
 
-    /**
-     * @var Collection<int, \App\Entity\Library\Book>
-     */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Library\Book::class, mappedBy: 'user')]
-    private Collection $books;
+                                <!-- Card footer -->
+                                <div class="card-footer pt-0 px-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h6 fw-light mb-0">
+                                            {% if book.author is defined and book.author %}
+                                                By {{ book.author }}
+                                            {% else %}
+                                                Unknown Author
+                                            {% endif %}
+                                        </span>
+                                        <!-- Price -->
+                                        {% if book.price is defined and book.price %}
+                                            <h5 class="text-success mb-0">${{ book.price }}</h5>
+                                        {% else %}
+                                            <h5 class="text-success mb-0">$0</h5>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card item END -->
+                        {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info">No books available.</div>
+                        </div>
+                        {% endfor %}
 
-    /**
-     * @var Collection<int, \App\Entity\Gamification\Game>
-     */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Gamification\Game::class, mappedBy: 'user')]
-    private Collection $games;
+                    </div>
+                    <!-- Book Grid END -->
 
-    /**
-     * @var Collection<int, \App\Entity\Quiz\Question>
-     */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Quiz\Question::class, mappedBy: 'user')]
-    private Collection $questions;
+                    <!-- Pagination START -->
+                    <div class="col-12">
+                        <nav class="mt-4 d-flex justify-content-center" aria-label="navigation">
+                            <ul class="pagination pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+                                <li class="page-item mb-0"><a class="page-link" href="#" tabindex="-1"><i class="fas fa-angle-double-left"></i></a></li>
+                                <li class="page-item mb-0 active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item mb-0"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item mb-0"><a class="page-link" href="#">..</a></li>
+                                <li class="page-item mb-0"><a class="page-link" href="#">6</a></li>
+                                <li class="page-item mb-0"><a class="page-link" href="#"><i class="fas fa-angle-double-right"></i></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <!-- Pagination END -->
+                </div>
+                <!-- Main content END -->
+            </div><!-- Row END -->
+        </section>
+        <!-- =======================
+        Page content END -->
 
-    public function __construct()
-    {
-        $this->studySessions = new ArrayCollection();
-        $this->posts = new ArrayCollection();
-        $this->comments = new ArrayCollection();
-        $this->books = new ArrayCollection();
-        $this->games = new ArrayCollection();
-        $this->questions = new ArrayCollection();
-        $this->xp = 0; //xp 
-    }
+        <!-- =======================
+        Action box START -->
+        <section class="pt-0">
+            <div class="row g-4">
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+                <!-- Action box item START -->
+                <div class="col-lg-6">
+                    <div class="bg-purple bg-opacity-10 rounded-3 p-5 h-100">
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
+                        <!-- Content -->
+                        <div class="row g-3 align-items-center">
+                            <!-- Image -->
+                            <div class="col-sm-5 col-lg-12 col-xl-5">
+                                <img src="{{ asset('assets/images/book/01.jpg') }}" alt="">
+                            </div>
 
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-        return $this;
-    }
+                            <!-- Content -->
+                            <div class="col-sm-7 col-lg-12 col-xl-7">
+                                <!-- Title -->
+                                <h3 class="mb-2">Best selling book of the month</h3>
+                                <!-- Rating star -->
+                                <ul class="list-inline mb-2">
+                                    <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+                                    <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+                                    <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+                                    <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+                                    <li class="list-inline-item me-0 small"><i class="fas fa-star-half-alt text-warning"></i></li>
+                                </ul>
 
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
+                                <!-- Title and price -->
+                                <h6 class="lead fw-bold mb-2">HTML and CSS: Design and Build Websites (Paperback)</h6>
+                                <!-- Button -->
+                                <a href="#" class="btn btn-sm btn-purple mb-0">Buy now</a>
+                            </div>
+                        </div> <!-- Row END -->
+                    </div>
+                </div>
+                <!-- Action box item END -->
 
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-        return $this;
-    }
+                <!-- Action box item START -->
+                <div class="col-lg-6">
+                    <div class="bg-warning rounded-3 bg-opacity-15 p-5 h-100">
 
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
+                        <!-- Content -->
+                        <div class="row g-3 align-items-center my-auto">
+                            <!-- Content -->
+                            <div class="col-sm-7 col-lg-12 col-xl-7">
+                                <h2 class="mb-1 fs-1">50%OFF</h2>
+                                <p class="mb-3 h5 fw-light lead">Enroll now in the most popular and best-rated Books.</p>
+                                <a href="#" class="btn btn-dark mb-0">View Books</a>
+                            </div>
 
-    public function setUsername(string $username): static
-    {
-        $this->username = $username;
-        return $this;
-    }
+                            <!-- Image -->
+                            <div class="col-sm-5 col-lg-12 col-xl-5">
+                                <img src="{{ asset('assets/images/element/29.svg') }}" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Action box item END -->
+            </div>
+        </section>
+        <!-- =======================
+        Action box END -->
+        {% endblock %}
+    </div>
+</main>
+<!-- Main Content END -->
 
-    public function getRole(): ?string
-    {
-        return $this->role;
-    }
 
-    public function setRole(string $role): static
-    {
-        $this->role = $role;
-        return $this;
-    }
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 
-    public function isActive(): ?bool
-    {
-        return $this->isActive;
-    }
+<!-- JavaScript for live search -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    let searchTimeout;
 
-    public function setIsActive(bool $isActive): static
-    {
-        $this->isActive = $isActive;
-        return $this;
-    }
+    if (searchInput && searchResults) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
 
-    /**
-     * @return Collection<int, StudySession>
-     */
-    public function getStudySessions(): Collection
-    {
-        return $this->studySessions;
-    }
-
-    public function addStudySession(StudySession $studySession): static
-    {
-        if (!$this->studySessions->contains($studySession)) {
-            $this->studySessions->add($studySession);
-            $studySession->setUser($this);
-        }
-        return $this;
-    }
-
-    public function removeStudySession(StudySession $studySession): static
-    {
-        if ($this->studySessions->removeElement($studySession)) {
-            // set the owning side to null (unless already changed)
-            if ($studySession->getUser() === $this) {
-                $studySession->setUser(null);
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
             }
-        }
-        return $this;
-    }
 
-    /**
-     * @return Collection<int, Post>
-     */
-    public function getPosts(): Collection
-    {
-        return $this->posts;
-    }
+            searchTimeout = setTimeout(function() {
+                fetch('{{ path('book_search_ajax') }}?q=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length === 0) {
+                            searchResults.innerHTML = '<div class="p-3 text-muted">No books found</div>';
+                            searchResults.style.display = 'block';
+                            return;
+                        }
 
-    public function addPost(Post $post): static
-    {
-        if (!$this->posts->contains($post)) {
-            $this->posts->add($post);
-            $post->setAuthor($this);
-        }
-        return $this;
-    }
+                        let html = '';
+                        data.forEach(book => {
+                            html += `
+                                <a href="/books/${book.id}" class="d-flex align-items-center p-3 border-bottom text-decoration-none hover-bg-light">
+                                    <img src="/${book.coverImage}" alt="${book.title}" class="rounded" style="width: 50px; height: 70px; object-fit: cover;">
+                                    <div class="ms-3 flex-grow-1">
+                                        <h6 class="mb-1 text-dark">${book.title}</h6>
+                                        <p class="mb-0 small text-muted">${book.author}</p>
+                                        <span class="badge bg-${book.isDigital ? 'success' : 'primary'} mt-1">${book.isDigital ? 'Digital' : 'Physical'}</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fw-bold text-success">$${book.price}</span>
+                                    </div>
+                                </a>
+                            `;
+                        });
 
-    public function removePost(Post $post): static
-    {
-        if ($this->posts->removeElement($post)) {
-            // set the owning side to null (unless already changed)
-            if ($post->getAuthor() === $this) {
-                $post->setAuthor(null);
+                        searchResults.innerHTML = html;
+                        searchResults.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        searchResults.style.display = 'none';
+                    });
+            }, 300);
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
             }
-        }
-        return $this;
-    }
+        });
 
-    /**
-     * @return Collection<int, Comment>
-     */
-    public function getComments(): Collection
-    {
-        return $this->comments;
-    }
-
-    public function addComment(Comment $comment): static
-    {
-        if (!$this->comments->contains($comment)) {
-            $this->comments->add($comment);
-            $comment->setAuthor($this);
-        }
-        return $this;
-    }
-
-    public function removeComment(Comment $comment): static
-    {
-        if ($this->comments->removeElement($comment)) {
-            // set the owning side to null (unless already changed)
-            if ($comment->getAuthor() === $this) {
-                $comment->setAuthor(null);
+        // Show results when focusing on input if there's content
+        searchInput.addEventListener('focus', function() {
+            if (this.value.trim().length >= 2 && searchResults.innerHTML) {
+                searchResults.style.display = 'block';
             }
-        }
-        return $this;
+        });
     }
-
-    /**
-     * @return Collection<int, \App\Entity\Library\Book>
-     */
-    public function getBooks(): Collection
-    {
-        return $this->books;
-    }
-
-    public function addBook(\App\Entity\Library\Book $book): static
-    {
-        if (!$this->books->contains($book)) {
-            $this->books->add($book);
-            $book->setUser($this);
-        }
-        return $this;
-    }
-
-    public function removeBook(\App\Entity\Library\Book $book): static
-    {
-        if ($this->books->removeElement($book)) {
-            if ($book->getUser() === $this) {
-                $book->setUser(null);
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, \App\Entity\Gamification\Game>
-     */
-    public function getGames(): Collection
-    {
-        return $this->games;
-    }
-
-    public function addGame(\App\Entity\Gamification\Game $game): static
-    {
-        if (!$this->games->contains($game)) {
-            $this->games->add($game);
-            $game->setUser($this);
-        }
-        return $this;
-    }
-
-    public function removeGame(\App\Entity\Gamification\Game $game): static
-    {
-        if ($this->games->removeElement($game)) {
-            if ($game->getUser() === $this) {
-                $game->setUser(null);
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, \App\Entity\Quiz\Question>
-     */
-    public function getQuestions(): Collection
-    {
-        return $this->questions;
-    }
-
-    public function addQuestion(\App\Entity\Quiz\Question $question): static
-    {
-        if (!$this->questions->contains($question)) {
-            $this->questions->add($question);
-            $question->setUser($this);
-        }
-        return $this;
-    }
-
-    public function removeQuestion(\App\Entity\Quiz\Question $question): static
-    {
-        if ($this->questions->removeElement($question)) {
-            if ($question->getUser() === $this) {
-                $question->setUser(null);
-            }
-        }
-        return $this;
-    }
-
-    // UserInterface methods
-    public function getRoles(): array
-    {
-        return [$this->role];
-    }
-
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-    }
-
-    public function getUserIdentifier(): string
-    {
-        return $this->username;
-    }
-
-    // Timestamps
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
-    }
-
-    // Profile relations
-    public function getStudentProfile(): ?StudentProfile
-    {
-        return $this->studentProfile;
-    }
-
-    public function setStudentProfile(?StudentProfile $studentProfile): static
-    {
-        $this->studentProfile = $studentProfile;
-        return $this;
-    }
-
-    public function getTutorProfile(): ?TutorProfile
-    {
-        return $this->tutorProfile;
-    }
-
-    public function setTutorProfile(?TutorProfile $tutorProfile): static
-    {
-        $this->tutorProfile = $tutorProfile;
-        return $this;
-    }
-
-    #[ORM\PrePersist]
-    public function setCreatedAtValue(): void
-    {
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
-    }
-
-    #[ORM\PreUpdate]
-    public function setUpdatedAtValue(): void
-    {
-        $this->updatedAt = new \DateTime();
-    }
-
-    //get and set xp 
-    public function getXp(): ?int
-    {
-        return $this->xp;
-    }
-
-    public function setXp(int $xp): static
-    {
-        $this->xp = $xp;
-        return $this;
-    }
-}
+});
+</script>
+{% endblock %}
