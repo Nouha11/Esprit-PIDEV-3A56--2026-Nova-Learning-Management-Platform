@@ -55,6 +55,34 @@
         </a>
     </li>
 
+    <!-- Nav Item - StudySession (Collapsible) -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseStudySession" 
+           aria-expanded="false" aria-controls="collapseStudySession">
+            <i class="fas fa-fw fa-graduation-cap"></i>
+            <span>StudySession</span>
+        </a>
+        <div id="collapseStudySession" class="collapse" aria-labelledby="headingStudySession" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Manage:</h6>
+                <a class="collapse-item" href="{{ path('admin_course_index') }}">
+                    <i class="fas fa-book"></i> Courses
+                </a>
+                <a class="collapse-item" href="{{ path('admin_planning_index') }}">
+                    <i class="fas fa-calendar-alt"></i> Planning
+                </a>
+                <a class="collapse-item" href="{{ path('admin_study_session_index') }}">
+                    <i class="fas fa-chart-line"></i> Sessions
+                </a>
+                <div class="collapse-divider"></div>
+                <h6 class="collapse-header">Analytics:</h6>
+                <a class="collapse-item" href="{{ path('admin_study_session_analytics') }}">
+                    <i class="fas fa-chart-bar"></i> View Analytics
+                </a>
+            </div>
+        </div>
+    </li>
+
     <!-- Sidebar Toggler -->
     <div class="text-center d-none d-md-inline">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
