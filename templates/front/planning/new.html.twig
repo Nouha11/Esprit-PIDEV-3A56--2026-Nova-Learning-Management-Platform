@@ -1,0 +1,91 @@
+{% block title %}Plan Study Session{% endblock %}
+
+{% block body %}
+<section class="pt-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-transparent border rounded-3">
+                    <div class="card-header bg-transparent border-bottom">
+                        <h3 class="card-header-title mb-0">Plan Study Session</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Course Info -->
+                        <div class="alert alert-info d-flex align-items-center mb-4">
+                            <i class="bi bi-book-fill fs-4 me-3"></i>
+                            <div>
+                                <h6 class="mb-0">{{ course.courseName }}</h6>
+                                <small>{{ course.description|slice(0, 100) }}...</small>
+                            </div>
+                        </div>
+
+                        {{ form_start(form, {'attr': {'class': 'row g-4'}}) }}
+                            
+                            <div class="col-12">
+                                <label class="form-label">Session Title *</label>
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'e.g., Chapter 3 Review'}}) }}
+                                {{ form_errors(form.title) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Scheduled Date *</label>
+                                {{ form_widget(form.scheduledDate, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.scheduledDate) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Scheduled Time *</label>
+                                {{ form_widget(form.scheduledTime, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.scheduledTime) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Planned Duration (minutes) *</label>
+                                {{ form_widget(form.plannedDuration, {'attr': {'class': 'form-control', 'placeholder': '60', 'min': '1'}}) }}
+                                {{ form_errors(form.plannedDuration) }}
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle"></i> Recommended: 30-90 minutes per session
+                                </small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label d-block">Reminder</label>
+                                <div class="form-check form-switch">
+                                    {{ form_widget(form.reminder, {'attr': {'class': 'form-check-input', 'role': 'switch'}}) }}
+                                    <label class="form-check-label">Send me a reminder</label>
+                                </div>
+                                {{ form_errors(form.reminder) }}
+                            </div>
+
+                            <div class="col-12">
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <strong>Study Tips:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Sessions longer than 90 minutes may increase burnout risk</li>
+                                        <li>Take breaks every 25-30 minutes</li>
+                                        <li>Choose a quiet environment for better focus</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {{ form_rest(form) }}
+
+                            <div class="col-12 d-flex justify-content-between">
+                                <a href="{{ path('course_show', {id: course.id}) }}" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Back to Course
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-calendar-check"></i> Plan Session
+                                </button>
+                            </div>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
