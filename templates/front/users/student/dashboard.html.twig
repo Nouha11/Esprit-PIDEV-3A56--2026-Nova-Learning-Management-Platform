@@ -102,15 +102,15 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Games Won Counter -->
+                        <!-- Level Counter -->
                         <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
                             <div class="d-flex justify-content-center align-items-center p-4 bg-purple bg-opacity-15 rounded-3">
-                                <span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-trophy fa-fw"></i></span>
+                                <span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-star fa-fw"></i></span>
                                 <div class="ms-4">
                                     <div class="d-flex">
-                                        <h5 class="mb-0 fw-bold">{{ gameStats.totalGamesWon ?? 0 }}</h5>
+                                        <h5 class="mb-0 fw-bold">{{ student.level }}</h5>
                                     </div>
-                                    <p class="mb-0 h6 fw-light">Games Won</p>
+                                    <p class="mb-0 h6 fw-light">Current Level</p>
                                 </div>
                             </div>
                         </div>
@@ -140,98 +140,23 @@
                     </div>
                     <!-- Progress Card END -->
 
-                    <!-- Recent Game Activity START -->
+                    <!-- Quick Actions START -->
                     <div class="card bg-transparent border rounded-3 mb-4">
                         <div class="card-header bg-transparent border-bottom">
-                            <div class="d-sm-flex justify-content-between align-items-center">
-                                <h3 class="mb-2 mb-sm-0">Recent Game Activity</h3>
-                                <a href="{{ path('front_game_index') }}" class="btn btn-sm btn-primary-soft mb-0">View All Games</a>
-                            </div>
+                            <h3 class="mb-0">Quick Actions</h3>
                         </div>
                         <div class="card-body">
-                            {% if recentProgress is not empty %}
-                                <!-- Table START -->
-                                <div class="table-responsive border-0">
-                                    <table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col" class="border-0 rounded-start">Game</th>
-                                                <th scope="col" class="border-0">Played</th>
-                                                <th scope="col" class="border-0">Won</th>
-                                                <th scope="col" class="border-0">Win Rate</th>
-                                                <th scope="col" class="border-0 rounded-end">XP Earned</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for progress in recentProgress %}
-                                                <tr>
-                                                    <td>
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="avatar avatar-md flex-shrink-0">
-                                                                <div class="avatar-img rounded bg-primary bg-opacity-10 text-primary">
-                                                                    <i class="fas fa-gamepad"></i>
-                                                                </div>
-                                                            </div>
-                                                            <div class="ms-2">
-                                                                <h6 class="mb-0">
-                                                                    <a href="{{ path('front_game_show', {id: progress.game.id}) }}">
-                                                                        {{ progress.game.name }}
-                                                                    </a>
-                                                                </h6>
-                                                                <small class="text-muted">{{ progress.game.type }}</small>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>{{ progress.timesPlayed }}</td>
-                                                    <td>{{ progress.timesWon }}</td>
-                                                    <td>
-                                                        <span class="badge bg-success bg-opacity-10 text-success">
-                                                            {{ progress.winRate }}%
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge bg-warning bg-opacity-10 text-warning">
-                                                            +{{ progress.totalXPEarned }} XP
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <!-- Table END -->
-                            {% else %}
-                                <div class="text-center py-5">
-                                    <i class="bi bi-controller display-4 text-muted mb-3"></i>
-                                    <p class="text-muted">No games played yet. Start playing to see your activity!</p>
-                                    <a href="{{ path('front_game_index') }}" class="btn btn-primary">Browse Games</a>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <!-- Recent Game Activity END -->
-
-                    <!-- Rewards Summary START -->
-                    <div class="card bg-transparent border rounded-3">
-                        <div class="card-header bg-transparent border-bottom">
-                            <div class="d-sm-flex justify-content-between align-items-center">
-                                <h3 class="mb-2 mb-sm-0">My Rewards</h3>
-                                {% if unviewedRewards > 0 %}
-                                    <span class="badge bg-danger">{{ unviewedRewards }} New</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-center py-4">
-                                <i class="bi bi-trophy-fill display-4 text-warning mb-3"></i>
-                                <p class="mb-3">Check out your earned rewards and badges!</p>
-                                <a href="{{ path('front_reward_my_rewards') }}" class="btn btn-warning-soft mb-0">
-                                    <i class="bi bi-trophy me-2"></i>View My Rewards
+                            <div class="d-grid gap-3">
+                                <a href="{{ path('front_game_index') }}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-controller me-2"></i>Play Games
+                                </a>
+                                <a href="{{ path('front_reward_browse') }}" class="btn btn-info btn-lg">
+                                    <i class="bi bi-gift me-2"></i>Browse Rewards
                                 </a>
                             </div>
                         </div>
                     </div>
-                    <!-- Rewards Summary END -->
+                    <!-- Quick Actions END -->
 
                 {% else %}
                     <!-- No Profile Message -->

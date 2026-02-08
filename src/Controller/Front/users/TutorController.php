@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class TutorController extends AbstractController
 {
     #[Route('/profile', name: 'app_tutor_profile', methods: ['GET'])]
-    public function profile(TutorProfileRepository $tutorRepository): Response
+    public function profile(): Response
     {
         $user = $this->getUser();
         
@@ -22,9 +22,7 @@ final class TutorController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Find tutor profile by user ID or create logic to link
-        $tutors = $tutorRepository->findAll();
-        $tutor = !empty($tutors) ? $tutors[0] : null;
+        $tutor = $user->getTutorProfile();
 
         return $this->render('front/users/tutor/index.html.twig', [
             'tutor' => $tutor,
@@ -32,7 +30,7 @@ final class TutorController extends AbstractController
     }
 
     #[Route('/profile/edit', name: 'app_tutor_profile_edit', methods: ['GET', 'POST'])]
-    public function editProfile(Request $request, EntityManagerInterface $entityManager, TutorProfileRepository $tutorRepository): Response
+    public function editProfile(Request $request, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         
@@ -40,9 +38,12 @@ final class TutorController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Find or create tutor profile
-        $tutors = $tutorRepository->findAll();
-        $tutor = !empty($tutors) ? $tutors[0] : new TutorProfile();
+        $tutor = $user->getTutorProfile();
+
+        if (!$tutor) {
+            $this->addFlash('error', 'Tutor profile not found');
+            return $this->redirectToRoute('app_home');
+        }
 
         if ($request->isMethod('POST')) {
             $tutor->setFirstName($request->request->get('firstName'));
@@ -53,10 +54,6 @@ final class TutorController extends AbstractController
             $tutor->setYearsOfExperience((int)$request->request->get('yearsOfExperience'));
             $tutor->setHourlyRate($request->request->get('hourlyRate'));
             $tutor->setIsAvailable($request->request->get('isAvailable') === '1');
-
-            if ($tutor->getId() === null) {
-                $entityManager->persist($tutor);
-            }
             
             $entityManager->flush();
 
@@ -70,7 +67,7 @@ final class TutorController extends AbstractController
     }
 
     #[Route('/dashboard', name: 'app_tutor_dashboard', methods: ['GET'])]
-    public function dashboard(TutorProfileRepository $tutorRepository): Response
+    public function dashboard(): Response
     {
         $user = $this->getUser();
         
@@ -78,12 +75,10 @@ final class TutorController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $tutors = $tutorRepository->findAll();
-        $tutor = !empty($tutors) ? $tutors[0] : null;
+        $tutor = $user->getTutorProfile();
 
         return $this->render('front/users/tutor/dashboard.html.twig', [
             'tutor' => $tutor,
-            'user' => $user,
         ]);
     }
 
@@ -102,7 +97,7 @@ final class TutorController extends AbstractController
     }
 
     #[Route('/availability', name: 'app_tutor_availability', methods: ['GET', 'POST'])]
-    public function availability(Request $request, EntityManagerInterface $entityManager, TutorProfileRepository $tutorRepository): Response
+    public function availability(Request $request, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         
@@ -110,8 +105,7 @@ final class TutorController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $tutors = $tutorRepository->findAll();
-        $tutor = !empty($tutors) ? $tutors[0] : null;
+        $tutor = $user->getTutorProfile();
 
         if ($request->isMethod('POST') && $tutor) {
             $tutor->setIsAvailable($request->request->get('isAvailable') === '1');

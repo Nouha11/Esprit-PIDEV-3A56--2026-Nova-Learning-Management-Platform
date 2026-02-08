@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SecurityController extends AbstractController
 {
@@ -54,46 +55,83 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/signup/student', name: 'app_signup_student', methods: ['GET', 'POST'])]
-    public function signupStudent(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function signupStudent(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        UserPasswordHasherInterface $passwordHasher,
+        ValidatorInterface $validator,
+        UserRepository $userRepository
+    ): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
         }
 
         if ($request->isMethod('POST')) {
+            $username = $request->request->get('username');
+            $email = $request->request->get('email');
+
+            // Check if username already exists
+            $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
+            if ($existingUserByUsername) {
+                $this->addFlash('error', 'This username is already taken. Please choose another one.');
+                return $this->render('security/signup_student.html.twig', [
+                    'formData' => $request->request->all()
+                ]);
+            }
+
+            // Check if email already exists
+            $existingUserByEmail = $userRepository->findOneBy(['email' => $email]);
+            if ($existingUserByEmail) {
+                $this->addFlash('error', 'This email is already registered. Please use another email or login.');
+                return $this->render('security/signup_student.html.twig', [
+                    'formData' => $request->request->all()
+                ]);
+            }
+
             // Create User
             $user = new User();
-            $user->setUsername($request->request->get('username'));
-            $user->setEmail($request->request->get('email'));
+            $user->setUsername($username);
+            $user->setEmail($email);
             
-            // Hash password using Symfony's password hasher
+            // Hash password
             $plaintextPassword = $request->request->get('password');
             $hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
             $user->setPassword($hashedPassword);
             
             $user->setRole('ROLE_STUDENT');
             $user->setIsActive(true);
-
-            // Create Student Profile
-            $studentProfile = new StudentProfile();
-            $studentProfile->setFirstName($request->request->get('firstName'));
-            $studentProfile->setLastName($request->request->get('lastName'));
-            $studentProfile->setUniversity($request->request->get('university'));
-            $studentProfile->setMajor($request->request->get('major'));
-            $studentProfile->setAcademicLevel($request->request->get('academicLevel'));
+            
+            // Create StudentProfile
+            $student = new StudentProfile();
+            $student->setFirstName($request->request->get('firstName'));
+            $student->setLastName($request->request->get('lastName'));
+            $student->setUniversity($request->request->get('university'));
+            $student->setMajor($request->request->get('major'));
+            $student->setAcademicLevel($request->request->get('academicLevel'));
 
             // Link profile to user
-            $user->setStudentProfile($studentProfile);
+            $user->setStudentProfile($student);
+
+            // Validate the user entity
+            $errors = $validator->validate($user);
+            if (count($errors) > 0) {
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error->getMessage());
+                }
+                return $this->render('security/signup_student.html.twig', [
+                    'formData' => $request->request->all()
+                ]);
+            }
 
             try {
-                $entityManager->persist($studentProfile);
                 $entityManager->persist($user);
                 $entityManager->flush();
 
                 $this->addFlash('success', 'Student account created successfully! Please login.');
                 return $this->redirectToRoute('app_login');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'An error occurred: ' . $e->getMessage());
+                $this->addFlash('error', 'An error occurred while creating your account. Please try again.');
             }
         }
 
@@ -101,53 +139,90 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/signup/tutor', name: 'app_signup_tutor', methods: ['GET', 'POST'])]
-    public function signupTutor(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function signupTutor(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        UserPasswordHasherInterface $passwordHasher,
+        ValidatorInterface $validator,
+        UserRepository $userRepository
+    ): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
         }
 
         if ($request->isMethod('POST')) {
+            $username = $request->request->get('username');
+            $email = $request->request->get('email');
+
+            // Check if username already exists
+            $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
+            if ($existingUserByUsername) {
+                $this->addFlash('error', 'This username is already taken. Please choose another one.');
+                return $this->render('security/signup_tutor.html.twig', [
+                    'formData' => $request->request->all()
+                ]);
+            }
+
+            // Check if email already exists
+            $existingUserByEmail = $userRepository->findOneBy(['email' => $email]);
+            if ($existingUserByEmail) {
+                $this->addFlash('error', 'This email is already registered. Please use another email or login.');
+                return $this->render('security/signup_tutor.html.twig', [
+                    'formData' => $request->request->all()
+                ]);
+            }
+
             // Create User
             $user = new User();
-            $user->setUsername($request->request->get('username'));
-            $user->setEmail($request->request->get('email'));
+            $user->setUsername($username);
+            $user->setEmail($email);
             
-            // Hash password using Symfony's password hasher
+            // Hash password
             $plaintextPassword = $request->request->get('password');
             $hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
             $user->setPassword($hashedPassword);
             
             $user->setRole('ROLE_TUTOR');
             $user->setIsActive(true);
-
-            // Create Tutor Profile
-            $tutorProfile = new TutorProfile();
-            $tutorProfile->setFirstName($request->request->get('firstName'));
-            $tutorProfile->setLastName($request->request->get('lastName'));
             
-            // Convert expertise string to array (split by comma or newline)
+            // Create TutorProfile
+            $tutor = new TutorProfile();
+            $tutor->setFirstName($request->request->get('firstName'));
+            $tutor->setLastName($request->request->get('lastName'));
+            
+            // Convert expertise string to array
             $expertiseString = $request->request->get('expertise');
             $expertiseArray = array_filter(array_map('trim', preg_split('/[,\n]+/', $expertiseString)));
-            $tutorProfile->setExpertise($expertiseArray);
+            $tutor->setExpertise($expertiseArray);
             
-            $tutorProfile->setQualifications($request->request->get('qualifications'));
-            $tutorProfile->setYearsOfExperience((int)$request->request->get('yearsOfExperience'));
-            $tutorProfile->setHourlyRate($request->request->get('hourlyRate'));
-            $tutorProfile->setIsAvailable(true);
+            $tutor->setQualifications($request->request->get('qualifications'));
+            $tutor->setYearsOfExperience((int)$request->request->get('yearsOfExperience'));
+            $tutor->setHourlyRate($request->request->get('hourlyRate'));
+            $tutor->setIsAvailable(true);
 
             // Link profile to user
-            $user->setTutorProfile($tutorProfile);
+            $user->setTutorProfile($tutor);
+
+            // Validate the user entity
+            $errors = $validator->validate($user);
+            if (count($errors) > 0) {
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error->getMessage());
+                }
+                return $this->render('security/signup_tutor.html.twig', [
+                    'formData' => $request->request->all()
+                ]);
+            }
 
             try {
-                $entityManager->persist($tutorProfile);
                 $entityManager->persist($user);
                 $entityManager->flush();
 
                 $this->addFlash('success', 'Tutor account created successfully! Please login.');
                 return $this->redirectToRoute('app_login');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'An error occurred: ' . $e->getMessage());
+                $this->addFlash('error', 'An error occurred while creating your account. Please try again.');
             }
         }
 
