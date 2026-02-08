@@ -1,0 +1,52 @@
+{% extends 'base_content.html.twig' %}
+
+{% block title %}Quiz Mode{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary"><i class="bi bi-joystick"></i> Quiz Mode</h1>
+        <p class="lead text-muted">Test your skills, earn XP, and climb the leaderboard!</p>
+    </div>
+
+    <div class="row">
+        {% for quiz in quizzes %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0 hover-effect">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-trophy-fill text-warning display-4"></i>
+                        </div>
+                        <h3 class="h5 fw-bold">{{ quiz.title }}</h3>
+                        <p class="text-muted small">{{ quiz.description|slice(0, 100) }}...</p>
+                        
+                        <div class="d-flex justify-content-center gap-2 mt-3">
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-question-circle"></i> {{ quiz.questions|length }} Qs
+                            </span>
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-lightning-fill text-warning"></i> XP
+                            </span>
+                        </div>
+                        
+                        {# 👇 This button starts the game for THIS quiz #}
+                        <a href="{{ path('app_quiz_play', {'id': quiz.id}) }}" class="btn btn-primary w-100 mt-4 rounded-pill">
+                            Play Now <i class="bi bi-play-fill"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-emoji-frown display-1 text-muted"></i>
+                <p class="mt-3 text-muted">No quizzes available right now. Check back later!</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .hover-effect { transition: transform 0.2s; }
+    .hover-effect:hover { transform: translateY(-5px); }
+</style>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base_content.html.twig' %}
+
+{% block title %}Playing Quiz{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            {# 1. Game Header (XP and Progress) #}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill">
+                    <i class="bi bi-lightning-fill"></i> +{{ question.xpValue }} XP
+                </span>
+                <span class="text-muted small fw-bold text-uppercase">
+                    Difficulty: {{ question.difficulty }}
+                </span>
+            </div>
+
+            {# 2. The Question Card #}
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-body p-5 text-center bg-light">
+                    <h2 class="display-6 fw-bold mb-4">{{ question.text }}</h2>
+                </div>
+            </div>
+
+            {# 3. The Answer Form #}
+            <form method="POST" class="mt-4">
+                <div class="row g-3">
+                    {% for choice in question.choices %}
+                        <div class="col-md-6">
+                            <input type="radio" class="btn-check" name="answer" id="choice_{{ choice.id }}" value="{{ choice.id }}" required>
+                            <label class="btn btn-outline-primary w-100 p-4 h-100 d-flex align-items-center justify-content-center rounded-3 shadow-sm choice-card" for="choice_{{ choice.id }}">
+                                <span class="fs-5">{{ choice.content }}</span>
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-grid mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill py-3 fw-bold shadow-sm">
+                        Submit Answer <i class="bi bi-arrow-right-circle ms-2"></i>
+                    </button>
+                </div>
+            </form>
+
+            {# quit button #}
+            <div class="text-center mt-4">
+                <a href="{{ path('app_quiz_restart') }}" class="text-muted text-decoration-none small" onclick="return confirm('Quit game? Progress will be lost.')">
+                    <i class="bi bi-x-circle"></i> Quit Game
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Make the radio buttons look like cool cards */
+    .choice-card {
+        transition: all 0.2s ease;
+        border-width: 2px;
+    }
+    .btn-check:checked + .choice-card {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+        transform: translateY(-3px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .choice-card:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
