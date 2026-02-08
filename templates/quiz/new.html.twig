@@ -1,0 +1,47 @@
+{% extends 'base_content.html.twig' %}
+
+{% block title %}Create New Quiz{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            
+            <div class="text-center mb-4">
+                <h1 class="h3 mb-1">Create a New Quiz</h1>
+                <p class="text-muted">Give your new challenge a name to get started.</p>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    {{ form_start(form) }}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Quiz Title</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-fonts"></i></span>
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control border-start-0', 'placeholder': 'e.g. Introduction to PHP'}}) }}
+                            </div>
+                            <div class="form-text text-danger">{{ form_errors(form.title) }}</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Description (Optional)</label>
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '3', 'placeholder': 'What is this quiz about?'}}) }}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                Create Quiz <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                            <a href="{{ path('app_quiz_index') }}" class="btn btn-light text-muted">Cancel</a>
+                        </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
