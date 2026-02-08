@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Edit Course - Eduport LMS</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+	<link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+	<link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path('app_home') }}">
+				<img src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+			</a>
+
+			<div class="navbar-collapse collapse">
+				<ul class="navbar-nav mx-auto">
+					<li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}">Home</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{ path('course_index') }}">Courses</a></li>
+					{% if is_granted('ROLE_TUTOR') %}
+						<li class="nav-item"><a class="nav-link" href="{{ path('course_new') }}">Create Course</a></li>
+					{% endif %}
+				</ul>
+			</div>
+
+			{% if app.user %}
+				<a href="{{ path('app_logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
+			{% else %}
+				<a href="{{ path('app_login') }}" class="btn btn-sm btn-primary">Login</a>
+			{% endif %}
+		</div>
+	</nav>
+</header>
+
+<main>
+
+<!-- Page Header -->
+<section class="bg-warning bg-opacity-10 py-5">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="mb-0">
+					<i class="bi bi-pencil-square me-2"></i>Edit Course
+				</h1>
+				<p class="mb-0 mt-2">Update the course information below</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Form Section -->
+<section class="py-5">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8 mx-auto">
+				
+				<!-- Flash Messages -->
+				{% for label, messages in app.flashes %}
+					{% for message in messages %}
+						<div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+							{{ message }}
+							<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+						</div>
+					{% endfor %}
+				{% endfor %}
+
+				<div class="card shadow">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Course Information</h5>
+					</div>
+					<div class="card-body">
+						{{ form_start(form) }}
+							
+							<div class="mb-3">
+								{{ form_label(form.courseName, 'Course Name', {'label_attr': {'class': 'form-label'}}) }}
+								{{ form_widget(form.courseName, {'attr': {'class': 'form-control', 'placeholder': 'Enter course name'}}) }}
+								{{ form_errors(form.courseName) }}
+							</div>
+
+							<div class="mb-3">
+								{{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+								{{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Describe your course...'}}) }}
+								{{ form_errors(form.description) }}
+							</div>
+
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									{{ form_label(form.category, 'Category', {'label_attr': {'class': 'form-label'}}) }}
+									{{ form_widget(form.category, {'attr': {'class': 'form-control', 'placeholder': 'e.g., Programming'}}) }}
+									{{ form_errors(form.category) }}
+								</div>
+
+								<div class="col-md-6 mb-3">
+									{{ form_label(form.difficulty, 'Difficulty Level', {'label_attr': {'class': 'form-label'}}) }}
+									{{ form_widget(form.difficulty, {'attr': {'class': 'form-select'}}) }}
+									{{ form_errors(form.difficulty) }}
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									{{ form_label(form.estimatedDuration, 'Estimated Duration (minutes)', {'label_attr': {'class': 'form-label'}}) }}
+									{{ form_widget(form.estimatedDuration, {'attr': {'class': 'form-control', 'placeholder': '60'}}) }}
+									{{ form_errors(form.estimatedDuration) }}
+								</div>
+
+								<div class="col-md-6 mb-3">
+									{{ form_label(form.maxStudents, 'Maximum Students', {'label_attr': {'class': 'form-label'}}) }}
+									{{ form_widget(form.maxStudents, {'attr': {'class': 'form-control', 'placeholder': 'Leave empty for unlimited'}}) }}
+									{{ form_errors(form.maxStudents) }}
+								</div>
+							</div>
+
+							<div class="mb-3">
+								<div class="form-check">
+									{{ form_widget(form.isPublished, {'attr': {'class': 'form-check-input'}}) }}
+									{{ form_label(form.isPublished, 'Publish this course', {'label_attr': {'class': 'form-check-label'}}) }}
+								</div>
+							</div>
+
+							<div class="d-flex justify-content-between mt-4">
+								<a href="{{ path('course_index') }}" class="btn btn-secondary">
+									<i class="bi bi-arrow-left me-2"></i>Cancel
+								</a>
+								<button type="submit" class="btn btn-warning">
+									<i class="bi bi-check-circle me-2"></i>Update Course
+								</button>
+							</div>
+
+						{{ form_end(form) }}
+					</div>
+				</div>
+
+				<!-- Danger Zone -->
+				<div class="card shadow border-danger mt-4">
+					<div class="card-header bg-danger text-white">
+						<h5 class="mb-0">
+							<i class="bi bi-exclamation-triangle me-2"></i>Danger Zone
+						</h5>
+					</div>
+					<div class="card-body">
+						<p class="text-muted mb-3">
+							Once you delete a course, there is no going back. Please be certain.
+						</p>
+						<a href="{{ path('course_delete', {id: form.vars.data.id}) }}" 
+						   class="btn btn-danger"
+						   onclick="return confirm('Are you sure you want to delete this course? This action cannot be undone.')">
+							<i class="bi bi-trash me-2"></i>Delete This Course
+						</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</section>
+
+</main>
+
+<footer class="bg-light p-4 text-center">
+	<p class="mb-0">© 2024 Eduport</p>
+</footer>
+
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+
+</body>
+</html>
