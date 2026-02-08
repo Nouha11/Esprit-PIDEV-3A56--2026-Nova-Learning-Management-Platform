@@ -1,0 +1,66 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Course{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Edit Course: {{ course.courseName }}</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            {{ form_start(form) }}
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form_row(form.courseName) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.category) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        {{ form_row(form.description) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_row(form.difficulty) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.status) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.isPublished) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_row(form.estimatedDuration) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.progress) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.maxStudents) }}
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update Course
+                    </button>
+                    <a href="{{ path('admin_course_index') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <a href="{{ path('admin_course_show', {id: course.id}) }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

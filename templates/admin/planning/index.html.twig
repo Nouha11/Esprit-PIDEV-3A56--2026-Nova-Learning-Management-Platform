@@ -1,0 +1,115 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Manage Planning Sessions{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Planning Sessions Management</h1>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{{ path('admin_planning_index') }}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Status</label>
+                        <select name="status" class="form-control">
+                            <option value="">All Statuses</option>
+                            <option value="SCHEDULED" {% if current_status == 'SCHEDULED' %}selected{% endif %}>Scheduled</option>
+                            <option value="COMPLETED" {% if current_status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                            <option value="MISSED" {% if current_status == 'MISSED' %}selected{% endif %}>Missed</option>
+                            <option value="CANCELLED" {% if current_status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Date From</label>
+                        <input type="date" name="dateFrom" class="form-control" value="{{ date_from ? date_from|date('Y-m-d') : '' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Date To</label>
+                        <input type="date" name="dateTo" class="form-control" value="{{ date_to ? date_to|date('Y-m-d') : '' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary form-control">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Planning Sessions Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">All Planning Sessions</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Course</th>
+                            <th>Scheduled Date</th>
+                            <th>Scheduled Time</th>
+                            <th>Duration (min)</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for planning in plannings %}
+                            <tr>
+                                <td>{{ planning.id }}</td>
+                                <td>{{ planning.title }}</td>
+                                <td>{{ planning.course.courseName }}</td>
+                                <td>{{ planning.scheduledDate|date('Y-m-d') }}</td>
+                                <td>{{ planning.scheduledTime|date('H:i') }}</td>
+                                <td>{{ planning.plannedDuration }}</td>
+                                <td>
+                                    {% if planning.status == 'COMPLETED' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elseif planning.status == 'SCHEDULED' %}
+                                        <span class="badge bg-primary">Scheduled</span>
+                                    {% elseif planning.status == 'MISSED' %}
+                                        <span class="badge bg-danger">Missed</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ path('admin_planning_show', {id: planning.id}) }}" class="btn btn-sm btn-info" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('admin_planning_edit_status', {id: planning.id}) }}" class="btn btn-sm btn-warning" title="Edit Status">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    
+                                    {% if planning.status != 'CANCELLED' %}
+                                        <form method="post" action="{{ path('admin_planning_cancel', {id: planning.id}) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this planning session?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ planning.id) }}">
+                                            <button class="btn btn-sm btn-danger" title="Cancel">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">No planning sessions found</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

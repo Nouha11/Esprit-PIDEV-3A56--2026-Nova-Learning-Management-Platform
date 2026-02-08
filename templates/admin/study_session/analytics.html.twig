@@ -1,0 +1,196 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Study Session Analytics{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Study Session Analytics</h1>
+        <a href="{{ path('admin_study_session_index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Sessions
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Analytics Filters</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{{ path('admin_study_session_analytics') }}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Date From</label>
+                        <input type="date" name="dateFrom" class="form-control" value="{{ date_from ? date_from|date('Y-m-d') : '' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Date To</label>
+                        <input type="date" name="dateTo" class="form-control" value="{{ date_to ? date_to|date('Y-m-d') : '' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Group By</label>
+                        <select name="groupBy" class="form-control">
+                            <option value="">None</option>
+                            <option value="course" {% if group_by == 'course' %}selected{% endif %}>Course</option>
+                            <option value="user" {% if group_by == 'user' %}selected{% endif %}>User</option>
+                            <option value="date" {% if group_by == 'date' %}selected{% endif %}>Date</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary form-control">
+                            <i class="fas fa-chart-bar"></i> Generate
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Sessions</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ analytics.total_sessions }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Average Duration</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ analytics.average_duration }} min</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total XP Earned</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ analytics.total_xp }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">High Risk Sessions</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ analytics.burnout_distribution.HIGH }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Burnout Risk Distribution -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Burnout Risk Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Risk Level</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-success">Low</span></td>
+                                <td>{{ analytics.burnout_distribution.LOW }}</td>
+                                <td>{{ analytics.total_sessions > 0 ? ((analytics.burnout_distribution.LOW / analytics.total_sessions) * 100)|round(2) : 0 }}%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning">Moderate</span></td>
+                                <td>{{ analytics.burnout_distribution.MODERATE }}</td>
+                                <td>{{ analytics.total_sessions > 0 ? ((analytics.burnout_distribution.MODERATE / analytics.total_sessions) * 100)|round(2) : 0 }}%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">High</span></td>
+                                <td>{{ analytics.burnout_distribution.HIGH }}</td>
+                                <td>{{ analytics.total_sessions > 0 ? ((analytics.burnout_distribution.HIGH / analytics.total_sessions) * 100)|round(2) : 0 }}%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if analytics.grouped_data is defined and analytics.grouped_data|length > 0 %}
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Grouped Statistics ({{ group_by|capitalize }})</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>{{ group_by|capitalize }}</th>
+                                    <th>Sessions</th>
+                                    <th>Avg Duration</th>
+                                    <th>Total XP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in analytics.grouped_data %}
+                                    <tr>
+                                        <td>
+                                            {% if group_by == 'course' %}
+                                                {{ item.course_name ?? 'N/A' }}
+                                            {% elseif group_by == 'user' %}
+                                                User #{{ item.user_id }}
+                                            {% else %}
+                                                {{ item.session_date|date('Y-m-d') }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ item.session_count }}</td>
+                                        <td>{{ item.avg_duration|round(2) }} min</td>
+                                        <td>{{ item.total_xp }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

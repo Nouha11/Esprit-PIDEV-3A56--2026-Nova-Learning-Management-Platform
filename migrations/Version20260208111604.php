@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260207232238 extends AbstractMigration
+final class Version20260208111604 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -23,8 +23,6 @@ final class Version20260207232238 extends AbstractMigration
         $this->addSql('ALTER TABLE course CHANGE description description VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE libraries CHANGE address address VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE loans CHANGE end_at end_at DATETIME DEFAULT NULL');
-        $this->addSql('ALTER TABLE question ADD CONSTRAINT FK_B6F7494E853CD175 FOREIGN KEY (quiz_id) REFERENCES quiz (id)');
-        $this->addSql('CREATE INDEX IDX_B6F7494E853CD175 ON question (quiz_id)');
         $this->addSql('ALTER TABLE reward CHANGE icon icon VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE student_game_progress CHANGE last_played_at last_played_at DATETIME DEFAULT NULL');
         $this->addSql('ALTER TABLE student_profile CHANGE university university VARCHAR(100) DEFAULT NULL, CHANGE major major VARCHAR(100) DEFAULT NULL, CHANGE academic_level academic_level VARCHAR(50) DEFAULT NULL, CHANGE profile_picture profile_picture VARCHAR(255) DEFAULT NULL, CHANGE interests interests JSON DEFAULT NULL');
@@ -40,8 +38,6 @@ final class Version20260207232238 extends AbstractMigration
         $this->addSql('ALTER TABLE libraries CHANGE address address VARCHAR(255) DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE loans CHANGE end_at end_at DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE messenger_messages CHANGE delivered_at delivered_at DATETIME DEFAULT \'NULL\'');
-        $this->addSql('ALTER TABLE question DROP FOREIGN KEY FK_B6F7494E853CD175');
-        $this->addSql('DROP INDEX IDX_B6F7494E853CD175 ON question');
         $this->addSql('ALTER TABLE reward CHANGE icon icon VARCHAR(255) DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE student_game_progress CHANGE last_played_at last_played_at DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE student_profile CHANGE university university VARCHAR(100) DEFAULT \'NULL\', CHANGE major major VARCHAR(100) DEFAULT \'NULL\', CHANGE academic_level academic_level VARCHAR(50) DEFAULT \'NULL\', CHANGE profile_picture profile_picture VARCHAR(255) DEFAULT \'NULL\', CHANGE interests interests LONGTEXT DEFAULT NULL COLLATE `utf8mb4_bin`');

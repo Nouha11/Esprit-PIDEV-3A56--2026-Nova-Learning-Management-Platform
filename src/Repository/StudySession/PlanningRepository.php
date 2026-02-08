@@ -16,28 +16,38 @@ class PlanningRepository extends ServiceEntityRepository
         parent::__construct($registry, Planning::class);
     }
 
-    //    /**
-    //     * @return Planning[] Returns an array of Planning objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Find planning sessions by status, date range filters
+     *
+     * @param string|null $status
+     * @param \DateTimeImmutable|null $dateFrom
+     * @param \DateTimeImmutable|null $dateTo
+     * @return Planning[]
+     */
+    public function findByFilters(?string $status = null, ?\DateTimeImmutable $dateFrom = null, ?\DateTimeImmutable $dateTo = null): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->leftJoin('p.course', 'c')
+            ->addSelect('c');
 
-    //    public function findOneBySomeField($value): ?Planning
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($status) {
+            $qb->andWhere('p.status = :status')
+               ->setParameter('status', $status);
+        }
+
+        if ($dateFrom) {
+            $qb->andWhere('p.scheduledDate >= :dateFrom')
+               ->setParameter('dateFrom', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $qb->andWhere('p.scheduledDate <= :dateTo')
+               ->setParameter('dateTo', $dateTo);
+        }
+
+        $qb->orderBy('p.scheduledDate', 'DESC')
+           ->addOrderBy('p.scheduledTime', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
 }
