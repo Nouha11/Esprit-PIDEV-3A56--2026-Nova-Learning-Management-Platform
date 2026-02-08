@@ -22,8 +22,8 @@ class PurchaseType extends AbstractType
                 'expanded' => false,
                 'label' => 'Payment Method',
                 'attr' => ['class' => 'form-select'],
-            ])
-            ->add('save', SubmitType::class, ['label' => 'Complete Purchase']);
+            ]);
+            //->add('save', SubmitType::class, ['label' => 'Complete Purchase']);
     }
 
     public function configureOptions(OptionsResolver $resolver)

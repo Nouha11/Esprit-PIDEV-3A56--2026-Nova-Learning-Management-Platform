@@ -1,223 +1,218 @@
+{% extends 'base.html.twig' %}
 
 {% block title %}Purchase {{ book.title }}{% endblock %}
 
-{% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-{% endblock %}
+{% block body %}
 
-{% block front_content %}
-<!-- =======================
-Page Banner START -->
-<section class="py-4 bg-primary bg-opacity-10">
+<!-- Main Content START -->
+<main>
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="h3 mb-0">Purchase Digital Book</h1>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb breadcrumb-dots mb-0">
-                                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
-                                <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Purchase</li>
-                            </ol>
-                        </nav>
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mt-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        {% block front_content %}
+        <!-- =======================
+        Page Banner START -->
+        <section class="bg-primary bg-opacity-10 py-5 mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">Purchase Digital Book</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Purchase</li>
+                                </ol>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-<!-- =======================
-Page Banner END -->
+        </section>
+        <!-- =======================
+        Page Banner END -->
 
-<!-- =======================
-Page content START -->
-<section class="pt-5 pb-5">
-    <div class="container">
-        <div class="row g-4 g-lg-5">
-            <!-- Main content START -->
-            <div class="col-lg-8">
-                <!-- Card START -->
-                <div class="card shadow rounded-3">
-                    <div class="card-header border-bottom">
-                        <h4 class="mb-0">Complete Your Purchase</h4>
-                    </div>
-                    
-                    <div class="card-body p-4">
-                        <!-- Book Info -->
-                        <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
-                            <div class="flex-shrink-0">
-                                {% if book.coverImage %}
-                                    <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
-                                {% else %}
-                                    <img src="{{ asset('assets/images/book/01.jpg') }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
-                                {% endif %}
-                            </div>
-                            <div class="ms-3 flex-grow-1">
-                                <h5 class="mb-1">{{ book.title }}</h5>
-                                <p class="mb-2 text-muted">
-                                    <i class="bi bi-person-circle me-1"></i>{{ book.author ?? 'Unknown Author' }}
-                                </p>
-                                <span class="badge bg-success bg-opacity-10 text-success">Digital Book (PDF)</span>
-                            </div>
+        <!-- =======================
+        Page content START -->
+        <section class="py-5">
+            <div class="row g-4 g-lg-5">
+                <!-- Main content START -->
+                <div class="col-lg-8">
+                    <!-- Card START -->
+                    <div class="card shadow rounded-3">
+                        <div class="card-header border-bottom">
+                            <h4 class="mb-0">Complete Your Purchase</h4>
                         </div>
+                        
+                        <div class="card-body p-4">
+                            <!-- Book Info -->
+                            <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
+                                <div class="flex-shrink-0">
+                                    {% if book.coverImage %}
+                                        <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
+                                    {% else %}
+                                        <img src="{{ asset('assets/images/book/01.jpg') }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
+                                    {% endif %}
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h5 class="mb-1">{{ book.title }}</h5>
+                                    <p class="mb-2 text-muted">
+                                        <i class="bi bi-person-circle me-1"></i>{{ book.author ?? 'Unknown Author' }}
+                                    </p>
+                                    <span class="badge bg-success bg-opacity-10 text-success">Digital Book (PDF)</span>
+                                </div>
+                            </div>
 
-                        <!-- Payment Form -->
-                        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
-                        
-                        <h5 class="mb-3">Select Payment Method</h5>
-                        
-                        <!-- Payment Method Selection -->
-                        <div class="mb-4">
-                            {{ form_widget(form.method, {'attr': {'class': 'd-none', 'id': 'paymentMethodInput'}}) }}
+                            <!-- Payment Form -->
+                            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
                             
-                            <div class="row g-3">
-                                <!-- Credit Card -->
-                                <div class="col-md-6">
-                                    <div class="payment-method-option border rounded-3 p-4 h-100 cursor-pointer" data-method="credit_card">
-                                        <div class="text-center">
-                                            <div class="icon-xl bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-3">
-                                                <i class="bi bi-credit-card fs-3"></i>
+                            <h5 class="mb-3">Select Payment Method</h5>
+                            
+                            <!-- Payment Method Selection -->
+                            <div class="mb-4">
+                                {{ form_widget(form.method, {'attr': {'class': 'd-none', 'id': 'paymentMethodInput'}}) }}
+                                
+                                <div class="row g-3">
+                                    <!-- Credit Card -->
+                                    <div class="col-md-6">
+                                        <div class="payment-method-option border rounded-3 p-4 h-100 cursor-pointer" data-method="credit_card">
+                                            <div class="text-center">
+                                                <div class="icon-xl bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-3">
+                                                    <i class="bi bi-credit-card fs-3"></i>
+                                                </div>
+                                                <h5 class="mb-2">Credit Card</h5>
+                                                <p class="mb-0 small text-muted">Visa, Mastercard, Amex</p>
                                             </div>
-                                            <h5 class="mb-2">Credit Card</h5>
-                                            <p class="mb-0 small text-muted">Visa, Mastercard, Amex</p>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- PayPal -->
-                                <div class="col-md-6">
-                                    <div class="payment-method-option border rounded-3 p-4 h-100 cursor-pointer" data-method="paypal">
-                                        <div class="text-center">
-                                            <div class="icon-xl bg-info bg-opacity-10 text-info rounded-circle mx-auto mb-3">
-                                                <i class="bi bi-paypal fs-3"></i>
+                                    <!-- PayPal -->
+                                    <div class="col-md-6">
+                                        <div class="payment-method-option border rounded-3 p-4 h-100 cursor-pointer" data-method="paypal">
+                                            <div class="text-center">
+                                                <div class="icon-xl bg-info bg-opacity-10 text-info rounded-circle mx-auto mb-3">
+                                                    <i class="bi bi-paypal fs-3"></i>
+                                                </div>
+                                                <h5 class="mb-2">PayPal</h5>
+                                                <p class="mb-0 small text-muted">Fast & Secure</p>
                                             </div>
-                                            <h5 class="mb-2">PayPal</h5>
-                                            <p class="mb-0 small text-muted">Fast & Secure</p>
                                         </div>
                                     </div>
                                 </div>
+                                {{ form_errors(form.method) }}
                             </div>
-                            {{ form_errors(form.method) }}
-                        </div>
 
-                        <!-- Terms and Conditions -->
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
-                            <label class="form-check-label" for="termsCheck">
-                                I agree to the <a href="#" class="text-primary">Terms and Conditions</a> and <a href="#" class="text-primary">Privacy Policy</a>
-                            </label>
-                        </div>
+                            <!-- Terms and Conditions -->
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                <label class="form-check-label" for="termsCheck">
+                                    I agree to the <a href="#" class="text-primary">Terms and Conditions</a> and <a href="#" class="text-primary">Privacy Policy</a>
+                                </label>
+                            </div>
 
-                        <!-- Submit Button -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="bi bi-lock-fill me-2"></i>Complete Purchase - ${{ book.price ?? '0.00' }}
-                            </button>
-                            <a href="{{ path('book_show', {'id': book.id}) }}" class="btn btn-light">
-                                <i class="bi bi-arrow-left me-2"></i>Cancel
-                            </a>
-                        </div>
+                            <!-- Submit Button -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="bi bi-lock-fill me-2"></i>Complete Purchase - ${{ book.price ?? '0.00' }}
+                                </button>
+                                <a href="{{ path('book_show', {'id': book.id}) }}" class="btn btn-light">
+                                    <i class="bi bi-arrow-left me-2"></i>Cancel
+                                </a>
+                            </div>
 
-                        {{ form_end(form) }}
-                    </div>
-                </div>
-                <!-- Card END -->
-
-                <!-- Security Info -->
-                <div class="alert alert-info mt-4" role="alert">
-                    <div class="d-flex">
-                        <div class="flex-shrink-0">
-                            <i class="bi bi-shield-check fs-3"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="alert-heading">Secure Payment</h6>
-                            <p class="mb-0">Your payment information is encrypted and secure. We never store your credit card details.</p>
+                            {{ form_end(form) }}
                         </div>
                     </div>
+                    <!-- Card END -->
+
+                    <!-- Security Info -->
+                    <div class="alert alert-info mt-4" role="alert">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-shield-check fs-3"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="alert-heading">Secure Payment</h6>
+                                <p class="mb-0">Your payment information is encrypted and secure. We never store your credit card details.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <!-- Main content END -->
+
+                <!-- Right sidebar START -->
+                <div class="col-lg-4">
+                    <!-- Order Summary START -->
+                    <div class="card shadow rounded-3 sticky-top" style="top: 100px;">
+                        <div class="card-header border-bottom">
+                            <h5 class="mb-0">Order Summary</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Item -->
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Book Price</span>
+                                <span class="fw-bold">${{ book.price ?? '0.00' }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tax (0%)</span>
+                                <span class="fw-bold">$0.00</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <h6 class="mb-0">Total</h6>
+                                <h5 class="mb-0 text-success">${{ book.price ?? '0.00' }}</h5>
+                            </div>
+
+                            <!-- Features -->
+                            <div class="bg-light rounded-3 p-3">
+                                <h6 class="mb-3">What you'll get:</h6>
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        Instant digital download
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        Lifetime access
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        Read on any device
+                                    </li>
+                                    <li class="mb-0">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        Money-back guarantee
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Order Summary END -->
+                </div>
+                <!-- Right sidebar END -->
             </div>
-            <!-- Main content END -->
-
-            <!-- Right sidebar START -->
-            <div class="col-lg-4">
-                <!-- Order Summary START -->
-                <div class="card shadow rounded-3 sticky-top" style="top: 100px;">
-                    <div class="card-header border-bottom">
-                        <h5 class="mb-0">Order Summary</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <!-- Item -->
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Book Price</span>
-                            <span class="fw-bold">${{ book.price ?? '0.00' }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Tax (0%)</span>
-                            <span class="fw-bold">$0.00</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-3">
-                            <h6 class="mb-0">Total</h6>
-                            <h5 class="mb-0 text-success">${{ book.price ?? '0.00' }}</h5>
-                        </div>
-
-                        <!-- Features -->
-                        <div class="bg-light rounded-3 p-3">
-                            <h6 class="mb-3">What you'll get:</h6>
-                            <ul class="list-unstyled mb-0">
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                    Instant digital download
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                    Lifetime access
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                    Read on any device
-                                </li>
-                                <li class="mb-0">
-                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                    Money-back guarantee
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- Order Summary END -->
-            </div>
-            <!-- Right sidebar END -->
-        </div>
+        </section>
+        <!-- =======================
+        Page content END -->
+        {% endblock %}
     </div>
-</section>
-<!-- =======================
-Page content END -->
+</main>
+<!-- Main Content END -->
 
-<style>
-    .payment-method-option {
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .payment-method-option:hover {
-        border-color: #0d6efd !important;
-        background-color: #f8f9fa;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .payment-method-option.active {
-        border-color: #0d6efd !important;
-        background-color: #e7f1ff;
-        border-width: 2px !important;
-    }
-</style>
 
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<!-- Payment method selection JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const paymentMethodOptions = document.querySelectorAll('.payment-method-option');
@@ -245,4 +240,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<style>
+    .payment-method-option {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-method-option:hover {
+        border-color: #0d6efd !important;
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .payment-method-option.active {
+        border-color: #0d6efd !important;
+        background-color: #e7f1ff;
+        border-width: 2px !important;
+    }
+</style>
 {% endblock %}

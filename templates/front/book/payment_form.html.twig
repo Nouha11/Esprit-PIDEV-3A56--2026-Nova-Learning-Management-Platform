@@ -1,218 +1,216 @@
+{% extends 'base.html.twig' %}
 
 {% block title %}Complete Payment - {{ book.title }}{% endblock %}
 
-{% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-{% endblock %}
+{% block body %}
 
-{% block front_content %}
-
-<!-- =======================
-Page Banner START -->
-<section class="py-4 bg-primary bg-opacity-10">
+<!-- Main Content START -->
+<main>
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="h3 mb-0">Complete Payment</h1>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb breadcrumb-dots mb-0">
-                                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
-                                <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
-                                <li class="breadcrumb-item"><a href="{{ path('book_show', {'id': book.id}) }}">{{ book.title }}</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Payment</li>
-                            </ol>
-                        </nav>
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mt-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        {% block front_content %}
+        <!-- =======================
+        Page Banner START -->
+        <section class="bg-primary bg-opacity-10 py-5 mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">Complete Payment</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('book_show', {'id': book.id}) }}">{{ book.title }}</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Payment</li>
+                                </ol>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-<!-- =======================
-Page Banner END -->
+        </section>
+        <!-- =======================
+        Page Banner END -->
 
-<!-- Page Container START -->
-<section class="pt-5 pb-5">
-<div class="container">
-    <div class="row g-4 g-lg-5">
+        <!-- Page Content START -->
+        <section class="py-5">
+            <div class="row g-4 g-lg-5">
+                <!-- Main Content START -->
+                <div class="col-lg-8">
+                    <!-- Payment method START -->
+                    <div class="card bg-transparent border rounded-3 mb-4 shadow">
+                        <!-- Card header START -->
+                        <div class="card-header bg-light border-bottom">
+                            <h4 class="mb-0">
+                                <i class="bi bi-{% if paymentMethod == 'paypal' %}paypal{% else %}credit-card{% endif %} me-2"></i>
+                                {% if paymentMethod == 'paypal' %}PayPal Payment{% else %}Credit Card Payment{% endif %}
+                            </h4>
+                        </div>
+                        <!-- Card header END -->
 
-        <!-- Main Content START -->
-        <div class="col-lg-8">
+                        <!-- Card body START -->
+                        <div class="card-body p-4">
+                            
+                            {% if paymentMethod == 'credit_card' %}
+                            <!-- Credit Card Form START -->
+                            <form class="row text-start g-3" method="post">
+                                <!-- Card number -->
+                                <div class="col-12">
+                                    <label class="form-label">Card Number <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                        <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                                    </div>
+                                </div>
 
-            <!-- Payment method START -->
-            <div class="card bg-transparent border rounded-3 mb-4 shadow">
-                <!-- Card header START -->
-                <div class="card-header bg-light border-bottom">
-                    <h4 class="mb-0">
-                        <i class="bi bi-{% if paymentMethod == 'paypal' %}paypal{% else %}credit-card{% endif %} me-2"></i>
-                        {% if paymentMethod == 'paypal' %}PayPal Payment{% else %}Credit Card Payment{% endif %}
-                    </h4>
-                </div>
-                <!-- Card header END -->
+                                <!-- Card name -->
+                                <div class="col-12">
+                                    <label class="form-label">Name on Card <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="card_holder" placeholder="John Doe" required>
+                                </div>
 
-                <!-- Card body START -->
-                <div class="card-body p-4">
-                    
-                    {% if paymentMethod == 'credit_card' %}
-                    <!-- Credit Card Form START -->
-                    <form class="row text-start g-3" method="post">
-                        <!-- Card number -->
-                        <div class="col-12">
-                            <label class="form-label">Card Number <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" required>
-                                <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                                <!-- Expiry date and CVC -->
+                                <div class="col-sm-6">
+                                    <label class="form-label">Expiry Date <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="expiry" placeholder="MM/YY" maxlength="5" required>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label">CVC <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="cvc" maxlength="3" placeholder="123" required>
+                                </div>
+
+                                <!-- Security info -->
+                                <div class="col-12">
+                                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                                        <i class="bi bi-shield-check fs-4 me-2"></i>
+                                        <div>
+                                            <small>Your payment information is encrypted and secure. We never store your credit card details.</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Submit button -->
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="bi bi-lock-fill me-2"></i>Complete Payment - ${{ book.price ?? '0.00' }}
+                                    </button>
+                                    <a href="{{ path('book_purchase', {'id': book.id}) }}" class="btn btn-light w-100 mt-2">
+                                        <i class="bi bi-arrow-left me-2"></i>Back to Payment Options
+                                    </a>
+                                </div>
+                            </form>
+                            <!-- Credit Card Form END -->
+                            
+                            {% elseif paymentMethod == 'paypal' %}
+                            <!-- PayPal Form START -->
+                            <div class="text-center py-4">
+                                <div class="mb-4">
+                                    <i class="bi bi-paypal text-info" style="font-size: 4rem;"></i>
+                                </div>
+                                <h5 class="mb-3">You will be redirected to PayPal to complete your payment</h5>
+                                <p class="text-muted mb-4">Click the button below to proceed with PayPal payment</p>
+                                
+                                <form method="post">
+                                    <button type="submit" class="btn btn-info btn-lg px-5">
+                                        <i class="bi bi-paypal me-2"></i>Continue to PayPal
+                                    </button>
+                                    <br>
+                                    <a href="{{ path('book_purchase', {'id': book.id}) }}" class="btn btn-light mt-3">
+                                        <i class="bi bi-arrow-left me-2"></i>Back to Payment Options
+                                    </a>
+                                </form>
                             </div>
+                            <!-- PayPal Form END -->
+                            {% endif %}
                         </div>
+                        <!-- Card body END -->
+                    </div>
+                    <!-- Payment method END -->
+                </div>
+                <!-- Main Content END -->
 
-                        <!-- Card name -->
-                        <div class="col-12">
-                            <label class="form-label">Name on Card <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="card_holder" placeholder="John Doe" required>
+                <!-- Sidebar START -->
+                <div class="col-lg-4">
+                    <!-- Order Summary START -->
+                    <div class="card sticky-top shadow" style="top: 100px;">
+                        <!-- Card header START -->
+                        <div class="card-header border-bottom bg-light">
+                            <h5 class="mb-0">Order Summary</h5>
                         </div>
+                        <!-- Card header END -->
 
-                        <!-- Expiry date and CVC -->
-                        <div class="col-sm-6">
-                            <label class="form-label">Expiry Date <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="expiry" placeholder="MM/YY" maxlength="5" required>
-                        </div>
-                        <div class="col-sm-6">
-                            <label class="form-label">CVC <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="cvc" maxlength="3" placeholder="123" required>
-                        </div>
+                        <!-- Card body START -->
+                        <div class="card-body p-4">
+                            <!-- Book info -->
+                            <div class="d-flex mb-3">
+                                {% if book.coverImage %}
+                                    <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="rounded" style="width: 80px; height: auto;">
+                                {% else %}
+                                    <img src="{{ asset('assets/images/book/01.jpg') }}" alt="{{ book.title }}" class="rounded" style="width: 80px; height: auto;">
+                                {% endif %}
+                                <div class="ms-3">
+                                    <h6 class="mb-1">{{ book.title }}</h6>
+                                    <p class="mb-0 small text-muted">{{ book.author ?? 'Unknown Author' }}</p>
+                                </div>
+                            </div>
 
-                        <!-- Security info -->
-                        <div class="col-12">
-                            <div class="alert alert-info d-flex align-items-center" role="alert">
-                                <i class="bi bi-shield-check fs-4 me-2"></i>
-                                <div>
-                                    <small>Your payment information is encrypted and secure. We never store your credit card details.</small>
+                            <hr>
+
+                            <!-- Product item START -->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Book Price</span>
+                                <span class="fw-bold">${{ book.price ?? '0.00' }}</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Tax (0%)</span>
+                                <span class="fw-bold">$0.00</span>
+                            </div>
+
+                            <!-- Divider -->
+                            <hr class="my-3">
+
+                            <!-- Total -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Total</h5>
+                                <h5 class="text-success mb-0">${{ book.price ?? '0.00' }}</h5>
+                            </div>
+
+                            <!-- Payment method badge -->
+                            <div class="bg-light rounded-3 p-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-{% if paymentMethod == 'paypal' %}paypal{% else %}credit-card{% endif %} fs-4 me-2"></i>
+                                    <div>
+                                        <small class="text-muted d-block">Payment Method</small>
+                                        <strong>{% if paymentMethod == 'paypal' %}PayPal{% else %}Credit Card{% endif %}</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Submit button -->
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-lg w-100">
-                                <i class="bi bi-lock-fill me-2"></i>Complete Payment - ${{ book.price ?? '0.00' }}
-                            </button>
-                            <a href="{{ path('book_purchase', {'id': book.id}) }}" class="btn btn-light w-100 mt-2">
-                                <i class="bi bi-arrow-left me-2"></i>Back to Payment Options
-                            </a>
-                        </div>
-                    </form>
-                    <!-- Credit Card Form END -->
-                    
-                    {% elseif paymentMethod == 'paypal' %}
-                    <!-- PayPal Form START -->
-                    <div class="text-center py-4">
-                        <div class="mb-4">
-                            <i class="bi bi-paypal text-info" style="font-size: 4rem;"></i>
-                        </div>
-                        <h5 class="mb-3">You will be redirected to PayPal to complete your payment</h5>
-                        <p class="text-muted mb-4">Click the button below to proceed with PayPal payment</p>
-                        
-                        <form method="post">
-                            <button type="submit" class="btn btn-info btn-lg px-5">
-                                <i class="bi bi-paypal me-2"></i>Continue to PayPal
-                            </button>
-                            <br>
-                            <a href="{{ path('book_purchase', {'id': book.id}) }}" class="btn btn-light mt-3">
-                                <i class="bi bi-arrow-left me-2"></i>Back to Payment Options
-                            </a>
-                        </form>
+                        <!-- Card body END -->
                     </div>
-                    <!-- PayPal Form END -->
-                    {% endif %}
-
+                    <!-- Order Summary END -->
                 </div>
-                <!-- Card body END -->
+                <!-- Sidebar END -->
             </div>
-            <!-- Payment method END -->
-
-        </div>
-        <!-- Main Content END -->
-
-        <!-- Sidebar START -->
-        <div class="col-lg-4">
-
-            <!-- Order Summary START -->
-            <div class="card sticky-top shadow" style="top: 100px;">
-                <!-- Card header START -->
-                <div class="card-header border-bottom bg-light">
-                    <h5 class="mb-0">Order Summary</h5>
-                </div>
-                <!-- Card header END -->
-
-                <!-- Card body START -->
-                <div class="card-body p-4">
-                    <!-- Book info -->
-                    <div class="d-flex mb-3">
-                        {% if book.coverImage %}
-                            <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="rounded" style="width: 80px; height: auto;">
-                        {% else %}
-                            <img src="{{ asset('assets/images/book/01.jpg') }}" alt="{{ book.title }}" class="rounded" style="width: 80px; height: auto;">
-                        {% endif %}
-                        <div class="ms-3">
-                            <h6 class="mb-1">{{ book.title }}</h6>
-                            <p class="mb-0 small text-muted">{{ book.author ?? 'Unknown Author' }}</p>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <!-- Product item START -->
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Book Price</span>
-                        <span class="fw-bold">${{ book.price ?? '0.00' }}</span>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Tax (0%)</span>
-                        <span class="fw-bold">$0.00</span>
-                    </div>
-
-                    <!-- Divider -->
-                    <hr class="my-3">
-
-                    <!-- Total -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">Total</h5>
-                        <h5 class="text-success mb-0">${{ book.price ?? '0.00' }}</h5>
-                    </div>
-
-                    <!-- Payment method badge -->
-                    <div class="bg-light rounded-3 p-3">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-{% if paymentMethod == 'paypal' %}paypal{% else %}credit-card{% endif %} fs-4 me-2"></i>
-                            <div>
-                                <small class="text-muted d-block">Payment Method</small>
-                                <strong>{% if paymentMethod == 'paypal' %}PayPal{% else %}Credit Card{% endif %}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card body END -->
-            </div>
-            <!-- Order Summary END -->
-
-        </div>
-        <!-- Sidebar END -->
-
+        </section>
+        <!-- Page Content END -->
+        {% endblock %}
     </div>
-</div>
-</section>
-<!-- Page Container END -->
+</main>
+<!-- Main Content END -->
 
-{% endblock %}
 
-{% block javascripts %}
-    <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
-    <script src="{{ asset('assets/js/functions.js') }}"></script>
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 {% endblock %}
