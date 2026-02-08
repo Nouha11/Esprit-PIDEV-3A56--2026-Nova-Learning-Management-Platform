@@ -92,11 +92,6 @@ class TutorProfile
     )]
     private ?string $profilePicture = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getFirstName(): ?string
     {
         return $this->firstName;
@@ -202,5 +197,10 @@ class TutorProfile
         $this->profilePicture = $profilePicture;
 
         return $this;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 }

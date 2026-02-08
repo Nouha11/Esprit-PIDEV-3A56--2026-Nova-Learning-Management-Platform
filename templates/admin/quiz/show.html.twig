@@ -1,34 +1,79 @@
-{% extends 'base_quiz.html.twig' %}
+{% extends 'base_content.html.twig' %}
 
-{% block title %}Question{% endblock %}
+{% block title %}Quiz Details{% endblock %}
 
 {% block body %}
-    <h1>Question</h1>
+<div class="container py-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">{{ quiz.title }}</h1>
+            <p class="text-muted mb-0">{{ quiz.description|default('No description.') }}</p>
+        </div>
+        <div>
+            <a href="{{ path('app_quiz_edit', {'id': quiz.id}) }}" class="btn btn-outline-secondary btn-sm me-2">
+                <i class="bi bi-gear"></i> Settings
+            </a>
+            <a href="{{ path('app_quiz_question_new') }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg"></i> Add Question
+            </a>
+        </div>
+    </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ question.id }}</td>
-            </tr>
-            <tr>
-                <th>Text</th>
-                <td>{{ question.text }}</td>
-            </tr>
-            <tr>
-                <th>XpValue</th>
-                <td>{{ question.xpValue }}</td>
-            </tr>
-            <tr>
-                <th>Difficulty</th>
-                <td>{{ question.difficulty }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="card shadow-sm border rounded-3">
+        <div class="card-header bg-light border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Questions</h5>
+            <span class="badge bg-primary rounded-pill">{{ quiz.questions|length }}</span>
+        </div>
+        
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4" style="width: 50%;">Question</th>
+                        <th>XP</th>
+                        <th>Difficulty</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for question in quiz.questions %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-medium">{{ question.text|slice(0, 60) }}...</span>
+                            </td>
+                            <td>{{ question.xpValue }} XP</td>
+                            <td>
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                    {{ question.difficulty }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                {# Edit Button pointing to our NEW Edit page #}
+                                <a href="{{ path('app_quiz_question_edit', {'id': question.id}) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <div class="mb-2"><i class="bi bi-journal-plus h1"></i></div>
+                                <p class="mb-0">No questions added yet.</p>
+                                <small>Click "Add Question" to start building this quiz.</small>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <a href="{{ path('app_quiz_question_index') }}">back to list</a>
+    <div class="mt-3">
+        <a href="{{ path('app_quiz_index') }}" class="btn btn-link text-muted ps-0">
+            <i class="bi bi-arrow-left"></i> Back to All Quizzes
+        </a>
+    </div>
 
-    <a href="{{ path('app_quiz_question_edit', {'id': question.id}) }}">edit</a>
-
-    {{ include('quiz/question/_delete_form.html.twig') }}
+</div>
 {% endblock %}

@@ -50,6 +50,10 @@ class Question
     #[ORM\JoinColumn(nullable: false)]
     private ?Quiz $quiz = null;
 
+    #[ORM\ManyToOne(targetEntity: \App\Entity\users\User::class, inversedBy: 'questions')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?\App\Entity\users\User $user = null;
+
     public function __construct()
     {
         $this->choices = new ArrayCollection();
@@ -134,6 +138,18 @@ class Question
     public function setQuiz(?Quiz $quiz): static
     {
         $this->quiz = $quiz;
+
+        return $this;
+    }
+
+    public function getUser(): ?\App\Entity\users\User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?\App\Entity\users\User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }
