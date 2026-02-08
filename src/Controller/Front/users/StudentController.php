@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class StudentController extends AbstractController
 {
     #[Route('/profile', name: 'app_student_profile', methods: ['GET'])]
-    public function profile(StudentProfileRepository $studentRepository): Response
+    public function profile(): Response
     {
         $user = $this->getUser();
         
@@ -22,9 +22,7 @@ final class StudentController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Find student profile by user ID or create logic to link
-        $students = $studentRepository->findAll();
-        $student = !empty($students) ? $students[0] : null;
+        $student = $user->getStudentProfile();
 
         return $this->render('front/users/student/index.html.twig', [
             'student' => $student,
@@ -32,7 +30,7 @@ final class StudentController extends AbstractController
     }
 
     #[Route('/profile/edit', name: 'app_student_profile_edit', methods: ['GET', 'POST'])]
-    public function editProfile(Request $request, EntityManagerInterface $entityManager, StudentProfileRepository $studentRepository): Response
+    public function editProfile(Request $request, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         
@@ -40,9 +38,12 @@ final class StudentController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Find or create student profile
-        $students = $studentRepository->findAll();
-        $student = !empty($students) ? $students[0] : new StudentProfile();
+        $student = $user->getStudentProfile();
+
+        if (!$student) {
+            $this->addFlash('error', 'Student profile not found');
+            return $this->redirectToRoute('app_home');
+        }
 
         if ($request->isMethod('POST')) {
             $student->setFirstName($request->request->get('firstName'));
@@ -52,10 +53,6 @@ final class StudentController extends AbstractController
             $student->setMajor($request->request->get('major'));
             $student->setAcademicLevel($request->request->get('academicLevel'));
             $student->setInterests($request->request->get('interests'));
-
-            if ($student->getId() === null) {
-                $entityManager->persist($student);
-            }
             
             $entityManager->flush();
 
@@ -69,10 +66,7 @@ final class StudentController extends AbstractController
     }
 
     #[Route('/dashboard', name: 'app_student_dashboard', methods: ['GET'])]
-    public function dashboard(
-        StudentProfileRepository $studentRepository,
-        EntityManagerInterface $entityManager
-    ): Response
+    public function dashboard(): Response
     {
         $user = $this->getUser();
         
@@ -82,31 +76,8 @@ final class StudentController extends AbstractController
 
         $student = $user->getStudentProfile();
 
-        // Get game statistics
-        $gameStats = null;
-        $recentProgress = [];
-        $unviewedRewards = 0;
-
-        if ($student) {
-            // Get overall game stats
-            $progressRepo = $entityManager->getRepository(\App\Entity\Gamification\StudentGameProgress::class);
-            $gameStats = $progressRepo->getStudentStats($student);
-
-            // Get recent game progress
-            $recentProgress = $progressRepo->findByStudent($student);
-            $recentProgress = array_slice($recentProgress, 0, 5); // Last 5 games
-
-            // Get unviewed rewards count
-            $rewardRepo = $entityManager->getRepository(\App\Entity\Gamification\StudentReward::class);
-            $unviewedRewards = count($rewardRepo->findUnviewedByStudent($student));
-        }
-
         return $this->render('front/users/student/dashboard.html.twig', [
             'student' => $student,
-            'user' => $user,
-            'gameStats' => $gameStats,
-            'recentProgress' => $recentProgress,
-            'unviewedRewards' => $unviewedRewards,
         ]);
     }
 

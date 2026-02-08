@@ -3,7 +3,6 @@ namespace App\Controller\Front\Game;
 
 use App\Entity\Gamification\Game;
 use App\Repository\Gamification\GameRepository as GamificationGameRepository;
-use App\Repository\Gamification\StudentRewardRepository;
 use App\Service\game\GameService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,8 +14,7 @@ class GameController extends AbstractController
 {
     public function __construct(
         private GameService $gameService,
-        private GamificationGameRepository $gameRepository,
-        private StudentRewardRepository $studentRewardRepository
+        private GamificationGameRepository $gameRepository
     ) {
     }
 
@@ -43,19 +41,16 @@ class GameController extends AbstractController
             throw $this->createNotFoundException('This game is not available');
         }
 
-        $progress = null;
         $student = null;
 
-        // Get student progress if logged in
+        // Get student if logged in
         if ($this->getUser() && $this->getUser()->getStudentProfile()) {
             $student = $this->getUser()->getStudentProfile();
-            $progress = $this->gameService->getStudentGameProgress($student, $game);
         }
 
         return $this->render('front/game/show.html.twig', [
             'game' => $game,
             'student' => $student,
-            'progress' => $progress,
         ]);
     }
 
@@ -93,13 +88,9 @@ class GameController extends AbstractController
             $this->gameService->deductGameCost($student, $game);
         }
 
-        // Get student's progress for this game
-        $progress = $this->gameService->getStudentGameProgress($student, $game);
-
         return $this->render('front/game/play.html.twig', [
             'game' => $game,
             'student' => $student,
-            'progress' => $progress,
         ]);
     }
 
@@ -126,12 +117,6 @@ class GameController extends AbstractController
             $rewards['tokens'],
             $rewards['xp']
         );
-
-        // Add badge notifications
-        if (!empty($rewards['badges'])) {
-            $badgeNames = array_map(fn($badge) => $badge->getName(), $rewards['badges']);
-            $message .= ' New badges: ' . implode(', ', $badgeNames);
-        }
 
         $this->addFlash('success', $message);
         return $this->redirectToRoute('front_game_show', ['id' => $game->getId()]);
