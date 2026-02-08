@@ -1,0 +1,103 @@
+{% extends 'base_content.html.twig' %}
+
+{% block title %}Edit Question{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Edit Question</h1>
+                <a href="{{ path('app_quiz_show', {'id': question.quiz.id}) }}" class="btn btn-sm btn-light border">
+                    <i class="bi bi-arrow-left"></i> Back to Quiz
+                </a>
+            </div>
+
+            <div class="card shadow-sm border rounded-3 mb-4">
+                <div class="card-body p-4">
+                    {{ form_start(form) }}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Question Text</label>
+                            {{ form_widget(form.text, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            <div class="form-text text-danger">{{ form_errors(form.text) }}</div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">XP Reward</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-warning bg-opacity-10 text-warning border-0"><i class="bi bi-lightning-fill"></i></span>
+                                    {{ form_widget(form.xpValue, {'attr': {'class': 'form-control'}}) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Difficulty</label>
+                                {{ form_widget(form.difficulty, {'attr': {'class': 'form-select'}}) }}
+                            </div>
+                        </div>
+
+                        <div class="d-none">{{ form_widget(form.quiz) }}</div>
+
+                        <div class="bg-light p-3 rounded-3 mb-4">
+                            <label class="form-label fw-bold mb-3"><i class="bi bi-list-check me-2"></i>Answers</label>
+                            
+                            <div class="answers-wrapper" data-prototype="{{ form_widget(form.choices.vars.prototype)|e('html_attr') }}">
+                                {% for choice in form.choices %}
+                                    <div class="input-group mb-2 bg-white">
+                                        <div class="input-group-text bg-white">
+                                            {{ form_widget(choice.isCorrect, {'attr': {'class': 'form-check-input mt-0'}}) }}
+                                        </div>
+                                        {{ form_widget(choice.text, {'attr': {'class': 'form-control border-start-0'}}) }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-2 add-answer-btn">
+                                <i class="bi bi-plus-lg"></i> Add Option
+                            </button>
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-lg">Update Question</button>
+                        </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <div class="card border-danger border-opacity-25 bg-danger bg-opacity-10">
+                <div class="card-body d-flex justify-content-between align-items-center p-3">
+                    <div class="text-danger fw-bold">Delete this Question</div>
+                    <form method="post" action="{{ path('app_quiz_question_delete', {'id': question.id}) }}" onsubmit="return confirm('Are you sure?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ question.id) }}">
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelector('.add-answer-btn').addEventListener('click', function (e) {
+        const list = document.querySelector('.answers-wrapper');
+        const prototype = list.dataset.prototype;
+        const index = list.children.length;
+        const newForm = prototype.replace(/__name__/g, index);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newForm;
+        const row = document.createElement('div');
+        row.className = 'input-group mb-2 bg-white';
+        row.innerHTML = `
+            <div class="input-group-text bg-white">
+                ${tempDiv.querySelector('input[type="checkbox"]').outerHTML}
+            </div>
+            ${tempDiv.querySelector('input[type="text"]').outerHTML}
+        `;
+        row.querySelector('input[type="checkbox"]').classList.add('form-check-input', 'mt-0');
+        row.querySelector('input[type="text"]').classList.add('form-control', 'border-start-0');
+        list.appendChild(row);
+    });
+</script>
+{% endblock %}

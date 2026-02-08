@@ -1,0 +1,100 @@
+{% extends 'base_content.html.twig' %}
+
+{% block title %}My Quizzes{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="h3 mb-0">Quiz Manager</h1>
+            <p class="text-muted mb-0">Manage your assessments and questions.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="{{ path('app_quiz_new') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Create New Quiz
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-2">
+            <form class="row g-3 align-items-center">
+                <div class="col-lg-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-start-0 bg-light" placeholder="Search quizzes...">
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <select class="form-select border-0 bg-light">
+                        <option>Sort by Date</option>
+                        <option>Sort by Name</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+            <a href="{{ path('app_quiz_new') }}" class="card h-100 border border-2 border-dashed bg-light text-center text-decoration-none">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center p-5">
+                    <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-circle mb-3">
+                        <i class="bi bi-plus-lg"></i>
+                    </div>
+                    <h5 class="text-primary">Create New</h5>
+                </div>
+            </a>
+        </div>
+
+        {% for quiz in quizzes %}
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-header bg-light border-bottom-0 pt-4 pb-0">
+                        <div class="d-flex justify-content-between">
+                            <span class="badge bg-purple bg-opacity-10 text-purple">Quiz #{{ quiz.id }}</span>
+                            <div class="dropdown">
+                                <a href="#" class="text-secondary small" id="dropdownShare{{ quiz.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownShare{{ quiz.id }}">
+                                    <li><a class="dropdown-item" href="{{ path('app_quiz_edit', {'id': quiz.id}) }}"><i class="bi bi-pencil-square me-2"></i>Edit Settings</a></li>
+                                    <li>
+                                        <form method="post" action="{{ path('app_quiz_delete', {'id': quiz.id}) }}" onsubmit="return confirm('Delete this quiz?');" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
+                                            <button class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="{{ path('app_quiz_show', {'id': quiz.id}) }}" class="stretched-link text-inherit">{{ quiz.title }}</a></h5>
+                        <p class="card-text text-truncate-2 small text-muted">{{ quiz.description }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-question-circle text-orange me-1"></i>
+                                <span class="small fw-bold">{{ quiz.questions|length }} Qs</span>
+                            </div>
+                            </div>
+                    </div>
+
+                    <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
+                        <a href="{{ path('app_quiz_show', {'id': quiz.id}) }}" class="btn btn-sm btn-light w-100">Manage Questions</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">No quizzes found. Create one to get started!</div>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

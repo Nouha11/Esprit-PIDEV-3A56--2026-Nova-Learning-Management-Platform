@@ -1,0 +1,97 @@
+{% extends 'base_content.html.twig' %}
+
+{% block title %}New Question{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Create New Question</h1>
+                    <p class="text-muted mb-0">Add a challenge to your quiz.</p>
+                </div>
+                <a href="{{ path('app_quiz_index') }}" class="btn btn-sm btn-white border">
+                    <i class="bi bi-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+
+            <div class="card shadow-sm border rounded-3">
+                <div class="card-header bg-light border-bottom px-4 py-3">
+                    <h5 class="card-title mb-0"><i class="bi bi-pencil-square me-2"></i>Question Details</h5>
+                </div>
+                
+                <div class="card-body p-4">
+                    {{ form_start(form) }}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Question Text</label>
+                            {{ form_widget(form.text, {'attr': {'class': 'form-control form-control-lg', 'placeholder': 'e.g., What does SQL stand for?'}}) }}
+                            <div class="form-text text-danger">{{ form_errors(form.text) }}</div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">XP Reward</label>
+                                {{ form_widget(form.xpValue, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Difficulty</label>
+                                {{ form_widget(form.difficulty, {'attr': {'class': 'form-select'}}) }}
+                            </div>
+                        </div>
+
+                        <div class="d-none">{{ form_widget(form.quiz) }}</div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Answers</label>
+                            <div class="answers-wrapper" data-prototype="{{ form_widget(form.choices.vars.prototype)|e('html_attr') }}">
+                                {% for choice in form.choices %}
+                                    <div class="input-group mb-2">
+                                        <div class="input-group-text bg-white">
+                                            {{ form_widget(choice.isCorrect, {'attr': {'class': 'form-check-input mt-0'}}) }}
+                                        </div>
+                                        {{ form_widget(choice.text, {'attr': {'class': 'form-control border-start-0'}}) }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100 add-answer-btn mt-2">
+                                <i class="bi bi-plus-lg"></i> Add Answer Option
+                            </button>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button class="btn btn-primary btn-lg" type="submit">Save Question</button>
+                        </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelector('.add-answer-btn').addEventListener('click', function (e) {
+        const list = document.querySelector('.answers-wrapper');
+        const prototype = list.dataset.prototype;
+        const index = list.children.length;
+        const newForm = prototype.replace(/__name__/g, index);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newForm;
+        const row = document.createElement('div');
+        row.className = 'input-group mb-2';
+        row.innerHTML = `
+            <div class="input-group-text bg-white">
+                ${tempDiv.querySelector('input[type="checkbox"]').outerHTML}
+            </div>
+            ${tempDiv.querySelector('input[type="text"]').outerHTML}
+        `;
+        row.querySelector('input[type="checkbox"]').classList.add('form-check-input', 'mt-0');
+        row.querySelector('input[type="text"]').classList.add('form-control', 'border-start-0');
+        list.appendChild(row);
+    });
+</script>
+{% endblock %}
