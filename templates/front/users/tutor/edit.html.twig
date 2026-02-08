@@ -1,0 +1,233 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Tutor Profile{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-5 bg-light">
+    <div class="container">
+        <!-- Page Header -->
+        <section class="bg-primary bg-opacity-10 py-4 mb-4 rounded">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">Edit Tutor Profile</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('app_tutor_profile') }}">Profile</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="row">
+            <!-- Edit Form -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-user-edit"></i> Profile Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{{ path('app_tutor_profile_edit') }}">
+                            <!-- Personal Information -->
+                            <h6 class="mb-3 text-primary"><i class="fas fa-user"></i> Personal Information</h6>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="firstName" 
+                                           name="firstName" 
+                                           value="{{ tutor.firstName }}" 
+                                           required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="lastName" 
+                                           name="lastName" 
+                                           value="{{ tutor.lastName }}" 
+                                           required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="bio" class="form-label">Bio</label>
+                                <textarea class="form-control" 
+                                        id="bio" 
+                                        name="bio" 
+                                        rows="4" 
+                                        placeholder="Tell students about yourself...">{{ tutor.bio is iterable ? tutor.bio|join(' ') : tutor.bio }}</textarea>
+                                <small class="text-muted">A brief introduction about yourself and your teaching style.</small>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Professional Information -->
+                            <h6 class="mb-3 text-primary"><i class="fas fa-briefcase"></i> Professional Information</h6>
+
+                            <div class="mb-3">
+                                <label for="expertise" class="form-label">Expertise</label>
+                                <input type="text" 
+                                    class="form-control" 
+                                    id="expertise" 
+                                    name="expertise" 
+                                    value="{{ tutor.expertise is iterable ? tutor.expertise|join(', ') : tutor.expertise }}" 
+                                    placeholder="e.g., Mathematics, Physics, Computer Science">
+                                <small class="text-muted">Your main teaching subjects or areas of expertise.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="qualifications" class="form-label">Qualifications</label>
+                                <textarea class="form-control" 
+                                        id="qualifications" 
+                                        name="qualifications" 
+                                        rows="3" 
+                                        placeholder="e.g., Master's in Education, PhD in Mathematics...">{{ tutor.qualifications is iterable ? tutor.qualifications|join(', ') : tutor.qualifications }}</textarea>
+                                <small class="text-muted">Your educational background and certifications.</small>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="yearsOfExperience" class="form-label">Years of Experience</label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="yearsOfExperience" 
+                                           name="yearsOfExperience" 
+                                           value="{{ tutor.yearsOfExperience }}" 
+                                           min="0" 
+                                           max="50">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="hourlyRate" class="form-label">Hourly Rate ($)</label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="hourlyRate" 
+                                           name="hourlyRate" 
+                                           value="{{ tutor.hourlyRate }}" 
+                                           min="0" 
+                                           step="0.01" 
+                                           placeholder="25.00">
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Availability -->
+                            <h6 class="mb-3 text-primary"><i class="fas fa-calendar-check"></i> Availability</h6>
+
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           id="isAvailable" 
+                                           name="isAvailable" 
+                                           value="1" 
+                                           {% if tutor.isAvailable %}checked{% endif %}>
+                                    <label class="form-check-label" for="isAvailable">
+                                        <strong>Available for tutoring sessions</strong>
+                                        <br>
+                                        <small class="text-muted">Toggle this to show/hide your profile from students</small>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <a href="{{ path('app_tutor_profile') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar with Tips -->
+            <div class="col-lg-4">
+                <!-- Profile Tips -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-lightbulb"></i> Profile Tips</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <small>Write a compelling bio that highlights your teaching style</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <small>List all relevant qualifications and certifications</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <small>Be specific about your areas of expertise</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <small>Set competitive hourly rates based on your experience</small>
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check text-success"></i>
+                                <small>Keep your availability status updated</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Current Stats -->
+<!-- Current Status -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white border-bottom">
+        <h6 class="mb-0"><i class="fas fa-info-circle"></i> Profile Status</h6>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+            <span class="text-muted">Availability:</span>
+            {% if tutor.isAvailable %}
+                <span class="badge bg-success">Available</span>
+            {% else %}
+                <span class="badge bg-secondary">Unavailable</span>
+            {% endif %}
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+            <span class="text-muted">Experience:</span>
+            <strong>{{ tutor.yearsOfExperience ?? 0 }} years</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+            <span class="text-muted">Hourly Rate:</span>
+            <strong>${{ tutor.hourlyRate ?? '0.00' }}</strong>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.breadcrumb-dots .breadcrumb-item + .breadcrumb-item::before {
+    content: "•";
+}
+</style>
+{% endblock %}

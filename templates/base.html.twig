@@ -290,15 +290,13 @@
                         {% if 'ROLE_STUDENT' in app.user.roles %}
                             <li><a class="dropdown-item" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>My Dashboard</a></li>
                         {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('admin_game_index') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>Tutor Dashboard</a></li>
-                        {% elseif 'ROLE_ADMIN' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}"><i class="bi bi-shield-lock fa-fw me-2"></i>Admin Panel</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_tutor_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>Tutor Dashboard</a></li>
                         {% endif %}
 
                         {% if 'ROLE_STUDENT' in app.user.roles %}
                             <li><a class="dropdown-item" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
                         {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
                         {% endif %}
                         
 <!--                         <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Account Settings</a></li>
