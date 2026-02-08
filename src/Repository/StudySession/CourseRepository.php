@@ -18,13 +18,14 @@ class CourseRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find courses by difficulty and/or category filters
+     * Find courses by difficulty, category, and/or publication status filters
      *
      * @param string|null $difficulty
      * @param string|null $category
+     * @param bool|null $isPublished
      * @return Course[]
      */
-    public function findByFilters(?string $difficulty = null, ?string $category = null): array
+    public function findByFilters(?string $difficulty = null, ?string $category = null, ?bool $isPublished = null): array
     {
         $qb = $this->createQueryBuilder('c');
 
@@ -36,6 +37,11 @@ class CourseRepository extends ServiceEntityRepository
         if ($category) {
             $qb->andWhere('c.category = :category')
                ->setParameter('category', $category);
+        }
+
+        if ($isPublished !== null) {
+            $qb->andWhere('c.isPublished = :isPublished')
+               ->setParameter('isPublished', $isPublished);
         }
 
         // Order by creation date, newest first

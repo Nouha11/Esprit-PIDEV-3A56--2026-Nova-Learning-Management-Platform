@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\StudySession;
+namespace App\Controller\Front\StudySession;
 
 use App\Entity\StudySession\Planning;
 use App\Entity\StudySession\Course;

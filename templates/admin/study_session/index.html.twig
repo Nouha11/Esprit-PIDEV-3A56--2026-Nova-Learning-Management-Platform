@@ -1,0 +1,109 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Manage Study Sessions{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Study Sessions Management</h1>
+        <a href="{{ path('admin_study_session_analytics') }}" class="btn btn-primary">
+            <i class="fas fa-chart-bar"></i> View Analytics
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{{ path('admin_study_session_index') }}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>User ID</label>
+                        <input type="number" name="userId" class="form-control" value="{{ current_user_id ?? '' }}" placeholder="Enter user ID">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Burnout Risk</label>
+                        <select name="burnoutRisk" class="form-control">
+                            <option value="">All Levels</option>
+                            <option value="LOW" {% if current_burnout_risk == 'LOW' %}selected{% endif %}>Low</option>
+                            <option value="MODERATE" {% if current_burnout_risk == 'MODERATE' %}selected{% endif %}>Moderate</option>
+                            <option value="HIGH" {% if current_burnout_risk == 'HIGH' %}selected{% endif %}>High</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Date From</label>
+                        <input type="date" name="dateFrom" class="form-control" value="{{ date_from ? date_from|date('Y-m-d') : '' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label>Date To</label>
+                        <input type="date" name="dateTo" class="form-control" value="{{ date_to ? date_to|date('Y-m-d') : '' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary form-control">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Study Sessions Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">All Study Sessions</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Planning</th>
+                            <th>Started At</th>
+                            <th>Duration (min)</th>
+                            <th>XP Earned</th>
+                            <th>Energy Used</th>
+                            <th>Burnout Risk</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in study_sessions %}
+                            <tr>
+                                <td>{{ session.id }}</td>
+                                <td>{{ session.user.email }}</td>
+                                <td>{{ session.planning.title }}</td>
+                                <td>{{ session.startedAt|date('Y-m-d H:i') }}</td>
+                                <td>{{ session.duration }}</td>
+                                <td>{{ session.xpEarned ?? 0 }}</td>
+                                <td>{{ session.energyUsed ?? 0 }}</td>
+                                <td>
+                                    {% if session.burnoutRisk == 'HIGH' %}
+                                        <span class="badge bg-danger">High</span>
+                                    {% elseif session.burnoutRisk == 'MODERATE' %}
+                                        <span class="badge bg-warning">Moderate</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ path('admin_study_session_show', {id: session.id}) }}" class="btn btn-sm btn-info" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center">No study sessions found</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
