@@ -168,6 +168,75 @@
     </div>
 </div>
 
+<!-- StudySession Management Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h4 class="mb-3 text-gray-800">
+            <i class="fas fa-graduation-cap"></i> StudySession Management
+        </h4>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card border-left-primary shadow h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title text-primary mb-0">
+                        <i class="fas fa-book"></i> Courses
+                    </h5>
+                </div>
+                <p class="card-text text-muted">Manage all courses, create new courses, edit existing ones, and control publication status.</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ path('admin_course_index') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-list"></i> View All Courses
+                    </a>
+                    <a href="{{ path('admin_course_new') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-plus"></i> Create New Course
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card border-left-success shadow h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title text-success mb-0">
+                        <i class="fas fa-calendar-alt"></i> Planning Sessions
+                    </h5>
+                </div>
+                <p class="card-text text-muted">View and manage all planning sessions, update statuses, and cancel sessions when needed.</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ path('admin_planning_index') }}" class="btn btn-success btn-sm">
+                        <i class="fas fa-list"></i> View All Planning
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card border-left-info shadow h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title text-info mb-0">
+                        <i class="fas fa-chart-line"></i> Study Sessions
+                    </h5>
+                </div>
+                <p class="card-text text-muted">Monitor study sessions, track student progress, and view detailed analytics and burnout risk.</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ path('admin_study_session_index') }}" class="btn btn-info btn-sm">
+                        <i class="fas fa-list"></i> View All Sessions
+                    </a>
+                    <a href="{{ path('admin_study_session_analytics') }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-chart-bar"></i> View Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Quick Actions -->
 <div class="row">
     <div class="col-12">
