@@ -1,223 +1,231 @@
+{% extends 'base.html.twig' %}
 
 {% block title %}Loan Confirmed - {{ book.title }}{% endblock %}
 
-{% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-{% endblock %}
+{% block body %}
 
-{% block front_content %}
-
-<!-- =======================
-Page Banner START -->
-<section class="py-4 bg-success bg-opacity-10">
+<!-- Main Content START -->
+<main>
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="h3 mb-0 text-success">
-                            <i class="bi bi-check-circle me-2"></i>Loan Request Confirmed!
-                        </h1>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb breadcrumb-dots mb-0">
-                                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
-                                <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
-                                <li class="breadcrumb-item"><a href="{{ path('book_show', {'id': book.id}) }}">{{ book.title }}</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Confirmation</li>
-                            </ol>
-                        </nav>
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mt-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        {% block front_content %}
+        <!-- =======================
+        Page Banner START -->
+        <section class="bg-success bg-opacity-10 py-5 mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0 text-success">
+                                <i class="bi bi-check-circle me-2"></i>Loan Request Confirmed!
+                            </h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('book_show', {'id': book.id}) }}">{{ book.title }}</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Confirmation</li>
+                                </ol>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-<!-- =======================
-Page Banner END -->
+        </section>
+        <!-- =======================
+        Page Banner END -->
 
-<!-- =======================
-Page content START -->
-<section class="pt-5 pb-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                
-                <!-- Success Animation Card -->
-                <div class="card shadow rounded-3 text-center mb-4">
-                    <div class="card-body p-5">
-                        <!-- Success Icon -->
-                        <div class="mb-4">
-                            <div class="icon-xl bg-success bg-opacity-10 text-success rounded-circle mx-auto">
-                                <i class="bi bi-check-circle fs-1"></i>
+        <!-- =======================
+        Page content START -->
+        <section class="py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    
+                    <!-- Success Animation Card -->
+                    <div class="card shadow rounded-3 text-center mb-4">
+                        <div class="card-body p-5">
+                            <!-- Success Icon -->
+                            <div class="mb-4">
+                                <div class="icon-xl bg-success bg-opacity-10 text-success rounded-circle mx-auto">
+                                    <i class="bi bi-check-circle fs-1"></i>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <h2 class="mb-3">Loan Request Submitted Successfully!</h2>
-                        <p class="lead text-muted mb-4">
-                            Your request to borrow "{{ book.title }}" has been received and is being processed.
-                        </p>
-                        
-                        {% if loan %}
-                        <!-- Loan Details Card -->
-                        <div class="card bg-light border-0 text-start">
-                            <div class="card-body p-4">
-                                <h5 class="mb-4">
-                                    <i class="bi bi-info-circle me-2"></i>Loan Details
-                                </h5>
-                                
-                                <div class="row g-3">
-                                    <!-- Book Info -->
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-start">
-                                            <i class="bi bi-book text-primary fs-5 me-3 mt-1"></i>
-                                            <div>
-                                                <small class="text-muted d-block">Book</small>
-                                                <strong>{{ book.title }}</strong>
+                            
+                            <h2 class="mb-3">Loan Request Submitted Successfully!</h2>
+                            <p class="lead text-muted mb-4">
+                                Your request to borrow "{{ book.title }}" has been received and is being processed.
+                            </p>
+                            
+                            {% if loan %}
+                            <!-- Loan Details Card -->
+                            <div class="card bg-light border-0 text-start">
+                                <div class="card-body p-4">
+                                    <h5 class="mb-4">
+                                        <i class="bi bi-info-circle me-2"></i>Loan Details
+                                    </h5>
+                                    
+                                    <div class="row g-3">
+                                        <!-- Book Info -->
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-book text-primary fs-5 me-3 mt-1"></i>
+                                                <div>
+                                                    <small class="text-muted d-block">Book</small>
+                                                    <strong>{{ book.title }}</strong>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Author -->
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-start">
-                                            <i class="bi bi-person text-primary fs-5 me-3 mt-1"></i>
-                                            <div>
-                                                <small class="text-muted d-block">Author</small>
-                                                <strong>{{ book.author ?? 'Unknown Author' }}</strong>
+                                        
+                                        <!-- Author -->
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-person text-primary fs-5 me-3 mt-1"></i>
+                                                <div>
+                                                    <small class="text-muted d-block">Author</small>
+                                                    <strong>{{ book.author ?? 'Unknown Author' }}</strong>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Start Date -->
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-start">
-                                            <i class="bi bi-calendar-event text-primary fs-5 me-3 mt-1"></i>
-                                            <div>
-                                                <small class="text-muted d-block">Loan Start Date</small>
-                                                <strong>{{ loan.startAt|date('d M Y') }}</strong>
+                                        
+                                        <!-- Start Date -->
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-calendar-event text-primary fs-5 me-3 mt-1"></i>
+                                                <div>
+                                                    <small class="text-muted d-block">Loan Start Date</small>
+                                                    <strong>{{ loan.startAt|date('d M Y') }}</strong>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Return Date -->
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-start">
-                                            <i class="bi bi-calendar-check text-primary fs-5 me-3 mt-1"></i>
-                                            <div>
-                                                <small class="text-muted d-block">Return Date</small>
-                                                <strong>{{ loan.endAt|date('d M Y') }}</strong>
+                                        
+                                        <!-- Return Date -->
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-calendar-check text-primary fs-5 me-3 mt-1"></i>
+                                                <div>
+                                                    <small class="text-muted d-block">Return Date</small>
+                                                    <strong>{{ loan.endAt|date('d M Y') }}</strong>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Loan Duration -->
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-start">
-                                            <i class="bi bi-clock text-primary fs-5 me-3 mt-1"></i>
-                                            <div>
-                                                <small class="text-muted d-block">Loan Duration</small>
-                                                <strong>{{ loan.startAt.diff(loan.endAt).days }} days</strong>
+                                        
+                                        <!-- Loan Duration -->
+                                        <div class="col-12">
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-clock text-primary fs-5 me-3 mt-1"></i>
+                                                <div>
+                                                    <small class="text-muted d-block">Loan Duration</small>
+                                                    <strong>{{ loan.startAt.diff(loan.endAt).days }} days</strong>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
-                </div>
 
-                <!-- Next Steps Card -->
-                <div class="card shadow rounded-3 mb-4">
-                    <div class="card-header bg-light border-bottom">
-                        <h5 class="mb-0">
-                            <i class="bi bi-list-check me-2"></i>What Happens Next?
-                        </h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="d-flex mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="icon-md bg-primary bg-opacity-10 text-primary rounded-circle">
-                                    <strong>1</strong>
-                                </div>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="mb-1">Library Review</h6>
-                                <p class="mb-0 text-muted">The library will review your loan request and check book availability.</p>
-                            </div>
+                    <!-- Next Steps Card -->
+                    <div class="card shadow rounded-3 mb-4">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0">
+                                <i class="bi bi-list-check me-2"></i>What Happens Next?
+                            </h5>
                         </div>
-                        
-                        <div class="d-flex mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="icon-md bg-primary bg-opacity-10 text-primary rounded-circle">
-                                    <strong>2</strong>
+                        <div class="card-body p-4">
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <div class="icon-md bg-primary bg-opacity-10 text-primary rounded-circle">
+                                        <strong>1</strong>
+                                    </div>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="mb-1">Library Review</h6>
+                                    <p class="mb-0 text-muted">The library will review your loan request and check book availability.</p>
                                 </div>
                             </div>
-                            <div class="ms-3">
-                                <h6 class="mb-1">Email Notification</h6>
-                                <p class="mb-0 text-muted">You'll receive an email confirmation once your request is approved.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="icon-md bg-primary bg-opacity-10 text-primary rounded-circle">
-                                    <strong>3</strong>
+                            
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <div class="icon-md bg-primary bg-opacity-10 text-primary rounded-circle">
+                                        <strong>2</strong>
+                                    </div>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="mb-1">Email Notification</h6>
+                                    <p class="mb-0 text-muted">You'll receive an email confirmation once your request is approved.</p>
                                 </div>
                             </div>
-                            <div class="ms-3">
-                                <h6 class="mb-1">Pick Up Book</h6>
-                                <p class="mb-0 text-muted">Visit the library on your start date to collect the book.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex">
-                            <div class="flex-shrink-0">
-                                <div class="icon-md bg-primary bg-opacity-10 text-primary rounded-circle">
-                                    <strong>4</strong>
+                            
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <div class="icon-md bg-primary bg-opacity-10 text-primary rounded-circle">
+                                        <strong>3</strong>
+                                    </div>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="mb-1">Pick Up Book</h6>
+                                    <p class="mb-0 text-muted">Visit the library on your start date to collect the book.</p>
                                 </div>
                             </div>
-                            <div class="ms-3">
-                                <h6 class="mb-1">Return on Time</h6>
-                                <p class="mb-0 text-muted">Remember to return the book by the due date to avoid late fees.</p>
+                            
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <div class="icon-md bg-primary bg-opacity-10 text-primary rounded-circle">
+                                        <strong>4</strong>
+                                    </div>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="mb-1">Return on Time</h6>
+                                    <p class="mb-0 text-muted">Remember to return the book by the due date to avoid late fees.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Important Notice -->
-                <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
-                    <i class="bi bi-exclamation-triangle fs-3 me-3"></i>
-                    <div>
-                        <strong>Important:</strong> Please bring a valid ID when picking up the book. 
-                        Late returns may result in fines or suspension of borrowing privileges.
+                    <!-- Important Notice -->
+                    <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle fs-3 me-3"></i>
+                        <div>
+                            <strong>Important:</strong> Please bring a valid ID when picking up the book. 
+                            Late returns may result in fines or suspension of borrowing privileges.
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                        <a href="{{ path('book_show', {'id': book.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-book me-2"></i>Back to Book Details
+                        </a>
+                        <a href="{{ path('book_list') }}" class="btn btn-light">
+                            <i class="bi bi-grid me-2"></i>Browse More Books
+                        </a>
+                        <a href="{{ path('app_home') }}" class="btn btn-light">
+                            <i class="bi bi-house me-2"></i>Go to Home
+                        </a>
                     </div>
                 </div>
-
-                <!-- Action Buttons -->
-                <div class="d-flex gap-2 justify-content-center flex-wrap">
-                    <a href="{{ path('book_show', {'id': book.id}) }}" class="btn btn-primary">
-                        <i class="bi bi-book me-2"></i>Back to Book Details
-                    </a>
-                    <a href="{{ path('book_list') }}" class="btn btn-light">
-                        <i class="bi bi-grid me-2"></i>Browse More Books
-                    </a>
-                    <a href="{{ path('app_home') }}" class="btn btn-light">
-                        <i class="bi bi-house me-2"></i>Go to Home
-                    </a>
-                </div>
-
             </div>
-        </div>
+        </section>
+        <!-- =======================
+        Page content END -->
+        {% endblock %}
     </div>
-</section>
-<!-- =======================
-Page content END -->
+</main>
+<!-- Main Content END -->
 
-{% endblock %}
 
-{% block javascripts %}
-    <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 {% endblock %}

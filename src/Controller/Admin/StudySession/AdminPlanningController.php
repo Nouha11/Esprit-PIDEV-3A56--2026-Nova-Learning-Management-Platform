@@ -36,7 +36,9 @@ class AdminPlanningController extends AbstractController
             ? new \DateTimeImmutable($request->query->get('dateTo')) 
             : null;
 
-        $plannings = $this->planningService->findByFilters($status, $dateFrom, $dateTo);
+        #$plannings = $this->planningService->findByFilters($status, $dateFrom, $dateTo);
+
+        $plannings = $this->planningService->findByFilters($filters ?? []);
 
         return $this->render('admin/planning/index.html.twig', [
             'plannings' => $plannings,

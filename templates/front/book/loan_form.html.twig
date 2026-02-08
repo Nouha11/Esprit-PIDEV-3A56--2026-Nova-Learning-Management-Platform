@@ -1,224 +1,232 @@
+{% extends 'base.html.twig' %}
 
 {% block title %}Request Loan - {{ book.title }}{% endblock %}
 
-{% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-{% endblock %}
+{% block body %}
 
-{% block front_content %}
 
-<!-- =======================
-Page Banner START -->
-<section class="py-4 bg-primary bg-opacity-10">
+<!-- Main Content START -->
+<main>
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="h3 mb-0">Request Book Loan</h1>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb breadcrumb-dots mb-0">
-                                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
-                                <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
-                                <li class="breadcrumb-item"><a href="{{ path('book_show', {'id': book.id}) }}">{{ book.title }}</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Request Loan</li>
-                            </ol>
-                        </nav>
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mt-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        {% block front_content %}
+        <!-- =======================
+        Page Banner START -->
+        <section class="bg-primary bg-opacity-10 py-5 mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">Request Book Loan</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('book_show', {'id': book.id}) }}">{{ book.title }}</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Request Loan</li>
+                                </ol>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-<!-- =======================
-Page Banner END -->
+        </section>
+        <!-- =======================
+        Page Banner END -->
 
-<!-- =======================
-Page content START -->
-<section class="pt-5 pb-5">
-    <div class="container">
-        <div class="row g-4 g-lg-5">
-            
-            <!-- Main content START -->
-            <div class="col-lg-8">
-                <!-- Loan Form Card -->
-                <div class="card shadow rounded-3">
-                    <div class="card-header border-bottom bg-light">
-                        <h4 class="mb-0">
-                            <i class="bi bi-calendar-check me-2"></i>Loan Request Form
-                        </h4>
-                    </div>
-                    
-                    <div class="card-body p-4">
-                        <!-- Book Info -->
-                        <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
-                            <div class="flex-shrink-0">
-                                {% if book.coverImage %}
-                                    <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
-                                {% else %}
-                                    <img src="{{ asset('assets/images/book/01.jpg') }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
-                                {% endif %}
-                            </div>
-                            <div class="ms-3 flex-grow-1">
-                                <h5 class="mb-1">{{ book.title }}</h5>
-                                <p class="mb-2 text-muted">
-                                    <i class="bi bi-person-circle me-1"></i>{{ book.author ?? 'Unknown Author' }}
-                                </p>
-                                <span class="badge bg-primary">Physical Book</span>
-                            </div>
+        <!-- =======================
+        Page content START -->
+        <section class="py-5">
+            <div class="row g-4 g-lg-5">
+                
+                <!-- Main content START -->
+                <div class="col-lg-8">
+                    <!-- Loan Form Card -->
+                    <div class="card shadow rounded-3">
+                        <div class="card-header border-bottom bg-light">
+                            <h4 class="mb-0">
+                                <i class="bi bi-calendar-check me-2"></i>Loan Request Form
+                            </h4>
                         </div>
-
-                        <!-- Loan Form -->
-                        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
                         
-                        <!-- Selected Library Display -->
-                        {% if selectedLibrary %}
-                        <div class="mb-4">
-                            <label class="form-label">Selected Library</label>
-                            <div class="card bg-light border-primary">
-                                <div class="card-body p-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-circle flex-shrink-0">
-                                            <i class="bi bi-building fs-5"></i>
-                                        </div>
-                                        <div class="ms-3 flex-grow-1">
-                                            <h6 class="mb-1">{{ selectedLibrary.name }}</h6>
-                                            <p class="mb-0 small text-muted">
-                                                <i class="bi bi-geo-alt me-1"></i>{{ selectedLibrary.address ?? 'Address not available' }}
-                                            </p>
+                        <div class="card-body p-4">
+                            <!-- Book Info -->
+                            <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
+                                <div class="flex-shrink-0">
+                                    {% if book.coverImage %}
+                                        <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
+                                    {% else %}
+                                        <img src="{{ asset('assets/images/book/01.jpg') }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
+                                    {% endif %}
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h5 class="mb-1">{{ book.title }}</h5>
+                                    <p class="mb-2 text-muted">
+                                        <i class="bi bi-person-circle me-1"></i>{{ book.author ?? 'Unknown Author' }}
+                                    </p>
+                                    <span class="badge bg-primary">Physical Book</span>
+                                </div>
+                            </div>
+
+                            <!-- Loan Form -->
+                            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                            
+                            <!-- Selected Library Display -->
+                            {% if selectedLibrary %}
+                            <div class="mb-4">
+                                <label class="form-label">Selected Library</label>
+                                <div class="card bg-light border-primary">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-circle flex-shrink-0">
+                                                <i class="bi bi-building fs-5"></i>
+                                            </div>
+                                            <div class="ms-3 flex-grow-1">
+                                                <h6 class="mb-1">{{ selectedLibrary.name }}</h6>
+                                                <p class="mb-0 small text-muted">
+                                                    <i class="bi bi-geo-alt me-1"></i>{{ selectedLibrary.address ?? 'Address not available' }}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            {{ form_widget(form.libraryId) }}
-                            <small class="form-text text-muted">
-                                <a href="{{ path('book_libraries', {'id': book.id}) }}" class="text-primary">
-                                    <i class="bi bi-arrow-left-circle me-1"></i>Choose a different library
-                                </a>
-                            </small>
-                        </div>
-                        {% else %}
-                        <div class="alert alert-warning" role="alert">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            Please <a href="{{ path('book_libraries', {'id': book.id}) }}" class="alert-link">select a library</a> first.
-                        </div>
-                        {% endif %}
-
-                        <!-- Loan Period -->
-                        <h5 class="mb-3">Select Loan Period</h5>
-                        <div class="row">
-                            <!-- Start Date & Time -->
-                            <div class="col-md-6 mb-4">
-                                {{ form_label(form.startAt, 'Pickup Date & Time', {'label_attr': {'class': 'form-label'}}) }}
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
-                                    {{ form_widget(form.startAt, {'attr': {'class': 'form-control'}}) }}
-                                </div>
-                                <small class="form-text text-muted">When will you pick up the book?</small>
-                                {{ form_errors(form.startAt) }}
-                            </div>
-
-                            <!-- End Date & Time -->
-                            <div class="col-md-6 mb-4">
-                                {{ form_label(form.endAt, 'Return Date & Time', {'label_attr': {'class': 'form-label'}}) }}
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
-                                    {{ form_widget(form.endAt, {'attr': {'class': 'form-control'}}) }}
-                                </div>
-                                <small class="form-text text-muted">When will you return the book?</small>
-                                {{ form_errors(form.endAt) }}
-                            </div>
-                        </div>
-
-                        <!-- Info Alert -->
-                        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
-                            <i class="bi bi-info-circle fs-4 me-3"></i>
-                            <div>
-                                <small>
-                                    <strong>Loan Policy:</strong> Books can be borrowed for a maximum of 14 days. 
-                                    Late returns may result in fines. Please return the book on time.
+                                {{ form_widget(form.libraryId) }}
+                                <small class="form-text text-muted">
+                                    <a href="{{ path('book_libraries', {'id': book.id}) }}" class="text-primary">
+                                        <i class="bi bi-arrow-left-circle me-1"></i>Choose a different library
+                                    </a>
                                 </small>
                             </div>
-                        </div>
+                            {% else %}
+                            <div class="alert alert-warning" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Please <a href="{{ path('book_libraries', {'id': book.id}) }}" class="alert-link">select a library</a> first.
+                            </div>
+                            {% endif %}
 
-                        <!-- Submit Buttons -->
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle me-2"></i>Submit Loan Request
-                            </button>
-                            <a href="{{ path('book_libraries', {'id': book.id}) }}" class="btn btn-light">
-                                <i class="bi bi-arrow-left me-2"></i>Back to Libraries
-                            </a>
-                        </div>
+                            <!-- Loan Period -->
+                            <h5 class="mb-3">Select Loan Period</h5>
+                            <div class="row">
+                                <!-- Start Date & Time -->
+                                <div class="col-md-6 mb-4">
+                                    {{ form_label(form.startAt, 'Pickup Date & Time', {'label_attr': {'class': 'form-label'}}) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                                        {{ form_widget(form.startAt, {'attr': {'class': 'form-control'}}) }}
+                                    </div>
+                                    <small class="form-text text-muted">When will you pick up the book?</small>
+                                    {{ form_errors(form.startAt) }}
+                                </div>
 
-                        {{ form_end(form) }}
+                                <!-- End Date & Time -->
+                                <div class="col-md-6 mb-4">
+                                    {{ form_label(form.endAt, 'Return Date & Time', {'label_attr': {'class': 'form-label'}}) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                                        {{ form_widget(form.endAt, {'attr': {'class': 'form-control'}}) }}
+                                    </div>
+                                    <small class="form-text text-muted">When will you return the book?</small>
+                                    {{ form_errors(form.endAt) }}
+                                </div>
+                            </div>
+
+                            <!-- Info Alert -->
+                            <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                                <i class="bi bi-info-circle fs-4 me-3"></i>
+                                <div>
+                                    <small>
+                                        <strong>Loan Policy:</strong> Books can be borrowed for a maximum of 14 days. 
+                                        Late returns may result in fines. Please return the book on time.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-2"></i>Submit Loan Request
+                                </button>
+                                <a href="{{ path('book_libraries', {'id': book.id}) }}" class="btn btn-light">
+                                    <i class="bi bi-arrow-left me-2"></i>Back to Libraries
+                                </a>
+                            </div>
+
+                            {{ form_end(form) }}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!-- Main content END -->
+                <!-- Main content END -->
 
-            <!-- Sidebar START -->
-            <div class="col-lg-4">
-                <!-- Loan Summary Card -->
-                <div class="card shadow rounded-3 sticky-top" style="top: 100px;">
-                    <div class="card-header border-bottom bg-light">
-                        <h5 class="mb-0">Loan Summary</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <!-- Book Details -->
-                        <h6 class="mb-3">Book Information</h6>
-                        <ul class="list-unstyled mb-4">
-                            <li class="mb-2">
-                                <i class="bi bi-book text-primary me-2"></i>
-                                <strong>Title:</strong> {{ book.title }}
-                            </li>
-                            <li class="mb-2">
-                                <i class="bi bi-person text-primary me-2"></i>
-                                <strong>Author:</strong> {{ book.author ?? 'Unknown' }}
-                            </li>
-                            <li class="mb-2">
-                                <i class="bi bi-tag text-primary me-2"></i>
-                                <strong>Format:</strong> Physical Book
-                            </li>
-                        </ul>
+                <!-- Sidebar START -->
+                <div class="col-lg-4">
+                    <!-- Loan Summary Card -->
+                    <div class="card shadow rounded-3 sticky-top" style="top: 100px;">
+                        <div class="card-header border-bottom bg-light">
+                            <h5 class="mb-0">Loan Summary</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Book Details -->
+                            <h6 class="mb-3">Book Information</h6>
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-2">
+                                    <i class="bi bi-book text-primary me-2"></i>
+                                    <strong>Title:</strong> {{ book.title }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-person text-primary me-2"></i>
+                                    <strong>Author:</strong> {{ book.author ?? 'Unknown' }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-tag text-primary me-2"></i>
+                                    <strong>Format:</strong> Physical Book
+                                </li>
+                            </ul>
 
-                        <hr>
+                            <hr>
 
-                        <!-- Loan Benefits -->
-                        <h6 class="mb-3">Loan Benefits</h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="mb-2">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                Free borrowing
-                            </li>
-                            <li class="mb-2">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                Up to 14 days loan period
-                            </li>
-                            <li class="mb-2">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                Renewable if available
-                            </li>
-                            <li class="mb-0">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                No late fees (first time)
-                            </li>
-                        </ul>
+                            <!-- Loan Benefits -->
+                            <h6 class="mb-3">Loan Benefits</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Free borrowing
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Up to 14 days loan period
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Renewable if available
+                                </li>
+                                <li class="mb-0">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    No late fees (first time)
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+                <!-- Sidebar END -->
             </div>
-            <!-- Sidebar END -->
-
-        </div>
+        </section>
+        <!-- =======================
+        Page content END -->
+        {% endblock %}
     </div>
-</section>
-<!-- =======================
-Page content END -->
+</main>
+<!-- Main Content END -->
 
-{% endblock %}
 
-{% block javascripts %}
-    <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 {% endblock %}
