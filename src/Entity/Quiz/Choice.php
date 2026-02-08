@@ -2,6 +2,8 @@
 
 namespace App\Entity\Quiz;
 
+// Choice.php
+
 use App\Repository\Quiz\ChoiceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;

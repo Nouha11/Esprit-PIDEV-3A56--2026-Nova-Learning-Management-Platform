@@ -2,6 +2,8 @@
 
 namespace App\Entity\Quiz;
 
+// Quiz.php
+
 use App\Entity\Quiz;
 use App\Repository\Quiz\QuestionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
