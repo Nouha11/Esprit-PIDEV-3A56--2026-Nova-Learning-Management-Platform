@@ -1,7 +1,6 @@
 <?php
 namespace App\Controller\Front\Game;
 
-use App\Repository\Gamification\StudentRewardRepository;
 use App\Service\game\RewardService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,13 +11,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class RewardController extends AbstractController
 {
     public function __construct(
-        private RewardService $rewardService,
-        private StudentRewardRepository $studentRewardRepository
+        private RewardService $rewardService
     ) {
     }
 
     /**
-    * View my earned rewards
+    * View my earned rewards (placeholder - rewards tracking removed)
     */
     #[Route('/my-rewards', name: 'front_reward_my_rewards', methods: ['GET'])]
     public function myRewards(): Response
@@ -31,22 +29,8 @@ class RewardController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        // Fetch student's earned rewards
-        $earnedRewards = $this->studentRewardRepository->findByStudent($student);
-        $unviewedCount = count($this->studentRewardRepository->findUnviewedByStudent($student));
-
-        // Mark all as viewed
-        foreach ($earnedRewards as $reward) {
-            if (!$reward->isViewed()) {
-                $reward->setIsViewed(true);
-            }
-        }
-        $this->getDoctrine()->getManager()->flush();
-
         return $this->render('front/reward/my_rewards.html.twig', [
-            'earnedRewards' => $earnedRewards,
             'student' => $student,
-            'unviewedCount' => $unviewedCount,
         ]);
     }
 
@@ -60,19 +44,9 @@ class RewardController extends AbstractController
         $student = $user->getStudentProfile();
 
         $allRewards = $this->rewardService->getActiveRewards();
-        $earnedRewardIds = [];
-
-        if ($student) {
-            $earnedRewards = $this->studentRewardRepository->findByStudent($student);
-            $earnedRewardIds = array_map(
-                fn($sr) => $sr->getReward()->getId(),
-                $earnedRewards
-            );
-        }
 
         return $this->render('front/reward/browse.html.twig', [
             'rewards' => $allRewards,
-            'earnedRewardIds' => $earnedRewardIds,
             'student' => $student,
         ]);
     }

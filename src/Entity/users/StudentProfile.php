@@ -92,11 +92,6 @@ class StudentProfile
     #[ORM\Column]
     private ?int $level = 1;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getFirstName(): ?string
     {
         return $this->firstName;
@@ -257,5 +252,10 @@ class StudentProfile
         $requiredXP = $nextLevelXP - $currentLevelXP;
         
         return round(($progressXP / $requiredXP) * 100, 2);
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Entity\users;
 
-
 use App\Entity\StudySession\StudySession;
 use App\Entity\Forum\Comment;
 use App\Entity\Forum\Post;
@@ -27,7 +26,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
+<<<<<<< HEAD
 #[ORM\Column(unique: true)]
+=======
+    #[ORM\Column(length: 180, unique: true)]
+>>>>>>> refs/remotes/origin/main
     #[Assert\NotBlank(message: 'Email is required')]
     #[Assert\Email(message: 'Please enter a valid email address')]
     #[Assert\Length(
@@ -46,7 +49,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $password = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, unique: true)]
     #[Assert\NotBlank(message: 'Username is required')]
     #[Assert\Length(
         min: 3,
@@ -96,20 +99,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: StudySession::class, mappedBy: 'user')]
     private Collection $studySessions;
 
-    public function __construct()
-    {
-        $this->studySessions = new ArrayCollection();
-        $this->posts = new ArrayCollection();
-        $this->comments = new ArrayCollection();
-
-        $this->xp = 0; //xp 
-    }
-
     /**
      * @var Collection<int, Post>
      */
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'author')]   
-     private Collection $posts;
+    private Collection $posts;
 
     /**
      * @var Collection<int, Comment>
@@ -117,7 +111,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'author')]
     private Collection $comments;
 
-    
+    /**
+     * @var Collection<int, \App\Entity\Library\Book>
+     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Library\Book::class, mappedBy: 'user')]
+    private Collection $books;
+
+    /**
+     * @var Collection<int, \App\Entity\Gamification\Game>
+     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Gamification\Game::class, mappedBy: 'user')]
+    private Collection $games;
+
+    /**
+     * @var Collection<int, \App\Entity\Quiz\Question>
+     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Quiz\Question::class, mappedBy: 'user')]
+    private Collection $questions;
+
+    public function __construct()
+    {
+        $this->studySessions = new ArrayCollection();
+        $this->posts = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+        $this->books = new ArrayCollection();
+        $this->games = new ArrayCollection();
+        $this->questions = new ArrayCollection();
+        $this->xp = 0; //xp 
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -131,7 +153,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -143,7 +164,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -155,7 +175,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): static
     {
         $this->username = $username;
-
         return $this;
     }
 
@@ -167,7 +186,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRole(string $role): static
     {
         $this->role = $role;
-
         return $this;
     }
 
@@ -179,11 +197,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
-
         return $this;
     }
 
-     /**
+    /**
      * @return Collection<int, StudySession>
      */
     public function getStudySessions(): Collection
@@ -197,7 +214,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->studySessions->add($studySession);
             $studySession->setUser($this);
         }
-
         return $this;
     }
 
@@ -209,7 +225,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $studySession->setUser(null);
             }
         }
-
         return $this;
     }
 
@@ -227,7 +242,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->posts->add($post);
             $post->setAuthor($this);
         }
-
         return $this;
     }
 
@@ -239,7 +253,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $post->setAuthor(null);
             }
         }
-
         return $this;
     }
 
@@ -257,7 +270,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->comments->add($comment);
             $comment->setAuthor($this);
         }
-
         return $this;
     }
 
@@ -269,7 +281,87 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $comment->setAuthor(null);
             }
         }
+        return $this;
+    }
 
+    /**
+     * @return Collection<int, \App\Entity\Library\Book>
+     */
+    public function getBooks(): Collection
+    {
+        return $this->books;
+    }
+
+    public function addBook(\App\Entity\Library\Book $book): static
+    {
+        if (!$this->books->contains($book)) {
+            $this->books->add($book);
+            $book->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeBook(\App\Entity\Library\Book $book): static
+    {
+        if ($this->books->removeElement($book)) {
+            if ($book->getUser() === $this) {
+                $book->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, \App\Entity\Gamification\Game>
+     */
+    public function getGames(): Collection
+    {
+        return $this->games;
+    }
+
+    public function addGame(\App\Entity\Gamification\Game $game): static
+    {
+        if (!$this->games->contains($game)) {
+            $this->games->add($game);
+            $game->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeGame(\App\Entity\Gamification\Game $game): static
+    {
+        if ($this->games->removeElement($game)) {
+            if ($game->getUser() === $this) {
+                $game->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, \App\Entity\Quiz\Question>
+     */
+    public function getQuestions(): Collection
+    {
+        return $this->questions;
+    }
+
+    public function addQuestion(\App\Entity\Quiz\Question $question): static
+    {
+        if (!$this->questions->contains($question)) {
+            $this->questions->add($question);
+            $question->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeQuestion(\App\Entity\Quiz\Question $question): static
+    {
+        if ($this->questions->removeElement($question)) {
+            if ($question->getUser() === $this) {
+                $question->setUser(null);
+            }
+        }
         return $this;
     }
 
@@ -348,10 +440,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->updatedAt = new \DateTime();
     }
 
-    
-
     //get and set xp 
-
     public function getXp(): ?int
     {
         return $this->xp;
@@ -360,7 +449,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setXp(int $xp): static
     {
         $this->xp = $xp;
-
         return $this;
     }
 }
