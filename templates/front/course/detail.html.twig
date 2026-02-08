@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>{{ course.courseName }} - Eduport LMS</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+	<link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+	<link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path('app_home') }}">
+				<img src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+			</a>
+
+			<div class="navbar-collapse collapse">
+				<ul class="navbar-nav mx-auto">
+					<li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}">Home</a></li>
+					<li class="nav-item"><a class="nav-link active" href="{{ path('course_index') }}">Courses</a></li>
+					{% if is_granted('ROLE_TUTOR') %}
+						<li class="nav-item"><a class="nav-link" href="{{ path('course_new') }}">Create Course</a></li>
+					{% endif %}
+				</ul>
+			</div>
+
+			{% if app.user %}
+				<a href="{{ path('app_logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
+			{% else %}
+				<a href="{{ path('app_login') }}" class="btn btn-sm btn-primary">Login</a>
+			{% endif %}
+		</div>
+	</nav>
+</header>
+
+<main>
+
+<!-- Course Header -->
+<section class="bg-primary bg-opacity-10 py-5">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8">
+				<span class="badge bg-primary mb-2">{{ course.category }}</span>
+				<h1 class="mb-3">{{ course.courseName }}</h1>
+				<p class="lead">{{ course.description ?? 'No description available' }}</p>
+				
+				<div class="d-flex align-items-center mt-4">
+					<div class="me-4">
+						<i class="bi bi-person-circle fs-5 me-2"></i>
+						<span>
+							{% if course.createdBy %}
+								{% if course.createdBy.roles[0] == 'ROLE_TUTOR' %}
+									By {{ course.createdBy.username }}
+								{% else %}
+									Provided by NOVA
+								{% endif %}
+							{% else %}
+								Provided by NOVA
+							{% endif %}
+						</span>
+					</div>
+					<div class="me-4">
+						<i class="bi bi-calendar3 fs-5 me-2"></i>
+						<span>{{ course.createdAt|date('M d, Y') }}</span>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-lg-4">
+				<div class="card shadow mt-4 mt-lg-0">
+					<div class="card-body text-center">
+						<h4 class="mb-3">Course Status</h4>
+						{% if course.status == 'COMPLETED' %}
+							<span class="badge bg-success fs-6 mb-3">Completed</span>
+						{% elseif course.status == 'IN_PROGRESS' %}
+							<span class="badge bg-primary fs-6 mb-3">In Progress</span>
+						{% else %}
+							<span class="badge bg-secondary fs-6 mb-3">Not Started</span>
+						{% endif %}
+						
+						{% if course.isPublished %}
+							<p class="text-success mb-3">
+								<i class="bi bi-check-circle"></i> Published
+							</p>
+						{% else %}
+							<p class="text-muted mb-3">
+								<i class="bi bi-x-circle"></i> Draft
+							</p>
+						{% endif %}
+						
+						{% if is_granted('ROLE_STUDENT') %}
+							<a href="{{ path('planning_new', {course: course.id}) }}" class="btn btn-primary w-100">
+								<i class="bi bi-calendar-plus"></i> Plan Study Session
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Course Details -->
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+			
+			<!-- Main Content -->
+			<div class="col-lg-8">
+				
+				<!-- Course Information -->
+				<div class="card shadow mb-4">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">
+							<i class="bi bi-info-circle me-2"></i>Course Information
+						</h5>
+					</div>
+					<div class="card-body">
+						<div class="row g-4">
+							<div class="col-md-6">
+								<div class="d-flex align-items-center">
+									<div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-circle me-3">
+										<i class="bi bi-signal fs-5"></i>
+									</div>
+									<div>
+										<h6 class="mb-0">Difficulty Level</h6>
+										<p class="mb-0 text-muted">{{ course.difficulty }}</p>
+									</div>
+								</div>
+							</div>
+							
+							<div class="col-md-6">
+								<div class="d-flex align-items-center">
+									<div class="icon-lg bg-success bg-opacity-10 text-success rounded-circle me-3">
+										<i class="bi bi-clock fs-5"></i>
+									</div>
+									<div>
+										<h6 class="mb-0">Estimated Duration</h6>
+										<p class="mb-0 text-muted">{{ course.estimatedDuration }} minutes</p>
+									</div>
+								</div>
+							</div>
+							
+							<div class="col-md-6">
+								<div class="d-flex align-items-center">
+									<div class="icon-lg bg-info bg-opacity-10 text-info rounded-circle me-3">
+										<i class="bi bi-people fs-5"></i>
+									</div>
+									<div>
+										<h6 class="mb-0">Maximum Students</h6>
+										<p class="mb-0 text-muted">{{ course.maxStudents ?? 'Unlimited' }}</p>
+									</div>
+								</div>
+							</div>
+							
+							<div class="col-md-6">
+								<div class="d-flex align-items-center">
+									<div class="icon-lg bg-warning bg-opacity-10 text-warning rounded-circle me-3">
+										<i class="bi bi-graph-up fs-5"></i>
+									</div>
+									<div>
+										<h6 class="mb-0">Progress</h6>
+										<p class="mb-0 text-muted">{{ course.progress }}%</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<!-- Progress Bar -->
+						<div class="mt-4">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="text-muted">Course Progress</span>
+								<span class="fw-bold">{{ course.progress }}%</span>
+							</div>
+							<div class="progress" style="height: 10px;">
+								<div class="progress-bar" role="progressbar" style="width: {{ course.progress }}%" 
+									 aria-valuenow="{{ course.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Planning Sessions -->
+				<div class="card shadow">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">
+							<i class="bi bi-calendar-check me-2"></i>Planning Sessions
+						</h5>
+					</div>
+					<div class="card-body">
+						{% if course.plannings|length > 0 %}
+							<div class="list-group list-group-flush">
+								{% for planning in course.plannings %}
+									<div class="list-group-item px-0">
+										<div class="d-flex justify-content-between align-items-center">
+											<div>
+												<h6 class="mb-1">{{ planning.title }}</h6>
+												<small class="text-muted">
+													<i class="bi bi-calendar3"></i> {{ planning.scheduledDate|date('M d, Y') }} 
+													at {{ planning.scheduledTime|date('H:i') }}
+												</small>
+											</div>
+											<div>
+												{% if planning.status == 'COMPLETED' %}
+													<span class="badge bg-success">Completed</span>
+												{% elseif planning.status == 'SCHEDULED' %}
+													<span class="badge bg-primary">Scheduled</span>
+												{% elseif planning.status == 'MISSED' %}
+													<span class="badge bg-danger">Missed</span>
+												{% else %}
+													<span class="badge bg-secondary">Cancelled</span>
+												{% endif %}
+											</div>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						{% else %}
+							<p class="text-muted text-center mb-0">
+								<i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+								No planning sessions yet for this course.
+							</p>
+						{% endif %}
+					</div>
+				</div>
+				
+			</div>
+			
+			<!-- Sidebar -->
+			<div class="col-lg-4">
+				
+				<!-- Quick Actions -->
+				{% if is_granted('ROLE_TUTOR') and course.createdBy and course.createdBy.id == app.user.id %}
+					<div class="card shadow mb-4">
+						<div class="card-header bg-light">
+							<h6 class="mb-0">Quick Actions</h6>
+						</div>
+						<div class="card-body">
+							<div class="d-grid gap-2">
+								<a href="{{ path('course_edit', {id: course.id}) }}" class="btn btn-warning">
+									<i class="bi bi-pencil me-2"></i>Edit Course
+								</a>
+								<a href="{{ path('course_delete', {id: course.id}) }}" 
+								   class="btn btn-danger"
+								   onclick="return confirm('Are you sure you want to delete this course?')">
+									<i class="bi bi-trash me-2"></i>Delete Course
+								</a>
+							</div>
+						</div>
+					</div>
+				{% endif %}
+				
+				<!-- Course Stats -->
+				<div class="card shadow">
+					<div class="card-header bg-light">
+						<h6 class="mb-0">Course Statistics</h6>
+					</div>
+					<div class="card-body">
+						<ul class="list-unstyled mb-0">
+							<li class="mb-3">
+								<div class="d-flex justify-content-between">
+									<span><i class="bi bi-calendar-plus text-primary me-2"></i>Created</span>
+									<span class="fw-bold">{{ course.createdAt|date('M d, Y') }}</span>
+								</div>
+							</li>
+							<li class="mb-3">
+								<div class="d-flex justify-content-between">
+									<span><i class="bi bi-calendar-check text-success me-2"></i>Planning Sessions</span>
+									<span class="fw-bold">{{ course.plannings|length }}</span>
+								</div>
+							</li>
+							<li class="mb-3">
+								<div class="d-flex justify-content-between">
+									<span><i class="bi bi-tag text-info me-2"></i>Category</span>
+									<span class="badge bg-primary">{{ course.category }}</span>
+								</div>
+							</li>
+							<li>
+								<div class="d-flex justify-content-between">
+									<span><i class="bi bi-eye text-warning me-2"></i>Status</span>
+									{% if course.isPublished %}
+										<span class="badge bg-success">Published</span>
+									{% else %}
+										<span class="badge bg-secondary">Draft</span>
+									{% endif %}
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+				
+			</div>
+			
+		</div>
+		
+		<!-- Back Button -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<a href="{{ path('course_index') }}" class="btn btn-secondary">
+					<i class="bi bi-arrow-left me-2"></i>Back to Courses
+				</a>
+			</div>
+		</div>
+		
+	</div>
+</section>
+
+</main>
+
+<footer class="bg-light p-4 text-center">
+	<p class="mb-0">© 2024 Eduport</p>
+</footer>
+
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+
+</body>
+</html>
