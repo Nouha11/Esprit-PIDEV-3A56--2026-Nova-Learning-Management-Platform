@@ -1,52 +1,279 @@
 <!-- Topbar -->
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
     <!-- Sidebar Toggle (Topbar) -->
-    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3">
         <i class="fa fa-bars"></i>
     </button>
 
     <!-- Topbar Search -->
-    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+    <form class="d-none d-sm-inline-block form-inline me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search position-relative" id="searchForm">
         <div class="input-group">
-            <input type="text" class="form-control bg-light border-0 small" placeholder="Search...">
-            <div class="input-group-append">
-                <button class="btn btn-primary" type="button">
-                    <i class="fas fa-search fa-sm"></i>
-                </button>
-            </div>
+            <input type="text" class="form-control bg-light border-0 small" id="searchInput" 
+                   placeholder="Search for books..." aria-label="Search" autocomplete="off">
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search fa-sm"></i>
+            </button>
+        </div>
+        <!-- Search Results Dropdown -->
+        <div id="searchResults" class="dropdown-menu shadow-lg" style="display: none; width: 400px; max-height: 400px; overflow-y: auto;">
+            <div id="searchResultsContent"></div>
         </div>
     </form>
 
     <!-- Topbar Navbar -->
-    <ul class="navbar-nav ml-auto">
+    <ul class="navbar-nav ms-auto">
+        <!-- Nav Item - Notifications -->
+        <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" 
+               data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bell fa-fw"></i>
+                <!-- Counter - Notifications -->
+                <span class="badge badge-danger badge-counter">3+</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                <h6 class="dropdown-header">Notifications</h6>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="me-3">
+                        <div class="icon-circle bg-primary">
+                            <i class="fas fa-book text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-gray-500">December 12, 2023</div>
+                        <span class="font-weight-bold">New book added to library</span>
+                    </div>
+                </a>
+                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Notifications</a>
+            </div>
+        </li>
+
+        <div class="topbar-divider d-none d-sm-block"></div>
+
         <!-- Nav Item - User Information -->
         <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
                data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                <span class="me-2 d-none d-lg-inline text-gray-600 small">
                     {% if app.user %}
                         {{ app.user.username }}
                     {% else %}
                         Admin User
                     {% endif %}
                 </span>
-                <img class="img-profile rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" width="40" height="40">
+                <img class="img-profile rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" width="40" height="40" alt="User Avatar">
             </a>
             <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
+                <div class="dropdown-header">
+                    <strong>
+                        {% if app.user %}
+                            {{ app.user.username }}
+                        {% else %}
+                            Admin User
+                        {% endif %}
+                    </strong>
+                    <br>
+                    <small class="text-muted">
+                        {% if app.user %}
+                            {{ app.user.email }}
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="#">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                    <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
                     Profile
                 </a>
                 <a class="dropdown-item" href="#">
-                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                    <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
                     Settings
+                </a>
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>
+                    Activity Log
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="{{ path('app_logout') }}">
-                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                    <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
                     Logout
                 </a>
             </div>
         </li>
     </ul>
 </nav>
+
+<style>
+    /* Topbar styling */
+    .topbar {
+        height: 4.375rem;
+    }
+    
+    .topbar .navbar-search {
+        width: 25rem;
+    }
+    
+    .topbar .navbar-search input {
+        font-size: 0.85rem;
+        height: 2rem;
+    }
+    
+    .topbar-divider {
+        width: 0;
+        border-right: 1px solid #e3e6f0;
+        height: calc(4.375rem - 2rem);
+        margin: auto 1rem;
+    }
+    
+    .img-profile {
+        height: 2rem;
+        width: 2rem;
+    }
+    
+    .badge-counter {
+        position: absolute;
+        transform: scale(0.7);
+        transform-origin: top right;
+        right: 0.25rem;
+        margin-top: -0.25rem;
+    }
+    
+    .icon-circle {
+        height: 2.5rem;
+        width: 2.5rem;
+        border-radius: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .dropdown-menu {
+        font-size: 0.85rem;
+    }
+    
+    .dropdown-header {
+        font-weight: 800;
+        font-size: 0.65rem;
+        color: #858796;
+    }
+    
+    /* Search Results Styling */
+    #searchResults {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        margin-top: 0.5rem;
+    }
+    
+    .search-result-item {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e3e6f0;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .search-result-item:hover {
+        background-color: #f8f9fc;
+    }
+    
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+    
+    .search-result-img {
+        width: 50px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+</style>
+
+<script>
+// Live Search Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const searchResultsContent = document.getElementById('searchResultsContent');
+    const searchForm = document.getElementById('searchForm');
+    let searchTimeout;
+
+    // Fonction de recherche
+    function performSearch(query) {
+        if (query.length < 2) {
+            searchResults.style.display = 'none';
+            return;
+        }
+
+        // Appel AJAX pour rechercher les livres
+        fetch(`{{ path('admin_books_search') }}?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(books => {
+                if (books.length === 0) {
+                    searchResultsContent.innerHTML = `
+                        <div class="p-3 text-center text-muted">
+                            <i class="fas fa-search fa-2x mb-2"></i>
+                            <p class="mb-0">No books found</p>
+                        </div>
+                    `;
+                } else {
+                    searchResultsContent.innerHTML = books.map(book => `
+                        <a href="${book.url}" class="search-result-item text-decoration-none d-flex align-items-center">
+                            <img src="${book.coverImage}" alt="${book.title}" class="search-result-img me-3">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 text-dark">${book.title}</h6>
+                                <p class="mb-0 small text-muted">
+                                    <i class="fas fa-user me-1"></i>${book.author}
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-tag me-1"></i>$${book.price}
+                                    <span class="mx-2">•</span>
+                                    ${book.isDigital ? '<span class="badge bg-success">Digital</span>' : '<span class="badge bg-secondary">Physical</span>'}
+                                </p>
+                            </div>
+                        </a>
+                    `).join('');
+                }
+                searchResults.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                searchResultsContent.innerHTML = `
+                    <div class="p-3 text-center text-danger">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                        <p class="mb-0">Error loading results</p>
+                    </div>
+                `;
+                searchResults.style.display = 'block';
+            });
+    }
+
+    // Événement de saisie dans le champ de recherche
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        // Délai de 300ms avant de lancer la recherche
+        searchTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
+    });
+
+    // Empêcher la soumission du formulaire
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        performSearch(searchInput.value.trim());
+    });
+
+    // Fermer les résultats quand on clique ailleurs
+    document.addEventListener('click', function(e) {
+        if (!searchForm.contains(e.target)) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Rouvrir les résultats quand on clique dans le champ
+    searchInput.addEventListener('focus', function() {
+        if (this.value.trim().length >= 2 && searchResultsContent.innerHTML) {
+            searchResults.style.display = 'block';
+        }
+    });
+});
+</script>

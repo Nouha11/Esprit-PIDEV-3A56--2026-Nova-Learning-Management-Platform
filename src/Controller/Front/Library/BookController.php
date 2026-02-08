@@ -17,13 +17,83 @@ use Symfony\Component\Routing\Attribute\Route;
 class BookController extends AbstractController
 {
     #[Route('/books', name: 'book_list')]
-    public function list(EntityManagerInterface $em): Response
+    public function list(Request $request, EntityManagerInterface $em): Response
     {
-        $books = $em->getRepository(Book::class)->findAll();
+        $search = $request->query->get('search', '');
+        $productType = $request->query->get('product_type', '');
+        $author = $request->query->get('author', '');
+
+        $qb = $em->getRepository(Book::class)->createQueryBuilder('b');
+
+        // Apply search filter
+        if ($search) {
+            $qb->andWhere('b.title LIKE :search OR b.author LIKE :search OR b.description LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        // Apply product type filter
+        if ($productType !== '') {
+            $isDigital = ($productType === 'digital');
+            $qb->andWhere('b.isDigital = :isDigital')
+               ->setParameter('isDigital', $isDigital);
+        }
+
+        // Apply author filter
+        if ($author) {
+            $qb->andWhere('b.author = :author')
+               ->setParameter('author', $author);
+        }
+
+        $books = $qb->getQuery()->getResult();
+
+        // Get all unique authors for the filter dropdown
+        $authors = $em->getRepository(Book::class)
+            ->createQueryBuilder('b')
+            ->select('DISTINCT b.author')
+            ->where('b.author IS NOT NULL')
+            ->orderBy('b.author', 'ASC')
+            ->getQuery()
+            ->getResult();
 
         return $this->render('front/book/list.html.twig', [
             'books' => $books,
+            'authors' => array_column($authors, 'author'),
+            'currentSearch' => $search,
+            'currentProductType' => $productType,
+            'currentAuthor' => $author,
         ]);
+    }
+
+    #[Route('/books/search-ajax', name: 'book_search_ajax')]
+    public function searchAjax(Request $request, EntityManagerInterface $em): Response
+    {
+        $query = $request->query->get('q', '');
+        
+        if (strlen($query) < 2) {
+            return $this->json([]);
+        }
+
+        $books = $em->getRepository(Book::class)
+            ->createQueryBuilder('b')
+            ->where('b.title LIKE :query OR b.author LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->setMaxResults(5)
+            ->getQuery()
+            ->getResult();
+
+        $results = [];
+        foreach ($books as $book) {
+            $results[] = [
+                'id' => $book->getId(),
+                'title' => $book->getTitle(),
+                'author' => $book->getAuthor() ?? 'Unknown Author',
+                'price' => $book->getPrice() ?? '0.00',
+                'coverImage' => $book->getCoverImage() ?? 'assets/images/book/01.jpg',
+                'isDigital' => $book->isDigital(),
+            ];
+        }
+
+        return $this->json($results);
     }
 
     #[Route('/books/{id}', name: 'book_show')]
@@ -42,13 +112,23 @@ class BookController extends AbstractController
     #[Route('/books/{id}/libraries', name: 'book_libraries')]
     public function libraries(int $id, EntityManagerInterface $em): Response
     {
-        // For now list all libraries. In a real app filter by availability.
-        $libraries = $em->getRepository(LibraryEntity::class)->findAll();
         $book = $em->getRepository(Book::class)->find($id);
+        
+        if (!$book) {
+            throw $this->createNotFoundException('Book not found');
+        }
+
+        // Get inventory data for each library
+        $inventoryData = [];
+        foreach ($book->getLibraries() as $library) {
+            $inventory = $em->getRepository(\App\Entity\Library\BookLibraryInventory::class)
+                ->findOneBy(['book' => $book, 'library' => $library]);
+            $inventoryData[$library->getId()] = $inventory;
+        }
 
         return $this->render('front/book/libraries.html.twig', [
             'book' => $book,
-            'libraries' => $libraries,
+            'inventoryData' => $inventoryData,
         ]);
     }
 
@@ -60,7 +140,14 @@ class BookController extends AbstractController
             throw $this->createNotFoundException('Book not found');
         }
 
-        $form = $this->createForm(LoanType::class, ['bookId' => $id]);
+        // Get pre-selected library from query parameter
+        $libraryId = $request->query->get('library');
+        $selectedLibrary = null;
+        if ($libraryId) {
+            $selectedLibrary = $em->getRepository(LibraryEntity::class)->find($libraryId);
+        }
+
+        $form = $this->createForm(LoanType::class, ['bookId' => $id, 'libraryId' => $libraryId]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -97,13 +184,40 @@ class BookController extends AbstractController
             $em->persist($loan);
             $em->flush();
 
-            $this->addFlash('success', 'Loan request submitted.');
-            return $this->redirectToRoute('book_show', ['id' => $id]);
+            // Store loan ID in session for confirmation page
+            $request->getSession()->set('last_loan_id', $loan->getId());
+
+            return $this->redirectToRoute('book_loan_confirmation', ['id' => $id]);
         }
 
         return $this->render('front/book/loan_form.html.twig', [
             'book' => $book,
             'form' => $form->createView(),
+            'selectedLibrary' => $selectedLibrary,
+        ]);
+    }
+
+    #[Route('/books/{id}/loan/confirmation', name: 'book_loan_confirmation')]
+    public function loanConfirmation(Request $request, int $id, EntityManagerInterface $em): Response
+    {
+        $book = $em->getRepository(Book::class)->find($id);
+        if (! $book) {
+            throw $this->createNotFoundException('Book not found');
+        }
+
+        // Get the last loan ID from session
+        $loanId = $request->getSession()->get('last_loan_id');
+        $loan = null;
+        
+        if ($loanId) {
+            $loan = $em->getRepository(Loan::class)->find($loanId);
+            // Clear the session
+            $request->getSession()->remove('last_loan_id');
+        }
+
+        return $this->render('front/book/loan_confirmation.html.twig', [
+            'book' => $book,
+            'loan' => $loan,
         ]);
     }
 
@@ -119,33 +233,19 @@ class BookController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $method = $data['method'] ?? null;
-
-            if ($method === 'tokens') {
-                // require login
-                if (! $this->getUser()) {
-                    return $this->redirectToRoute('app_login');
-                }
-                $purchase = new DigitalPurchase();
-                $purchase->setBook($book);
-                $purchase->setUser($this->getUser());
-                $purchase->setPurchasedAt(new \DateTimeImmutable());
-                $em->persist($purchase);
-
-                $userLib = new UserLibrary();
-                $userLib->setBook($book);
-                $userLib->setUser($this->getUser());
-                $userLib->setGrantedAt(new \DateTimeImmutable());
-                $em->persist($userLib);
-
-                $em->flush();
-
-                $this->addFlash('success', 'Book added to your library using tokens.');
-                return $this->redirectToRoute('book_show', ['id' => $id]);
+            // Require login for purchase
+            if (! $this->getUser()) {
+                $this->addFlash('warning', 'Please login to complete your purchase.');
+                return $this->redirectToRoute('app_login');
             }
 
-            // For 'card' redirect to payment form (stub)
+            $data = $form->getData();
+            $method = $data['method'] ?? 'credit_card';
+
+            // Store payment method in session and redirect to payment form
+            $request->getSession()->set('payment_method', $method);
+            $request->getSession()->set('book_id', $id);
+            
             return $this->redirectToRoute('book_payment', ['id' => $id]);
         }
 
@@ -163,10 +263,14 @@ class BookController extends AbstractController
             throw $this->createNotFoundException('Book not found');
         }
 
+        // Get payment method from session
+        $paymentMethod = $request->getSession()->get('payment_method', 'credit_card');
+
         if ($request->isMethod('POST')) {
             if (! $this->getUser()) {
                 return $this->redirectToRoute('app_login');
             }
+            
             // Stub payment processing: assume success
             $purchase = new DigitalPurchase();
             $purchase->setBook($book);
@@ -182,12 +286,24 @@ class BookController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', 'Payment successful. Book added to your library.');
+            // Clear session data
+            $request->getSession()->remove('payment_method');
+            $request->getSession()->remove('book_id');
+
+            // Success message based on payment method
+            $methodNames = [
+                'credit_card' => 'Credit Card',
+                'paypal' => 'PayPal',
+            ];
+            $methodName = $methodNames[$paymentMethod] ?? 'selected payment method';
+
+            $this->addFlash('success', "Payment successful via {$methodName}! The book has been added to your library.");
             return $this->redirectToRoute('book_show', ['id' => $id]);
         }
 
         return $this->render('front/book/payment_form.html.twig', [
             'book' => $book,
+            'paymentMethod' => $paymentMethod,
         ]);
     }
 }

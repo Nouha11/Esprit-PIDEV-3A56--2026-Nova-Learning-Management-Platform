@@ -32,10 +32,15 @@ Page Banner START -->
                             <p class="mb-3">Expand knowledge by reading book Two before narrow not relied on how except moment myself Dejection assurance. </p>
 
                             <!-- Search -->
-                            <form class="bg-body rounded p-2">
-                                <div class="input-group">
-                                    <input class="form-control border-0 me-1" type="search" placeholder="Search book">
-                                    <button type="button" class="btn btn-primary mb-0 rounded">Search</button>
+                            <form class="bg-body rounded p-2" method="get" action="{{ path('book_list') }}">
+                                <div class="input-group position-relative">
+                                    <input class="form-control border-0 me-1" type="search" name="search" id="searchInput" placeholder="Search book" value="{{ currentSearch }}" autocomplete="off">
+                                    <button type="submit" class="btn btn-primary mb-0 rounded">Search</button>
+                                    
+                                    <!-- Search results dropdown -->
+                                    <div id="searchResults" class="position-absolute bg-white border rounded shadow-lg w-100" style="top: 100%; left: 0; z-index: 1000; display: none; max-height: 400px; overflow-y: auto;">
+                                        <!-- Results will be inserted here by JavaScript -->
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -69,29 +74,29 @@ Page content START -->
                         <h5 class="mb-0">All Listed Books</h5>
                     </div>
 
-                    <!-- Select option -->
+                    <!-- Select Product Type -->
                     <div class="col-md-4 mt-3 mt-xl-0">
-                        <form class="border-bottom p-2 input-borderless">
-                            <select class="js-choice">
-                                <option value="">Product type</option>
-                                <option>PDF</option>
-                                <option>Compact Disk</option>
-                                <option>Paperback</option>
+                        <form method="get" action="{{ path('book_list') }}" id="productTypeForm">
+                            <input type="hidden" name="search" value="{{ currentSearch }}">
+                            <input type="hidden" name="author" value="{{ currentAuthor }}">
+                            <select class="form-select" name="product_type" onchange="this.form.submit()">
+                                <option value="">All Product Types</option>
+                                <option value="digital" {% if currentProductType == 'digital' %}selected{% endif %}>Digital (PDF)</option>
+                                <option value="physical" {% if currentProductType == 'physical' %}selected{% endif %}>Physical Book</option>
                             </select>
                         </form>
                     </div>
 
-                    <!-- Select option -->
+                    <!-- Select Author (Category) -->
                     <div class="col-md-4 mt-3 mt-xl-0">
-                        <form class="border-bottom p-2 input-borderless">
-                            <select class="js-choice">
-                                <option value="">Select category</option>
-                                <option>Software</option>
-                                <option>Finance</option>
-                                <option>Web design</option>
-                                <option>Web Development</option>
-                                <option>Information technology</option>
-                                <option>Science</option>
+                        <form method="get" action="{{ path('book_list') }}" id="authorForm">
+                            <input type="hidden" name="search" value="{{ currentSearch }}">
+                            <input type="hidden" name="product_type" value="{{ currentProductType }}">
+                            <select class="form-select" name="author" onchange="this.form.submit()">
+                                <option value="">All Authors</option>
+                                {% for author in authors %}
+                                    <option value="{{ author }}" {% if currentAuthor == author %}selected{% endif %}>{{ author }}</option>
+                                {% endfor %}
                             </select>
                         </form>
                     </div>
@@ -172,8 +177,8 @@ Page content START -->
                     <nav class="mt-4 d-flex justify-content-center" aria-label="navigation">
                         <ul class="pagination pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
                             <li class="page-item mb-0"><a class="page-link" href="#" tabindex="-1"><i class="fas fa-angle-double-left"></i></a></li>
-                            <li class="page-item mb-0"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item mb-0 active"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item mb-0 active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item mb-0"><a class="page-link" href="#">2</a></li>
                             <li class="page-item mb-0"><a class="page-link" href="#">..</a></li>
                             <li class="page-item mb-0"><a class="page-link" href="#">6</a></li>
                             <li class="page-item mb-0"><a class="page-link" href="#"><i class="fas fa-angle-double-right"></i></a></li>
@@ -262,4 +267,75 @@ Action box END -->
     <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
     <script src="{{ asset('assets/js/functions.js') }}"></script>
+    
+    <script>
+    // Live search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        let searchTimeout;
+
+        if (searchInput && searchResults) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+
+                searchTimeout = setTimeout(function() {
+                    fetch('{{ path('book_search_ajax') }}?q=' + encodeURIComponent(query))
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length === 0) {
+                                searchResults.innerHTML = '<div class="p-3 text-muted">No books found</div>';
+                                searchResults.style.display = 'block';
+                                return;
+                            }
+
+                            let html = '';
+                            data.forEach(book => {
+                                html += `
+                                    <a href="/books/${book.id}" class="d-flex align-items-center p-3 border-bottom text-decoration-none hover-bg-light">
+                                        <img src="/${book.coverImage}" alt="${book.title}" class="rounded" style="width: 50px; height: 70px; object-fit: cover;">
+                                        <div class="ms-3 flex-grow-1">
+                                            <h6 class="mb-1 text-dark">${book.title}</h6>
+                                            <p class="mb-0 small text-muted">${book.author}</p>
+                                            <span class="badge bg-${book.isDigital ? 'success' : 'primary'} mt-1">${book.isDigital ? 'Digital' : 'Physical'}</span>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="fw-bold text-success">$${book.price}</span>
+                                        </div>
+                                    </a>
+                                `;
+                            });
+
+                            searchResults.innerHTML = html;
+                            searchResults.style.display = 'block';
+                        })
+                        .catch(error => {
+                            console.error('Search error:', error);
+                            searchResults.style.display = 'none';
+                        });
+                }, 300);
+            });
+
+            // Hide results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            // Show results when focusing on input if there's content
+            searchInput.addEventListener('focus', function() {
+                if (this.value.trim().length >= 2 && searchResults.innerHTML) {
+                    searchResults.style.display = 'block';
+                }
+            });
+        }
+    });
+    </script>
 {% endblock %}
