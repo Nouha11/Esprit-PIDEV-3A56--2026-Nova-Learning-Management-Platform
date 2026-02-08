@@ -32,6 +32,9 @@ class StudySession
     private ?int $duration = null;
 
     #[ORM\Column(nullable: true)]
+    private ?int $actualDuration = null;
+
+    #[ORM\Column(nullable: true)]
     private ?int $energyUsed = null;
 
     #[ORM\Column(nullable: true)]
@@ -39,6 +42,9 @@ class StudySession
 
     #[ORM\Column(length: 255)]
     private ?string $burnoutRisk = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $completedAt = null;
 
     public function getId(): ?int
     {
@@ -112,6 +118,18 @@ class StudySession
         return $this;
     }
 
+    public function getActualDuration(): ?int
+    {
+        return $this->actualDuration;
+    }
+
+    public function setActualDuration(?int $actualDuration): static
+    {
+        $this->actualDuration = $actualDuration;
+
+        return $this;
+    }
+
     public function getEnergyUsed(): ?int
     {
         return $this->energyUsed;
@@ -144,6 +162,18 @@ class StudySession
     public function setBurnoutRisk(string $burnoutRisk): static
     {
         $this->burnoutRisk = $burnoutRisk;
+
+        return $this;
+    }
+
+    public function getCompletedAt(): ?\DateTimeImmutable
+    {
+        return $this->completedAt;
+    }
+
+    public function setCompletedAt(?\DateTimeImmutable $completedAt): static
+    {
+        $this->completedAt = $completedAt;
 
         return $this;
     }

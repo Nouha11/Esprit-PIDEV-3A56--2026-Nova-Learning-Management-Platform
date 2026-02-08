@@ -16,12 +16,14 @@ class PurchaseType extends AbstractType
             ->add('bookId', HiddenType::class)
             ->add('method', ChoiceType::class, [
                 'choices' => [
-                    'Use Tokens' => 'tokens',
-                    'Pay with Card' => 'card',
+                    'Credit Card' => 'credit_card',
+                    'PayPal' => 'paypal',
                 ],
-                'expanded' => true,
+                'expanded' => false,
+                'label' => 'Payment Method',
+                'attr' => ['class' => 'form-select'],
             ])
-            ->add('save', SubmitType::class, ['label' => 'Continue']);
+            ->add('save', SubmitType::class, ['label' => 'Complete Purchase']);
     }
 
     public function configureOptions(OptionsResolver $resolver)

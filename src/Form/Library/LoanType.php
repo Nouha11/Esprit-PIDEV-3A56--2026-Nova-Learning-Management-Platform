@@ -16,10 +16,20 @@ class LoanType extends AbstractType
     {
         $builder
             ->add('bookId', HiddenType::class)
-            ->add('libraryId', IntegerType::class, ['label' => 'Library ID'])
-            ->add('startAt', DateTimeType::class, ['widget' => 'single_text'])
-            ->add('endAt', DateTimeType::class, ['widget' => 'single_text'])
-            ->add('save', SubmitType::class, ['label' => 'Request Loan']);
+            ->add('libraryId', HiddenType::class) // Changed to hidden since it's pre-selected
+            ->add('startAt', DateTimeType::class, [
+                'widget' => 'single_text',
+                'label' => 'Start Date & Time',
+                'html5' => true,
+                'attr' => ['class' => 'form-control'],
+            ])
+            ->add('endAt', DateTimeType::class, [
+                'widget' => 'single_text',
+                'label' => 'Return Date & Time',
+                'html5' => true,
+                'attr' => ['class' => 'form-control'],
+            ])
+            ->add('save', SubmitType::class, ['label' => 'Submit Loan Request']);
     }
 
     public function configureOptions(OptionsResolver $resolver)

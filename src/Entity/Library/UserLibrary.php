@@ -5,6 +5,7 @@ namespace App\Entity\Library;
 use App\Entity\users\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'user_libraries')]
@@ -17,13 +18,17 @@ class UserLibrary
 
     #[ORM\ManyToOne(targetEntity: Book::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Book must be selected')]
     private ?Book $book = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'User must be selected')]
     private ?User $user = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Assert\NotNull(message: 'Grant date cannot be empty')]
+    #[Assert\LessThanOrEqual('now', message: 'Grant date cannot be in the future')]
     private ?\DateTimeImmutable $grantedAt = null;
 
     public function getId(): ?int
