@@ -38,6 +38,7 @@ class CourseController extends AbstractController
     ): Response {
         $course = new Course();
         $course->setCreatedAt(new \DateTimeImmutable());
+        $course->setCreatedBy($this->getUser()); // Set the creator
 
         $form = $this->createForm(CourseType::class, $course);
         $form->handleRequest($request);
@@ -52,6 +53,14 @@ class CourseController extends AbstractController
 
         return $this->render('front/course/new.html.twig', [
             'form' => $form->createView()
+        ]);
+    }
+
+    #[Route('/{id}', name: 'course_show')]
+    public function show(Course $course): Response
+    {
+        return $this->render('front/course/detail.html.twig', [
+            'course' => $course
         ]);
     }
 
