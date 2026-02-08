@@ -1,4 +1,4 @@
-{% extends 'layout.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Student Dashboard - NOVA{% endblock %}
 
@@ -46,12 +46,18 @@
                                 <a class="list-group-item" href="{{ path('front_reward_browse') }}">
                                     <i class="bi bi-gift fa-fw me-2"></i>Browse Rewards
                                 </a>
-                                <a class="list-group-item" href="#">
+                                <a class="list-group-item" href="{{ path('course_index') }}">
                                     <i class="bi bi-book fa-fw me-2"></i>My Courses
                                 </a>
-                                <a class="list-group-item" href="#">
+                                
+                                {% if 'ROLE_STUDENT' in app.user.roles %}
+                                <a class="list-group-item" href="{{ path('app_student_profile') }}">
                                     <i class="bi bi-pencil-square fa-fw me-2"></i>Edit Profile
                                 </a>
+                                {% elseif 'ROLE_TUTOR' in app.user.roles %}
+                                    <li><a class="dropdown-item" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
+                                {% endif %}
+
                                 <a class="list-group-item" href="#">
                                     <i class="bi bi-gear fa-fw me-2"></i>Settings
                                 </a>

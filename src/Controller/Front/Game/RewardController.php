@@ -9,7 +9,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/rewards')]
-#[IsGranted('ROLE_STUDENT')]
 class RewardController extends AbstractController
 {
     public function __construct(

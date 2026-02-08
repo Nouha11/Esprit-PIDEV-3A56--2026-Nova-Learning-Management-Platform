@@ -1,165 +1,172 @@
+{% extends 'base.html.twig' %}
 
 {% block title %}Libraries - {{ book.title }}{% endblock %}
 
-{% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-{% endblock %}
+{% block body %}
 
-{% block front_content %}
-
-<!-- =======================
-Page Banner START -->
-<section class="py-4 bg-primary bg-opacity-10">
+<!-- Main Content START -->
+<main>
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="h3 mb-0">Available Libraries</h1>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb breadcrumb-dots mb-0">
-                                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
-                                <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
-                                <li class="breadcrumb-item"><a href="{{ path('book_show', {'id': book.id}) }}">{{ book.title }}</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Libraries</li>
-                            </ol>
-                        </nav>
-                    </div>
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mt-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- =======================
-Page Banner END -->
-
-<!-- =======================
-Page content START -->
-<section class="pt-5 pb-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <!-- Book Info Card -->
-                <div class="card shadow mb-4">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                {% if book.coverImage %}
-                                    <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
-                                {% else %}
-                                    <img src="{{ asset('assets/images/book/01.jpg') }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
-                                {% endif %}
-                            </div>
-                            <div class="ms-4">
-                                <h3 class="mb-2">{{ book.title }}</h3>
-                                <p class="mb-1 text-muted">
-                                    <i class="bi bi-person-circle me-1"></i>{{ book.author ?? 'Unknown Author' }}
-                                </p>
-                                <span class="badge bg-primary">Physical Book</span>
-                            </div>
+            {% endfor %}
+        {% endfor %}
+        
+        {% block front_content %}
+        <!-- =======================
+        Page Banner START -->
+        <section class="bg-primary bg-opacity-10 py-5 mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">Available Libraries</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('book_list') }}">Books</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('book_show', {'id': book.id}) }}">{{ book.title }}</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Libraries</li>
+                                </ol>
+                            </nav>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+        <!-- =======================
+        Page Banner END -->
 
-                <!-- Libraries List -->
-                <h4 class="mb-4">
-                    <i class="bi bi-building me-2"></i>Libraries where this book is available
-                </h4>
+        <!-- =======================
+        Page content START -->
+        <section class="py-5">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Book Info Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    {% if book.coverImage %}
+                                        <img src="{{ asset(book.coverImage) }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
+                                    {% else %}
+                                        <img src="{{ asset('assets/images/book/01.jpg') }}" alt="{{ book.title }}" class="rounded" style="width: 100px; height: auto;">
+                                    {% endif %}
+                                </div>
+                                <div class="ms-4">
+                                    <h3 class="mb-2">{{ book.title }}</h3>
+                                    <p class="mb-1 text-muted">
+                                        <i class="bi bi-person-circle me-1"></i>{{ book.author ?? 'Unknown Author' }}
+                                    </p>
+                                    <span class="badge bg-primary">Physical Book</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                {% if book.libraries|length > 0 %}
-                    <div class="row g-4">
-                        {% for library in book.libraries %}
-                            {% set inventory = inventoryData[library.id] %}
-                            <div class="col-md-6 col-lg-4">
-                                <div class="card shadow h-100 {% if inventory and inventory.availableCopies == 0 %}border-danger{% endif %}">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-start mb-3">
-                                            <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-circle flex-shrink-0">
-                                                <i class="bi bi-building fs-4"></i>
+                    <!-- Libraries List -->
+                    <h4 class="mb-4">
+                        <i class="bi bi-building me-2"></i>Libraries where this book is available
+                    </h4>
+
+                    {% if book.libraries|length > 0 %}
+                        <div class="row g-4">
+                            {% for library in book.libraries %}
+                                {% set inventory = inventoryData[library.id] %}
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card shadow h-100 {% if inventory and inventory.availableCopies == 0 %}border-danger{% endif %}">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-start mb-3">
+                                                <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-circle flex-shrink-0">
+                                                    <i class="bi bi-building fs-4"></i>
+                                                </div>
+                                                <div class="ms-3 flex-grow-1">
+                                                    <h5 class="mb-2">{{ library.name }}</h5>
+                                                    <p class="mb-2 text-muted small">
+                                                        <i class="bi bi-geo-alt me-1"></i>{{ library.address ?? 'Address not available' }}
+                                                    </p>
+                                                    
+                                                    <!-- Availability Status -->
+                                                    {% if inventory %}
+                                                        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                                                            {% if inventory.availableCopies > 0 %}
+                                                                <span class="badge bg-success">
+                                                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
+                                                                    Available
+                                                                </span>
+                                                                <span class="text-success fw-bold small">{{ inventory.availableCopies }}/{{ inventory.totalCopies }} copies</span>
+                                                            {% else %}
+                                                                <span class="badge bg-danger">
+                                                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
+                                                                    Not Available
+                                                                </span>
+                                                                <span class="text-danger small">0/{{ inventory.totalCopies }} copies</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary small">
+                                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
+                                                            No inventory data
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
                                             </div>
-                                            <div class="ms-3 flex-grow-1">
-                                                <h5 class="mb-2">{{ library.name }}</h5>
-                                                <p class="mb-2 text-muted small">
-                                                    <i class="bi bi-geo-alt me-1"></i>{{ library.address ?? 'Address not available' }}
-                                                </p>
-                                                
-                                                <!-- Availability Status -->
-                                                {% if inventory %}
-                                                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                                                        {% if inventory.availableCopies > 0 %}
-                                                            <span class="badge bg-success">
-                                                                <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
-                                                                Available
-                                                            </span>
-                                                            <span class="text-success fw-bold small">{{ inventory.availableCopies }}/{{ inventory.totalCopies }} copies</span>
-                                                        {% else %}
-                                                            <span class="badge bg-danger">
-                                                                <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
-                                                                Not Available
-                                                            </span>
-                                                            <span class="text-danger small">0/{{ inventory.totalCopies }} copies</span>
-                                                        {% endif %}
-                                                    </div>
+                                            
+                                            <div class="d-grid">
+                                                {% if inventory and inventory.availableCopies > 0 %}
+                                                    <a href="{{ path('book_loan', {'id': book.id, 'library': library.id}) }}" class="btn btn-primary">
+                                                        <i class="bi bi-book me-2"></i>Request Loan
+                                                    </a>
                                                 {% else %}
-                                                    <span class="badge bg-secondary small">
-                                                        <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
-                                                        No inventory data
-                                                    </span>
+                                                    <button class="btn btn-secondary" disabled>
+                                                        <i class="bi bi-x-circle me-2"></i>Currently Unavailable
+                                                    </button>
                                                 {% endif %}
                                             </div>
                                         </div>
-                                        
-                                        <div class="d-grid">
-                                            {% if inventory and inventory.availableCopies > 0 %}
-                                                <a href="{{ path('book_loan', {'id': book.id, 'library': library.id}) }}" class="btn btn-primary">
-                                                    <i class="bi bi-book me-2"></i>Request Loan
-                                                </a>
-                                            {% else %}
-                                                <button class="btn btn-secondary" disabled>
-                                                    <i class="bi bi-x-circle me-2"></i>Currently Unavailable
-                                                </button>
-                                            {% endif %}
-                                        </div>
                                     </div>
                                 </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <i class="bi bi-info-circle fs-3 me-3"></i>
+                            <div>
+                                <h5 class="alert-heading mb-1">No Libraries Available</h5>
+                                <p class="mb-0">This book is not currently available in any physical library. Please check back later or consider purchasing the digital version.</p>
                             </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="alert alert-info d-flex align-items-center" role="alert">
-                        <i class="bi bi-info-circle fs-3 me-3"></i>
-                        <div>
-                            <h5 class="alert-heading mb-1">No Libraries Available</h5>
-                            <p class="mb-0">This book is not currently available in any physical library. Please check back later or consider purchasing the digital version.</p>
                         </div>
-                    </div>
-                    
-                    {% if book.isDigital %}
-                        <div class="mt-4">
-                            <a href="{{ path('book_purchase', {'id': book.id}) }}" class="btn btn-success">
-                                <i class="bi bi-cart-check me-2"></i>Purchase Digital Copy
-                            </a>
-                        </div>
+                        
+                        {% if book.isDigital %}
+                            <div class="mt-4">
+                                <a href="{{ path('book_purchase', {'id': book.id}) }}" class="btn btn-success">
+                                    <i class="bi bi-cart-check me-2"></i>Purchase Digital Copy
+                                </a>
+                            </div>
+                        {% endif %}
                     {% endif %}
-                {% endif %}
 
-                <!-- Back Button -->
-                <div class="mt-4">
-                    <a href="{{ path('book_show', {'id': book.id}) }}" class="btn btn-light">
-                        <i class="bi bi-arrow-left me-2"></i>Back to Book Details
-                    </a>
+                    <!-- Back Button -->
+                    <div class="mt-4">
+                        <a href="{{ path('book_show', {'id': book.id}) }}" class="btn btn-light">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Book Details
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+        <!-- =======================
+        Page content END -->
+        {% endblock %}
     </div>
-</section>
-<!-- =======================
-Page content END -->
+</main>
+<!-- Main Content END -->
 
-{% endblock %}
-
-{% block javascripts %}
-    <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 {% endblock %}
