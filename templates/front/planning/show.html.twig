@@ -1,0 +1,154 @@
+{% block title %}{{ planning.title }}{% endblock %}
+
+{% block body %}
+<section class="pt-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-transparent border rounded-3">
+                    <div class="card-header bg-transparent border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="card-header-title mb-0">Study Session Details</h3>
+                            {% set statusClass = {
+                                'SCHEDULED': 'warning',
+                                'COMPLETED': 'success',
+                                'MISSED': 'danger',
+                                'CANCELLED': 'secondary'
+                            } %}
+                            <span class="badge bg-{{ statusClass[planning.status] ?? 'secondary' }} fs-6">
+                                {{ planning.status }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <!-- Session Info -->
+                            <div class="col-lg-8">
+                                <h4 class="mb-3">{{ planning.title }}</h4>
+                                
+                                <div class="card bg-light border">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Course Information</h6>
+                                        <div class="d-flex align-items-center mb-3">
+                                            <img src="{{ asset('assets/images/courses/4by3/08.jpg') }}" class="rounded" width="100" alt="">
+                                            <div class="ms-3">
+                                                <h5 class="mb-1">
+                                                    <a href="{{ path('course_show', {id: planning.course.id}) }}">{{ planning.course.name }}</a>
+                                                </h5>
+                                                <p class="mb-0 text-muted">{{ planning.course.description|slice(0, 150) }}...</p>
+                                            </div>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <small class="text-muted">Difficulty:</small>
+                                                <div>
+                                                    {% set difficultyClass = {
+                                                        'BEGINNER': 'success',
+                                                        'INTERMEDIATE': 'warning',
+                                                        'ADVANCED': 'danger'
+                                                    } %}
+                                                    <span class="badge bg-{{ difficultyClass[planning.course.difficulty] ?? 'secondary' }}">
+                                                        {{ planning.course.difficulty }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Category:</small>
+                                                <div><strong>{{ planning.course.category }}</strong></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h6>Schedule Details</h6>
+                                    <ul class="list-group list-group-borderless">
+                                        <li class="list-group-item px-0">
+                                            <i class="bi bi-calendar-event text-primary me-2"></i>
+                                            <strong>Date:</strong> {{ planning.scheduledDate|date('l, F j, Y') }}
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <i class="bi bi-clock text-primary me-2"></i>
+                                            <strong>Time:</strong> {{ planning.scheduledTime|date('g:i A') }}
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <i class="bi bi-hourglass-split text-primary me-2"></i>
+                                            <strong>Duration:</strong> {{ planning.plannedDuration }} minutes
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <i class="bi bi-bell text-primary me-2"></i>
+                                            <strong>Reminder:</strong> {{ planning.reminder ? 'Enabled' : 'Disabled' }}
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <i class="bi bi-calendar-plus text-primary me-2"></i>
+                                            <strong>Created:</strong> {{ planning.createdAt|date('M d, Y') }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Actions Sidebar -->
+                            <div class="col-lg-4">
+                                <div class="card bg-light border">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Actions</h6>
+                                        
+                                        {% if planning.status == 'SCHEDULED' %}
+                                            <form method="post" action="{{ path('study_complete', {planning: planning.id}) }}" class="mb-2">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('complete_session_' ~ planning.id) }}">
+                                                <button type="submit" class="btn btn-success w-100" onclick="return confirm('Mark this session as completed?')">
+                                                    <i class="bi bi-check-circle"></i> Complete Session
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        <a href="{{ path('planning_index') }}" class="btn btn-outline-primary w-100 mb-2">
+                                            <i class="bi bi-list"></i> All Sessions
+                                        </a>
+
+                                        <a href="{{ path('course_show', {id: planning.course.id}) }}" class="btn btn-outline-secondary w-100">
+                                            <i class="bi bi-book"></i> View Course
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Study Tips -->
+                                <div class="card bg-warning bg-opacity-10 border-warning mt-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-warning">
+                                            <i class="bi bi-lightbulb"></i> Study Tips
+                                        </h6>
+                                        <ul class="small mb-0">
+                                            <li>Prepare materials in advance</li>
+                                            <li>Eliminate distractions</li>
+                                            <li>Take regular breaks</li>
+                                            <li>Stay hydrated</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {% if planning.status == 'COMPLETED' and planning.studySessions is not empty %}
+                                    <div class="card bg-success bg-opacity-10 border-success mt-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-success">
+                                                <i class="bi bi-trophy"></i> Session Results
+                                            </h6>
+                                            {% set session = planning.studySessions|first %}
+                                            <ul class="list-unstyled mb-0">
+                                                <li><strong>XP Earned:</strong> {{ session.xpEarned }}</li>
+                                                <li><strong>Duration:</strong> {{ session.actualDuration }} min</li>
+                                                <li><strong>Burnout Risk:</strong> {{ session.burnoutRisk }}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

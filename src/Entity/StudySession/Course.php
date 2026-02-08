@@ -21,6 +21,9 @@ class Course
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: Planning::class)]
     private Collection $plannings;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?\App\Entity\users\User $createdBy = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Course name is required")]
@@ -251,5 +254,15 @@ class Course
         return $this;
     }
 
+    public function getCreatedBy(): ?\App\Entity\users\User
+    {
+        return $this->createdBy;
+    }
 
+    public function setCreatedBy(?\App\Entity\users\User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
+
+        return $this;
+    }
 }
