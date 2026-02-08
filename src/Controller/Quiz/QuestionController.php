@@ -17,7 +17,8 @@ final class QuestionController extends AbstractController
     #[Route(name: 'app_quiz_question_index', methods: ['GET'])]
     public function index(QuestionRepository $questionRepository): Response
     {
-        return $this->render('quiz/question/index.html.twig', [
+        // Points to your manager folder
+        return $this->render('quiz/manager/index.html.twig', [
             'questions' => $questionRepository->findAll(),
         ]);
     }
@@ -33,10 +34,12 @@ final class QuestionController extends AbstractController
             $entityManager->persist($question);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_quiz_question_index', [], Response::HTTP_SEE_OTHER);
+            // Redirect back to the Quiz Manager after saving
+            return $this->redirectToRoute('app_quiz_show', ['id' => $question->getQuiz()->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('quiz/question/new.html.twig', [
+        // ✅ This loads your BEAUTIFUL form
+        return $this->render('quiz/manager/new.html.twig', [
             'question' => $question,
             'form' => $form,
         ]);
@@ -45,7 +48,7 @@ final class QuestionController extends AbstractController
     #[Route('/{id}', name: 'app_quiz_question_show', methods: ['GET'])]
     public function show(Question $question): Response
     {
-        return $this->render('quiz/question/show.html.twig', [
+        return $this->render('quiz/manager/show.html.twig', [
             'question' => $question,
         ]);
     }
@@ -59,10 +62,10 @@ final class QuestionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_quiz_question_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_quiz_show', ['id' => $question->getQuiz()->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('quiz/question/edit.html.twig', [
+        return $this->render('quiz/manager/edit.html.twig', [
             'question' => $question,
             'form' => $form,
         ]);
@@ -71,11 +74,13 @@ final class QuestionController extends AbstractController
     #[Route('/{id}', name: 'app_quiz_question_delete', methods: ['POST'])]
     public function delete(Request $request, Question $question, EntityManagerInterface $entityManager): Response
     {
+        $quizId = $question->getQuiz()->getId();
+
         if ($this->isCsrfTokenValid('delete'.$question->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($question);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_quiz_question_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_quiz_show', ['id' => $quizId], Response::HTTP_SEE_OTHER);
     }
 }

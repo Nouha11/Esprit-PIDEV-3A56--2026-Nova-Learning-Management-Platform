@@ -1,0 +1,107 @@
+{# templates/quiz/question/_form.html.twig #}
+
+{{ form_start(form) }}
+
+<div class="row">
+    <div class="col-lg-12 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-light border-bottom py-3">
+                <h6 class="mb-0"><i class="bi bi-pencil-fill me-2"></i>Question Details</h6>
+            </div>
+            <div class="card-body p-4">
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Question Text</label>
+                    {{ form_widget(form.text, {'attr': {'class': 'form-control form-control-lg', 'placeholder': 'e.g., What is a Primary Key?'}}) }}
+                    <div class="form-text text-danger">{{ form_errors(form.text) }}</div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">XP Reward</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-warning bg-opacity-10 text-warning border-0"><i class="bi bi-star-fill"></i></span>
+                            {{ form_widget(form.xpValue, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Difficulty</label>
+                        {{ form_widget(form.difficulty, {'attr': {'class': 'form-select'}}) }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Quiz Bucket</label>
+                        {{ form_widget(form.quiz, {'attr': {'class': 'form-select'}}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-light border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-check2-circle me-2"></i>Answer Options</h6>
+                <span class="badge bg-primary bg-opacity-10 text-primary">Check the correct answer box</span>
+            </div>
+            
+            <div class="card-body p-4">
+                <div class="answers-wrapper" 
+                     data-prototype="{{ form_widget(form.choices.vars.prototype)|e('html_attr') }}">
+                    
+                    {% for choice in form.choices %}
+                        <div class="input-group mb-3">
+                            <span class="input-group-text bg-white">
+                                <div class="form-check form-switch mb-0">
+                                    {{ form_widget(choice.isCorrect, {'attr': {'class': 'form-check-input'}}) }}
+                                </div>
+                            </span>
+                            {{ form_widget(choice.text, {'attr': {'class': 'form-control', 'placeholder': 'Enter an answer option...'}}) }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" class="btn btn-outline-success btn-sm mt-2 add-answer-btn">
+                    <i class="bi bi-plus-lg"></i> Add Another Option
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mt-4 d-flex justify-content-end gap-2">
+        <a href="{{ path('app_quiz_show', {'id': form.quiz.vars.data.id|default(0)}) }}" class="btn btn-light">Cancel</a>
+        <button class="btn btn-primary">{{ button_label|default('Save Question') }}</button>
+    </div>
+</div>
+
+{{ form_end(form) }}
+
+{# Simple script to handle adding new answers dynamically #}
+<script>
+    document.querySelector('.add-answer-btn').addEventListener('click', function (e) {
+        const list = document.querySelector('.answers-wrapper');
+        // Retrieve the prototype defined by the 'data-prototype' attribute
+        const prototype = list.dataset.prototype;
+        // Compute the new index
+        const index = list.children.length;
+        // Replace '__name__' in the prototype's HTML to create a new index
+        const newForm = prototype.replace(/__name__/g, index);
+        
+        // Create a temporary div to construct the new element safely
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newForm;
+        
+        // Add some style to the new input (optional hack to match layout)
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'input-group mb-3';
+        inputGroup.innerHTML = `
+            <span class="input-group-text bg-white"><i class="bi bi-circle"></i></span>
+            ${tempDiv.querySelector('input[type="text"]').outerHTML}
+        `;
+        // Note: The checkbox won't render perfectly in this simple JS snippet without more work, 
+        // but this ensures the text input appears.
+        
+        list.appendChild(tempDiv); 
+    });
+</script>

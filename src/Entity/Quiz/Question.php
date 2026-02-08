@@ -2,6 +2,7 @@
 
 namespace App\Entity\Quiz;
 
+use App\Entity\Quiz;
 use App\Repository\Quiz\QuestionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -42,6 +43,10 @@ class Question
     #[Assert\Valid] // to help validate the choices inside
     #[MyAssert\SingleCorrectAnswer] // <--- for the validator
     private Collection $choices;
+
+    #[ORM\ManyToOne(inversedBy: 'questions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Quiz $quiz = null;
 
     public function __construct()
     {
@@ -115,6 +120,18 @@ class Question
                 $choice->setQuestion(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getQuiz(): ?Quiz
+    {
+        return $this->quiz;
+    }
+
+    public function setQuiz(?Quiz $quiz): static
+    {
+        $this->quiz = $quiz;
 
         return $this;
     }
