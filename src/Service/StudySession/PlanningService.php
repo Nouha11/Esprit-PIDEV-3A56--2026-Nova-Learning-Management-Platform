@@ -18,18 +18,55 @@ class PlanningService
     public function __construct(
         private EntityManagerInterface $em,
         private PlanningRepository $planningRepository
-    ) {
+    ) {}
+
+    /* ==========================
+       BASIC CRUD (for controllers)
+       ========================== */
+
+    public function findAll(): array
+    {
+        return $this->planningRepository->findAll();
     }
 
+    public function create(Planning $planning): void
+    {
+        $this->em->persist($planning);
+        $this->em->flush();
+    }
+
+    public function update(Planning $planning): void
+    {
+        $this->em->flush();
+    }
+
+    /* ==========================
+       FILTERING (controller-compatible)
+       ========================== */
+
     /**
-     * Update planning status with validation
+     * Controller-friendly wrapper
      */
+    public function findByFilters(array $filters): array
+    {
+        return $this->planningRepository->findByFilters(
+            $filters['status'] ?? null,
+            $filters['startDate'] ?? null,
+            $filters['endDate'] ?? null
+        );
+    }
+
+    /* ==========================
+       BUSINESS LOGIC (your original code)
+       ========================== */
+
     public function updateStatus(Planning $planning, string $newStatus): Planning
     {
         if (!in_array($newStatus, self::ALLOWED_STATUSES, true)) {
             throw new \InvalidArgumentException(
-                sprintf('Invalid status "%s". Allowed values: %s', 
-                    $newStatus, 
+                sprintf(
+                    'Invalid status "%s". Allowed values: %s',
+                    $newStatus,
                     implode(', ', self::ALLOWED_STATUSES)
                 )
             );
@@ -41,22 +78,11 @@ class PlanningService
         return $planning;
     }
 
-    /**
-     * Cancel a planning session
-     */
     public function cancelPlanning(Planning $planning): Planning
     {
         $planning->setStatus(Planning::STATUS_CANCELLED);
         $this->em->flush();
 
         return $planning;
-    }
-
-    /**
-     * Find planning sessions by filters
-     */
-    public function findByFilters(?string $status, ?\DateTimeImmutable $dateFrom, ?\DateTimeImmutable $dateTo): array
-    {
-        return $this->planningRepository->findByFilters($status, $dateFrom, $dateTo);
     }
 }

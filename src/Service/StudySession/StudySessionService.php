@@ -2,6 +2,7 @@
 
 namespace App\Service\StudySession;
 
+use App\Entity\StudySession\StudySession;
 use App\Repository\StudySession\StudySessionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -10,30 +11,43 @@ class StudySessionService
     public function __construct(
         private EntityManagerInterface $em,
         private StudySessionRepository $studySessionRepository
-    ) {
+    ) {}
+
+    /* ==========================
+       BASIC CREATE (controller needs this)
+       ========================== */
+
+    public function create(StudySession $studySession): void
+    {
+        $this->em->persist($studySession);
+        $this->em->flush();
     }
 
-    /**
-     * Find study sessions by filters
-     */
+    /* ==========================
+       FILTERING
+       ========================== */
+
     public function findByFilters(
-        ?int $userId, 
-        ?string $burnoutRisk, 
-        ?\DateTimeImmutable $dateFrom, 
+        ?int $userId,
+        ?string $burnoutRisk,
+        ?\DateTimeImmutable $dateFrom,
         ?\DateTimeImmutable $dateTo
     ): array {
-        return $this->studySessionRepository->findByFilters($userId, $burnoutRisk, $dateFrom, $dateTo);
+        return $this->studySessionRepository
+            ->findByFilters($userId, $burnoutRisk, $dateFrom, $dateTo);
     }
 
-    /**
-     * Get analytics with aggregate statistics
-     */
+    /* ==========================
+       ANALYTICS
+       ========================== */
+
     public function getAnalytics(
-        ?\DateTimeImmutable $dateFrom, 
-        ?\DateTimeImmutable $dateTo, 
+        ?\DateTimeImmutable $dateFrom,
+        ?\DateTimeImmutable $dateTo,
         ?string $groupBy
     ): array {
-        $sessions = $this->studySessionRepository->findByFilters(null, null, $dateFrom, $dateTo);
+        $sessions = $this->studySessionRepository
+            ->findByFilters(null, null, $dateFrom, $dateTo);
 
         $analytics = [
             'total_sessions' => count($sessions),
@@ -46,7 +60,7 @@ class StudySessionService
             ]
         ];
 
-        if (empty($sessions)) {
+        if (!$sessions) {
             return $analytics;
         }
 
@@ -54,9 +68,9 @@ class StudySessionService
         $totalXp = 0;
 
         foreach ($sessions as $session) {
-            $totalDuration += $session->getDuration();
+            $totalDuration += $session->getActualDuration();
             $totalXp += $session->getXpEarned() ?? 0;
-            
+
             $risk = $session->getBurnoutRisk();
             if (isset($analytics['burnout_distribution'][$risk])) {
                 $analytics['burnout_distribution'][$risk]++;
@@ -66,9 +80,13 @@ class StudySessionService
         $analytics['average_duration'] = round($totalDuration / count($sessions), 2);
         $analytics['total_xp'] = $totalXp;
 
-        // Add grouping if requested
         if ($groupBy) {
-            $analytics['grouped_data'] = $this->studySessionRepository->getGroupedStatistics($groupBy, $dateFrom, $dateTo);
+            $analytics['grouped_data'] =
+                $this->studySessionRepository->getGroupedStatistics(
+                    $groupBy,
+                    $dateFrom,
+                    $dateTo
+                );
         }
 
         return $analytics;
