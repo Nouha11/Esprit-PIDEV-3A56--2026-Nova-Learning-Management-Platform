@@ -2,7 +2,7 @@
 
 {% block title %}Manage Games{% endblock %}
 
-{% block body %}
+{% block admin_content %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Games Management</h1>
         <a href="{{ path('admin_game_new') }}" class="btn btn-primary">Create New Game</a>
@@ -11,14 +11,14 @@
     <table class="table table-striped">
         <thead>
             <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Difficulty</th>
-            <th>Token Cost</th>
-            <th>Rewards (Tokens/XP)</th>
-            <th>Status</th>
-            <th>Actions</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Difficulty</th>
+                <th>Token Cost</th>
+                <th>Rewards (Tokens/XP)</th>
+                <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
 
@@ -43,7 +43,6 @@
                         <a href="{{ path('admin_game_show', {id: game.id}) }}" class="btn btn-sm btn-info">View</a>
                         <a href="{{ path('admin_game_edit', {id: game.id}) }}" class="btn btn-sm btn-warning">Edit</a>
 
-
                         <form method="post" action="{{ path('admin_game_delete', {id: game.id}) }}"
                             style="display:inline;" onsubmit="return confirm('Are you sure?');">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ game.id) }}">
@@ -51,11 +50,10 @@
                         </form>
                     </td>
                 </tr>
-
-                {% else %}
-                    <tr>
-                        <td colspan="8" class="text-center">No games found</td>
-                    </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" class="text-center">No games found</td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>

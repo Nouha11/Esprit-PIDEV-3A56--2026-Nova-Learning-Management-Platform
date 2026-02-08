@@ -1,8 +1,8 @@
-{% extends 'front/base.html.twig' %}
+{% extends 'admin/base.html.twig' %}
 
 {% block title %}{{ game.name }}{% endblock %}
 
-{% block body %}
+{% block admin_content %}
     <div class="row">
         <div class="col-md-8">
             <h1>{{ game.name }}</h1>
@@ -24,8 +24,7 @@
                 </div>
             </div>
 
-            <a href="{{ path('front_game_play', {id: game.id}) }}" class="btn btn-lg btn-success">Play Now</a>
-            <a href="{{ path('front_game_index') }}" class="btn btn-lg btn-secondary">Back to Games</a>
+            <a href="{{ path('admin_game_index') }}" class="btn btn-lg btn-secondary">Back to Games</a>
         </div>
     </div>
 {% endblock %}

@@ -108,13 +108,18 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('course_index') }}"><i class="bi bi-book me-2"></i>Courses</a>
+                    </li>                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>Library</a>
                     </li>
+                    {% if is_granted('ROLE_STUDENT') %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('front_game_index') }}"><i class="bi bi-controller me-2"></i>Games</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('front_reward_my_rewards') }}"><i class="bi bi-trophy me-2"></i>Rewards</a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="#"><i class="bi bi-headset me-2"></i>Contact</a>
                     </li>
@@ -289,10 +294,15 @@
                         {% elseif 'ROLE_ADMIN' in app.user.roles %}
                             <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}"><i class="bi bi-shield-lock fa-fw me-2"></i>Admin Panel</a></li>
                         {% endif %}
+
+                        {% if 'ROLE_STUDENT' in app.user.roles %}
+                            <li><a class="dropdown-item" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
+                        {% elseif 'ROLE_TUTOR' in app.user.roles %}
+                            <li><a class="dropdown-item" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
+                        {% endif %}
                         
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Edit Profile</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Account Settings</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Help</a></li>
+<!--                         <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Account Settings</a></li>
+ -->                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Help</a></li>
                         <li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
                         <li><hr class="dropdown-divider"></li>
                         
@@ -347,6 +357,7 @@
 <!-- Header END -->
 
     
+{% block body %}
 
     <!-- MAIN CONTENT START -->
     <main>
@@ -385,7 +396,7 @@
 
                         <p class="mb-3 col-lg-8">NOVA is an intelligent study coaching platform designed to help you achieve academic excellence through gamification and personalized learning.</p>
 
-                        <a href="{{ path('front_game_index') }}" class="btn btn-lg btn-blue mb-0">Explore Games</a>
+                        <a href="{{ path('course_index') }}" class="btn btn-lg btn-blue mb-0">Explore Courses</a>
                     </div>
                     <!-- Left content END -->
 
@@ -593,20 +604,16 @@
                                 </div>
                                 <div class="col-lg-4 text-lg-end">
                                     {% if 'ROLE_STUDENT' in app.user.roles %}
-                                        <a href="{{ path('front_game_index') }}" class="btn btn-warning mb-0">
+                                        <a href="{{ path('app_student_profile') }}" class="btn btn-warning mb-0">
                                             <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
                                         </a>
                                     {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                                        <a href="{{ path('admin_game_index') }}" class="btn btn-warning mb-0">
+                                        <a href="{{ path('app_tutor_profile') }}" class="btn btn-warning mb-0">
                                             <i class="bi bi-speedometer2 me-2"></i>Tutor Dashboard
                                         </a>
                                     {% elseif 'ROLE_ADMIN' in app.user.roles %}
                                         <a href="{{ path('app_admin_dashboard') }}" class="btn btn-warning mb-0">
                                             <i class="bi bi-shield-lock me-2"></i>Admin Panel
-                                        </a>
-                                    {% else %}
-                                        <a href="{{ path('front_game_index') }}" class="btn btn-warning mb-0">
-                                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
                                         </a>
                                     {% endif %}
                                 </div>
@@ -711,6 +718,7 @@
         </div>
     </div>
 </section>
+{% endblock %}
 
 <!-- Add this CSS for hover effects -->
 <style>
