@@ -25,6 +25,9 @@
 				<ul class="navbar-nav mx-auto">
 					<li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}">Home</a></li>
 					<li class="nav-item"><a class="nav-link active" href="{{ path('course_index') }}">Courses</a></li>
+					{% if is_granted('ROLE_STUDENT') %}
+						<li class="nav-item"><a class="nav-link" href="{{ path('planning_index') }}">My Sessions</a></li>
+					{% endif %}
 					{% if is_granted('ROLE_TUTOR') %}
 						<li class="nav-item"><a class="nav-link" href="{{ path('course_new') }}">Create Course</a></li>
 					{% endif %}
@@ -188,16 +191,59 @@
 				</div>
 				
 				<!-- Planning Sessions -->
-				<div class="card shadow">
-					<div class="card-header bg-light">
+				<div class="card shadow mb-4">
+					<div class="card-header bg-light d-flex justify-content-between align-items-center">
 						<h5 class="mb-0">
 							<i class="bi bi-calendar-check me-2"></i>Planning Sessions
 						</h5>
+						<button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#planningFilters">
+							<i class="bi bi-funnel"></i> Filters
+						</button>
 					</div>
+					
+					<!-- Planning Filters -->
+					<div class="collapse" id="planningFilters">
+						<div class="card-body border-bottom bg-light">
+							<form method="get" action="{{ path('course_show', {id: course.id}) }}">
+								<div class="row g-3">
+									<div class="col-md-4">
+										<label class="form-label">Status</label>
+										<select name="status" class="form-select form-select-sm">
+											<option value="">All Statuses</option>
+											<option value="SCHEDULED" {% if current_status == 'SCHEDULED' %}selected{% endif %}>Scheduled</option>
+											<option value="COMPLETED" {% if current_status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+											<option value="MISSED" {% if current_status == 'MISSED' %}selected{% endif %}>Missed</option>
+											<option value="CANCELLED" {% if current_status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+										</select>
+									</div>
+									<div class="col-md-3">
+										<label class="form-label">Date From</label>
+										<input type="date" name="dateFrom" class="form-control form-control-sm" value="{{ date_from ? date_from|date('Y-m-d') : '' }}">
+									</div>
+									<div class="col-md-3">
+										<label class="form-label">Date To</label>
+										<input type="date" name="dateTo" class="form-control form-control-sm" value="{{ date_to ? date_to|date('Y-m-d') : '' }}">
+									</div>
+									<div class="col-md-2">
+										<label class="form-label">&nbsp;</label>
+										<button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
+									</div>
+								</div>
+								{% if current_status or date_from or date_to %}
+									<div class="mt-2">
+										<a href="{{ path('course_show', {id: course.id}) }}" class="btn btn-sm btn-outline-secondary">
+											<i class="bi bi-x-circle"></i> Clear
+										</a>
+									</div>
+								{% endif %}
+							</form>
+						</div>
+					</div>
+					
 					<div class="card-body">
-						{% if course.plannings|length > 0 %}
+						{% if plannings|length > 0 %}
 							<div class="list-group list-group-flush">
-								{% for planning in course.plannings %}
+								{% for planning in plannings %}
 									<div class="list-group-item px-0">
 										<div class="d-flex justify-content-between align-items-center">
 											<div>
@@ -205,6 +251,9 @@
 												<small class="text-muted">
 													<i class="bi bi-calendar3"></i> {{ planning.scheduledDate|date('M d, Y') }} 
 													at {{ planning.scheduledTime|date('H:i') }}
+													<span class="ms-2">
+														<i class="bi bi-clock"></i> {{ planning.plannedDuration }} min
+													</span>
 												</small>
 											</div>
 											<div>
@@ -225,11 +274,51 @@
 						{% else %}
 							<p class="text-muted text-center mb-0">
 								<i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
-								No planning sessions yet for this course.
+								{% if current_status or date_from or date_to %}
+									No planning sessions match your filters.
+								{% else %}
+									No planning sessions yet for this course.
+								{% endif %}
 							</p>
 						{% endif %}
 					</div>
 				</div>
+				
+				<!-- Study Session Statistics -->
+				{% if total_sessions > 0 %}
+				<div class="card shadow">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">
+							<i class="bi bi-graph-up me-2"></i>Study Session Statistics
+						</h5>
+					</div>
+					<div class="card-body">
+						<div class="row g-4 text-center">
+							<div class="col-md-4">
+								<div class="p-3 bg-primary bg-opacity-10 rounded">
+									<i class="bi bi-calendar-check fs-1 text-primary d-block mb-2"></i>
+									<h3 class="mb-0">{{ total_sessions }}</h3>
+									<p class="text-muted mb-0">Total Sessions</p>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="p-3 bg-success bg-opacity-10 rounded">
+									<i class="bi bi-star fs-1 text-success d-block mb-2"></i>
+									<h3 class="mb-0">{{ total_xp }}</h3>
+									<p class="text-muted mb-0">Total XP Earned</p>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="p-3 bg-info bg-opacity-10 rounded">
+									<i class="bi bi-clock fs-1 text-info d-block mb-2"></i>
+									<h3 class="mb-0">{{ avg_duration }}</h3>
+									<p class="text-muted mb-0">Avg Duration (min)</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				{% endif %}
 				
 			</div>
 			
