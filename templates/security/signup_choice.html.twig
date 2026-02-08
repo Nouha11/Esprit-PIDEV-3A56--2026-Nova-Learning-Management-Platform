@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}NOVA - Intelligent Study Coaching Platform{% endblock %}</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="NOVA Team">
+    <meta name="description" content="NOVA - Intelligent Study Coaching Platform">
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'light'
+        }
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+        setTheme(getPreferredTheme())
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+                document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                    element.classList.remove('active')
+                })
+                btnToActive.classList.add('active')
+                activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                    setTheme(getPreferredTheme())
+                }
+            })
+            showActiveTheme(getPreferredTheme())
+            document.querySelectorAll('[data-bs-theme-value]')
+                .forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const theme = toggle.getAttribute('data-bs-theme-value')
+                        localStorage.setItem('theme', theme)
+                        setTheme(theme)
+                        showActiveTheme(theme)
+                    })
+                })
+            }
+        })
+    </script>
+
+    {% block stylesheets %}
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+    {% endblock %}
+
+    <style>
+        /* Full page background */
+        body {
+            background-image: url('{{ asset("assets/images/background.jpg") }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* Overlay to improve readability */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.85) 0%, rgba(255, 193, 7, 0.85) 100%);
+            z-index: -1;
+        }
+
+        /* Main content area styling */
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            margin: 2rem auto;
+            overflow: hidden;
+        }
+
+        /* Footer styling */
+        footer {
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Card hover effects */
+        .hover-shadow {
+            transition: all 0.3s ease;
+        }
+        .hover-shadow:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+        }
+
+        /* Hero section enhancements */
+        .hero-section {
+            padding: 6rem 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                background-attachment: scroll;
+            }
+            .main-content {
+                margin: 1rem;
+                border-radius: 15px;
+            }
+            .hero-section {
+                padding: 3rem 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Main Content -->
+    <div class="container-fluid main-content">
+        <section class="hero-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="p-4 p-sm-5 position-relative overflow-hidden">
+                            <!-- SVG decoration (optional) -->
+                            <figure class="position-absolute top-0 start-0 d-none d-lg-block ms-n7 opacity-3">
+                                <svg width="294.5px" height="261.6px" viewBox="0 0 294.5 261.6">
+                                    <path class="fill-warning opacity-5" d="M280.7,84.9c-4.6-9.5-10.1-18.6-16.4-27.2c-18.4-25.2-44.9-45.3-76-54.2c-31.7-9.1-67.7-0.2-93.1,21.6 C82,36.4,71.9,50.6,65.4,66.3c-4.6,11.1-9.5,22.3-17.2,31.8c-6.8,8.3-15.6,15-22.8,23C10.4,137.6-0.1,157.2,0,179 c0.1,28,11.4,64.6,40.4,76.7c23.9,10,50.7-3.1,75.4-4.7c23.1-1.5,43.1,10.4,65.5,10.6c53.4,0.6,97.8-42,109.7-90.4 C298.5,140.9,293.4,111.5,280.7,84.9z"></path>
+                                </svg>
+                            </figure>
+
+                            <div class="col-11 mx-auto position-relative">
+                                <!-- Check if user is logged in -->
+                                {% if app.user %}
+                                    <!-- Logged in user - Show dashboard links based on role -->
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-8">
+                                            <h3>Welcome back to NOVA!</h3>
+                                            <p class="mb-3 mb-lg-0">Continue your learning journey and achieve your academic goals!</p>
+                                        </div>
+                                        <div class="col-lg-4 text-lg-end">
+                                            {% if 'ROLE_STUDENT' in app.user.roles %}
+                                                <a href="{{ path('app_student_dashboard') }}" class="btn btn-warning btn-lg mb-0">
+                                                    <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                                                </a>
+                                            {% elseif 'ROLE_TUTOR' in app.user.roles %}
+                                                <a href="{{ path('admin_game_index') }}" class="btn btn-warning btn-lg mb-0">
+                                                    <i class="bi bi-speedometer2 me-2"></i>Tutor Dashboard
+                                                </a>
+                                            {% elseif 'ROLE_ADMIN' in app.user.roles %}
+                                                <a href="{{ path('app_admin_dashboard') }}" class="btn btn-warning btn-lg mb-0">
+                                                    <i class="bi bi-shield-lock me-2"></i>Admin Panel
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ path('front_game_index') }}" class="btn btn-warning btn-lg mb-0">
+                                                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <!-- Not logged in - Show sign in/register options -->
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-12 text-center mb-4">
+                                            <h1 class="display-4 fw-bold mb-3">Welcome to NOVA</h1>
+                                            <p class="lead mb-4">Join thousands of students already using NOVA to achieve their academic goals!</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Role Selection Cards -->
+                                    <div class="row g-4 mb-4">
+                                        <!-- Student Card -->
+                                        <div class="col-md-6">
+                                            <div class="card h-100 border-primary shadow-sm hover-shadow">
+                                                <div class="card-body text-center p-4">
+                                                    <div class="icon-lg bg-primary bg-opacity-10 rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                        <i class="bi bi-person-check text-primary fs-1"></i>
+                                                    </div>
+                                                    <h4 class="card-title mb-3">I'm a Student</h4>
+                                                    <p class="card-text text-muted mb-4">
+                                                        Access interactive games, earn XP, track your progress, and compete on leaderboards
+                                                    </p>
+                                                    <ul class="list-unstyled text-start mb-4">
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                            <small>Play educational games</small>
+                                                        </li>
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                            <small>Earn badges & rewards</small>
+                                                        </li>
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                            <small>Track your learning progress</small>
+                                                        </li>
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                            <small>Compete on leaderboards</small>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="d-grid gap-2">
+                                                        <a href="{{ path('app_signup_student') }}?role=student" class="btn btn-primary btn-lg">
+                                                            <i class="bi bi-person-plus me-2"></i>Sign Up as Student
+                                                        </a>
+                                                        <a href="{{ path('app_login') }}" class="btn btn-outline-primary">
+                                                            Already have an account? Sign In
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tutor Card -->
+                                        <div class="col-md-6">
+                                            <div class="card h-100 border-warning shadow-sm hover-shadow">
+                                                <div class="card-body text-center p-4">
+                                                    <div class="icon-lg bg-warning bg-opacity-10 rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                        <i class="bi bi-person-workspace text-warning fs-1"></i>
+                                                    </div>
+                                                    <h4 class="card-title mb-3">I'm a Tutor</h4>
+                                                    <p class="card-text text-muted mb-4">
+                                                        Create and manage games, rewards, monitor student progress, and help students excel
+                                                    </p>
+                                                    <ul class="list-unstyled text-start mb-4">
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-check-circle-fill text-warning me-2"></i>
+                                                            <small>Create custom games</small>
+                                                        </li>
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-check-circle-fill text-warning me-2"></i>
+                                                            <small>Manage student rewards</small>
+                                                        </li>
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-check-circle-fill text-warning me-2"></i>
+                                                            <small>Track student analytics</small>
+                                                        </li>
+                                                        <li class="mb-2">
+                                                            <i class="bi bi-check-circle-fill text-warning me-2"></i>
+                                                            <small>Engage with learners</small>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="d-grid gap-2">
+                                                        <a href="{{ path('app_signup_tutor') }}?role=tutor" class="btn btn-warning btn-lg">
+                                                            <i class="bi bi-person-plus me-2"></i>Sign Up as Tutor
+                                                        </a>
+                                                        <a href="{{ path('app_login') }}" class="btn btn-outline-warning">
+                                                            Already have an account? Sign In
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Main Content END -->
+
+    <!-- Footer START -->
+    <footer class="bg-light pt-5">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Widget 1 START -->
+                <div class="col-lg-3">
+                    <a class="me-0" href="">
+                        <img class="light-mode-item h-40px" src="{{ asset('assets/images/logo.svg') }}" alt="NOVA">
+                        <img class="dark-mode-item h-40px" src="{{ asset('assets/images/logo-light.svg') }}" alt="NOVA">
+                    </a>
+                    <p class="my-3">NOVA - Intelligent Study Coaching Platform. Making learning fun through gamification.</p>
+                    <ul class="list-inline mb-0 mt-3">
+                        <li class="list-inline-item">
+                            <a class="btn btn-white btn-sm shadow px-2 text-facebook" href="#"><i class="fab fa-fw fa-facebook-f"></i></a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a class="btn btn-white btn-sm shadow px-2 text-instagram" href="#"><i class="fab fa-fw fa-instagram"></i></a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a class="btn btn-white btn-sm shadow px-2 text-twitter" href="#"><i class="fab fa-fw fa-twitter"></i></a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Widget 1 END -->
+
+                <!-- Widget 2 START -->
+                <div class="col-lg-6">
+                    <div class="row g-4">
+                        <div class="col-6 col-md-4">
+                            <h5 class="mb-2 mb-md-4">Platform</h5>
+                            <ul class="nav flex-column">
+                                <li class="nav-item"><a class="nav-link" href="{{ path('front_game_index') }}">Games</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ path('front_reward_my_rewards') }}">Rewards</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#">Leaderboard</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <h5 class="mb-2 mb-md-4">Support</h5>
+                            <ul class="nav flex-column">
+                                <li class="nav-item"><a class="nav-link" href="#">Help Center</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#">FAQ</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <h5 class="mb-2 mb-md-4">Legal</h5>
+                            <ul class="nav flex-column">
+                                <li class="nav-item"><a class="nav-link" href="#">Privacy Policy</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#">Terms of Use</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Widget 2 END -->
+
+                <!-- Widget 3 START -->
+                <div class="col-lg-3">
+                    <h5 class="mb-2 mb-md-4">Contact</h5>
+                    <p class="mb-0">Email:<span class="h6 fw-light ms-2">support@nova.com</span></p>
+                </div>
+                <!-- Widget 3 END -->
+            </div>
+
+            <hr class="mt-4 mb-0">
+
+            <!-- Bottom footer -->
+            <div class="py-3">
+                <div class="container px-0">
+                    <div class="d-lg-flex justify-content-between align-items-center py-3 text-center text-md-left">
+                        <div class="text-body text-primary-hover">
+                            Copyrights ©{{ "now"|date("Y") }} NOVA. All rights reserved.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer END -->
+
+    <!-- Back to top -->
+    <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+    {% block javascripts %}
+    <!-- Bootstrap JS -->
+    <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Vendors -->
+    <script src="{{ asset('assets/vendor/glightbox/js/glightbox.js') }}"></script>
+    <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
+
+    <!-- Template Functions -->
+    <script src="{{ asset('assets/js/functions.js') }}"></script>
+    {% endblock %}
+</body>
+</html>
