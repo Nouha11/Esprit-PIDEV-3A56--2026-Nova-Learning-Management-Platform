@@ -11,14 +11,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/quiz/question')] // I added '/admin' here too
+#[Route('/admin/quiz/question')]
 final class QuestionController extends AbstractController
 {
     #[Route(name: 'app_quiz_question_index', methods: ['GET'])]
     public function index(QuestionRepository $questionRepository): Response
     {
-        // 👇 UPDATED PATH: Points to admin/quiz/question_manager
-        return $this->render('admin/quiz/question_manager/index.html.twig', [
+        // 👇 UPDATED: Points to 'questions.html.twig' inside admin/quiz
+        return $this->render('admin/quiz/questions.html.twig', [
             'questions' => $questionRepository->findAll(),
         ]);
     }
@@ -37,8 +37,8 @@ final class QuestionController extends AbstractController
             return $this->redirectToRoute('app_quiz_show', ['id' => $question->getQuiz()->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        // 👇 UPDATED PATH
-        return $this->render('admin/quiz/question_manager/new.html.twig', [
+        // 👇 UPDATED: Points to 'new_question.html.twig' inside admin/quiz
+        return $this->render('admin/quiz/new_question.html.twig', [
             'question' => $question,
             'form' => $form,
         ]);
@@ -47,8 +47,8 @@ final class QuestionController extends AbstractController
     #[Route('/{id}', name: 'app_quiz_question_show', methods: ['GET'])]
     public function show(Question $question): Response
     {
-        // 👇 UPDATED PATH
-        return $this->render('admin/quiz/question_manager/show.html.twig', [
+        // 👇 UPDATED: Points to 'show_question.html.twig' inside admin/quiz
+        return $this->render('admin/quiz/show_question.html.twig', [
             'question' => $question,
         ]);
     }
@@ -65,8 +65,8 @@ final class QuestionController extends AbstractController
             return $this->redirectToRoute('app_quiz_show', ['id' => $question->getQuiz()->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        // 👇 UPDATED PATH
-        return $this->render('admin/quiz/question_manager/edit.html.twig', [
+        // 👇 UPDATED: Points to 'edit_question.html.twig' inside admin/quiz
+        return $this->render('admin/quiz/edit_question.html.twig', [
             'question' => $question,
             'form' => $form,
         ]);

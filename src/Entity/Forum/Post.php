@@ -34,7 +34,7 @@ class Post
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
     
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'posts')] 
+    #[ORM\ManyToOne(targetEntity: \App\Entity\users\User::class, inversedBy: 'posts')] 
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null; 
 
