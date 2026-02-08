@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Quiz;
+namespace App\Controller\Admin\Quiz;
 
 use App\Entity\Quiz;
 use App\Form\QuizType;
@@ -11,13 +11,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/quiz')]
+#[Route('/admin/quiz')] // I added '/admin' to the URL to keep it organized
 final class QuizController extends AbstractController
 {
     #[Route(name: 'app_quiz_index', methods: ['GET'])]
     public function index(QuizRepository $quizRepository): Response
     {
-        return $this->render('quiz/index.html.twig', [
+        // 👇 UPDATED PATH
+        return $this->render('admin/quiz/index.html.twig', [
             'quizzes' => $quizRepository->findAll(),
         ]);
     }
@@ -33,10 +34,11 @@ final class QuizController extends AbstractController
             $entityManager->persist($quiz);
             $entityManager->flush();
 
-// Redirect to the "Show" page of the NEW quiz so we can add questions immediately
-return $this->redirectToRoute('app_quiz_show', ['id' => $quiz->getId()], Response::HTTP_SEE_OTHER);        }
+            return $this->redirectToRoute('app_quiz_show', ['id' => $quiz->getId()], Response::HTTP_SEE_OTHER);
+        }
 
-        return $this->render('quiz/new.html.twig', [
+        // 👇 UPDATED PATH
+        return $this->render('admin/quiz/new.html.twig', [
             'quiz' => $quiz,
             'form' => $form,
         ]);
@@ -45,7 +47,8 @@ return $this->redirectToRoute('app_quiz_show', ['id' => $quiz->getId()], Respons
     #[Route('/{id}', name: 'app_quiz_show', methods: ['GET'])]
     public function show(Quiz $quiz): Response
     {
-        return $this->render('quiz/show.html.twig', [
+        // 👇 UPDATED PATH
+        return $this->render('admin/quiz/show.html.twig', [
             'quiz' => $quiz,
         ]);
     }
@@ -62,7 +65,8 @@ return $this->redirectToRoute('app_quiz_show', ['id' => $quiz->getId()], Respons
             return $this->redirectToRoute('app_quiz_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('quiz/edit.html.twig', [
+        // 👇 UPDATED PATH
+        return $this->render('admin/quiz/edit.html.twig', [
             'quiz' => $quiz,
             'form' => $form,
         ]);

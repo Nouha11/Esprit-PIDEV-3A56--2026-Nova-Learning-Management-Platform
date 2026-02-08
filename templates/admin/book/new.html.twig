@@ -1,0 +1,138 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Add New Book - Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
+{% endblock %}
+
+{% block admin_content %}
+<!-- Page main content START -->
+<div class="page-content-wrapper border">
+
+    <h1 class="h3 mb-3">Add New Book</h1>
+
+    <!-- Flash messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'success' ? 'success' : 'danger' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Card START -->
+    <div class="card border rounded-3 mb-5">
+        <!-- Card header -->
+        <div class="card-header bg-light border-bottom px-lg-5">
+            <h5 class="mb-0">Book Information</h5>
+        </div>
+
+        <!-- Card body START -->
+        <div class="card-body px-3 px-sm-5">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="row g-4">
+                <!-- Left Column START -->
+                <div class="col-lg-8">
+                    <!-- Title -->
+                    <div class="mb-4">
+                        {{ form_label(form.title, 'Book Title', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Enter book title'}}) }}
+                        {{ form_errors(form.title) }}
+                    </div>
+
+                    <!-- Author -->
+                    <div class="mb-4">
+                        {{ form_label(form.author, 'Author Name', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.author, {'attr': {'class': 'form-control', 'placeholder': 'Enter author name'}}) }}
+                        {{ form_errors(form.author) }}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        {{ form_label(form.description, 'Book Description', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '6', 'placeholder': 'Enter book description'}}) }}
+                        <small class="form-text text-muted">Provide a detailed description of the book</small>
+                        {{ form_errors(form.description) }}
+                    </div>
+                </div>
+                <!-- Left Column END -->
+
+                <!-- Right Column START -->
+                <div class="col-lg-4">
+                    <!-- Cover Image Upload -->
+                    <div class="mb-4">
+                        {{ form_label(form.coverImage, 'Upload Cover Image', {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="text-center justify-content-center align-items-center p-4 border border-2 border-dashed position-relative rounded-3">
+                            <img src="{{ asset('assets/images/element/gallery.svg') }}" class="h-50px mb-2" alt="">
+                            <div>
+                                <h6 class="my-2">Upload cover image</h6>
+                                {{ form_widget(form.coverImage, {'attr': {'class': 'form-control'}}) }}
+                                <p class="small mb-0 mt-2"><b>Note:</b> Max 5MB. Allowed: JPEG, PNG, WebP</p>
+                            </div>
+                        </div>
+                        {{ form_errors(form.coverImage) }}
+                    </div>
+
+                    <!-- Book Type -->
+                    <div class="mb-4">
+                        <label class="form-label">Book Format</label>
+                        <div class="form-check form-switch form-check-md">
+                            {{ form_widget(form.isDigital, {'attr': {'class': 'form-check-input', 'id': 'isDigitalSwitch'}}) }}
+                            {{ form_label(form.isDigital, 'Digital Book (PDF/eBook)', {'label_attr': {'class': 'form-check-label'}}) }}
+                        </div>
+                        <small class="form-text text-muted">Check if this book is also available digitally</small>
+                        {{ form_errors(form.isDigital) }}
+                    </div>
+
+                    <!-- Library Selection (for physical books) -->
+                    <div class="mb-4" id="libraryField">
+                        {{ form_label(form.libraries, 'Library Locations (Physical Copies)', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.libraries, {'attr': {'class': 'form-select', 'size': 5}}) }}
+                        <small class="form-text text-muted">Select the libraries where physical copies are available (hold Ctrl/Cmd to select multiple)</small>
+                        {{ form_errors(form.libraries) }}
+                    </div>
+
+                    <!-- Price -->
+                    <div class="mb-4">
+                        {{ form_label(form.price, 'Price (USD)', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.price, {'attr': {'class': 'form-control', 'placeholder': 'Enter price'}}) }}
+                        {{ form_errors(form.price) }}
+                    </div>
+
+                    <!-- Published Date -->
+                    <div class="mb-4">
+                        {{ form_label(form.publishedAt, 'Published Date', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.publishedAt, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.publishedAt) }}
+                    </div>
+                </div>
+                <!-- Right Column END -->
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ path('admin_books_index') }}" class="btn btn-secondary mb-0">
+                    <i class="bi bi-arrow-left me-2"></i>Cancel
+                </a>
+                {{ form_widget(form.save, {'attr': {'class': 'btn btn-success mb-0'}, 'label': 'Create Book'}) }}
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+        <!-- Card body END -->
+    </div>
+    <!-- Card END -->
+
+</div>
+<!-- Page main content END -->
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
+{% endblock %}
+

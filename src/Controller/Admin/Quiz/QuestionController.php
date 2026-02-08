@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Quiz;
+namespace App\Controller\Admin\Quiz;
 
 use App\Entity\Quiz\Question;
 use App\Form\Quiz\QuestionType;
@@ -11,14 +11,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/quiz/question')]
+#[Route('/admin/quiz/question')] // I added '/admin' here too
 final class QuestionController extends AbstractController
 {
     #[Route(name: 'app_quiz_question_index', methods: ['GET'])]
     public function index(QuestionRepository $questionRepository): Response
     {
-        // Points to your manager folder
-        return $this->render('quiz/manager/index.html.twig', [
+        // 👇 UPDATED PATH: Points to admin/quiz/question_manager
+        return $this->render('admin/quiz/question_manager/index.html.twig', [
             'questions' => $questionRepository->findAll(),
         ]);
     }
@@ -34,12 +34,11 @@ final class QuestionController extends AbstractController
             $entityManager->persist($question);
             $entityManager->flush();
 
-            // Redirect back to the Quiz Manager after saving
             return $this->redirectToRoute('app_quiz_show', ['id' => $question->getQuiz()->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        // ✅ This loads your BEAUTIFUL form
-        return $this->render('quiz/manager/new.html.twig', [
+        // 👇 UPDATED PATH
+        return $this->render('admin/quiz/question_manager/new.html.twig', [
             'question' => $question,
             'form' => $form,
         ]);
@@ -48,7 +47,8 @@ final class QuestionController extends AbstractController
     #[Route('/{id}', name: 'app_quiz_question_show', methods: ['GET'])]
     public function show(Question $question): Response
     {
-        return $this->render('quiz/manager/show.html.twig', [
+        // 👇 UPDATED PATH
+        return $this->render('admin/quiz/question_manager/show.html.twig', [
             'question' => $question,
         ]);
     }
@@ -65,7 +65,8 @@ final class QuestionController extends AbstractController
             return $this->redirectToRoute('app_quiz_show', ['id' => $question->getQuiz()->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('quiz/manager/edit.html.twig', [
+        // 👇 UPDATED PATH
+        return $this->render('admin/quiz/question_manager/edit.html.twig', [
             'question' => $question,
             'form' => $form,
         ]);

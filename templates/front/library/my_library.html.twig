@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Library</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+    
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+    
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+</head>
+
+<body>
+
+<!-- Page Banner START -->
+<section class="py-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="bg-light p-4 text-center rounded-3">
+                    <h1 class="m-0">My Library</h1>
+                    <div class="d-flex justify-content-center">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb breadcrumb-dots mb-0">
+                                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">My Library</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Page Banner END -->
+
+<!-- Page Content START -->
+<section class="pt-5 pb-5">
+    <div class="container">
+        
+        <!-- Digital Books Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="mb-0">
+                        <i class="bi bi-cloud-download text-primary me-2"></i>
+                        My Digital Books
+                    </h3>
+                    <span class="badge bg-primary">{{ digitalPurchases|length }} book{{ digitalPurchases|length != 1 ? 's' : '' }}</span>
+                </div>
+                
+                {% if digitalPurchases is empty %}
+                    <div class="card border">
+                        <div class="card-body text-center py-5">
+                            <img src="{{ asset('assets/images/element/online.svg') }}" class="h-100px mb-3" alt="">
+                            <h5>No Digital Books Yet</h5>
+                            <p class="mb-3">You haven't purchased any digital books yet.</p>
+                            <a href="{{ path('book_list') }}" class="btn btn-primary">
+                                <i class="bi bi-search me-2"></i>Browse Books
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="row g-4">
+                        {% for purchase in digitalPurchases %}
+                            <div class="col-sm-6 col-lg-4 col-xl-3">
+                                <div class="card shadow h-100">
+                                    <img src="{{ asset(purchase.book.coverImage ?: 'assets/images/book/01.jpg') }}" 
+                                         class="card-img-top" 
+                                         alt="{{ purchase.book.title }}"
+                                         style="height: 250px; object-fit: cover;">
+                                    <div class="card-body pb-0">
+                                        <h6 class="card-title">
+                                            <a href="{{ path('book_show', {'id': purchase.book.id}) }}">{{ purchase.book.title }}</a>
+                                        </h6>
+                                        <p class="mb-2 text-truncate-2">
+                                            <small class="text-muted">by {{ purchase.book.author ?: 'Unknown' }}</small>
+                                        </p>
+                                    </div>
+                                    <div class="card-footer pt-0 pb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar3 me-1"></i>
+                                                {{ purchase.purchasedAt|date('M d, Y') }}
+                                            </small>
+                                            <a href="{{ path('book_show', {'id': purchase.book.id}) }}" class="btn btn-sm btn-primary-soft">
+                                                <i class="bi bi-book me-1"></i>Read
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Active Loans Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="mb-0">
+                        <i class="bi bi-book text-success me-2"></i>
+                        Currently Borrowed
+                    </h3>
+                    <span class="badge bg-success">{{ activeLoans|length }} book{{ activeLoans|length != 1 ? 's' : '' }}</span>
+                </div>
+                
+                {% if activeLoans is empty %}
+                    <div class="card border">
+                        <div class="card-body text-center py-5">
+                            <img src="{{ asset('assets/images/element/book-bg.svg') }}" class="h-100px mb-3" alt="">
+                            <h5>No Active Loans</h5>
+                            <p class="mb-3">You don't have any borrowed books at the moment.</p>
+                            <a href="{{ path('book_list') }}" class="btn btn-success">
+                                <i class="bi bi-search me-2"></i>Browse Books to Borrow
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="row g-4">
+                        {% for loan in activeLoans %}
+                            <div class="col-12">
+                                <div class="card border">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-2">
+                                                <img src="{{ asset(loan.book.coverImage ?: 'assets/images/book/01.jpg') }}" 
+                                                     class="rounded" 
+                                                     alt="{{ loan.book.title }}"
+                                                     style="width: 100%; max-width: 120px;">
+                                            </div>
+                                            <div class="col-md-7">
+                                                <h5 class="mb-2">
+                                                    <a href="{{ path('book_show', {'id': loan.book.id}) }}">{{ loan.book.title }}</a>
+                                                </h5>
+                                                <p class="mb-2 text-muted">by {{ loan.book.author ?: 'Unknown' }}</p>
+                                                <div class="d-flex gap-3">
+                                                    <small>
+                                                        <i class="bi bi-calendar-check text-success me-1"></i>
+                                                        Borrowed: {{ loan.startAt|date('M d, Y') }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                                                <span class="badge bg-success-soft text-success mb-2">
+                                                    <i class="bi bi-clock me-1"></i>Active Loan
+                                                </span>
+                                                <div>
+                                                    <a href="{{ path('book_show', {'id': loan.book.id}) }}" class="btn btn-sm btn-light">
+                                                        <i class="bi bi-eye me-1"></i>View Book
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Loan History Section -->
+        {% if loanHistory is not empty %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="mb-0">
+                            <i class="bi bi-clock-history text-info me-2"></i>
+                            Loan History
+                        </h3>
+                        <span class="badge bg-info">Last 10 returns</span>
+                    </div>
+                    
+                    <div class="card border">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Book</th>
+                                            <th>Author</th>
+                                            <th>Borrowed</th>
+                                            <th>Returned</th>
+                                            <th>Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for loan in loanHistory %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{{ path('book_show', {'id': loan.book.id}) }}">
+                                                        {{ loan.book.title }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ loan.book.author ?: 'Unknown' }}</td>
+                                                <td>
+                                                    <small class="text-muted">
+                                                        {{ loan.startAt|date('M d, Y') }}
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted">
+                                                        {{ loan.endAt|date('M d, Y') }}
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark">
+                                                        {{ loan.startAt.diff(loan.endAt).days }} days
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+    </div>
+</section>
+<!-- Page Content END -->
+
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<!-- Bootstrap JS -->
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+
+<!-- Template Functions -->
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+
+</body>
+</html>
