@@ -1,68 +1,70 @@
-<!-- Sidebar START -->
 <nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
 
-    <!-- Navbar brand for xl START -->
     <div class="d-flex align-items-center">
         <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
             <img class="navbar-brand-item" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA" style="height: 90px;">
         </a>
     </div>
-    <!-- Navbar brand for xl END -->
-    
     <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
         <div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
 
-            <!-- Sidebar menu START -->
             <ul class="navbar-nav flex-column" id="navbar-sidebar">
                 
-                <!-- Menu item 1 -->
                 <li class="nav-item">
                     <a href="{{ path('app_admin_dashboard') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_admin_dashboard' %} active{% endif %}">
                         <i class="bi bi-house fa-fw me-2"></i>Dashboard
                     </a>
                 </li>
                 
-                <!-- Title -->
-                <li class="nav-item ms-2 my-2">Pages</li>
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Learning Management</li>
 
-                <!-- menu item 2 -->
                 <li class="nav-item"> 
                     <a class="nav-link" href="{{ path('admin_course_index') }}">
                         <i class="bi bi-basket fa-fw me-2"></i>Courses
                     </a>
                 </li>
 
-                <!-- Menu item 6 - Library -->
                 <li class="nav-item"> 
                     <a class="nav-link" href="{{ path('admin_books_index') }}">
                         <i class="fas fa-book fa-fw me-2"></i>Library
                     </a>
                 </li>
 
-                <!-- Menu item 7 - Games -->
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_quiz_index') }}">
+                        <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Gamification</li>
+
                 <li class="nav-item"> 
                     <a class="nav-link" href="{{ path('admin_game_index') }}">
                         <i class="fas fa-gamepad fa-fw me-2"></i>Games
                     </a>
                 </li>
 
-                <!-- Menu item 8 - Rewards -->
                 <li class="nav-item"> 
                     <a class="nav-link" href="{{ path('admin_reward_index') }}">
                         <i class="fas fa-trophy fa-fw me-2"></i>Rewards
                     </a>
                 </li>
 
-            </ul>
-            <!-- Sidebar menu end -->
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Community</li>
 
-            <!-- Sidebar footer START -->
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_forum_index') }}">
+                        <i class="fas fa-comments fa-fw me-2"></i>Forum Moderation
+                    </a>
+                </li>
+
+            </ul>
             <div class="px-3 mt-auto pt-3">
                 <div class="d-flex align-items-center justify-content-between text-primary-hover">
                     <a class="h5 mb-0 text-body" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Settings">
                         <i class="bi bi-gear-fill"></i>
                     </a>
-                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Home">
+                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Go to Website">
                         <i class="bi bi-globe"></i>
                     </a>
                     <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
@@ -70,9 +72,6 @@
                     </a>
                 </div>
             </div>
-            <!-- Sidebar footer END -->
-            
-        </div>
+            </div>
     </div>
 </nav>
-<!-- Sidebar END -->
