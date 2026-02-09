@@ -123,11 +123,11 @@
 
                     {% if is_granted('ROLE_STUDENT') %}
                         <li><a class="nav-link" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
-                        <li><a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-headset me-2"></i>Forum</a></li>
                     {% elseif is_granted('ROLE_TUTOR') %}
                         <li><a class="nav-link" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
-                        <li><a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-headset me-2"></i>Forum</a></li>
                     {% endif %}
+                    <li><a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-headset me-2"></i>Forum</a></li>
+
                 </ul>
                 <!-- Nav Main menu END -->
             </div>
