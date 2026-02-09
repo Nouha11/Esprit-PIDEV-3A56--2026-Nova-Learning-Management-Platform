@@ -270,7 +270,7 @@
                         {% if 'ROLE_STUDENT' in app.user.roles %}
                             <li><a class="dropdown-item" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>My Dashboard</a></li>
                         {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_tutor_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>Tutor Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ path('admin_game_index') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>Tutor Dashboard</a></li>
                         {% elseif 'ROLE_ADMIN' in app.user.roles %}
                             <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}"><i class="bi bi-shield-lock fa-fw me-2"></i>Admin Panel</a></li>
                         {% endif %}
@@ -330,6 +330,133 @@
                             <span class="position-relative d-inline-block">Curiosity
                                 <span class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-sm-block">
                                     <svg class="fill-orange" width="303" height="86" viewBox="0 0 303 86">
+                                        <path d="M288.197 19.3999C281.599 15.6998 273.654 13.03 265.424 10.926C256.533 8.64794 247.263 6.92124 237.946 5.4267C218.461 2.249 198.384 0.406219 178.237 0.0579769C158.609 -0.275755 138.888 0.8125 119.733 3.49686C108.17 5.10748 96.8189 7.2985 85.8466 10.0264C81.4955 11.0131 77.168 12.0723 72.9115 13.2331C56.382 17.7022 40.5146 23.4192 26.3972 30.355C12.9182 36.9861 0.716203 46.0404 0.999971 57.2131C1.14185 62.2772 4.16871 67.051 9.98595 70.693C15.4721 74.1319 22.6846 76.3809 29.9679 78.0206C38.7647 80.0085 48.0345 81.3289 57.257 82.4026C67.1179 83.5489 77.0734 84.2889 87.0762 84.6807C107.413 85.4642 127.892 84.7968 148.063 83.0266C168.399 81.2418 188.429 78.3543 208.127 74.8139C227.399 71.3459 246.436 67.2976 265.141 62.8285C278.927 59.5348 294.227 55.0802 300.446 46.2435C307.091 36.812 299.949 25.973 288.197 19.3999Z"/>
+                                    </svg>
+                                </span>
+                            </span>
+                        </h2>
+
+                        <p class="mb-3 col-lg-8">NOVA is an intelligent study coaching platform designed to help you achieve academic excellence through gamification and personalized learning.</p>
+
+                        <a href="{{ path('course_index') }}" class="btn btn-lg btn-blue mb-0">Explore Courses</a>
+                    </div>
+                    <div class="col-lg-5 col-xxl-3 position-relative">
+                        <h4 class="mb-4">Top Students This Month</h4>
+
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar avatar-xl">
+                                <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+                                <div class="position-absolute bottom-0 end-0">
+                                    <img src="{{ asset('assets/images/element/medal-badge.png') }}" class="position-relative" alt="">
+                                    <span class="fw-bold text-dark smaller position-absolute top-50 start-50 translate-middle">1<sup>st</sup></span>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="mb-1">Top Performer</h5>
+                                <p class="mb-0">1,250 XP</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar avatar-xl">
+                                <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar">
+                                <div class="position-absolute bottom-0 end-0">
+                                    <img src="{{ asset('assets/images/element/medal-badge.png') }}" class="position-relative" alt="">
+                                    <span class="fw-bold text-dark smaller position-absolute top-50 start-50 translate-middle">2<sup>nd</sup></span>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="mb-1">Rising Star</h5>
+                                <p class="mb-0">1,100 XP</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-xl">
+                                <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/06.jpg') }}" alt="avatar">
+                                <div class="position-absolute bottom-0 end-0">
+                                    <img src="{{ asset('assets/images/element/medal-badge.png') }}" class="position-relative" alt="">
+                                    <span class="fw-bold text-dark smaller position-absolute top-50 start-50 translate-middle">3<sup>rd</sup></span>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="mb-1">Consistent Learner</h5>
+                                <p class="mb-0">950 XP</p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    </div>
+            </div>
+        </section>
+        {% if is_granted('ROLE_STUDENT') %}
+        <section>
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card bg-warning bg-opacity-50 p-4 overflow-hidden h-100">
+                            <div class="card-header bg-transparent p-0">
+                                <h6>Easy Level</h6>
+                            </div>
+                            <div class="card-body p-0 mt-3">
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="stretched-link">Puzzle Games</a></h3>
+                                <h6 class="lead">Fun & Simple</h6>
+                                <img src="{{ asset('assets/images/element/primary-school.svg') }}" class="opacity-5 mb-n5" alt="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card bg-purple bg-opacity-50 p-4 overflow-hidden h-100">
+                            <div class="card-header bg-transparent p-0">
+                                <h6>Medium Level</h6>
+                            </div>
+                            <div class="card-body p-0 mt-3">
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="stretched-link">Memory Games</a></h3>
+                                <h6 class="lead">Train Your Brain</h6>
+                                <img src="{{ asset('assets/images/element/middle-school.svg') }}" class="opacity-5 mb-n5" alt="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card bg-orange bg-opacity-50 p-4 overflow-hidden h-100">
+                            <div class="card-header bg-transparent p-0">
+                                <h6>Hard Level</h6>
+                            </div>
+                            <div class="card-body p-0 mt-3">
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="stretched-link">Trivia Games</a></h3>
+                                <h6 class="lead">Test Knowledge</h6>
+                                <img src="{{ asset('assets/images/element/high-school.svg') }}" class="opacity-5 mb-n5" alt="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card bg-info bg-opacity-50 p-4 overflow-hidden h-100">
+                            <div class="card-header bg-transparent p-0">
+                                <h6>Expert Level</h6>
+                            </div>
+                            <div class="card-body p-0 mt-3">
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="stretched-link">Arcade Games</a></h3>
+                                <h6 class="lead">Ultimate Challenge</h6>
+                                <img src="{{ asset('assets/images/element/exam.svg') }}" class="opacity-5 mb-n5" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+        <section class="pt-0 pt-md-5">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-5 col-xxl-6 position-relative">
+                        <h2 class="h1">
+                            <span class="position-relative z-index-9">Achieve Your Goals With</span>
+                            <span class="position-relative z-index-1">NOVA
+                                <span class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-sm-block">
+                                    <svg class="fill-orange" width="180" height="86" viewBox="0 0 303 86">
                                         <path d="M288.197 19.3999C281.599 15.6998 273.654 13.03 265.424 10.926C256.533 8.64794 247.263 6.92124 237.946 5.4267C218.461 2.249 198.384 0.406219 178.237 0.0579769C158.609 -0.275755 138.888 0.8125 119.733 3.49686C108.17 5.10748 96.8189 7.2985 85.8466 10.0264C81.4955 11.0131 77.168 12.0723 72.9115 13.2331C56.382 17.7022 40.5146 23.4192 26.3972 30.355C12.9182 36.9861 0.716203 46.0404 0.999971 57.2131C1.14185 62.2772 4.16871 67.051 9.98595 70.693C15.4721 74.1319 22.6846 76.3809 29.9679 78.0206C38.7647 80.0085 48.0345 81.3289 57.257 82.4026C67.1179 83.5489 77.0734 84.2889 87.0762 84.6807C107.413 85.4642 127.892 84.7968 148.063 83.0266C168.399 81.2418 188.429 78.3543 208.127 74.8139C227.399 71.3459 246.436 67.2976 265.141 62.8285C278.927 59.5348 294.227 55.0802 300.446 46.2435C307.091 36.812 299.949 25.973 288.197 19.3999Z"/>
                                     </svg>
                                 </span>
@@ -598,4 +725,3 @@
     <script src="{{ asset('assets/js/functions.js') }}"></script>
     {% endblock %}
 </body>
-</html>
