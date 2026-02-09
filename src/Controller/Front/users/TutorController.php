@@ -3,19 +3,23 @@
 namespace App\Controller\Front\users;
 
 use App\Entity\users\TutorProfile;
+use App\Entity\users\User; // Make sure this path matches your User entity
 use App\Repository\TutorProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted; // Added for security
 
 #[Route('/tutor')]
+#[IsGranted('ROLE_TUTOR')] // Restrict this whole controller to Tutors only
 final class TutorController extends AbstractController
 {
     #[Route('/profile', name: 'app_tutor_profile', methods: ['GET'])]
     public function profile(): Response
     {
+        /** @var User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -32,6 +36,7 @@ final class TutorController extends AbstractController
     #[Route('/profile/edit', name: 'app_tutor_profile_edit', methods: ['GET', 'POST'])]
     public function editProfile(Request $request, EntityManagerInterface $entityManager): Response
     {
+        /** @var User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -78,6 +83,7 @@ final class TutorController extends AbstractController
     #[Route('/dashboard', name: 'app_tutor_dashboard', methods: ['GET'])]
     public function dashboard(): Response
     {
+        /** @var User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -94,6 +100,7 @@ final class TutorController extends AbstractController
     #[Route('/sessions', name: 'app_tutor_sessions', methods: ['GET'])]
     public function sessions(): Response
     {
+        /** @var User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -108,6 +115,7 @@ final class TutorController extends AbstractController
     #[Route('/availability', name: 'app_tutor_availability', methods: ['GET', 'POST'])]
     public function availability(Request $request, EntityManagerInterface $entityManager): Response
     {
+        /** @var User $user */
         $user = $this->getUser();
         
         if (!$user) {
