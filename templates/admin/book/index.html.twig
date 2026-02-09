@@ -8,36 +8,33 @@
 {% endblock %}
 
 {% block admin_content %}
-<!-- Page main content START -->
-<div class="page-content-wrapper border">
-
-    <!-- Title and Action START -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="d-sm-flex justify-content-between align-items-center">
-                <h1 class="h3 mb-2 mb-sm-0">Books Management</h1>
-                <a href="{{ path('admin_books_new') }}" class="btn btn-sm btn-primary mb-0">
-                    <i class="bi bi-plus-circle me-2"></i>Add New Book
-                </a>
-            </div>
+<!-- Title and Action START -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="d-sm-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-2 mb-sm-0">Books Management</h1>
+            <a href="{{ path('admin_books_new') }}" class="btn btn-sm btn-primary mb-0">
+                <i class="bi bi-plus-circle me-2"></i>Add New Book
+            </a>
         </div>
     </div>
-    <!-- Title and Action END -->
+</div>
+<!-- Title and Action END -->
 
-    <!-- Flash messages -->
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ label == 'success' ? 'success' : 'danger' }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
+<!-- Flash messages -->
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label == 'success' ? 'success' : 'danger' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     {% endfor %}
+{% endfor %}
 
-    <!-- Card START -->
-    <div class="card bg-transparent border rounded-3">
+<!-- Card START -->
+<div class="card shadow h-100">
         <!-- Card header START -->
-        <div class="card-header bg-light border-bottom">
+        <div class="card-header p-4 border-bottom">
             <div class="row g-3 align-items-center justify-content-between">
                 <!-- Title -->
                 <div class="col-md-8">
@@ -47,8 +44,8 @@
                 <!-- Search and filter -->
                 <div class="col-md-4">
                     <form class="rounded position-relative">
-                        <input class="form-control pe-5 bg-transparent" type="search" placeholder="Search books..." aria-label="Search">
-                        <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">
+                        <input class="form-control pe-5 bg-secondary bg-opacity-10 border-0" type="search" placeholder="Search books..." aria-label="Search">
+                        <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary" type="submit">
                             <i class="fas fa-search fs-6"></i>
                         </button>
                     </form>
@@ -58,7 +55,7 @@
         <!-- Card header END -->
 
         <!-- Card body START -->
-        <div class="card-body">
+        <div class="card-body p-4">
             {% if books|length > 0 %}
                 <!-- Books table START -->
                 <div class="table-responsive border-0">
@@ -156,7 +153,7 @@
                     </div>
                     <h5>No books found</h5>
                     <p class="mb-3">Start building your library by adding your first book.</p>
-                    <a href="{{ path('admin_books_new') }}" class="btn btn-primary-soft mb-0">
+                    <a href="{{ path('admin_books_new') }}" class="btn btn-primary mb-0">
                         <i class="bi bi-plus-circle me-2"></i>Add Your First Book
                     </a>
                 </div>
@@ -176,7 +173,6 @@
     </div>
     <!-- Card END -->
 </div>
-<!-- Page main content END -->
 {% endblock %}
 
 {% block javascripts %}
