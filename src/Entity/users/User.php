@@ -125,6 +125,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: \App\Entity\Quiz\Question::class, mappedBy: 'user')]
     private Collection $questions;
 
+    /**
+     * @var Collection<int, \App\Entity\StudySession\Course>
+     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\StudySession\Course::class, mappedBy: 'instructor')]
+    private Collection $courses;
+
     public function __construct()
     {
         $this->studySessions = new ArrayCollection();
@@ -133,6 +139,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->books = new ArrayCollection();
         $this->games = new ArrayCollection();
         $this->questions = new ArrayCollection();
+        $this->courses = new ArrayCollection();
         $this->xp = 0; //xp 
     }
 
@@ -356,6 +363,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->questions->removeElement($question)) {
             if ($question->getUser() === $this) {
                 $question->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, \App\Entity\StudySession\Course>
+     */
+    public function getCourses(): Collection
+    {
+        return $this->courses;
+    }
+
+    public function addCourse(\App\Entity\StudySession\Course $course): static
+    {
+        if (!$this->courses->contains($course)) {
+            $this->courses->add($course);
+            $course->setInstructor($this);
+        }
+        return $this;
+    }
+
+    public function removeCourse(\App\Entity\StudySession\Course $course): static
+    {
+        if ($this->courses->removeElement($course)) {
+            if ($course->getInstructor() === $this) {
+                $course->setInstructor(null);
             }
         }
         return $this;
