@@ -3,13 +3,11 @@
 <head>
     <title>{% block title %}NOVA - Intelligent Study Coaching Platform{% endblock %}</title>
 
-    <!-- Meta Tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="NOVA Team">
     <meta name="description" content="NOVA - Intelligent Study Coaching Platform">
 
-    <!-- Dark mode -->
     <script>
         const storedTheme = localStorage.getItem('theme')
         const getPreferredTheme = () => {
@@ -59,38 +57,29 @@
     </script>
 
     {% block stylesheets %}
-    <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
 
-    <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
 
-    <!-- Plugins CSS -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
 
-    <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
     {% endblock %}
 </head>
 
 <body>
-<!-- Header START -->
 <header class="navbar-light navbar-sticky">
     <nav class="navbar navbar-expand-xl z-index-9">
         <div class="container">
-            <!-- Logo START -->
             <a class="navbar-brand" href="{{ path('app_home') }}">
                 <img class="light-mode-item navbar-brand-item h-40px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
                 <img class="dark-mode-item navbar-brand-item h-40px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
             </a>
-            <!-- Logo END -->
-
-            <!-- Responsive navbar toggler -->
             <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-animation">
                     <span></span>
@@ -99,18 +88,23 @@
                 </span>
             </button>
 
-            <!-- Main navbar START -->
             <div class="navbar-collapse collapse" id="navbarCollapse">
-                <!-- Nav Main menu START -->
                 <ul class="navbar-nav navbar-nav-scroll">
                     <li class="nav-item">
                         <a class="nav-link active" href="{{ path('app_home') }}"><i class="bi bi-house me-2"></i>Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('course_index') }}"><i class="bi bi-book me-2"></i>Courses</a>
-                    </li>                    
+                    </li>                   
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>Library</a>
+                        <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-journal-bookmark me-2"></i>Library</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_quiz_index') }}"><i class="bi bi-lightning-charge me-2"></i>Quizzes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-chat-dots me-2"></i>Forum</a>
                     </li>
                     {% if is_granted('ROLE_STUDENT') %}
                     <li class="nav-item">
@@ -126,16 +120,9 @@
                     {% elseif is_granted('ROLE_TUTOR') %}
                         <li><a class="nav-link" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
                     {% endif %}
-                    <li><a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-headset me-2"></i>Forum</a></li>
-
                 </ul>
-                <!-- Nav Main menu END -->
-            </div>
-            <!-- Main navbar END -->
-
-            <!-- Profile and notification START -->
+                </div>
             <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-                <!-- Dark/Light mode toggle - ALWAYS VISIBLE -->
                 <li class="nav-item me-3 d-none d-sm-block">
                     <div class="mode-switch theme-icon-active d-flex align-items-center">
                         <button type="button" class="btn btn-link nav-link mb-0 p-0" data-bs-theme-value="light">
@@ -161,39 +148,29 @@
                 </li>
 
                 {% if app.user %}
-                <!-- Logged-in user features -->
-                
-                <!-- Add to cart START -->
                 <li class="nav-item ms-2 dropdown">
-                    <!-- Cart button -->
                     <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                         <i class="bi bi-cart3 fa-fw"></i>
                     </a>
-                    <!-- badge -->
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-dark mt-xl-2 ms-n1">2 
                         <span class="visually-hidden">unread messages</span>
                     </span>
 
-                    <!-- Cart dropdown menu START -->
                     <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
                         <div class="card bg-transparent">
                             <div class="card-header bg-transparent border-bottom py-4">
                                 <h5 class="m-0">Cart items</h5>
                             </div>
                             <div class="card-body p-0">
-                                <!-- Cart item START -->
                                 <div class="row p-3 g-2">
-                                    <!-- Image -->
                                     <div class="col-3">
                                         <img class="rounded-2" src="{{ asset('assets/images/book/02.jpg') }}" alt="avatar">
                                     </div>
                                     <div class="col-9">
-                                        <!-- Title -->
                                         <div class="d-flex justify-content-between">
                                             <h6 class="m-0">Angular 4 Tutorial in audio (Compact Disk)</h6>
                                             <a href="#" class="small text-primary-hover"><i class="bi bi-x-lg"></i></a>
                                         </div>
-                                        <!-- Select item -->
                                         <form class="choices-sm pt-2 col-4">
                                             <select class="form-select js-choice border-0 bg-transparent" data-search-enabled="false">
                                                 <option>1</option>
@@ -205,24 +182,17 @@
                                         </form>
                                     </div>
                                 </div>
-                                <!-- Cart item END -->
-
-                                <!-- Divider -->
                                 <hr class="m-0">
 
-                                <!-- Cart item START -->
                                 <div class="row p-3 g-2">
-                                    <!-- Image -->
                                     <div class="col-3">
                                         <img class="rounded-2" src="{{ asset('assets/images/book/04.jpg') }}" alt="avatar">
                                     </div>
                                     <div class="col-9">
-                                        <!-- Title -->
                                         <div class="d-flex justify-content-between">
                                             <h6 class="m-0">The Principles of Beautiful Graphics Design (Paperback)</h6>
                                             <a href="#" class="small text-primary-hover"><i class="bi bi-x-lg"></i></a>
                                         </div>
-                                        <!-- Select item -->
                                         <form class="choices-sm pt-2 col-4">
                                             <select class="form-select js-choice border-0 bg-transparent" data-search-enabled="false">
                                                 <option selected>1</option>
@@ -234,29 +204,20 @@
                                         </form>
                                     </div>
                                 </div>
-                                <!-- Cart item END -->
-                            </div>
-                            <!-- Button -->
+                                </div>
                             <div class="card-footer bg-transparent border-top py-3 text-center d-flex justify-content-between position-relative">
                                 <a href="#" class="btn btn-sm btn-light mb-0">View Cart</a>
                                 <a href="#" class="btn btn-sm btn-success mb-0">Checkout</a>
                             </div>
                         </div>
                     </div>
-                    <!-- Cart dropdown menu END -->
-                </li>
-                <!-- Add to cart END -->
-
-                <!-- Notification dropdown START -->
+                    </li>
                 <li class="nav-item ms-2 ms-sm-3 dropdown d-none d-sm-block">
-                    <!-- Notification button -->
                     <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                         <i class="bi bi-bell fa-fw"></i>
                     </a>
-                    <!-- Notification dote -->
                     <span class="notif-badge animation-blink"></span>
 
-                    <!-- Notification dropdown menu START -->
                     <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
                         <div class="card bg-transparent">
                             <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
@@ -265,7 +226,6 @@
                             </div>
                             <div class="card-body p-0">
                                 <ul class="list-group list-unstyled list-group-flush">
-                                    <!-- Notif item -->
                                     <li>
                                         <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
                                             <div class="me-3">
@@ -282,29 +242,20 @@
                                     </li>
                                 </ul>
                             </div>
-                            <!-- Button -->
                             <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
                                 <a href="#" class="stretched-link">See all incoming activity</a>
                             </div>
                         </div>
                     </div>
-                    <!-- Notification dropdown menu END -->
-                </li>
-                <!-- Notification dropdown END -->
-
-                <!-- Profile dropdown START -->
+                    </li>
                 <li class="nav-item ms-3 dropdown">
-                    <!-- Avatar -->
                     <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
                         <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
                     </a>
 
-                    <!-- Profile dropdown START -->
                     <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
-                        <!-- Profile info -->
                         <li class="px-3 mb-3">
                             <div class="d-flex align-items-center">
-                                <!-- Avatar -->
                                 <div class="avatar me-3">
                                     <img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
                                 </div>
@@ -314,14 +265,14 @@
                                 </div>
                             </div>
                         </li>
-                        <!-- Links -->
                         <li><hr class="dropdown-divider"></li>
                         
-                        <!-- Role-based Dashboard Link -->
                         {% if 'ROLE_STUDENT' in app.user.roles %}
                             <li><a class="dropdown-item" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>My Dashboard</a></li>
                         {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_tutor_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>Tutor Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ path('admin_game_index') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>Tutor Dashboard</a></li>
+                        {% elseif 'ROLE_ADMIN' in app.user.roles %}
+                            <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}"><i class="bi bi-shield-lock fa-fw me-2"></i>Admin Panel</a></li>
                         {% endif %}
 
                         {% if 'ROLE_STUDENT' in app.user.roles %}
@@ -330,31 +281,13 @@
                             <li><a class="dropdown-item" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
                         {% endif %}
                         
-<!--                         <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Account Settings</a></li>
- -->                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Help</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Help</a></li>
                         <li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        <!-- Dark mode options in profile dropdown (optional duplicate) -->
-                        <li>
-                            <div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center gap-2 p-2 rounded mt-2">
-                                <button type="button" class="btn btn-sm btn-light mb-0 flex-fill" data-bs-theme-value="light">
-                                    <i class="bi bi-sun me-1"></i> Light
-                                </button>
-                                <button type="button" class="btn btn-sm btn-light mb-0 flex-fill" data-bs-theme-value="dark">
-                                    <i class="bi bi-moon-stars me-1"></i> Dark
-                                </button>
-                                <button type="button" class="btn btn-sm btn-primary mb-0 flex-fill active" data-bs-theme-value="auto">
-                                    <i class="bi bi-circle-half me-1"></i> Auto
-                                </button>
-                            </div>
-                        </li> 
-                        <!-- Dark mode options END-->
                     </ul>
-                    <!-- Profile dropdown END -->
-                </li>
-                {% else %}
-                <!-- Guest buttons START -->
+                    </li>
+            </ul>
+            {% else %}
+            <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
                 <li class="nav-item ms-2">
                     <a href="{{ path('app_login') }}" class="btn btn-sm btn-outline-primary mb-0">
                         <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
@@ -365,20 +298,14 @@
                         <i class="bi bi-person-plus me-1"></i>Get Started
                     </a>
                 </li>
-                {% endif %}
             </ul>
-            <!-- Profile and notification END -->
-        </div>
+            {% endif %}
+            </div>
     </nav>
 </header>
-<!-- Header END -->
-
-    
 {% block body %}
 
-    <!-- MAIN CONTENT START -->
     <main>
-        <!-- Flash Messages -->
         {% for label, messages in app.flashes %}
             {% for message in messages %}
                 <div class="alert alert-{{ label }} alert-dismissible fade show container mt-3" role="alert">
@@ -388,11 +315,9 @@
             {% endfor %}
         {% endfor %}
 
-        <!-- Main Banner START -->
         <section class="position-relative overflow-hidden pb-0 pb-sm-5">
             <div class="container">
                 <div class="row d-lg-flex justify-content-lg-between g-4 g-md-5">
-                    <!-- Left content START -->
                     <div class="col-lg-7 position-relative z-index-1 mb-2">
                         <h1 class="mb-4 display-4">
                             <span>
@@ -415,13 +340,9 @@
 
                         <a href="{{ path('course_index') }}" class="btn btn-lg btn-blue mb-0">Explore Courses</a>
                     </div>
-                    <!-- Left content END -->
-
-                    <!-- Right content START -->
                     <div class="col-lg-5 col-xxl-3 position-relative">
                         <h4 class="mb-4">Top Students This Month</h4>
 
-                        <!-- Avatar 1 -->
                         <div class="d-flex align-items-center mb-3">
                             <div class="avatar avatar-xl">
                                 <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
@@ -436,7 +357,6 @@
                             </div>
                         </div>
 
-                        <!-- Avatar 2 -->
                         <div class="d-flex align-items-center mb-3">
                             <div class="avatar avatar-xl">
                                 <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar">
@@ -451,7 +371,6 @@
                             </div>
                         </div>
 
-                        <!-- Avatar 3 -->
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-xl">
                                 <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/06.jpg') }}" alt="avatar">
@@ -466,13 +385,9 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Right content END -->
-                </div>
+                    </div>
             </div>
         </section>
-        <!-- Main Banner END -->
-
-        <!-- Subject/Categories START -->
         {% if is_granted('ROLE_STUDENT') %}
         <section>
             <div class="container">
@@ -532,13 +447,9 @@
             </div>
         </section>
         {% endif %}
-        <!-- Subject/Categories END -->
-
-        <!-- About START -->
         <section class="pt-0 pt-md-5">
             <div class="container">
                 <div class="row align-items-center">
-                    <!-- Left side START -->
                     <div class="col-lg-5 col-xxl-6 position-relative">
                         <h2 class="h1">
                             <span class="position-relative z-index-9">Achieve Your Goals With</span>
@@ -569,9 +480,6 @@
                             <a href="{{ path('front_game_index') }}" class="btn btn-lg btn-dark me-2 mb-4 mb-sm-0">Get Started</a>
                         </div>
                     </div>
-                    <!-- Left side END -->
-
-                    <!-- Right side START -->
                     <div class="col-lg-7 col-xxl-6 my-5 mt-lg-0">
                         <div class="row">
                             <div class="col-md-4">
@@ -593,19 +501,14 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Right side END -->
-                </div>
+                    </div>
             </div>
         </section>
-        <!-- About END -->
-
-        <!-- Action box START -->
-<section class="pt-0 pt-md-6">
+        <section class="pt-0 pt-md-6">
     <div class="container">
         <div class="row">
             <div class="col-12">
                 <div class="bg-light p-4 p-sm-5 rounded-3 position-relative overflow-hidden">
-                    <!-- SVG decoration (optional) -->
                     <figure class="position-absolute top-0 start-0 d-none d-lg-block ms-n7 opacity-3">
                         <svg width="294.5px" height="261.6px" viewBox="0 0 294.5 261.6">
                             <path class="fill-warning opacity-5" d="M280.7,84.9c-4.6-9.5-10.1-18.6-16.4-27.2c-18.4-25.2-44.9-45.3-76-54.2c-31.7-9.1-67.7-0.2-93.1,21.6 C82,36.4,71.9,50.6,65.4,66.3c-4.6,11.1-9.5,22.3-17.2,31.8c-6.8,8.3-15.6,15-22.8,23C10.4,137.6-0.1,157.2,0,179 c0.1,28,11.4,64.6,40.4,76.7c23.9,10,50.7-3.1,75.4-4.7c23.1-1.5,43.1,10.4,65.5,10.6c53.4,0.6,97.8-42,109.7-90.4 C298.5,140.9,293.4,111.5,280.7,84.9z"></path>
@@ -613,9 +516,7 @@
                     </figure>
 
                     <div class="col-11 mx-auto position-relative">
-                        <!-- Check if user is logged in -->
                         {% if app.user %}
-                            <!-- Logged in user - Show dashboard links based on role -->
                             <div class="row align-items-center">
                                 <div class="col-lg-8">
                                     <h3>Welcome back to NOVA!</h3>
@@ -638,7 +539,6 @@
                                 </div>
                             </div>
                         {% else %}
-                            <!-- Not logged in - Show sign in/register options -->
                             <div class="row align-items-center">
                                 <div class="col-lg-12 text-center mb-4">
                                     <h3>Ready to start your learning journey?</h3>
@@ -646,9 +546,7 @@
                                 </div>
                             </div>
 
-                            <!-- Role Selection Cards -->
                             <div class="row g-4 mb-4">
-                                <!-- Student Card -->
                                 <div class="col-md-6">
                                     <div class="card h-100 border-primary shadow-sm hover-shadow">
                                         <div class="card-body text-center p-4">
@@ -689,7 +587,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Tutor Card -->
                                 <div class="col-md-6">
                                     <div class="card h-100 border-warning shadow-sm hover-shadow">
                                         <div class="card-body text-center p-4">
@@ -739,7 +636,6 @@
 </section>
 {% endblock %}
 
-<!-- Add this CSS for hover effects -->
 <style>
     .hover-shadow {
         transition: all 0.3s ease;
@@ -749,15 +645,10 @@
         box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
     }
 </style>
-        <!-- Action box END -->
-    </main>
-    <!-- MAIN CONTENT END -->
-
-    <!-- Footer START -->
+        </main>
     <footer class="bg-light pt-5">
         <div class="container">
             <div class="row g-4">
-                <!-- Widget 1 START -->
                 <div class="col-lg-3">
                     <a class="me-0" href="">
                         <img class="light-mode-item h-56px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
@@ -776,9 +667,6 @@
                         </li>
                     </ul>
                 </div>
-                <!-- Widget 1 END -->
-
-                <!-- Widget 2 START -->
                 <div class="col-lg-6">
                     <div class="row g-4">
                         <div class="col-6 col-md-4">
@@ -806,19 +694,14 @@
                         </div>
                     </div>
                 </div>
-                <!-- Widget 2 END -->
-
-                <!-- Widget 3 START -->
                 <div class="col-lg-3">
                     <h5 class="mb-2 mb-md-4">Contact</h5>
                     <p class="mb-0">Email:<span class="h6 fw-light ms-2">support@nova.com</span></p>
                 </div>
-                <!-- Widget 3 END -->
-            </div>
+                </div>
 
             <hr class="mt-4 mb-0">
 
-            <!-- Bottom footer -->
             <div class="py-3">
                 <div class="container px-0">
                     <div class="d-lg-flex justify-content-between align-items-center py-3 text-center text-md-left">
@@ -830,20 +713,14 @@
             </div>
         </div>
     </footer>
-    <!-- Footer END -->
-
-    <!-- Back to top -->
     <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 
     {% block javascripts %}
-    <!-- Bootstrap JS -->
     <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 
-    <!-- Vendors -->
     <script src="{{ asset('assets/vendor/glightbox/js/glightbox.js') }}"></script>
     <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
 
-    <!-- Template Functions -->
     <script src="{{ asset('assets/js/functions.js') }}"></script>
     {% endblock %}
 </body>
