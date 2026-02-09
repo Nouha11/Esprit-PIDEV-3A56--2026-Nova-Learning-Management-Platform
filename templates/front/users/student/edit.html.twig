@@ -1,0 +1,304 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Student Profile{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-5 bg-light">
+    <div class="container">
+        <!-- Page Header -->
+        <section class="bg-primary bg-opacity-10 py-4 mb-4 rounded">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">Edit Student Profile</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ path('app_student_profile') }}">Profile</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-lg me-3">
+                                {% if student.profilePicture %}
+                                    <img src="{{ asset('uploads/profile_pictures/' ~ student.profilePicture) }}" 
+                                         class="avatar-img rounded-circle" 
+                                         alt="Profile Picture">
+                                {% else %}
+                                    <div class="avatar-img rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center">
+                                        <span class="text-primary fs-4">{{ student.firstName|first|upper }}{{ student.lastName|first|upper }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ student.firstName }} {{ student.lastName }}</h6>
+                                <small class="text-muted">Level {{ student.level }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="row">
+            <!-- Edit Form -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-user-edit"></i> Profile Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{{ path('app_student_profile_edit') }}">
+                            <!-- Personal Information -->
+                            <h6 class="mb-3 text-primary"><i class="fas fa-user"></i> Personal Information</h6>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="firstName" 
+                                           name="firstName" 
+                                           value="{{ student.firstName }}" 
+                                           required
+                                           maxlength="100">
+                                    <small class="text-muted">Minimum 2 characters, only letters and spaces</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="lastName" 
+                                           name="lastName" 
+                                           value="{{ student.lastName }}" 
+                                           required
+                                           maxlength="100">
+                                    <small class="text-muted">Minimum 2 characters, only letters and spaces</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="bio" class="form-label">Bio</label>
+                                <textarea class="form-control" 
+                                        id="bio" 
+                                        name="bio" 
+                                        rows="4" 
+                                        placeholder="Tell us about yourself, your academic interests, and goals...">{{ student.bio }}</textarea>
+                                <small class="text-muted">Maximum 1000 characters</small>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Academic Information -->
+                            <h6 class="mb-3 text-primary"><i class="fas fa-graduation-cap"></i> Academic Information</h6>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="university" class="form-label">University/Institution</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="university" 
+                                           name="university" 
+                                           value="{{ student.university }}" 
+                                           placeholder="e.g., University of Technology"
+                                           maxlength="100">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="major" class="form-label">Major/Field of Study</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="major" 
+                                           name="major" 
+                                           value="{{ student.major }}" 
+                                           placeholder="e.g., Computer Science"
+                                           maxlength="100">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="academicLevel" class="form-label">Academic Level</label>
+                                <select class="form-select" id="academicLevel" name="academicLevel">
+                                    <option value="">Select your academic level</option>
+                                    <option value="BACHELOR" {% if student.academicLevel == 'BACHELOR' %}selected{% endif %}>Bachelor's Degree</option>
+                                    <option value="MASTER" {% if student.academicLevel == 'MASTER' %}selected{% endif %}>Master's Degree</option>
+                                    <option value="PHD" {% if student.academicLevel == 'PHD' %}selected{% endif %}>PhD</option>
+                                    <option value="Freshman" {% if student.academicLevel == 'Freshman' %}selected{% endif %}>Freshman</option>
+                                    <option value="Sophomore" {% if student.academicLevel == 'Sophomore' %}selected{% endif %}>Sophomore</option>
+                                    <option value="Junior" {% if student.academicLevel == 'Junior' %}selected{% endif %}>Junior</option>
+                                    <option value="Senior" {% if student.academicLevel == 'Senior' %}selected{% endif %}>Senior</option>
+                                    <option value="Graduate" {% if student.academicLevel == 'Graduate' %}selected{% endif %}>Graduate</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="interests" class="form-label">Academic Interests</label>
+                                <textarea class="form-control" 
+                                        id="interests" 
+                                        name="interests" 
+                                        rows="3" 
+                                        placeholder="e.g., Artificial Intelligence, Data Science, Web Development...">{{ student.interests is iterable ? student.interests|join(', ') : student.interests }}</textarea>
+                                <small class="text-muted">List your academic interests separated by commas</small>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Profile Picture (Optional for future implementation) -->
+                            <h6 class="mb-3 text-primary"><i class="fas fa-camera"></i> Profile Picture</h6>
+                            <div class="mb-3">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Profile picture upload feature coming soon. Currently using your initials.
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <a href="{{ path('app_student_profile') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar with Stats and Tips -->
+            <div class="col-lg-4">
+                <!-- Progress Stats -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-chart-line"></i> Your Progress</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Level {{ student.level }}</span>
+                                <span class="text-muted">{{ student.totalXP }} XP</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" 
+                                     role="progressbar" 
+                                     style="width: {{ student.progressToNextLevel }}%"
+                                     aria-valuenow="{{ student.progressToNextLevel }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ student.xpForNextLevel }} XP needed for next level</small>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="display-6 fw-bold text-primary">{{ student.totalTokens }}</div>
+                                <small class="text-muted">Tokens</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="display-6 fw-bold text-warning">{{ student.totalXP }}</div>
+                                <small class="text-muted">Total XP</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Tips -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-lightbulb"></i> Profile Tips</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <small>Complete your profile to get 50 bonus XP</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <small>Add your university for better course recommendations</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <small>List your interests to find relevant games and courses</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i>
+                                <small>A detailed bio helps tutors understand your needs</small>
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check text-success"></i>
+                                <small>Update your academic level for appropriate content</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ path('app_student_dashboard') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                            </a>
+                            <a href="{{ path('front_game_index') }}" class="btn btn-outline-success">
+                                <i class="fas fa-gamepad me-2"></i>Play Games
+                            </a>
+                            <a href="{{ path('course_index') }}" class="btn btn-outline-info">
+                                <i class="fas fa-book me-2"></i>Browse Courses
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.breadcrumb-dots .breadcrumb-item + .breadcrumb-item::before {
+    content: "•";
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.progress {
+    border-radius: 4px;
+}
+
+.progress-bar {
+    border-radius: 4px;
+}
+
+.display-6 {
+    font-size: 2rem;
+    font-weight: 600;
+}
+</style>
+{% endblock %}
