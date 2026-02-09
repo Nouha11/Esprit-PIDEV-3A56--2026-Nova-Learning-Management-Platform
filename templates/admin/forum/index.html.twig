@@ -1,0 +1,64 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Forum Moderation{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Forum Moderation</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">All Discussions</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Topic</th>
+                            <th>Author</th>
+                            <th>Replies</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for post in posts %}
+                        <tr>
+                            <td>{{ post.id }}</td>
+                            <td>
+                                <a href="{{ path('app_forum_show', {'id': post.id}) }}" target="_blank">
+                                    {{ post.title }} <i class="fas fa-external-link-alt small text-gray-400"></i>
+                                </a>
+                            </td>
+                            <td>{{ post.author.email }}</td>
+                            <td>
+                                <span class="badge badge-info">{{ post.comments|length }}</span>
+                            </td>
+                            <td>{{ post.createdAt ? post.createdAt|date('Y-m-d H:i') : '' }}</td>
+                            <td>
+                                <form method="post" action="{{ path('app_admin_forum_delete', {'id': post.id}) }}" onsubmit="return confirm('Are you sure you want to delete this topic?');" style="display: inline-block;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No discussions found.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
