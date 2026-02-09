@@ -30,8 +30,7 @@
                         <h5>Game Details</h5>
                         <ul>
                             <li><strong>Cost to Play:</strong> {{ game.tokenCost }} tokens</li>
-                            <li><strong>Your Tokens:</strong> {{ app.user.studentProfile.totalTokens }} tokens</li>
-                            <li><strong>Reward:</strong> {{ game.rewardTokens }} tokens + {{ game.rewardXP }} XP</li>
+                            <li><strong>Your Tokens:</strong> {{ app.user.studentProfile ? app.user.studentProfile.totalTokens : 0 }} tokens</li>                            <li><strong>Reward:</strong> {{ game.rewardTokens }} tokens + {{ game.rewardXP }} XP</li>
                             <li><strong>Type:</strong> {{ game.type }}</li>
                             <li><strong>Difficulty:</strong> {{ game.difficulty }}</li>
                         </ul>

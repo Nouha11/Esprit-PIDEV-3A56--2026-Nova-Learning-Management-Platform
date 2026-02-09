@@ -473,6 +473,7 @@
         <!-- Main Banner END -->
 
         <!-- Subject/Categories START -->
+        {% if is_granted('ROLE_STUDENT') %}
         <section>
             <div class="container">
                 <div class="row g-4">
@@ -530,6 +531,7 @@
                 </div>
             </div>
         </section>
+        {% endif %}
         <!-- Subject/Categories END -->
 
         <!-- About START -->

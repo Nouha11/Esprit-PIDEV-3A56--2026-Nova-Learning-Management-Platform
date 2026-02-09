@@ -48,7 +48,19 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        // Redirect to homepage after successful login
+        // Get the user from the token
+        $user = $token->getUser();
+        
+        // Redirect based on user role
+        if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            return new RedirectResponse($this->urlGenerator->generate('app_admin_dashboard'));
+        }
+        
+        if (in_array('ROLE_TUTOR', $user->getRoles(), true) || in_array('ROLE_STUDENT', $user->getRoles(), true)) {
+            return new RedirectResponse($this->urlGenerator->generate('app_home'));
+        }
+
+        // Default fallback redirect
         return new RedirectResponse($this->urlGenerator->generate('app_home'));
     }
 
