@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Browse Rewards{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4 mb-3">
+                <i class="bi bi-shop text-primary me-2"></i>
+                Rewards Gallery
+            </h1>
+            <p class="lead text-muted">Browse all available rewards you can earn</p>
+        </div>
+    </div>
+
+    <!-- User Stats Banner -->
+    {% if student %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center mb-3 mb-md-0">
+                            <h6 class="mb-1">Your Level</h6>
+                            <h2 class="mb-0">{{ student.level }}</h2>
+                        </div>
+                        <div class="col-md-4 text-center mb-3 mb-md-0">
+                            <h6 class="mb-1">Total XP</h6>
+                            <h2 class="mb-0">{{ student.totalXP }}</h2>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h6 class="mb-1">Available Tokens</h6>
+                            <h2 class="mb-0">{{ student.totalTokens }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filter Tabs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-pills mb-3" id="rewardFilter" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-tab" data-bs-toggle="pill" 
+                            data-bs-target="#all" type="button" role="tab">
+                        <i class="bi bi-grid-3x3-gap-fill me-1"></i>All Rewards
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="badge-tab" data-bs-toggle="pill" 
+                            data-bs-target="#badge" type="button" role="tab">
+                        <i class="bi bi-patch-check-fill me-1"></i>Badges
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="achievement-tab" data-bs-toggle="pill" 
+                            data-bs-target="#achievement" type="button" role="tab">
+                        <i class="bi bi-trophy-fill me-1"></i>Achievements
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="bonus-tab" data-bs-toggle="pill" 
+                            data-bs-target="#bonus" type="button" role="tab">
+                        <i class="bi bi-gift-fill me-1"></i>Bonuses
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Rewards Grid -->
+    <div class="tab-content" id="rewardFilterContent">
+        <!-- All Rewards Tab -->
+        <div class="tab-pane fade show active" id="all" role="tabpanel">
+            {% if rewards is empty %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    No rewards available at the moment. Check back later!
+                </div>
+            {% else %}
+                <div class="row">
+                    {% for reward in rewards %}
+                        {% include 'front/reward/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Badges Tab -->
+        <div class="tab-pane fade" id="badge" role="tabpanel">
+            <div class="row">
+                {% set badgeRewards = rewards|filter(r => r.type == 'BADGE') %}
+                {% if badgeRewards is empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            No badges available yet.
+                        </div>
+                    </div>
+                {% else %}
+                    {% for reward in badgeRewards %}
+                        {% include 'front/reward/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Achievements Tab -->
+        <div class="tab-pane fade" id="achievement" role="tabpanel">
+            <div class="row">
+                {% set achievementRewards = rewards|filter(r => r.type == 'ACHIEVEMENT') %}
+                {% if achievementRewards is empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            No achievements available yet.
+                        </div>
+                    </div>
+                {% else %}
+                    {% for reward in achievementRewards %}
+                        {% include 'front/reward/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Bonuses Tab -->
+        <div class="tab-pane fade" id="bonus" role="tabpanel">
+            <div class="row">
+                {% set bonusRewards = rewards|filter(r => r.type in ['BONUS_XP', 'BONUS_TOKENS']) %}
+                {% if bonusRewards is empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            No bonus rewards available yet.
+                        </div>
+                    </div>
+                {% else %}
+                    {% for reward in bonusRewards %}
+                        {% include 'front/reward/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{{ path('front_reward_my_rewards') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Back to My Rewards
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .nav-pills .nav-link {
+        border-radius: 20px;
+        margin-right: 10px;
+    }
+    
+    .nav-pills .nav-link.active {
+        background-color: #667eea;
+    }
+    
+    .nav-pills .nav-link:hover:not(.active) {
+        background-color: #f0f0f0;
+    }
+</style>
+{% endblock %}

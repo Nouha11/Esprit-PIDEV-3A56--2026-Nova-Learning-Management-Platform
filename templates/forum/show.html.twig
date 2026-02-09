@@ -1,4 +1,4 @@
-{% extends 'base_content.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}{{ post.title }}{% endblock %}
 
@@ -42,10 +42,13 @@
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-md me-2">
-                                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/0' ~ (post.id % 9 + 1) ~ '.jpg') }}" alt="avatar">
+                                        {# Show username initials with colored background #}
+                                        <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][post.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 16px;">
+                                            <span class="fw-bold">{{ post.author.username|slice(0, 2)|upper }}</span>
+                                        </div>
                                     </div>
                                     <div>
-                                        <h6 class="mb-0">{{ post.author.email|split('@')[0] }}</h6>
+                                        <h6 class="mb-0">{{ post.author.username }}</h6>
                                         <small class="text-muted">Posted on {{ post.createdAt|date('F d, Y') }}</small>
                                     </div>
                                 </div>
@@ -60,9 +63,17 @@
                                 <button class="btn btn-sm btn-light mb-0"><i class="bi bi-hand-thumbs-up me-1"></i> Upvote</button>
                                 <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
                                 
-                                <a href="{{ path('app_forum_delete', {'id': post.id}) }}" class="btn btn-sm btn-danger-soft mb-0 ms-auto" onclick="return confirm('Delete this post? This action cannot be undone.')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                {# Only show edit/delete to author or admin #}
+                                {% if app.user and (app.user.id == post.author.id or app.user.role == 'ROLE_ADMIN') %}
+                                    <a href="{{ path('app_forum_edit', {'id': post.id}) }}" class="btn btn-sm btn-warning-soft mb-0 ms-auto me-2">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <form method="post" action="{{ path('app_forum_delete', {'id': post.id}) }}" style="display:inline;" onsubmit="return confirm('Delete this post? This action cannot be undone.')">
+                                        <button class="btn btn-sm btn-danger-soft mb-0" type="submit">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -75,12 +86,15 @@
                             {% for comment in post.comments %}
                                 <div class="d-flex mb-4">
                                     <div class="avatar avatar-sm me-3">
-                                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/0' ~ (comment.id % 9 + 1) ~ '.jpg') }}" alt="avatar">
+                                        {# Show username initials with colored background #}
+                                        <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][comment.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
+                                            <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
+                                        </div>
                                     </div>
                                     <div class="w-100">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h6 class="mb-0">{{ comment.author.email|split('@')[0] }}</h6>
+                                                <h6 class="mb-0">{{ comment.author.username }}</h6>
                                                 <small class="text-muted">{{ comment.createdAt|date('M d, Y H:i') }}</small>
                                             </div>
                                             {% if comment.isSolution %}
@@ -120,6 +134,28 @@
                 </div>
 
                 <div class="col-xl-3">
+                    <div class="card border bg-transparent rounded-3 mb-3">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h3 class="mb-0 h5">Discussion Stats</h3>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-eye-fill text-info me-2"></i>
+                                    <strong>Views:</strong> N/A
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-chat-dots-fill text-success me-2"></i>
+                                    <strong>Replies:</strong> {{ post.comments|length }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-hand-thumbs-up-fill text-primary me-2"></i>
+                                    <strong>Upvotes:</strong> {{ post.upvotes }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
                     <div class="card border bg-transparent rounded-3">
                         <div class="card-header bg-transparent border-bottom">
                             <h3 class="mb-0 h5">Forum Rules</h3>
@@ -129,6 +165,8 @@
                                 <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Be respectful to others</li>
                                 <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>No spamming</li>
                                 <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Stay on topic</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Provide helpful answers</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Mark solutions when answered</li>
                             </ul>
                         </div>
                     </div>

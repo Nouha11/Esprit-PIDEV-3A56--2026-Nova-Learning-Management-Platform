@@ -1,0 +1,183 @@
+<div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100 reward-card {{ reward.type|lower }}">
+        <div class="card-header text-center py-3 reward-header">
+            {% if reward.icon %}
+                <img src="{{ asset('images/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="reward-icon">
+            {% else %}
+                {% if reward.type == 'BADGE' %}
+                    <i class="bi bi-patch-check-fill display-3 text-primary"></i>
+                {% elseif reward.type == 'ACHIEVEMENT' %}
+                    <i class="bi bi-trophy-fill display-3 text-warning"></i>
+                {% elseif reward.type == 'BONUS_XP' %}
+                    <i class="bi bi-star-fill display-3 text-info"></i>
+                {% elseif reward.type == 'BONUS_TOKENS' %}
+                    <i class="bi bi-coin display-3 text-success"></i>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="card-body d-flex flex-column">
+            <h5 class="card-title text-center mb-3">{{ reward.name }}</h5>
+            
+            <!-- Reward Type Badge -->
+            <div class="text-center mb-3">
+                <span class="badge 
+                    {% if reward.type == 'BADGE' %}bg-primary
+                    {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning
+                    {% elseif reward.type == 'BONUS_XP' %}bg-info
+                    {% elseif reward.type == 'BONUS_TOKENS' %}bg-success
+                    {% endif %}">
+                    {{ reward.type|replace({'_': ' '}) }}
+                </span>
+            </div>
+
+            <!-- Description -->
+            {% if reward.description %}
+                <p class="card-text text-muted small mb-3">{{ reward.description }}</p>
+            {% endif %}
+
+            <!-- Value -->
+            <div class="text-center mb-3">
+                <div class="reward-value">
+                    {% if reward.type == 'BONUS_XP' %}
+                        <span class="text-info fw-bold">+{{ reward.value }} XP</span>
+                    {% elseif reward.type == 'BONUS_TOKENS' %}
+                        <span class="text-success fw-bold">+{{ reward.value }} Tokens</span>
+                    {% else %}
+                        <span class="text-primary fw-bold">Value: {{ reward.value }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Requirement -->
+            {% if reward.requirement %}
+                <div class="requirement-section mt-auto">
+                    <hr>
+                    <h6 class="text-muted small mb-2">
+                        <i class="bi bi-list-check me-1"></i>Requirement:
+                    </h6>
+                    <p class="small mb-0">{{ reward.requirement }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Status Badge -->
+            <div class="mt-3 text-center">
+                {% if reward.isActive %}
+                    <span class="badge bg-success">
+                        <i class="bi bi-check-circle-fill me-1"></i>Active
+                    </span>
+                {% else %}
+                    <span class="badge bg-secondary">
+                        <i class="bi bi-x-circle-fill me-1"></i>Inactive
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-footer bg-transparent border-top-0">
+            <div class="d-grid">
+                <button class="btn btn-outline-primary btn-sm" 
+                        onclick="showRewardDetails('{{ reward.name|escape('js') }}', '{{ reward.description|escape('js') }}', '{{ reward.requirement|escape('js') }}')">
+                    <i class="bi bi-info-circle me-1"></i>View Details
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .reward-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .reward-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .reward-card.badge:hover {
+        border-color: #0d6efd;
+    }
+    
+    .reward-card.achievement:hover {
+        border-color: #ffc107;
+    }
+    
+    .reward-card.bonus_xp:hover {
+        border-color: #0dcaf0;
+    }
+    
+    .reward-card.bonus_tokens:hover {
+        border-color: #198754;
+    }
+    
+    .reward-header {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .reward-icon {
+        max-width: 80px;
+        max-height: 80px;
+        object-fit: contain;
+    }
+    
+    .reward-value {
+        font-size: 1.2rem;
+    }
+    
+    .requirement-section {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
+
+<script>
+function showRewardDetails(name, description, requirement) {
+    const modalHTML = `
+        <div class="modal fade" id="rewardModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${name}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Description:</h6>
+                        <p>${description || 'No description available.'}</p>
+                        ${requirement ? `
+                            <hr>
+                            <h6>How to Earn:</h6>
+                            <p>${requirement}</p>
+                        ` : ''}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('rewardModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add new modal
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('rewardModal'));
+    modal.show();
+    
+    // Clean up after close
+    document.getElementById('rewardModal').addEventListener('hidden.bs.modal', function () {
+        this.remove();
+    });
+}
+</script>

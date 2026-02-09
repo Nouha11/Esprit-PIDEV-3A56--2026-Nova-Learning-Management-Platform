@@ -29,7 +29,7 @@ class RewardController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        return $this->render('front/reward/my_rewards.html.twig', [
+        return $this->render('front/game/my_rewards.html.twig', [
             'student' => $student,
         ]);
     }
@@ -45,7 +45,7 @@ class RewardController extends AbstractController
 
         $allRewards = $this->rewardService->getActiveRewards();
 
-        return $this->render('front/reward/browse.html.twig', [
+        return $this->render('front/game/browse.html.twig', [
             'rewards' => $allRewards,
             'student' => $student,
         ]);

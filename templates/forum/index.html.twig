@@ -1,4 +1,4 @@
-{% extends 'base_content.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Community Forum{% endblock %}
 
@@ -117,35 +117,37 @@
                                     </thead>
                                     <tbody>
                                         {% for post in posts %}
-                                            <tr>
-                                                <td>
-                                                    <h6 class="mb-0"><a href="{{ path('app_forum_show', {'id': post.id}) }}" class="text-reset stretched-link">{{ post.title }}</a></h6>
-                                                    <small class="text-muted">{{ post.content|slice(0, 60) }}...</small>
-                                                </td>
+                                        <tr>
+                                            <td>
+                                                <h6 class="mb-0"><a href="{{ path('app_forum_show', {'id': post.id}) }}" class="text-reset stretched-link">{{ post.title }}</a></h6>
+                                                <small class="text-muted">{{ post.content|slice(0, 60) }}...</small>
+                                            </td>
 
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar avatar-xs me-2">
-                                                            {# Random avatar based on ID #}
-                                                            <img src="{{ asset('assets/images/avatar/0' ~ (post.id % 9 + 1) ~ '.jpg') }}" class="rounded-circle" alt="">
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="mb-0 fw-light text-sm">{{ post.author.email|split('@')[0] }}</h6>
-                                                            <small class="text-muted" style="font-size: 10px;">{{ post.createdAt|date('M d') }}</small>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar avatar-xs me-2">
+                                                        {# Show username initials with colored background #}
+                                                        <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][post.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; font-size: 12px;">
+                                                            <span class="fw-bold">{{ post.author.username|slice(0, 2)|upper }}</span>
                                                         </div>
                                                     </div>
-                                                </td>
+                                                    <div>
+                                                        <h6 class="mb-0 fw-light text-sm">{{ post.author.username }}</h6>
+                                                        <small class="text-muted" style="font-size: 10px;">{{ post.createdAt|date('M d') }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
 
-                                                <td>
-                                                    <span class="badge bg-primary bg-opacity-10 text-primary">{{ post.comments|length }} replies</span>
-                                                </td>
+                                            <td>
+                                                <span class="badge bg-primary bg-opacity-10 text-primary">{{ post.comments|length }} replies</span>
+                                            </td>
 
-                                                <td>
-                                                    <a href="{{ path('app_forum_show', {'id': post.id}) }}" class="btn btn-success-soft btn-round mb-0" data-bs-toggle="tooltip" title="View Discussion">
-                                                        <i class="far fa-eye"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
+                                            <td>
+                                                <a href="{{ path('app_forum_show', {'id': post.id}) }}" class="btn btn-success-soft btn-round mb-0" data-bs-toggle="tooltip" title="View Discussion">
+                                                    <i class="far fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
                                         {% else %}
                                             <tr>
                                                 <td colspan="4" class="text-center py-5">

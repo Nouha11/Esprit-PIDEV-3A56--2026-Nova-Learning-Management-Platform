@@ -3,175 +3,382 @@
 {% block title %}Student Dashboard - NOVA{% endblock %}
 
 {% block body %}
-<!-- Page Banner START -->
-<section class="py-0 bg-blue h-100px align-items-center d-flex h-200px rounded-0" style="background:url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size:cover;">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center">
-                <h1 class="text-white">Student Dashboard</h1>
-                <p class="text-white mb-0">Welcome back, {{ student ? student.firstName : 'Student' }}!</p>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- Page Banner END -->
 
-<!-- Page content START -->
+<!-- =======================
+Page Banner START -->
 <section class="pt-0">
-    <div class="container">
-        <div class="row">
-            <!-- Left sidebar START -->
-            <div class="col-xl-3">
-                <!-- Responsive offcanvas body START -->
-                <div class="offcanvas-xl offcanvas-end" tabindex="-1" id="offcanvasSidebar">
-                    <!-- Offcanvas header -->
-                    <div class="offcanvas-header bg-light">
-                        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">My profile</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasSidebar" aria-label="Close"></button>
-                    </div>
-                    <!-- Offcanvas body -->
-                    <div class="offcanvas-body p-3 p-xl-0">
-                        <div class="bg-dark border rounded-3 p-3 w-100">
-                            <!-- Dashboard menu -->
-                            <div class="list-group list-group-dark list-group-borderless collapse-list">
-                                <a class="list-group-item active" href="{{ path('app_student_dashboard') }}">
-                                    <i class="bi bi-ui-checks-grid fa-fw me-2"></i>Dashboard
-                                </a>
-                                <a class="list-group-item" href="{{ path('front_game_index') }}">
-                                    <i class="bi bi-controller fa-fw me-2"></i>Games
-                                </a>
-                                <a class="list-group-item" href="{{ path('front_reward_my_rewards') }}">
-                                    <i class="bi bi-trophy fa-fw me-2"></i>My Rewards
-                                </a>
-                                <a class="list-group-item" href="{{ path('front_reward_browse') }}">
-                                    <i class="bi bi-gift fa-fw me-2"></i>Browse Rewards
-                                </a>
-                                <a class="list-group-item" href="{{ path('course_index') }}">
-                                    <i class="bi bi-book fa-fw me-2"></i>My Courses
-                                </a>
-                                
-                                {% if 'ROLE_STUDENT' in app.user.roles %}
-                                <a class="list-group-item" href="{{ path('app_student_profile') }}">
-                                    <i class="bi bi-pencil-square fa-fw me-2"></i>Edit Profile
-                                </a>
-                                {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                                    <li><a class="dropdown-item" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
-                                {% endif %}
+	<div class="container-fluid px-0">
+		<div class="card bg-blue h-100px h-md-200px rounded-0" style="background:url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size:cover;">
+		</div>
+	</div>
+	<div class="container mt-n4">
+		<div class="row">
+			<div class="col-12">
+				<div class="card bg-transparent card-body pb-0 px-0 mt-2 mt-sm-0">
+					<div class="row d-sm-flex justify-sm-content-between mt-2 mt-md-0">
+						<!-- Avatar -->
+						<div class="col-auto">
+							<div class="avatar avatar-xxl position-relative mt-n3">
+								{% if student and student.profilePicture %}
+									<img class="avatar-img rounded-circle border border-white border-3 shadow" src="{{ asset('uploads/profiles/' ~ student.profilePicture) }}" alt="avatar">
+								{% else %}
+									<img class="avatar-img rounded-circle border border-white border-3 shadow" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+								{% endif %}
+								<span class="badge text-bg-success rounded-pill position-absolute top-50 start-100 translate-middle mt-4 mt-md-5 ms-n3 px-md-3">Pro</span>
+							</div>
+						</div>
+						<!-- Profile info -->
+						<div class="col d-sm-flex justify-content-between align-items-center">
+							<div>
+								<h1 class="my-1 fs-4">
+									{% if student %}
+										{{ student.firstName }} {{ student.lastName }}
+									{% else %}
+										{{ app.user.username }}
+									{% endif %}
+								</h1>
+								<ul class="list-inline mb-0">
+									{% if student %}
+										<li class="list-inline-item me-3 mb-1 mb-sm-0">
+											<span class="h6">{{ student.totalXP }}</span>
+											<span class="text-body fw-light">XP points</span>
+										</li>
+										<li class="list-inline-item me-3 mb-1 mb-sm-0">
+											<span class="h6">{{ student.totalTokens }}</span>
+											<span class="text-body fw-light">Tokens</span>
+										</li>
+										<li class="list-inline-item me-3 mb-1 mb-sm-0">
+											<span class="h6">Level {{ student.level }}</span>
+											<span class="text-body fw-light">Current Level</span>
+										</li>
+									{% else %}
+										<li class="list-inline-item me-3 mb-1 mb-sm-0">
+											<span class="h6">0</span>
+											<span class="text-body fw-light">XP points</span>
+										</li>
+									{% endif %}
+								</ul>
+							</div>
+							<!-- Button -->
+							<div class="mt-2 mt-sm-0">
+								<a href="{{ path('course_index') }}" class="btn btn-outline-primary mb-0">View my courses</a>
+							</div>
+						</div>
+					</div>
+				</div>
 
-                                <a class="list-group-item" href="#">
-                                    <i class="bi bi-gear fa-fw me-2"></i>Settings
-                                </a>
-                                <a class="list-group-item text-danger bg-danger-soft-hover" href="{{ path('app_logout') }}">
-                                    <i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Responsive offcanvas body END -->
-            </div>
-            <!-- Left sidebar END -->
-
-            <!-- Main content START -->
-            <div class="col-xl-9">
-                {% if student %}
-                    <!-- Counter boxes START -->
-                    <div class="row mb-4">
-                        <!-- XP Counter -->
-                        <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
-                            <div class="d-flex justify-content-center align-items-center p-4 bg-warning bg-opacity-15 rounded-3">
-                                <span class="display-6 lh-1 text-warning mb-0"><i class="fas fa-bolt fa-fw"></i></span>
-                                <div class="ms-4">
-                                    <div class="d-flex">
-                                        <h5 class="mb-0 fw-bold">{{ student.totalXP }}</h5>
-                                    </div>
-                                    <p class="mb-0 h6 fw-light">Total XP</p>
-                                    <small class="text-muted">Level {{ student.level }}</small>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Tokens Counter -->
-                        <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
-                            <div class="d-flex justify-content-center align-items-center p-4 bg-success bg-opacity-15 rounded-3">
-                                <span class="display-6 lh-1 text-success mb-0"><i class="fas fa-coins fa-fw"></i></span>
-                                <div class="ms-4">
-                                    <div class="d-flex">
-                                        <h5 class="mb-0 fw-bold">{{ student.totalTokens }}</h5>
-                                    </div>
-                                    <p class="mb-0 h6 fw-light">Tokens</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Level Counter -->
-                        <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
-                            <div class="d-flex justify-content-center align-items-center p-4 bg-purple bg-opacity-15 rounded-3">
-                                <span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-star fa-fw"></i></span>
-                                <div class="ms-4">
-                                    <div class="d-flex">
-                                        <h5 class="mb-0 fw-bold">{{ student.level }}</h5>
-                                    </div>
-                                    <p class="mb-0 h6 fw-light">Current Level</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Counter boxes END -->
-
-                    <!-- Progress Card START -->
-                    <div class="card bg-transparent border rounded-3 mb-4">
-                        <div class="card-header bg-transparent border-bottom">
-                            <h3 class="mb-0">Level Progress</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-2">
-                                <h6 class="mb-0">Level {{ student.level }}</h6>
-                                <h6 class="mb-0">{{ student.xpForNextLevel }} XP to Level {{ student.level + 1 }}</h6>
-                            </div>
-                            <div class="progress" style="height: 20px;">
-                                <div class="progress-bar bg-warning" role="progressbar" 
-                                     style="width: {{ student.progressToNextLevel }}%" 
-                                     aria-valuenow="{{ student.progressToNextLevel }}" 
-                                     aria-valuemin="0" 
-                                     aria-valuemax="100">
-                                    {{ student.progressToNextLevel }}%
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Progress Card END -->
-
-                    <!-- Quick Actions START -->
-                    <div class="card bg-transparent border rounded-3 mb-4">
-                        <div class="card-header bg-transparent border-bottom">
-                            <h3 class="mb-0">Quick Actions</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-3">
-                                <a href="{{ path('front_game_index') }}" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-controller me-2"></i>Play Games
-                                </a>
-                                <a href="{{ path('front_reward_browse') }}" class="btn btn-info btn-lg">
-                                    <i class="bi bi-gift me-2"></i>Browse Rewards
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Quick Actions END -->
-
-                {% else %}
-                    <!-- No Profile Message -->
-                    <div class="card bg-transparent border rounded-3">
-                        <div class="card-body text-center py-5">
-                            <i class="bi bi-person-x display-1 text-muted mb-3"></i>
-                            <h4>Student Profile Not Found</h4>
-                            <p class="text-muted">Please contact support to set up your student profile.</p>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-            <!-- Main content END -->
-        </div>
-    </div>
+				<!-- Advanced filter responsive toggler START -->
+				<!-- Divider -->
+				<hr class="d-xl-none">
+				<div class="col-12 col-xl-3 d-flex justify-content-between align-items-center">
+					<a class="h6 mb-0 fw-bold d-xl-none" href="#">Menu</a>
+					<button class="btn btn-primary d-xl-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+						<i class="fas fa-sliders-h"></i>
+					</button>
+				</div>
+				<!-- Advanced filter responsive toggler END -->
+			</div>
+		</div>
+	</div>
 </section>
-<!-- Page content END -->
+<!-- =======================
+Page Banner END -->
+
+<!-- =======================
+Page content START -->
+<section class="pt-0">
+	<div class="container">
+		<div class="row">
+
+			<!-- Left sidebar START -->
+			<div class="col-xl-3">
+				<!-- Responsive offcanvas body START -->
+				<div class="offcanvas-xl offcanvas-end" tabindex="-1" id="offcanvasSidebar">
+					<!-- Offcanvas header -->
+					<div class="offcanvas-header bg-light">
+						<h5 class="offcanvas-title" id="offcanvasNavbarLabel">My profile</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasSidebar" aria-label="Close"></button>
+					</div>
+					<!-- Offcanvas body -->
+					<div class="offcanvas-body p-3 p-xl-0">
+						<div class="bg-dark border rounded-3 p-3 w-100">
+							<!-- Dashboard menu -->
+							<div class="list-group list-group-dark list-group-borderless collapse-list">
+								<a class="list-group-item active" href="{{ path('app_student_dashboard') }}">
+									<i class="bi bi-ui-checks-grid fa-fw me-2"></i>Dashboard
+								</a>
+								<a class="list-group-item" href="{{ path('course_index') }}">
+									<i class="bi bi-basket fa-fw me-2"></i>My Courses
+								</a>
+								<a class="list-group-item" href="{{ path('front_game_index') }}">
+									<i class="bi bi-controller fa-fw me-2"></i>Games
+								</a>
+								<a class="list-group-item" href="{{ path('front_reward_my_rewards') }}">
+									<i class="bi bi-trophy fa-fw me-2"></i>My Rewards
+								</a>
+								<a class="list-group-item" href="{{ path('front_reward_browse') }}">
+									<i class="bi bi-gift fa-fw me-2"></i>Browse Rewards
+								</a>
+								<a class="list-group-item" href="{{ path('app_quiz_index') }}">
+									<i class="bi bi-question-diamond fa-fw me-2"></i>Quiz
+								</a>
+								{% if 'ROLE_STUDENT' in app.user.roles %}
+									<a class="list-group-item" href="{{ path('app_student_profile') }}">
+										<i class="bi bi-pencil-square fa-fw me-2"></i>Edit Profile
+									</a>
+								{% elseif 'ROLE_TUTOR' in app.user.roles %}
+									<a class="list-group-item" href="{{ path('app_tutor_profile') }}">
+										<i class="bi bi-person fa-fw me-2"></i>My Profile
+									</a>
+								{% endif %}
+								<a class="list-group-item" href="{{ path('app_user_settings') }}">
+									<i class="bi bi-gear fa-fw me-2"></i>Settings
+								</a>
+								<a class="list-group-item text-danger bg-danger-soft-hover" href="{{ path('app_logout') }}">
+									<i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Responsive offcanvas body END -->
+			</div>
+			<!-- Left sidebar END -->
+
+			<!-- Main content START -->
+			<div class="col-xl-9">
+
+				{% if student %}
+					<!-- Counter boxes START -->
+					<div class="row mb-4">
+						<!-- Counter item - XP -->
+						<div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
+							<div class="d-flex justify-content-center align-items-center p-4 bg-orange bg-opacity-15 rounded-3">
+								<span class="display-6 lh-1 text-orange mb-0"><i class="fas fa-bolt fa-fw"></i></span>
+								<div class="ms-4">
+									<div class="d-flex">
+										<h5 class="mb-0 fw-bold">{{ student.totalXP }}</h5>
+									</div>
+									<p class="mb-0 h6 fw-light">Total XP</p>
+								</div>
+							</div>
+						</div>
+						<!-- Counter item - Tokens -->
+						<div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
+							<div class="d-flex justify-content-center align-items-center p-4 bg-purple bg-opacity-15 rounded-3">
+								<span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-coins fa-fw"></i></span>
+								<div class="ms-4">
+									<div class="d-flex">
+										<h5 class="mb-0 fw-bold">{{ student.totalTokens }}</h5>
+									</div>
+									<p class="mb-0 h6 fw-light">Total Tokens</p>
+								</div>
+							</div>
+						</div>
+						<!-- Counter item - Level -->
+						<div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
+							<div class="d-flex justify-content-center align-items-center p-4 bg-success bg-opacity-10 rounded-3">
+								<span class="display-6 lh-1 text-success mb-0"><i class="fas fa-star fa-fw"></i></span>
+								<div class="ms-4">
+									<div class="d-flex">
+										<h5 class="mb-0 fw-bold">{{ student.level }}</h5>
+									</div>
+									<p class="mb-0 h6 fw-light">Current Level</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Counter boxes END -->
+
+					<!-- Level Progress Card START -->
+					<div class="card bg-transparent border rounded-3 mb-4">
+						<div class="card-header bg-transparent border-bottom">
+							<h3 class="mb-0">Level Progress</h3>
+						</div>
+						<div class="card-body">
+							<div class="d-flex justify-content-between align-items-center mb-3">
+								<div>
+									<h5 class="mb-0">Level {{ student.level }}</h5>
+									<p class="mb-0 text-muted small">{{ student.xpForNextLevel }} XP to Level {{ student.level + 1 }}</p>
+								</div>
+								<div class="text-end">
+									<span class="badge bg-warning text-dark">{{ student.progressToNextLevel }}%</span>
+								</div>
+							</div>
+							<div class="overflow-hidden">
+								<div class="progress progress-sm bg-warning bg-opacity-10">
+									<div class="progress-bar bg-warning aos" role="progressbar" data-aos="slide-right" data-aos-delay="200" data-aos-duration="1000" data-aos-easing="ease-in-out" style="width: {{ student.progressToNextLevel }}%" aria-valuenow="{{ student.progressToNextLevel }}" aria-valuemin="0" aria-valuemax="100">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Level Progress Card END -->
+
+					<!-- Quick Actions Card START -->
+					<div class="card bg-transparent border rounded-3 mb-4">
+						<!-- Card header START -->
+						<div class="card-header bg-transparent border-bottom">
+							<h3 class="mb-0">Quick Actions</h3>
+						</div>
+						<!-- Card header END -->
+
+						<!-- Card body START -->
+						<div class="card-body">
+							<div class="row g-3">
+								<!-- Action button 1 -->
+								<div class="col-sm-6 col-lg-4">
+									<a href="{{ path('front_game_index') }}" class="card card-body bg-primary bg-opacity-10 text-center h-100">
+										<div class="icon-lg bg-primary bg-opacity-10 rounded-circle text-primary mb-2 mx-auto">
+											<i class="fas fa-gamepad fs-4"></i>
+										</div>
+										<h6 class="mb-0">Play Games</h6>
+									</a>
+								</div>
+								
+								<!-- Action button 2 -->
+								<div class="col-sm-6 col-lg-4">
+									<a href="{{ path('front_reward_browse') }}" class="card card-body bg-success bg-opacity-10 text-center h-100">
+										<div class="icon-lg bg-success bg-opacity-10 rounded-circle text-success mb-2 mx-auto">
+											<i class="fas fa-gift fs-4"></i>
+										</div>
+										<h6 class="mb-0">Browse Rewards</h6>
+									</a>
+								</div>
+								
+								<!-- Action button 3 -->
+								<div class="col-sm-6 col-lg-4">
+									<a href="{{ path('front_reward_my_rewards') }}" class="card card-body bg-warning bg-opacity-10 text-center h-100">
+										<div class="icon-lg bg-warning bg-opacity-10 rounded-circle text-warning mb-2 mx-auto">
+											<i class="fas fa-trophy fs-4"></i>
+										</div>
+										<h6 class="mb-0">My Rewards</h6>
+									</a>
+								</div>
+								
+								<!-- Action button 4 -->
+								<div class="col-sm-6 col-lg-4">
+									<a href="{{ path('course_index') }}" class="card card-body bg-info bg-opacity-10 text-center h-100">
+										<div class="icon-lg bg-info bg-opacity-10 rounded-circle text-info mb-2 mx-auto">
+											<i class="fas fa-book fs-4"></i>
+										</div>
+										<h6 class="mb-0">My Courses</h6>
+									</a>
+								</div>
+								
+								<!-- Action button 5 -->
+								<div class="col-sm-6 col-lg-4">
+									<a href="{{ path('app_quiz_index') }}" class="card card-body bg-purple bg-opacity-10 text-center h-100">
+										<div class="icon-lg bg-purple bg-opacity-10 rounded-circle text-purple mb-2 mx-auto">
+											<i class="fas fa-question-circle fs-4"></i>
+										</div>
+										<h6 class="mb-0">Take Quiz</h6>
+									</a>
+								</div>
+								
+								<!-- Action button 6 -->
+								<div class="col-sm-6 col-lg-4">
+									<a href="{{ path('app_student_profile') }}" class="card card-body bg-danger bg-opacity-10 text-center h-100">
+										<div class="icon-lg bg-danger bg-opacity-10 rounded-circle text-danger mb-2 mx-auto">
+											<i class="fas fa-user-edit fs-4"></i>
+										</div>
+										<h6 class="mb-0">Edit Profile</h6>
+									</a>
+								</div>
+							</div>
+						</div>
+						<!-- Card body END -->
+					</div>
+					<!-- Quick Actions Card END -->
+
+					<!-- Recent Activity Card START -->
+					<div class="card bg-transparent border rounded-3">
+						<!-- Card header START -->
+						<div class="card-header bg-transparent border-bottom">
+							<div class="d-sm-flex justify-content-between align-items-center">
+								<h3 class="mb-2 mb-sm-0">Recent Activity</h3>
+								<a href="{{ path('course_index') }}" class="btn btn-sm btn-primary-soft mb-0">View All</a>
+							</div>
+						</div>
+						<!-- Card header END -->
+
+						<!-- Card body START -->
+						<div class="card-body">
+							<div class="row g-3">
+								<!-- Activity item -->
+								<div class="col-12">
+									<div class="d-flex align-items-center">
+										<div class="avatar avatar-md flex-shrink-0">
+											<div class="avatar-img rounded-circle bg-success bg-opacity-10">
+												<span class="text-success position-absolute top-50 start-50 translate-middle fw-bold">+{{ student.totalXP > 100 ? 100 : student.totalXP }}</span>
+											</div>
+										</div>
+										<div class="ms-3">
+											<h6 class="mb-0">XP Earned</h6>
+											<p class="mb-0 small">You've earned {{ student.totalXP }} experience points</p>
+										</div>
+									</div>
+								</div>
+
+								<!-- Activity item -->
+								<div class="col-12">
+									<div class="d-flex align-items-center">
+										<div class="avatar avatar-md flex-shrink-0">
+											<div class="avatar-img rounded-circle bg-warning bg-opacity-10">
+												<span class="text-warning position-absolute top-50 start-50 translate-middle">
+													<i class="fas fa-star"></i>
+												</span>
+											</div>
+										</div>
+										<div class="ms-3">
+											<h6 class="mb-0">Level {{ student.level }}</h6>
+											<p class="mb-0 small">Current level achieved</p>
+										</div>
+									</div>
+								</div>
+
+								<!-- Activity item -->
+								<div class="col-12">
+									<div class="d-flex align-items-center">
+										<div class="avatar avatar-md flex-shrink-0">
+											<div class="avatar-img rounded-circle bg-primary bg-opacity-10">
+												<span class="text-primary position-absolute top-50 start-50 translate-middle">
+													<i class="fas fa-coins"></i>
+												</span>
+											</div>
+										</div>
+										<div class="ms-3">
+											<h6 class="mb-0">{{ student.totalTokens }} Tokens</h6>
+											<p class="mb-0 small">Available for rewards</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Card body END -->
+					</div>
+					<!-- Recent Activity Card END -->
+
+				{% else %}
+					<!-- No Student Profile Message -->
+					<div class="card bg-transparent border rounded-3">
+						<div class="card-body text-center py-5">
+							<span class="display-1 text-muted mb-0"><i class="bi bi-person-x"></i></span>
+							<h3 class="mt-3">Student Profile Not Found</h3>
+							<p class="text-muted">It looks like you don't have a student profile set up yet. Please contact support to create your profile.</p>
+							<a href="{{ path('app_home') }}" class="btn btn-primary mt-3">
+								<i class="bi bi-house-door me-2"></i>Go to Home
+							</a>
+						</div>
+					</div>
+				{% endif %}
+
+			</div>
+			<!-- Main content END -->
+		</div><!-- Row END -->
+	</div>	
+</section>
+<!-- =======================
+Page content END -->
+
 {% endblock %}
