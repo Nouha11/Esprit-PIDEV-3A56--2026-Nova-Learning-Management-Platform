@@ -1,15 +1,184 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div style="max-width: 600px; margin: 50px auto; padding: 20px; border: 1px solid #ccc;">
-    <h1>Edit Question</h1>
-    
-{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-        {{ form_row(form.title) }}
-        {{ form_row(form.content) }}
-        
-        <button type="submit" class="btn btn-warning">Update Question</button>
-        <a href="{{ path('app_forum_show', {'id': app.request.get('id') }) }}" class="btn btn-secondary">Cancel</a>
-    {{ form_end(form) }}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Card Container -->
+            <div class="card shadow-lg border-0 rounded-4">
+                <!-- Card Header -->
+                <div class="card-header bg-primary text-white py-4 rounded-top-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3">
+                            <i class="bi bi-pencil-square fs-4"></i>
+                        </div>
+                        <div>
+                            <h1 class="h3 mb-0">Edit Question</h1>
+                            <p class="mb-0 opacity-75">Update your question details below</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body p-4 p-md-5">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'edit-question-form'}}) }}
+                    
+                    <!-- Title Field -->
+                    <div class="mb-4">
+                        {{ form_label(form.title, 'Question Title', {'label_attr': {'class': 'form-label fw-bold mb-2'}}) }}
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="bi bi-card-heading text-primary"></i>
+                            </span>
+                            {{ form_widget(form.title, {'attr': {
+                                'class': 'form-control form-control-lg border-start-0 rounded-end',
+                                'placeholder': 'Enter a clear, descriptive title...'
+                            }}) }}
+                        </div>
+                        <div class="mt-2">
+                            {{ form_help(form.title, {'help_attr': {'class': 'form-text text-muted small'}}) }}
+                        </div>
+                        <div class="text-danger small mt-1">
+                            {{ form_errors(form.title) }}
+                        </div>
+                    </div>
+                    
+                    <!-- Content Field -->
+                    <div class="mb-4">
+                        {{ form_label(form.content, 'Question Details', {'label_attr': {'class': 'form-label fw-bold mb-2'}}) }}
+                        <div class="position-relative">
+                            {{ form_widget(form.content, {'attr': {
+                                'class': 'form-control',
+                                'rows': 8,
+                                'placeholder': 'Provide detailed information about your question...'
+                            }}) }}
+                            <div class="form-text text-muted small mt-1">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Be specific and include any relevant code, error messages, or context
+                            </div>
+                        </div>
+                        <div class="text-danger small mt-1">
+                            {{ form_errors(form.content) }}
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="d-flex gap-3 mt-5 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary btn-lg px-4 py-2 flex-fill shadow-sm">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Update Question
+                        </button>
+                        <a href="{{ path('app_forum_show', {'id': app.request.get('id') }) }}" 
+                           class="btn btn-outline-secondary btn-lg px-4 py-2 flex-fill">
+                            <i class="bi bi-x-circle me-2"></i>
+                            Cancel
+                        </a>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+                
+                <!-- Card Footer -->
+                <div class="card-footer bg-light border-0 rounded-bottom-4 py-3">
+                    <div class="text-center text-muted small">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Your question will be visible to the community after updating
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Tips -->
+            <div class="mt-4 p-4 bg-light rounded-3 border">
+                <h6 class="fw-bold text-primary mb-2">
+                    <i class="bi bi-lightbulb me-2"></i>Tips for a great question:
+                </h6>
+                <ul class="list-unstyled mb-0 small">
+                    <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Be clear and specific in your title</li>
+                    <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Include relevant code snippets if applicable</li>
+                    <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Describe what you've already tried</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Use proper formatting for readability</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
-{% endblock %}
+
+<style>
+    /* Custom Styles for this form only */
+    .edit-question-form .form-control {
+        border-color: #dee2e6;
+        transition: all 0.3s ease;
+    }
+    
+    .edit-question-form .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        transform: translateY(-1px);
+    }
+    
+    .edit-question-form .form-control-lg {
+        font-size: 1.1rem;
+    }
+    
+    .card {
+        border: none;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus + .input-group-text {
+        border-color: #0d6efd;
+        background-color: #e9f2ff;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 150px;
+        line-height: 1.6;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    }
+    
+    .btn-outline-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
+    }
+    
+    .form-label {
+        color: #2c3e50;
+        font-size: 1rem;
+    }
+    
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+    
+    .rounded-top-4 {
+        border-top-left-radius: 1rem !important;
+        border-top-right-radius: 1rem !important;
+    }
+    
+    .rounded-bottom-4 {
+        border-bottom-left-radius: 1rem !important;
+        border-bottom-right-radius: 1rem !important;
+    }
+</style>
+{% endblock %}  

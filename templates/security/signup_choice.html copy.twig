@@ -1,82 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>{% block title %}NOVA - Intelligent Study Coaching Platform{% endblock %}</title>
+{% extends 'base.html.twig' %}
 
-    <!-- Meta Tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="NOVA Team">
-    <meta name="description" content="NOVA - Intelligent Study Coaching Platform">
+{% block title %}NOVA - Intelligent Study Coaching Platform{% endblock %}
 
-    <!-- Dark mode -->
-    <script>
-        const storedTheme = localStorage.getItem('theme')
-        const getPreferredTheme = () => {
-            if (storedTheme) {
-                return storedTheme
-            }
-            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'light'
-        }
-        const setTheme = function (theme) {
-            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.setAttribute('data-bs-theme', 'dark')
-            } else {
-                document.documentElement.setAttribute('data-bs-theme', theme)
-            }
-        }
-        setTheme(getPreferredTheme())
-        window.addEventListener('DOMContentLoaded', () => {
-            var el = document.querySelector('.theme-icon-active');
-            if(el != 'undefined' && el != null) {
-                const showActiveTheme = theme => {
-                const activeThemeIcon = document.querySelector('.theme-icon-active use')
-                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-                const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
-                document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-                    element.classList.remove('active')
-                })
-                btnToActive.classList.add('active')
-                activeThemeIcon.setAttribute('href', svgOfActiveBtn)
-            }
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                if (storedTheme !== 'light' || storedTheme !== 'dark') {
-                    setTheme(getPreferredTheme())
-                }
-            })
-            showActiveTheme(getPreferredTheme())
-            document.querySelectorAll('[data-bs-theme-value]')
-                .forEach(toggle => {
-                    toggle.addEventListener('click', () => {
-                        const theme = toggle.getAttribute('data-bs-theme-value')
-                        localStorage.setItem('theme', theme)
-                        setTheme(theme)
-                        showActiveTheme(theme)
-                    })
-                })
-            }
-        })
-    </script>
-
-    {% block stylesheets %}
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
-
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
-
-    <!-- Plugins CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
-
-    <!-- Theme CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-    {% endblock %}
-
+{% block stylesheets %}
+    {{ parent() }}
     <style>
         /* Full page background */
         body {
@@ -100,73 +27,35 @@
             z-index: -1;
         }
 
-        /* Hero section enhancements */
-        .hero-section {
-            padding: 4rem 0;
-        }
-
-        /* Card styling */
-        .card {
+        /* Main content area styling */
+        .main-content {
             background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Button enhancements */
-        .btn-lg {
-            padding: 0.75rem 2rem;
-            font-weight: 600;
-            border-radius: 50px;
-        }
-        
-        .btn-outline-primary, .btn-outline-warning {
-            border-width: 2px;
-        }
-
-        /* Icon styling */
-        .icon-lg {
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
-
-        /* Content text styling */
-        .display-4 {
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            color: white;
-        }
-        
-        .lead {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.25rem;
+            margin: 2rem auto;
+            overflow: hidden;
         }
 
         /* Footer styling */
         footer {
-            background: rgba(255, 255, 255, 0.95) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
             backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-            margin-top: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Welcome text for logged in users */
-        .welcome-text h3 {
-            color: white;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        /* Card hover effects */
+        .hover-shadow {
+            transition: all 0.3s ease;
         }
-        
-        .welcome-text p {
-            color: rgba(255, 255, 255, 0.9);
+        .hover-shadow:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+        }
+
+        /* Hero section enhancements */
+        .hero-section {
+            padding: 6rem 0;
         }
 
         /* Responsive adjustments */
@@ -174,42 +63,25 @@
             body {
                 background-attachment: scroll;
             }
-            
+            .main-content {
+                margin: 1rem;
+                border-radius: 15px;
+            }
             .hero-section {
-                padding: 2rem 0;
+                padding: 3rem 0;
             }
-            
-            .display-4 {
-                font-size: 2.5rem;
-            }
-        }
-
-        /* Animation for cards */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
         }
     </style>
-</head>
+{% endblock %}
 
-<body>
+{% block body %}
     <!-- Main Content -->
-    <div class="container-fluid px-0">
+    <div class="container-fluid main-content">
         <section class="hero-section">
             <div class="container">
-                <div class="row justify-content-center">
+                <div class="row">
                     <div class="col-12">
-                        <div class="p-3 p-md-5 position-relative overflow-hidden">
+                        <div class="p-4 p-sm-5 position-relative overflow-hidden">
                             <!-- SVG decoration (optional) -->
                             <figure class="position-absolute top-0 start-0 d-none d-lg-block ms-n7 opacity-3">
                                 <svg width="294.5px" height="261.6px" viewBox="0 0 294.5 261.6">
@@ -221,26 +93,26 @@
                                 <!-- Check if user is logged in -->
                                 {% if app.user %}
                                     <!-- Logged in user - Show dashboard links based on role -->
-                                    <div class="row align-items-center fade-in-up">
-                                        <div class="col-lg-8 welcome-text">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-8">
                                             <h3>Welcome back to NOVA!</h3>
                                             <p class="mb-3 mb-lg-0">Continue your learning journey and achieve your academic goals!</p>
                                         </div>
                                         <div class="col-lg-4 text-lg-end">
-                                            {% if app.user and 'ROLE_STUDENT' in app.user.roles %}
-                                                <a href="{{ path('app_student_dashboard') }}" class="btn btn-warning btn-lg mb-0 shadow">
+                                            {% if is_granted('ROLE_STUDENT') %}
+                                                <a href="{{ path('app_student_dashboard') }}" class="btn btn-warning btn-lg mb-0">
                                                     <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
                                                 </a>
-                                            {% elseif app.user and 'ROLE_TUTOR' in app.user.roles %}
-                                                <a href="{{ path('admin_game_index') }}" class="btn btn-warning btn-lg mb-0 shadow">
+                                            {% elseif is_granted('ROLE_TUTOR') %}
+                                                <a href="{{ path('admin_game_index') }}" class="btn btn-warning btn-lg mb-0">
                                                     <i class="bi bi-speedometer2 me-2"></i>Tutor Dashboard
                                                 </a>
-                                            {% elseif app.user and 'ROLE_ADMIN' in app.user.roles %}
-                                                <a href="{{ path('app_admin_dashboard') }}" class="btn btn-warning btn-lg mb-0 shadow">
+                                            {% elseif is_granted('ROLE_ADMIN') %}
+                                                <a href="{{ path('app_admin_dashboard') }}" class="btn btn-warning btn-lg mb-0">
                                                     <i class="bi bi-shield-lock me-2"></i>Admin Panel
                                                 </a>
                                             {% else %}
-                                                <a href="{{ path('front_game_index') }}" class="btn btn-warning btn-lg mb-0 shadow">
+                                                <a href="{{ path('front_game_index') }}" class="btn btn-warning btn-lg mb-0">
                                                     <i class="bi bi-speedometer2 me-2"></i>Dashboard
                                                 </a>
                                             {% endif %}
@@ -248,20 +120,20 @@
                                     </div>
                                 {% else %}
                                     <!-- Not logged in - Show sign in/register options -->
-                                    <div class="row align-items-center text-center mb-5 fade-in-up">
-                                        <div class="col-lg-12">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-12 text-center mb-4">
                                             <h1 class="display-4 fw-bold mb-3">Welcome to NOVA</h1>
                                             <p class="lead mb-4">Join thousands of students already using NOVA to achieve their academic goals!</p>
                                         </div>
                                     </div>
 
                                     <!-- Role Selection Cards -->
-                                    <div class="row g-4 mb-4 justify-content-center">
+                                    <div class="row g-4 mb-4">
                                         <!-- Student Card -->
-                                        <div class="col-md-6 fade-in-up" style="animation-delay: 0.2s">
-                                            <div class="card h-100 border-primary rounded-4">
-                                                <div class="card-body text-center p-4 p-md-5">
-                                                    <div class="icon-lg bg-primary bg-opacity-10 rounded-circle mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card h-100 border-primary shadow-sm hover-shadow">
+                                                <div class="card-body text-center p-4">
+                                                    <div class="icon-lg bg-primary bg-opacity-10 rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                                                         <i class="bi bi-person-check text-primary fs-1"></i>
                                                     </div>
                                                     <h4 class="card-title mb-3">I'm a Student</h4>
@@ -287,7 +159,7 @@
                                                         </li>
                                                     </ul>
                                                     <div class="d-grid gap-2">
-                                                        <a href="{{ path('app_signup_student') }}?role=student" class="btn btn-primary btn-lg shadow">
+                                                        <a href="{{ path('app_signup_student') }}?role=student" class="btn btn-primary btn-lg">
                                                             <i class="bi bi-person-plus me-2"></i>Sign Up as Student
                                                         </a>
                                                         <a href="{{ path('app_login') }}" class="btn btn-outline-primary">
@@ -299,10 +171,10 @@
                                         </div>
 
                                         <!-- Tutor Card -->
-                                        <div class="col-md-6 fade-in-up" style="animation-delay: 0.4s">
-                                            <div class="card h-100 border-warning rounded-4">
-                                                <div class="card-body text-center p-4 p-md-5">
-                                                    <div class="icon-lg bg-warning bg-opacity-10 rounded-circle mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card h-100 border-warning shadow-sm hover-shadow">
+                                                <div class="card-body text-center p-4">
+                                                    <div class="icon-lg bg-warning bg-opacity-10 rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                                                         <i class="bi bi-person-workspace text-warning fs-1"></i>
                                                     </div>
                                                     <h4 class="card-title mb-3">I'm a Tutor</h4>
@@ -328,7 +200,7 @@
                                                         </li>
                                                     </ul>
                                                     <div class="d-grid gap-2">
-                                                        <a href="{{ path('app_signup_tutor') }}?role=tutor" class="btn btn-warning btn-lg shadow">
+                                                        <a href="{{ path('app_signup_tutor') }}?role=tutor" class="btn btn-warning btn-lg">
                                                             <i class="bi bi-person-plus me-2"></i>Sign Up as Tutor
                                                         </a>
                                                         <a href="{{ path('app_login') }}" class="btn btn-outline-warning">
@@ -348,16 +220,18 @@
         </section>
     </div>
     <!-- Main Content END -->
+{% endblock %}
 
+{% block footer %}
     <!-- Footer START -->
     <footer class="bg-light pt-5">
         <div class="container">
             <div class="row g-4">
                 <!-- Widget 1 START -->
                 <div class="col-lg-3">
-                    <a class="me-0" href="">
-                        <img class="light-mode-item h-56px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
-                        <img class="dark-mode-item h-56px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
+                    <a class="me-0" href="{{ path('app_home') }}">
+                        <img class="light-mode-item h-40px" src="{{ asset('assets/images/logo.svg') }}" alt="NOVA">
+                        <img class="dark-mode-item h-40px" src="{{ asset('assets/images/logo-light.svg') }}" alt="NOVA">
                     </a>
                     <p class="my-3">NOVA - Intelligent Study Coaching Platform. Making learning fun through gamification.</p>
                     <ul class="list-inline mb-0 mt-3">
@@ -427,20 +301,4 @@
         </div>
     </footer>
     <!-- Footer END -->
-
-    <!-- Back to top -->
-    <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
-
-    {% block javascripts %}
-    <!-- Bootstrap JS -->
-    <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-
-    <!-- Vendors -->
-    <script src="{{ asset('assets/vendor/glightbox/js/glightbox.js') }}"></script>
-    <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
-
-    <!-- Template Functions -->
-    <script src="{{ asset('assets/js/functions.js') }}"></script>
-    {% endblock %}
-</body>
-</html>
+{% endblock %}
