@@ -52,7 +52,15 @@ final class StudentController extends AbstractController
             $student->setUniversity($request->request->get('university'));
             $student->setMajor($request->request->get('major'));
             $student->setAcademicLevel($request->request->get('academicLevel'));
-            $student->setInterests($request->request->get('interests'));
+            
+            // Convert interests string to array
+            $interestsString = $request->request->get('interests');
+            if ($interestsString) {
+                $interestsArray = array_filter(array_map('trim', explode(',', $interestsString)));
+                $student->setInterests($interestsArray);
+            } else {
+                $student->setInterests(null);
+            }
             
             $entityManager->flush();
 
