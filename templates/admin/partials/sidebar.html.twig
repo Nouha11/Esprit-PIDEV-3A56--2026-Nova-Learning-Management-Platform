@@ -1,110 +1,86 @@
-<!-- Sidebar -->
-<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-    <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ path('app_admin_dashboard') }}">
-        <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-graduation-cap"></i>
-        </div>
-        <div class="sidebar-brand-text mx-3">NOVA Admin</div>
-    </a>
+<!-- Sidebar START -->
+<nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
 
-    <!-- Divider -->
-    <hr class="sidebar-divider my-0">
-
-    <!-- Nav Item - Dashboard -->
-    <li class="nav-item">
-        <a class="nav-link" href="{{ path('app_admin_dashboard') }}">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span>
+    <!-- Navbar brand for xl START -->
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
+            <span class="navbar-brand-item"><i class="fas fa-graduation-cap"></i></span>
+            <span class="ms-2 text-white">NOVA Admin</span>
         </a>
-    </li>
-
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
-    <!-- Heading -->
-    <div class="sidebar-heading">Gamification (Module 2)</div>
-
-    <!-- Nav Item - Games -->
-    <li class="nav-item">
-        <a class="nav-link" href="{{ path('admin_game_index') }}">
-            <i class="fas fa-fw fa-gamepad"></i>
-            <span>Games</span>
-        </a>
-    </li>
-
-    <!-- Nav Item - Rewards -->
-    <li class="nav-item">
-        <a class="nav-link" href="{{ path('admin_reward_index') }}">
-            <i class="fas fa-fw fa-trophy"></i>
-            <span>Rewards</span>
-        </a>
-    </li>
-
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
-    <!-- Heading -->
-    <div class="sidebar-heading">Other Modules</div>
-
-    <!-- Nav Item - Library (Collapsible) -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLibrary" 
-           aria-expanded="false" aria-controls="collapseLibrary">
-            <i class="fas fa-fw fa-book"></i>
-            <span>Library</span>
-        </a>
-        <div id="collapseLibrary" class="collapse" aria-labelledby="headingLibrary" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Manage:</h6>
-                <a class="collapse-item" href="{{ path('admin_books_index') }}">
-                    <i class="fas fa-fw fa-book-open"></i> My Books
-                </a>
-                <a class="collapse-item" href="{{ path('admin_books_new') }}">
-                    <i class="fas fa-fw fa-plus"></i> Add New Book
-                </a>
-            </div>
-        </div>
-    </li>
-
-    <!-- Nav Item - Users -->
-    <li class="nav-item">
-        <a class="nav-link" href="#">
-            <i class="fas fa-fw fa-users"></i>
-            <span>Users</span>
-        </a>
-    </li>
-
-    <!-- Nav Item - StudySession (Collapsible) -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseStudySession" 
-           aria-expanded="false" aria-controls="collapseStudySession">
-            <i class="fas fa-fw fa-graduation-cap"></i>
-            <span>StudySession</span>
-        </a>
-        <div id="collapseStudySession" class="collapse" aria-labelledby="headingStudySession" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Manage:</h6>
-                <a class="collapse-item" href="{{ path('admin_course_index') }}">
-                    <i class="fas fa-book"></i> Courses
-                </a>
-                <a class="collapse-item" href="{{ path('admin_planning_index') }}">
-                    <i class="fas fa-calendar-alt"></i> Planning
-                </a>
-                <a class="collapse-item" href="{{ path('admin_study_session_index') }}">
-                    <i class="fas fa-chart-line"></i> Sessions
-                </a>
-                <div class="collapse-divider"></div>
-                <h6 class="collapse-header">Analytics:</h6>
-                <a class="collapse-item" href="{{ path('admin_study_session_analytics') }}">
-                    <i class="fas fa-chart-bar"></i> View Analytics
-                </a>
-            </div>
-        </div>
-    </li>
-
-    <!-- Sidebar Toggler -->
-    <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
     </div>
-</ul>
+    <!-- Navbar brand for xl END -->
+
+    <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+
+            <!-- Sidebar menu START -->
+            <ul class="navbar-nav flex-column" id="navbar-sidebar">
+
+                <!-- Menu item - Dashboard -->
+                <li class="nav-item">
+                    <a href="{{ path('app_admin_dashboard') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_admin_dashboard' %} active{% endif %}">
+                        <i class="bi bi-house fa-fw me-2"></i>Dashboard
+                    </a>
+                </li>
+
+                <!-- Title -->
+                <li class="nav-item ms-2 my-2 text-muted small text-uppercase">Pages</li>
+
+                <!-- Courses -->
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#collapsecourses" role="button"
+                       aria-expanded="false" aria-controls="collapsecourses">
+                        <i class="bi bi-basket fa-fw me-2"></i>Courses
+                    </a>
+                    <ul class="nav collapse flex-column" id="collapsecourses" data-bs-parent="#navbar-sidebar">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('admin_course_index') }}">All Courses</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Course Category</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Library -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_books_index') }}">
+                        <i class="fas fa-book fa-fw me-2"></i>Library
+                    </a>
+                </li>
+
+                <!-- Games -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_game_index') }}">
+                        <i class="fas fa-gamepad fa-fw me-2"></i>Games
+                    </a>
+                </li>
+
+                <!-- Rewards -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_reward_index') }}">
+                        <i class="fas fa-trophy fa-fw me-2"></i>Rewards
+                    </a>
+                </li>
+            </ul>
+            <!-- Sidebar menu END -->
+
+            <!-- Sidebar footer START -->
+            <div class="px-3 mt-auto pt-3">
+                <div class="d-flex align-items-center justify-content-between text-primary-hover">
+                    <a class="h5 mb-0 text-body" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Settings">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Home">
+                        <i class="bi bi-globe"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+                        <i class="bi bi-power"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Sidebar footer END -->
+        </div>
+    </div>
+</nav>
+<!-- Sidebar END -->

@@ -1,279 +1,153 @@
-<!-- Topbar -->
-<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-    <!-- Sidebar Toggle (Topbar) -->
-    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3">
-        <i class="fa fa-bars"></i>
-    </button>
+<!-- Top bar START -->
+<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+    <div class="container-fluid p-0">
+        <div class="d-flex align-items-center w-100">
 
-    <!-- Topbar Search -->
-    <form class="d-none d-sm-inline-block form-inline me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search position-relative" id="searchForm">
-        <div class="input-group">
-            <input type="text" class="form-control bg-light border-0 small" id="searchInput" 
-                   placeholder="Search for books..." aria-label="Search" autocomplete="off">
-            <button class="btn btn-primary" type="submit">
-                <i class="fas fa-search fa-sm"></i>
-            </button>
-        </div>
-        <!-- Search Results Dropdown -->
-        <div id="searchResults" class="dropdown-menu shadow-lg" style="display: none; width: 400px; max-height: 400px; overflow-y: auto;">
-            <div id="searchResultsContent"></div>
-        </div>
-    </form>
+            <!-- Logo for mobile START -->
+            <div class="d-flex align-items-center d-xl-none">
+                <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
+                    <span class="light-mode-item navbar-brand-item h-30px text-primary fw-bold">NOVA</span>
+                </a>
+            </div>
+            <!-- Logo for mobile END -->
 
-    <!-- Topbar Navbar -->
-    <ul class="navbar-nav ms-auto">
-        <!-- Nav Item - Notifications -->
-        <li class="nav-item dropdown no-arrow mx-1">
-            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" 
-               data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-bell fa-fw"></i>
-                <!-- Counter - Notifications -->
-                <span class="badge badge-danger badge-counter">3+</span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                <h6 class="dropdown-header">Notifications</h6>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                    <div class="me-3">
-                        <div class="icon-circle bg-primary">
-                            <i class="fas fa-book text-white"></i>
+            <!-- Toggler for sidebar START -->
+            <div class="navbar-expand-xl sidebar-offcanvas-menu">
+                <button class="navbar-toggler me-auto" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-expanded="false"
+                        aria-label="Toggle navigation" data-bs-auto-close="outside">
+                    <i class="bi bi-text-right fa-fw h2 lh-0 mb-0"></i>
+                </button>
+            </div>
+            <!-- Toggler for sidebar END -->
+
+            <!-- Top bar left: search -->
+            <div class="navbar-expand-lg ms-auto ms-xl-0">
+                <!-- Toggler for menubar START -->
+                <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarTopContent" aria-controls="navbarTopContent" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-animation">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </button>
+                <!-- Toggler for menubar END -->
+
+                <!-- Topbar menu START -->
+                <div class="collapse navbar-collapse w-100" id="navbarTopContent">
+                    <!-- Top search START -->
+                    <div class="nav my-3 my-xl-0 flex-nowrap align-items-center">
+                        <div class="nav-item w-100">
+                            <form class="position-relative" id="searchForm">
+                                <input class="form-control pe-5 bg-secondary bg-opacity-10 border-0" type="search"
+                                       id="searchInput" placeholder="Search" aria-label="Search">
+                                <button class="bg-transparent px-2 py-0 border-0 position-absolute top-50 end-0 translate-middle-y"
+                                        type="submit">
+                                    <i class="fas fa-search fs-6 text-primary"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
-                    <div>
-                        <div class="small text-gray-500">December 12, 2023</div>
-                        <span class="font-weight-bold">New book added to library</span>
-                    </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Notifications</a>
-            </div>
-        </li>
-
-        <div class="topbar-divider d-none d-sm-block"></div>
-
-        <!-- Nav Item - User Information -->
-        <li class="nav-item dropdown no-arrow">
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
-               data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="me-2 d-none d-lg-inline text-gray-600 small">
-                    {% if app.user %}
-                        {{ app.user.username }}
-                    {% else %}
-                        Admin User
-                    {% endif %}
-                </span>
-                <img class="img-profile rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" width="40" height="40" alt="User Avatar">
-            </a>
-            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
-                <div class="dropdown-header">
-                    <strong>
-                        {% if app.user %}
-                            {{ app.user.username }}
-                        {% else %}
-                            Admin User
-                        {% endif %}
-                    </strong>
-                    <br>
-                    <small class="text-muted">
-                        {% if app.user %}
-                            {{ app.user.email }}
-                        {% endif %}
-                    </small>
+                    <!-- Top search END -->
                 </div>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">
-                    <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
-                    Profile
-                </a>
-                <a class="dropdown-item" href="#">
-                    <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
-                    Settings
-                </a>
-                <a class="dropdown-item" href="#">
-                    <i class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>
-                    Activity Log
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="{{ path('app_logout') }}">
-                    <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
-                    Logout
-                </a>
+                <!-- Topbar menu END -->
             </div>
-        </li>
-    </ul>
-</nav>
 
-<style>
-    /* Topbar styling */
-    .topbar {
-        height: 4.375rem;
-    }
-    
-    .topbar .navbar-search {
-        width: 25rem;
-    }
-    
-    .topbar .navbar-search input {
-        font-size: 0.85rem;
-        height: 2rem;
-    }
-    
-    .topbar-divider {
-        width: 0;
-        border-right: 1px solid #e3e6f0;
-        height: calc(4.375rem - 2rem);
-        margin: auto 1rem;
-    }
-    
-    .img-profile {
-        height: 2rem;
-        width: 2rem;
-    }
-    
-    .badge-counter {
-        position: absolute;
-        transform: scale(0.7);
-        transform-origin: top right;
-        right: 0.25rem;
-        margin-top: -0.25rem;
-    }
-    
-    .icon-circle {
-        height: 2.5rem;
-        width: 2.5rem;
-        border-radius: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .dropdown-menu {
-        font-size: 0.85rem;
-    }
-    
-    .dropdown-header {
-        font-weight: 800;
-        font-size: 0.65rem;
-        color: #858796;
-    }
-    
-    /* Search Results Styling */
-    #searchResults {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        z-index: 1000;
-        margin-top: 0.5rem;
-    }
-    
-    .search-result-item {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #e3e6f0;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-    
-    .search-result-item:hover {
-        background-color: #f8f9fc;
-    }
-    
-    .search-result-item:last-child {
-        border-bottom: none;
-    }
-    
-    .search-result-img {
-        width: 50px;
-        height: 70px;
-        object-fit: cover;
-        border-radius: 4px;
-    }
-</style>
-
-<script>
-// Live Search Functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
-    const searchResultsContent = document.getElementById('searchResultsContent');
-    const searchForm = document.getElementById('searchForm');
-    let searchTimeout;
-
-    // Fonction de recherche
-    function performSearch(query) {
-        if (query.length < 2) {
-            searchResults.style.display = 'none';
-            return;
-        }
-
-        // Appel AJAX pour rechercher les livres
-        fetch(`{{ path('admin_books_search') }}?q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(books => {
-                if (books.length === 0) {
-                    searchResultsContent.innerHTML = `
-                        <div class="p-3 text-center text-muted">
-                            <i class="fas fa-search fa-2x mb-2"></i>
-                            <p class="mb-0">No books found</p>
-                        </div>
-                    `;
-                } else {
-                    searchResultsContent.innerHTML = books.map(book => `
-                        <a href="${book.url}" class="search-result-item text-decoration-none d-flex align-items-center">
-                            <img src="${book.coverImage}" alt="${book.title}" class="search-result-img me-3">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1 text-dark">${book.title}</h6>
-                                <p class="mb-0 small text-muted">
-                                    <i class="fas fa-user me-1"></i>${book.author}
-                                    <span class="mx-2">•</span>
-                                    <i class="fas fa-tag me-1"></i>$${book.price}
-                                    <span class="mx-2">•</span>
-                                    ${book.isDigital ? '<span class="badge bg-success">Digital</span>' : '<span class="badge bg-secondary">Physical</span>'}
-                                </p>
-                            </div>
+            <!-- Top bar right START -->
+            <div class="ms-xl-auto">
+                <ul class="navbar-nav flex-row align-items-center">
+                    <!-- Notification dropdown START -->
+                    <li class="nav-item ms-2 ms-md-3 dropdown">
+                        <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false" data-bs-auto-close="outside">
+                            <i class="bi bi-bell fa-fw"></i>
                         </a>
-                    `).join('');
-                }
-                searchResults.style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Search error:', error);
-                searchResultsContent.innerHTML = `
-                    <div class="p-3 text-center text-danger">
-                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
-                        <p class="mb-0">Error loading results</p>
-                    </div>
-                `;
-                searchResults.style.display = 'block';
-            });
-    }
+                        <span class="notif-badge animation-blink"></span>
 
-    // Événement de saisie dans le champ de recherche
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const query = this.value.trim();
-        
-        // Délai de 300ms avant de lancer la recherche
-        searchTimeout = setTimeout(() => {
-            performSearch(query);
-        }, 300);
-    });
+                        <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
+                            <div class="card bg-transparent">
+                                <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
+                                    <a class="small" href="#">Clear all</a>
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-unstyled list-group-flush">
+                                        <li>
+                                            <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
+                                                <div class="me-3">
+                                                    <div class="avatar avatar-md">
+                                                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/08.jpg') }}" alt="avatar">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p class="text-body small m-0">
+                                                        Congratulate <b>Joan Wallace</b> for graduating
+                                                    </p>
+                                                    <u class="small">Say congrats</u>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
+                                    <a href="#" class="stretched-link">See all incoming activity</a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Notification dropdown END -->
 
-    // Empêcher la soumission du formulaire
-    searchForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        performSearch(searchInput.value.trim());
-    });
+                    <!-- Profile dropdown START -->
+                    <li class="nav-item ms-2 ms-md-3 dropdown">
+                        <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button"
+                           data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+                        </a>
 
-    // Fermer les résultats quand on clique ailleurs
-    document.addEventListener('click', function(e) {
-        if (!searchForm.contains(e.target)) {
-            searchResults.style.display = 'none';
-        }
-    });
-
-    // Rouvrir les résultats quand on clique dans le champ
-    searchInput.addEventListener('focus', function() {
-        if (this.value.trim().length >= 2 && searchResultsContent.innerHTML) {
-            searchResults.style.display = 'block';
-        }
-    });
-});
-</script>
+                        <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
+                            <li class="px-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar me-3 mb-3">
+                                        <img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+                                    </div>
+                                    <div>
+                                        <a class="h6 mt-2 mt-sm-0" href="#">
+                                            {% if app.user %}{{ app.user.username }}{% else %}Admin{% endif %}
+                                        </a>
+                                        <p class="small m-0">
+                                            {% if app.user %}{{ app.user.email }}{% else %}example@gmail.com{% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Edit Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Account Settings</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Help</a></li>
+                            <li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center p-1 rounded mt-2">
+                                    <button type="button" class="btn btn-sm mb-0" data-bs-theme-value="light">
+                                        Light
+                                    </button>
+                                    <button type="button" class="btn btn-sm mb-0" data-bs-theme-value="dark">
+                                        Dark
+                                    </button>
+                                    <button type="button" class="btn btn-sm mb-0 active" data-bs-theme-value="auto">
+                                        Auto
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Profile dropdown END -->
+                </ul>
+            </div>
+            <!-- Top bar right END -->
+        </div>
+    </div>
+</nav>
