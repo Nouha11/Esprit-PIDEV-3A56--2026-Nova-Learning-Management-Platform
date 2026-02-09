@@ -1,48 +1,141 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_content.html.twig' %}
+
+{% block title %}{{ post.title }}{% endblock %}
 
 {% block body %}
-<div style="max-width: 800px; margin: 50px auto;">
-    <a href="{{ path('app_forum') }}">&larr; Back to Forum</a>
-
-    <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin-top: 20px;">
-        <h1>{{ post.title }}</h1>
-        <p style="font-size: 1.2em;">{{ post.content }}</p>
-        <small>Asked by <strong>{{ post.author.username }}</strong> on {{ post.createdAt|date('M d, Y') }}</small>
-    </div>
-
-    <hr style="margin: 40px 0;">
-
-    <h3>{{ post.comments|length }} Answers</h3>
-
-    {% for comment in post.comments %}
-        <div style="border-left: 4px solid #4caf50; padding-left: 15px; margin-bottom: 20px;">
-            <p>{{ comment.content }}</p>
-            <small>Answered by <strong>{{ comment.author.username }}</strong></small>
+<main>
+    <section class="pt-0">
+        <div class="container-fluid px-0">
+            <div class="bg-blue h-100px h-md-200px rounded-0" style="background:url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size:cover;">
+            </div>
         </div>
-    {% else %}
-        <p>No answers yet. Be the first to help!</p>
-    {% endfor %}
+        <div class="container mt-n4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-transparent card-body p-0">
+                        <div class="row d-flex justify-content-between">
+                            <div class="col-12">
+                                <div class="bg-body p-4 rounded-3 shadow-sm">
+                                    <nav aria-label="breadcrumb">
+                                        <ol class="breadcrumb breadcrumb-dots mb-1">
+                                            <li class="breadcrumb-item"><a href="{{ path('app_forum') }}">Forum</a></li>
+                                            <li class="breadcrumb-item active" aria-current="page">Discussion Details</li>
+                                        </ol>
+                                    </nav>
+                                    <h1 class="h3 mb-0">{{ post.title }}</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="pt-0">
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-xl-9">
+                    
+                    <div class="card border bg-transparent rounded-3 mb-4">
+                        <div class="card-header bg-transparent border-bottom p-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-md me-2">
+                                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/0' ~ (post.id % 9 + 1) ~ '.jpg') }}" alt="avatar">
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ post.author.email|split('@')[0] }}</h6>
+                                        <small class="text-muted">Posted on {{ post.createdAt|date('F d, Y') }}</small>
+                                    </div>
+                                </div>
+                                <span class="badge bg-primary bg-opacity-10 text-primary">{{ post.upvotes }} Upvotes</span>
+                            </div>
+                        </div>
 
-    <hr>
+                        <div class="card-body p-4">
+                            <p class="mb-4 text-body">{{ post.content }}</p>
 
-    <div style="background: #f9f9f9; padding: 20px; border-radius: 10px;">
-        <h4>Add your Answer</h4>
-        {{ form_start(form) }}
-            {{ form_row(form.content) }}
-            <button class="btn btn-success" type="submit">Post Answer</button>
-        {{ form_end(form) }}
-    </div>
-    <div style="margin-top: 20px;">
-    <a href="{{ path('app_forum_edit', {'id': post.id}) }}" class="btn btn-warning">Edit Question</a>
-    
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-light mb-0"><i class="bi bi-hand-thumbs-up me-1"></i> Upvote</button>
+                                <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
+                                
+                                <a href="{{ path('app_forum_delete', {'id': post.id}) }}" class="btn btn-sm btn-danger-soft mb-0 ms-auto" onclick="return confirm('Delete this post? This action cannot be undone.')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
-</div>
+                    <div class="card border bg-transparent rounded-3">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h3 class="mb-0 h5">Replies ({{ post.comments|length }})</h3>
+                        </div>
+                        <div class="card-body">
+                            {% for comment in post.comments %}
+                                <div class="d-flex mb-4">
+                                    <div class="avatar avatar-sm me-3">
+                                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/0' ~ (comment.id % 9 + 1) ~ '.jpg') }}" alt="avatar">
+                                    </div>
+                                    <div class="w-100">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="mb-0">{{ comment.author.email|split('@')[0] }}</h6>
+                                                <small class="text-muted">{{ comment.createdAt|date('M d, Y H:i') }}</small>
+                                            </div>
+                                            {% if comment.isSolution %}
+                                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Solution</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="mt-2 mb-0">{{ comment.content }}</p>
+                                    </div>
+                                </div>
+                                {% if not loop.last %}<hr>{% endif %}
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-chat-square-dots display-6 text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">No replies yet. Be the first to help!</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
 
-    <a href="{{ path('app_forum_delete', {'id': post.id}) }}" 
-   class="btn btn-danger" 
-   onclick="return confirm('Are you sure you want to delete this question?');">
-   Delete Question
-</a>
-</div>
+                    <div class="card border bg-transparent rounded-3 mt-4" id="replyForm">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h5 class="mb-0">Leave a Reply</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(form) }}
+                                <div class="mb-3">
+                                    {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '4', 'placeholder': 'Type your answer here...'}}) }}
+                                    <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary mb-0">Post Reply</button>
+                                </div>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
 
+                </div>
+
+                <div class="col-xl-3">
+                    <div class="card border bg-transparent rounded-3">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h3 class="mb-0 h5">Forum Rules</h3>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled text-secondary mb-0 small">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Be respectful to others</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>No spamming</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Stay on topic</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</main>
 {% endblock %}
