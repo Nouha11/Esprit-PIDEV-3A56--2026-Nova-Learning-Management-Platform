@@ -20,9 +20,6 @@ class PlanningService
         private PlanningRepository $planningRepository
     ) {}
 
-    /* ==========================
-       BASIC CRUD (for controllers)
-       ========================== */
 
     public function findAll(): array
     {
@@ -40,10 +37,6 @@ class PlanningService
         $this->em->flush();
     }
 
-    /* ==========================
-       FILTERING (controller-compatible)
-       ========================== */
-
     /**
      * Controller-friendly wrapper
      */
@@ -55,10 +48,6 @@ class PlanningService
             $filters['endDate'] ?? null
         );
     }
-
-    /* ==========================
-       BUSINESS LOGIC (your original code)
-       ========================== */
 
     public function updateStatus(Planning $planning, string $newStatus): Planning
     {
