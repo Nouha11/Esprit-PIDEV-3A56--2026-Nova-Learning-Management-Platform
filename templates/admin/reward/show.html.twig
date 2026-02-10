@@ -1,0 +1,270 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ reward.name }}{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1>{{ reward.name }}</h1>
+                <div>
+                    <a href="{{ path('admin_reward_edit', {id: reward.id}) }}" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Edit Reward
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <span class="badge 
+                    {% if reward.type == 'BADGE' %}bg-primary
+                    {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning
+                    {% elseif reward.type == 'BONUS_XP' %}bg-info
+                    {% elseif reward.type == 'BONUS_TOKENS' %}bg-success
+                    {% endif %}">
+                    {{ reward.type|replace({'_': ' '}) }}
+                </span>
+                {% if reward.isActive %}
+                    <span class="badge bg-success">Active</span>
+                {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                {% endif %}
+            </div>
+
+            {# Reward Details Card #}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Reward Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong>Icon:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            {% if reward.icon %}
+                                <span style="font-size: 3rem;">{{ reward.icon }}</span>
+                            {% else %}
+                                <span class="text-muted">No icon set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong>Description:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            {{ reward.description ?? 'No description provided' }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong>Type:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            {{ reward.type|replace({'_': ' '}) }}
+                        </div>
+                    </div>
+
+                    {% if reward.type in ['BONUS_XP', 'BONUS_TOKENS'] %}
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong>Value:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            {% if reward.type == 'BONUS_XP' %}
+                                <span class="text-info fw-bold">+{{ reward.value }} XP</span>
+                            {% else %}
+                                <span class="text-success fw-bold">+{{ reward.value }} Tokens</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong>Requirement:</strong>
+                        </div>
+                        <div class="col-md-9">
+                            {{ reward.requirement ?? 'No requirement specified' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Associated Games Section #}
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-controller me-2"></i>Games Offering This Reward
+                    </h5>
+                    <span class="badge bg-light text-dark">{{ reward.games|length }} game(s)</span>
+                </div>
+                <div class="card-body">
+                    {% if reward.games is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Game Name</th>
+                                        <th>Type</th>
+                                        <th>Difficulty</th>
+                                        <th>Cost</th>
+                                        <th>Base Rewards</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for game in reward.games %}
+                                        <tr>
+                                            <td>{{ game.id }}</td>
+                                            <td><strong>{{ game.name }}</strong></td>
+                                            <td><span class="badge bg-info">{{ game.type }}</span></td>
+                                            <td>
+                                                <span class="badge bg-{{ game.difficulty == 'EASY' ? 'success' : (game.difficulty == 'MEDIUM' ? 'warning' : 'danger') }}">
+                                                    {{ game.difficulty }}
+                                                </span>
+                                            </td>
+                                            <td>{{ game.tokenCost }} <i class="bi bi-coin text-warning"></i></td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ game.rewardTokens }}T / {{ game.rewardXP }}XP
+                                                </small>
+                                            </td>
+                                            <td>
+                                                {% if game.isActive %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ path('admin_game_show', {id: game.id}) }}" 
+                                                   class="btn btn-sm btn-outline-primary" 
+                                                   title="View Game">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            This reward is not currently offered by any game. To associate it with games, edit the game and add this reward.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Students Who Earned This Reward #}
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people-fill me-2"></i>Students Who Earned This
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if reward.students|length > 0 %}
+                        <p class="mb-2"><strong>{{ reward.students|length }}</strong> student(s) have earned this reward.</p>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Student tracking feature is under development.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No students have earned this reward yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{{ path('admin_reward_index') }}" class="btn btn-lg btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Rewards
+                </a>
+                <a href="{{ path('admin_reward_edit', {id: reward.id}) }}" class="btn btn-lg btn-warning">
+                    <i class="bi bi-pencil"></i> Edit Reward
+                </a>
+            </div>
+        </div>
+
+        {# Sidebar #}
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-light text-center">
+                    <h6 class="mb-0">Reward Preview</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if reward.icon %}
+                            <span style="font-size: 5rem;">{{ reward.icon }}</span>
+                        {% else %}
+                            <i class="bi bi-award text-muted" style="font-size: 5rem;"></i>
+                        {% endif %}
+                    </div>
+                    <h4>{{ reward.name }}</h4>
+                    <p class="text-muted">{{ reward.description }}</p>
+                    <div class="mt-3">
+                        <span class="badge 
+                            {% if reward.type == 'BADGE' %}bg-primary
+                            {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning
+                            {% elseif reward.type == 'BONUS_XP' %}bg-info
+                            {% elseif reward.type == 'BONUS_TOKENS' %}bg-success
+                            {% endif %}">
+                            {{ reward.type|replace({'_': ' '}) }}
+                        </span>
+                    </div>
+                    {% if reward.type in ['BONUS_XP', 'BONUS_TOKENS'] %}
+                        <div class="mt-3">
+                            <h5 class="mb-0">
+                                {% if reward.type == 'BONUS_XP' %}
+                                    <span class="text-info">+{{ reward.value }} XP</span>
+                                {% else %}
+                                    <span class="text-success">+{{ reward.value }} Tokens</span>
+                                {% endif %}
+                            </h5>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('front_reward_browse') }}" 
+                           class="btn btn-sm btn-outline-primary" 
+                           target="_blank">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>View on Frontend
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Quick Stats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Associated Games</small>
+                        <h4>{{ reward.games|length }}</h4>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Active Games</small>
+                        <h4>{{ reward.games|filter(g => g.isActive)|length }}</h4>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Students Earned</small>
+                        <h4>{{ reward.students|length }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -34,7 +34,7 @@
                             <button class="btn btn-primary btn-lg" type="submit">
                                 Create Quiz <i class="bi bi-arrow-right ms-1"></i>
                             </button>
-                            <a href="{{ path('app_quiz_index') }}" class="btn btn-light text-muted">Cancel</a>
+                            <a href="{{ path('app_quiz_index', {'prefix': 'tutor'}) }}" class="btn btn-light text-muted">Cancel</a>
                         </div>
 
                     {{ form_end(form) }}

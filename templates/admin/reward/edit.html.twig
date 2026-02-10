@@ -6,8 +6,8 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Edit Reward: {{ reward.name }}</h1>
-        <a href="{{ path('admin_reward_index') }}" class="btn btn-secondary">
-            <i class="bi bi-arrow-left me-2"></i>Back to Rewards
+        <a href="{{ path('admin_reward_show', {id: reward.id}) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-eye me-2"></i>View Reward
         </a>
     </div>
 
@@ -52,7 +52,9 @@
                             {{ form_label(form.icon) }}
                             {{ form_widget(form.icon) }}
                             {{ form_errors(form.icon) }}
-                            <small class="form-text text-muted">Current: {{ reward.icon }}</small>
+                            <small class="form-text text-muted">
+                                Current: {{ reward.icon ? reward.icon : 'None' }}
+                            </small>
                         </div>
 
                         <div class="mb-3 form-check">
@@ -65,7 +67,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle me-2"></i>Update Reward
                             </button>
-                            <a href="{{ path('admin_reward_index') }}" class="btn btn-secondary">Cancel</a>
+                            <a href="{{ path('admin_reward_show', {id: reward.id}) }}" class="btn btn-secondary">Cancel</a>
                         </div>
                     {{ form_end(form) }}
                 </div>
@@ -73,9 +75,9 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card">
+            <div class="card sticky-top" style="top: 20px;">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0">Current Reward</h5>
+                    <h5 class="mb-0">Current Reward Preview</h5>
                 </div>
                 <div class="card-body text-center">
                     <div class="mb-3">
@@ -91,13 +93,43 @@
                         {% if reward.type == 'BADGE' %}
                             <span class="badge bg-primary">Badge</span>
                         {% elseif reward.type == 'ACHIEVEMENT' %}
-                            <span class="badge bg-success">Achievement</span>
+                            <span class="badge bg-warning">Achievement</span>
                         {% elseif reward.type == 'BONUS_XP' %}
                             <span class="badge bg-info">Bonus XP: {{ reward.value }}</span>
                         {% elseif reward.type == 'BONUS_TOKENS' %}
-                            <span class="badge bg-warning">Bonus Tokens: {{ reward.value }}</span>
+                            <span class="badge bg-success">Bonus Tokens: {{ reward.value }}</span>
                         {% endif %}
                     </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">Associated Games</h6>
+                </div>
+                <div class="card-body">
+                    {% if reward.games is not empty %}
+                        <p class="mb-2">This reward is offered by <strong>{{ reward.games|length }}</strong> game(s):</p>
+                        <ul class="list-unstyled mb-0">
+                            {% for game in reward.games|slice(0, 5) %}
+                                <li class="mb-2">
+                                    <a href="{{ path('admin_game_show', {id: game.id}) }}" class="text-decoration-none">
+                                        {{ game.name }}
+                                        <span class="badge bg-{{ game.difficulty == 'EASY' ? 'success' : (game.difficulty == 'MEDIUM' ? 'warning' : 'danger') }}">
+                                            {{ game.difficulty }}
+                                        </span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                            {% if reward.games|length > 5 %}
+                                <li class="text-muted">
+                                    <small>+ {{ reward.games|length - 5 }} more...</small>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">Not associated with any games yet</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

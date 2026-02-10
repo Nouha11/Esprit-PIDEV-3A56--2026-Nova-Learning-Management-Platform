@@ -1,0 +1,141 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Question{% endblock %}
+
+{% block body %}
+<section class="pt-4">
+    <div class="container">
+        <div class="row">
+
+            {# Main Content #}
+            <div class="col-xl-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-0">Create New Question</h1>
+                        <p class="text-muted mb-0">Add a challenge to your quiz.</p>
+                    </div>
+                    
+                    {# Back button logic #}
+                    {% if form.vars.value.quiz %}
+                        <a href="{{ path('app_quiz_show', {'id': form.vars.value.quiz.id, 'prefix': app.request.attributes.get('prefix')}) }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Back to Quiz
+                        </a>
+                    {% else %}
+                        <a href="{{ path('app_quiz_index', {'prefix': app.request.attributes.get('prefix')}) }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Back to List
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="card shadow-sm border rounded-3">
+                    <div class="card-header bg-light border-bottom px-4 py-3">
+                        <h5 class="card-title mb-0"><i class="bi bi-pencil-square me-2"></i>Question Details</h5>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        {{ form_start(form) }}
+                            
+                            {# 1. Question Text #}
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Question Text</label>
+                                {{ form_widget(form.text, {'attr': {'class': 'form-control form-control-lg', 'placeholder': 'e.g., What is the capital of France?'}}) }}
+                                <div class="form-text text-danger">{{ form_errors(form.text) }}</div>
+                            </div>
+
+                            {# 2. XP and Difficulty Grid #}
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">XP Reward</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-star-fill text-warning"></i></span>
+                                        {{ form_widget(form.xpValue, {'attr': {'class': 'form-control', 'id': 'xp_input'}}) }}
+                                    </div>
+                                    <div class="form-text text-danger">{{ form_errors(form.xpValue) }}</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Difficulty</label>
+                                    {{ form_widget(form.difficulty, {'attr': {'class': 'form-select'}}) }}
+                                </div>
+                            </div>
+
+                            {# 3. Quiz Selector #}
+                            <div class="mb-4 bg-light p-3 rounded border">
+                                <label class="form-label fw-bold">Assign to Quiz</label>
+                                {{ form_widget(form.quiz, {'attr': {'class': 'form-select'}}) }}
+                                <div class="form-text small text-muted">Select which quiz this question belongs to.</div>
+                                <div class="form-text text-danger">{{ form_errors(form.quiz) }}</div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            {# 4. Answers Section #}
+                            <div class="mb-3">
+                                <label class="form-label fw-bold d-block mb-2">Answer Options</label>
+                                
+                                <div class="alert alert-info py-2 small">
+                                    <i class="bi bi-info-circle me-1"></i> Check the box next to the correct answer.
+                                </div>
+
+                                <div class="text-danger mb-2">{{ form_errors(form.choices) }}</div>
+
+                                {# This wrapper holds the answer rows #}
+                                <div class="answers-wrapper" data-prototype="{{ form_widget(form.choices.vars.prototype)|e('html_attr') }}">
+                                    {% for choice in form.choices %}
+                                        <div class="input-group mb-2">
+                                            <div class="input-group-text bg-white">
+                                                {{ form_widget(choice.isCorrect, {'attr': {'class': 'form-check-input mt-0'}}) }}
+                                            </div>
+                                            {{ form_widget(choice.content, {'attr': {'class': 'form-control border-start-0'}}) }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <button type="button" class="btn btn-outline-primary btn-sm w-100 add-answer-btn mt-2">
+                                    <i class="bi bi-plus-lg"></i> Add Another Answer
+                                </button>
+                            </div>
+
+                            {# 5. Submit Button #}
+                            <div class="d-grid mt-4">
+                                <button class="btn btn-primary btn-lg" type="submit">
+                                    <i class="bi bi-save me-2"></i>Save Question
+                                </button>
+                            </div>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# JavaScript for adding answers dynamically #}
+<script>
+    document.querySelector('.add-answer-btn').addEventListener('click', function (e) {
+        const list = document.querySelector('.answers-wrapper');
+        const prototype = list.dataset.prototype;
+        const index = list.children.length;
+        const newForm = prototype.replace(/__name__/g, index);
+        
+        // Create the new row structure
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newForm;
+        
+        const row = document.createElement('div');
+        row.className = 'input-group mb-2';
+        row.innerHTML = `
+            <div class="input-group-text bg-white">
+                ${tempDiv.querySelector('input[type="checkbox"]').outerHTML}
+            </div>
+            ${tempDiv.querySelector('input[type="text"]').outerHTML}
+        `;
+        
+        // Re-apply classes
+        row.querySelector('input[type="checkbox"]').classList.add('form-check-input', 'mt-0');
+        row.querySelector('input[type="text"]').classList.add('form-control', 'border-start-0', 'ps-3');
+        
+        list.appendChild(row);
+    });
+</script>
+{% endblock %}

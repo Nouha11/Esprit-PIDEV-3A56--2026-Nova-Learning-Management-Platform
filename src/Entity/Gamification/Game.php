@@ -4,10 +4,11 @@ namespace App\Entity\Gamification;
 
 use App\Entity\users\User;
 use App\Repository\Gamification\GameRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Validator\Constraints as Assert;
-
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
 class Game
@@ -20,10 +21,10 @@ class Game
     #[ORM\Column(length: 255, unique: true)]
     #[Assert\NotBlank(message: "Game name is required")]
     #[Assert\Length(
-    min: 3,
-    max: 255,
-    minMessage: "Name must be at least 3 characters",
-    maxMessage: "Name cannot exceed 255 characters"
+        min: 3,
+        max: 255,
+        minMessage: "Name must be at least 3 characters",
+        maxMessage: "Name cannot exceed 255 characters"
     )]
     private ?string $name = null;
 
@@ -33,15 +34,15 @@ class Game
 
     #[ORM\Column(length: 50)]
     #[Assert\Choice(
-    choices: ['PUZZLE', 'MEMORY', 'TRIVIA', 'ARCADE'],
-    message: 'Choose a valid game type'
+        choices: ['PUZZLE', 'MEMORY', 'TRIVIA', 'ARCADE'],
+        message: 'Choose a valid game type'
     )]
     private ?string $type = null;
 
     #[ORM\Column(length: 50)]
     #[Assert\Choice(
-    choices: ['EASY', 'MEDIUM', 'HARD'],
-    message: 'Choose a valid difficulty'
+        choices: ['EASY', 'MEDIUM', 'HARD'],
+        message: 'Choose a valid difficulty'
     )]
     private ?string $difficulty = null;
 
@@ -66,10 +67,16 @@ class Game
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'games')]
     #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
+
+    // Relationship: Game can offer multiple rewards
+    #[ORM\ManyToMany(targetEntity: Reward::class, inversedBy: 'games')]
+    #[ORM\JoinTable(name: 'game_rewards')]
+    private Collection $rewards;
     
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->rewards = new ArrayCollection();
     }
 
     // Getters and Setters
@@ -179,7 +186,28 @@ class Game
     public function setUser(?User $user): static
     {
         $this->user = $user;
+        return $this;
+    }
 
+    /**
+     * @return Collection<int, Reward>
+     */
+    public function getRewards(): Collection
+    {
+        return $this->rewards;
+    }
+
+    public function addReward(Reward $reward): static
+    {
+        if (!$this->rewards->contains($reward)) {
+            $this->rewards->add($reward);
+        }
+        return $this;
+    }
+
+    public function removeReward(Reward $reward): static
+    {
+        $this->rewards->removeElement($reward);
         return $this;
     }
 }

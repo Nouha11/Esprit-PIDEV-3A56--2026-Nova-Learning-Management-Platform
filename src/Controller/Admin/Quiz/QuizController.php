@@ -11,20 +11,21 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/quiz')] // I added '/admin' to the URL to keep it organized
+#[Route(path: '/{prefix}/quiz', requirements: ['prefix' => 'admin|tutor'])]
 final class QuizController extends AbstractController
 {
     #[Route(name: 'app_quiz_index', methods: ['GET'])]
-    public function index(QuizRepository $quizRepository): Response
+    public function index(QuizRepository $quizRepository, string $prefix): Response
     {
-        // 👇 UPDATED PATH
-        return $this->render('admin/quiz/index.html.twig', [
+        $templatePrefix = $prefix === 'admin' ? 'admin/' : '';
+        
+        return $this->render($templatePrefix . 'quiz/index.html.twig', [
             'quizzes' => $quizRepository->findAll(),
         ]);
     }
 
     #[Route('/new', name: 'app_quiz_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, string $prefix): Response
     {
         $quiz = new Quiz();
         $form = $this->createForm(QuizType::class, $quiz);
@@ -34,27 +35,32 @@ final class QuizController extends AbstractController
             $entityManager->persist($quiz);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_quiz_show', ['id' => $quiz->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_quiz_show', [
+                'id' => $quiz->getId(),
+                'prefix' => $prefix
+            ], Response::HTTP_SEE_OTHER);
         }
 
-        // 👇 UPDATED PATH
-        return $this->render('admin/quiz/new.html.twig', [
+        $templatePrefix = $prefix === 'admin' ? 'admin/' : '';
+        
+        return $this->render($templatePrefix . 'quiz/new.html.twig', [
             'quiz' => $quiz,
             'form' => $form,
         ]);
     }
 
     #[Route('/{id}', name: 'app_quiz_show', methods: ['GET'])]
-    public function show(Quiz $quiz): Response
+    public function show(Quiz $quiz, string $prefix): Response
     {
-        // 👇 UPDATED PATH
-        return $this->render('admin/quiz/show.html.twig', [
+        $templatePrefix = $prefix === 'admin' ? 'admin/' : '';
+        
+        return $this->render($templatePrefix . 'quiz/show.html.twig', [
             'quiz' => $quiz,
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_quiz_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Quiz $quiz, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Quiz $quiz, EntityManagerInterface $entityManager, string $prefix): Response
     {
         $form = $this->createForm(QuizType::class, $quiz);
         $form->handleRequest($request);
@@ -62,24 +68,25 @@ final class QuizController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_quiz_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_quiz_index', ['prefix' => $prefix], Response::HTTP_SEE_OTHER);
         }
 
-        // 👇 UPDATED PATH
-        return $this->render('admin/quiz/edit.html.twig', [
+        $templatePrefix = $prefix === 'admin' ? 'admin/' : '';
+        
+        return $this->render($templatePrefix . 'quiz/edit.html.twig', [
             'quiz' => $quiz,
             'form' => $form,
         ]);
     }
 
     #[Route('/{id}', name: 'app_quiz_delete', methods: ['POST'])]
-    public function delete(Request $request, Quiz $quiz, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Quiz $quiz, EntityManagerInterface $entityManager, string $prefix): Response
     {
         if ($this->isCsrfTokenValid('delete'.$quiz->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($quiz);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_quiz_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_quiz_index', ['prefix' => $prefix], Response::HTTP_SEE_OTHER);
     }
 }

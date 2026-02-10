@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller\Front\Game;
 
+use App\Entity\Gamification\Reward;
 use App\Service\game\RewardService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,12 +42,28 @@ class RewardController extends AbstractController
     public function browse(): Response
     {
         $user = $this->getUser();
-        $student = $user->getStudentProfile();
+        $student = $user ? $user->getStudentProfile() : null;
 
         $allRewards = $this->rewardService->getActiveRewards();
 
         return $this->render('front/game/browse.html.twig', [
             'rewards' => $allRewards,
+            'student' => $student,
+        ]);
+    }
+
+    /**
+     * View reward details and associated games
+     */
+    #[Route('/{id}', name: 'front_reward_show', methods: ['GET'])]
+    public function show(Reward $reward): Response
+    {
+        $user = $this->getUser();
+        $student = $user ? $user->getStudentProfile() : null;
+
+        return $this->render('front/game/reward_show.html.twig', [
+            'reward' => $reward,
+            'games' => $reward->getGames(), // Games that offer this reward
             'student' => $student,
         ]);
     }

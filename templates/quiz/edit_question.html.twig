@@ -1,31 +1,17 @@
-{% extends 'admin/base.html.twig' %}
+{% extends 'base.html.twig' %}
 
-{% block title %}New Question{% endblock %}
+{% block title %}Edit Question{% endblock %}
 
-{% block admin_content %}
-{# 1. Define current_prefix to solve the "mandatory parameter" error #}
-{% set current_prefix = app.request.attributes.get('prefix') %}
-
+{% block body %}
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h1 class="h3 mb-0">Create New Question</h1>
+                    <h1 class="h3 mb-0">Edit Question</h1>
                     <p class="text-muted mb-0">Add a challenge to your quiz.</p>
                 </div>
-                
-                {# 2. Corrected Navigation with Prefix #}
-                {% if form.vars.value.quiz %}
-                    <a href="{{ path('app_quiz_show', {'id': form.vars.value.quiz.id, 'prefix': current_prefix}) }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-arrow-left me-1"></i> Back to Quiz
-                    </a>
-                {% else %}
-                    <a href="{{ path('app_quiz_index', {'prefix': current_prefix}) }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-arrow-left me-1"></i> Back to List
-                    </a>
-                {% endif %}
             </div>
 
             <div class="card shadow-sm border rounded-3">
@@ -79,13 +65,13 @@
 
                             <div class="text-danger mb-2">{{ form_errors(form.choices) }}</div>
 
+                            {# This wrapper holds the answer rows #}
                             <div class="answers-wrapper" data-prototype="{{ form_widget(form.choices.vars.prototype)|e('html_attr') }}">
                                 {% for choice in form.choices %}
                                     <div class="input-group mb-2">
                                         <div class="input-group-text bg-white">
                                             {{ form_widget(choice.isCorrect, {'attr': {'class': 'form-check-input mt-0'}}) }}
                                         </div>
-                                        {# CHANGE 'text' TO 'content' BELOW #}
                                         {{ form_widget(choice.content, {'attr': {'class': 'form-control border-start-0'}}) }}
                                     </div>
                                 {% endfor %}
@@ -110,6 +96,7 @@
     </div>
 </div>
 
+{# JavaScript for adding answers dynamically #}
 <script>
     document.querySelector('.add-answer-btn').addEventListener('click', function (e) {
         const list = document.querySelector('.answers-wrapper');
@@ -117,33 +104,24 @@
         const index = list.children.length;
         const newForm = prototype.replace(/__name__/g, index);
         
+        // Create the new row structure
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = newForm;
         
         const row = document.createElement('div');
         row.className = 'input-group mb-2';
-        
-        // Find inputs regardless of their exact name/ID
-        const checkbox = tempDiv.querySelector('input[type="checkbox"]');
-        const textField = tempDiv.querySelector('input[type="text"]');
-
         row.innerHTML = `
             <div class="input-group-text bg-white">
-                ${checkbox.outerHTML}
+                ${tempDiv.querySelector('input[type="checkbox"]').outerHTML}
             </div>
-            ${textField.outerHTML}
-            <button type="button" class="btn btn-outline-danger btn-sm remove-answer-btn"><i class="bi bi-x"></i></button>
+            ${tempDiv.querySelector('input[type="text"]').outerHTML}
         `;
         
+        // Re-apply classes
         row.querySelector('input[type="checkbox"]').classList.add('form-check-input', 'mt-0');
         row.querySelector('input[type="text"]').classList.add('form-control', 'border-start-0', 'ps-3');
         
         list.appendChild(row);
-
-        // Add delete functionality to the new button
-        row.querySelector('.remove-answer-btn').addEventListener('click', function() {
-            row.remove();
-        });
     });
 </script>
 {% endblock %}

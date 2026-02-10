@@ -84,7 +84,7 @@
             {% else %}
                 <div class="row">
                     {% for reward in rewards %}
-                        {% include 'front/reward/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
+                        {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
                     {% endfor %}
                 </div>
             {% endif %}
@@ -103,7 +103,7 @@
                     </div>
                 {% else %}
                     {% for reward in badgeRewards %}
-                        {% include 'front/reward/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
+                        {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
                     {% endfor %}
                 {% endif %}
             </div>
@@ -122,7 +122,7 @@
                     </div>
                 {% else %}
                     {% for reward in achievementRewards %}
-                        {% include 'front/reward/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
+                        {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
                     {% endfor %}
                 {% endif %}
             </div>
@@ -141,7 +141,7 @@
                     </div>
                 {% else %}
                     {% for reward in bonusRewards %}
-                        {% include 'front/reward/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
+                        {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
                     {% endfor %}
                 {% endif %}
             </div>

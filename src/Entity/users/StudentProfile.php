@@ -2,7 +2,10 @@
 
 namespace App\Entity\users;
 
+use App\Entity\Gamification\Reward;
 use App\Repository\StudentProfileRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -91,6 +94,16 @@ class StudentProfile
 
     #[ORM\Column]
     private ?int $level = 1;
+
+    // Relationship: Track earned rewards
+    #[ORM\ManyToMany(targetEntity: Reward::class, inversedBy: 'students')]
+    #[ORM\JoinTable(name: 'student_earned_rewards')]
+    private Collection $earnedRewards;
+
+    public function __construct()
+    {
+        $this->earnedRewards = new ArrayCollection();
+    }
 
     public function getFirstName(): ?string
     {
@@ -257,5 +270,32 @@ class StudentProfile
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return Collection<int, Reward>
+     */
+    public function getEarnedRewards(): Collection
+    {
+        return $this->earnedRewards;
+    }
+
+    public function addEarnedReward(Reward $reward): static
+    {
+        if (!$this->earnedRewards->contains($reward)) {
+            $this->earnedRewards->add($reward);
+        }
+        return $this;
+    }
+
+    public function removeEarnedReward(Reward $reward): static
+    {
+        $this->earnedRewards->removeElement($reward);
+        return $this;
+    }
+
+    public function hasEarnedReward(Reward $reward): bool
+    {
+        return $this->earnedRewards->contains($reward);
     }
 }

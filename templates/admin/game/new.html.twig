@@ -3,51 +3,113 @@
 {% block title %}Create Game{% endblock %}
 
 {% block admin_content %}
-<h1>Create New Game</h1>
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="mb-4">Create New Game</h1>
 
-{{ form_start(form) }}
-    <div class="row">
-        <div class="col-md-6">
-            {{ form_row(form.name) }}
-        </div>
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form) }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form_row(form.name) }}
+                        </div>
 
-        <div class="col-md-6">
-            {{ form_row(form.type) }}
+                        <div class="col-md-6">
+                            {{ form_row(form.type) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            {{ form_row(form.description) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ form_row(form.difficulty) }}
+                        </div>
+
+                        <div class="col-md-4">
+                            {{ form_row(form.tokenCost) }}
+                        </div>
+
+                        <div class="col-md-4">
+                            {{ form_row(form.isActive) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form_row(form.rewardTokens) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.rewardXP) }}
+                        </div>
+                    </div>
+
+                    {# Rewards association field if it exists in the form #}
+                    {% if form.rewards is defined %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="bi bi-trophy me-1"></i>Special Rewards (Optional)
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        {{ form_row(form.rewards) }}
+                                        <small class="text-muted">
+                                            Select special rewards that players can earn by completing this game.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>Create Game
+                        </button>
+                        <a href="{{ path('admin_game_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+                    </div>
+                {{ form_end(form) }}
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            {{ form_row(form.description) }}
+    <div class="col-md-4">
+        <div class="card bg-light sticky-top" style="top: 20px;">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-1"></i>Help</h6>
+            </div>
+            <div class="card-body">
+                <h6>Game Types:</h6>
+                <ul class="small">
+                    <li><strong>PUZZLE:</strong> Logic and problem-solving games</li>
+                    <li><strong>MEMORY:</strong> Memory matching games</li>
+                    <li><strong>TRIVIA:</strong> Question and answer games</li>
+                    <li><strong>ARCADE:</strong> Action and reflex games</li>
+                </ul>
+
+                <h6 class="mt-3">Difficulty Levels:</h6>
+                <ul class="small">
+                    <li><strong>EASY:</strong> Beginner-friendly</li>
+                    <li><strong>MEDIUM:</strong> Moderate challenge</li>
+                    <li><strong>HARD:</strong> Expert level</li>
+                </ul>
+
+                <h6 class="mt-3">Rewards:</h6>
+                <p class="small mb-0">
+                    Set base token and XP rewards. You can also associate special rewards after creating the game.
+                </p>
+            </div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-4">
-            {{ form_row(form.difficulty) }}
-        </div>
-
-        <div class="col-md-4">
-            {{ form_row(form.tokenCost) }}
-        </div>
-
-        <div class="col-md-4">
-            {{ form_row(form.isActive) }}
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            {{ form_row(form.rewardTokens) }}
-        </div>
-        <div class="col-md-6">
-            {{ form_row(form.rewardXP) }}
-        </div>
-    </div>
-
-    <div class="mt-3">
-        <button type="submit" class="btn btn-primary">Create Game</button>
-        <a href="{{ path('admin_game_index') }}" class="btn btn-secondary">Cancel</a>
-    </div>
-    {{ form_end(form) }}
+</div>
 {% endblock %}

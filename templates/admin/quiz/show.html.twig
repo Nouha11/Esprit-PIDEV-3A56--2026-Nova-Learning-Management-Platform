@@ -1,8 +1,11 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base.html.twig' %}
 
 {% block title %}Quiz Details{% endblock %}
 
-{% block body %}
+{% block admin_content %}
+{# 1. Define current_prefix to use in all paths below #}
+{% set current_prefix = app.request.attributes.get('prefix') %}
+
 <div class="container py-4">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -11,10 +14,12 @@
             <p class="text-muted mb-0">{{ quiz.description|default('No description.') }}</p>
         </div>
         <div>
-            <a href="{{ path('app_quiz_edit', {'id': quiz.id}) }}" class="btn btn-outline-secondary btn-sm me-2">
+            {# FIX: Added prefix #}
+            <a href="{{ path('app_quiz_edit', {'id': quiz.id, 'prefix': current_prefix}) }}" class="btn btn-outline-secondary btn-sm me-2">
                 <i class="bi bi-gear"></i> Settings
             </a>
-            <a href="{{ path('app_quiz_question_new') }}" class="btn btn-primary btn-sm">
+            {# FIX: Added prefix #}
+            <a href="{{ path('app_quiz_question_new', {'prefix': current_prefix}) }}" class="btn btn-primary btn-sm">
                 <i class="bi bi-plus-lg"></i> Add Question
             </a>
         </div>
@@ -49,8 +54,8 @@
                                 </span>
                             </td>
                             <td class="text-end pe-4">
-                                {# Edit Button pointing to our NEW Edit page #}
-                                <a href="{{ path('app_quiz_question_edit', {'id': question.id}) }}" class="btn btn-sm btn-outline-primary">
+                                {# FIX: Added prefix #}
+                                <a href="{{ path('app_quiz_question_edit', {'id': question.id, 'prefix': current_prefix}) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-pencil"></i> Edit
                                 </a>
                             </td>
@@ -70,7 +75,8 @@
     </div>
 
     <div class="mt-3">
-        <a href="{{ path('app_quiz_index') }}" class="btn btn-link text-muted ps-0">
+        {# FIX: Added prefix #}
+        <a href="{{ path('app_quiz_index', {'prefix': current_prefix}) }}" class="btn btn-link text-muted ps-0">
             <i class="bi bi-arrow-left"></i> Back to All Quizzes
         </a>
     </div>

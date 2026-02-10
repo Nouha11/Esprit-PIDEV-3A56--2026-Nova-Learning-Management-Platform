@@ -2,11 +2,13 @@
 
 namespace App\Entity\Gamification;
 
+use App\Entity\users\StudentProfile;
 use App\Repository\Gamification\RewardRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Validator\Constraints as Assert;
-
 
 #[ORM\Entity(repositoryClass: RewardRepository::class)]
 class Reward
@@ -25,8 +27,8 @@ class Reward
 
     #[ORM\Column(length: 50)]
     #[Assert\Choice(
-    choices: ['BADGE', 'ACHIEVEMENT', 'BONUS_XP', 'BONUS_TOKENS'],
-    message: 'Choose a valid reward type'
+        choices: ['BADGE', 'ACHIEVEMENT', 'BONUS_XP', 'BONUS_TOKENS'],
+        message: 'Choose a valid reward type'
     )]
     private ?string $type = null;
 
@@ -43,6 +45,20 @@ class Reward
     #[ORM\Column]
     private ?bool $isActive = true;
 
+    // Relationship: Rewards can be offered by multiple games
+    #[ORM\ManyToMany(targetEntity: Game::class, mappedBy: 'rewards')]
+    private Collection $games;
+
+    // Relationship: Track which students earned this reward
+    #[ORM\ManyToMany(targetEntity: StudentProfile::class, mappedBy: 'earnedRewards')]
+    private Collection $students;
+
+    public function __construct()
+    {
+        $this->games = new ArrayCollection();
+        $this->students = new ArrayCollection();
+    }
+
     // Getters and Setters
     public function getId(): ?int
     {
@@ -56,8 +72,8 @@ class Reward
     
     public function setName(string $name): static
     {
-    $this->name = $name;
-    return $this;
+        $this->name = $name;
+        return $this;
     }
 
     public function getDescription(): ?string
@@ -123,6 +139,39 @@ class Reward
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Game>
+     */
+    public function getGames(): Collection
+    {
+        return $this->games;
+    }
+
+    /**
+     * @return Collection<int, StudentProfile>
+     */
+    public function getStudents(): Collection
+    {
+        return $this->students;
+    }
+
+    public function addStudent(StudentProfile $student): static
+    {
+        if (!$this->students->contains($student)) {
+            $this->students->add($student);
+            $student->addEarnedReward($this);
+        }
+        return $this;
+    }
+
+    public function removeStudent(StudentProfile $student): static
+    {
+        if ($this->students->removeElement($student)) {
+            $student->removeEarnedReward($this);
+        }
         return $this;
     }
 }

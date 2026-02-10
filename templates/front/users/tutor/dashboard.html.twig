@@ -28,7 +28,7 @@
 
                                 <div class="text-muted small mt-3 mb-1 text-uppercase ps-3">Teaching Tools</div>
                                 
-                                <a class="list-group-item" href="{{ path('app_quiz_index') }}">
+                                <a class="list-group-item" href="{{ path('app_quiz_index', {'prefix': 'tutor'}) }}">
                                     <i class="bi bi-lightning-charge fa-fw me-2"></i>Manage Quizzes
                                 </a>
                                 <div class="text-muted small mt-3 mb-1 text-uppercase ps-3">Account</div>
@@ -117,7 +117,7 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-sm-6 col-lg-4">
-                                <a href="{{ path('app_quiz_new') }}" class="btn btn-purple w-100 h-100 d-flex align-items-center justify-content-center py-3">
+                                <a href="{{ path('app_quiz_new', {'prefix': 'tutor'}) }}" class="btn btn-purple w-100 h-100 d-flex align-items-center justify-content-center py-3">
                                     <i class="bi bi-plus-circle me-2"></i>Create New Quiz
                                 </a>
                             </div>

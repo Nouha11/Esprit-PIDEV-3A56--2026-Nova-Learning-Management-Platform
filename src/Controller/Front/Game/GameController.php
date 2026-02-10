@@ -36,14 +36,11 @@ class GameController extends AbstractController
     #[Route('/{id}', name: 'front_game_show', methods: ['GET'])]
     public function show(Game $game): Response
     {
-        // Check if game is active
         if (!$game->isActive()) {
             throw $this->createNotFoundException('This game is not available');
         }
 
         $student = null;
-
-        // Get student if logged in
         if ($this->getUser() && $this->getUser()->getStudentProfile()) {
             $student = $this->getUser()->getStudentProfile();
         }
@@ -51,6 +48,7 @@ class GameController extends AbstractController
         return $this->render('front/game/show.html.twig', [
             'game' => $game,
             'student' => $student,
+            'rewards' => $game->getRewards(), // Add this line
         ]);
     }
 
@@ -96,8 +94,8 @@ class GameController extends AbstractController
     }
 
     /**
-    * Complete game and earn rewards
-    */
+     * Complete game and earn rewards
+     */
     #[Route('/{id}/complete', name: 'front_game_complete', methods: ['POST'])]
     #[IsGranted('ROLE_STUDENT')]
     public function complete(Game $game): Response
@@ -113,11 +111,21 @@ class GameController extends AbstractController
         // Process game completion (assuming they won)
         $rewards = $this->gameService->processGameCompletion($game, $student, true);
 
+        // Build success message
         $message = sprintf(
             'Congratulations! You earned %d tokens and %d XP!',
             $rewards['tokens'],
             $rewards['xp']
         );
+
+        // Add special rewards to the message
+        if (!empty($rewards['special_rewards'])) {
+            $specialRewardsText = [];
+            foreach ($rewards['special_rewards'] as $specialReward) {
+                $specialRewardsText[] = $specialReward['name'] . ': ' . $specialReward['awarded'];
+            }
+            $message .= ' Special rewards: ' . implode(', ', $specialRewardsText);
+        }
 
         $this->addFlash('success', $message);
         return $this->redirectToRoute('front_game_show', ['id' => $game->getId()]);
