@@ -32,7 +32,7 @@
 
             <!-- Description -->
             {% if reward.description %}
-                <p class="card-text text-muted small mb-3">{{ reward.description }}</p>
+                <p class="card-text text-light small mb-3">{{ reward.description }}</p>
             {% endif %}
 
             <!-- Value -->
@@ -50,28 +50,28 @@
 
             <!-- Available in Games Section -->
             {% if reward.games|length > 0 %}
-                <div class="games-section mb-3">
-                    <hr>
-                    <h6 class="text-muted small mb-2">
+                <div class="games-section mb-3 border-top pt-2"> <h6 class="text-secondary small mb-2">
                         <i class="bi bi-controller me-1"></i>Available in {{ reward.games|length }} game(s):
                     </h6>
                     <div class="games-list">
                         {% for game in reward.games|slice(0, 3) %}
                             {% if game.isActive %}
                                 <a href="{{ path('front_game_show', {id: game.id}) }}" 
-                                   class="badge bg-secondary text-decoration-none me-1 mb-1">
+                                class="badge bg-secondary text-decoration-none">
                                     {{ game.name }}
                                 </a>
                             {% endif %}
                         {% endfor %}
-                        {% if reward.games|length > 3 %}
-                            <span class="badge bg-light text-dark">+{{ reward.games|length - 3 }} more</span>
-                        {% endif %}
                     </div>
                 </div>
-            {% else %}
-                <div class="alert alert-warning alert-sm mt-auto">
-                    <small>Not currently offered in any active game</small>
+            {% endif %}
+
+            {% if reward.requirement %}
+                <div class="requirement-section mt-auto border-top pt-2">
+                    <h6 class="text-secondary small mb-2">
+                        <i class="bi bi-list-check me-1"></i>Requirement:
+                    </h6>
+                    <p class="small mb-0">{{ reward.requirement }}</p>
                 </div>
             {% endif %}
 
@@ -102,7 +102,14 @@
         <div class="card-footer bg-transparent border-top-0">
             <div class="d-grid">
                 <button class="btn btn-outline-primary btn-sm" 
-                        onclick="showRewardDetails({{ reward.id }}, '{{ reward.name|escape('js') }}', '{{ reward.description|escape('js') }}', '{{ reward.requirement|escape('js') }}', {{ reward.games|json_encode|escape('js') }})">
+                        data-reward-id="{{ reward.id }}"
+                        data-reward-name="{{ reward.name }}"
+                        data-reward-description="{{ reward.description ?? '' }}"
+                        data-reward-requirement="{{ reward.requirement ?? '' }}"
+                        data-reward-type="{{ reward.type }}"
+                        data-reward-value="{{ reward.value }}"
+                        data-reward-icon="{{ reward.icon ?? '' }}"
+                        onclick="showRewardDetails(this)">
                     <i class="bi bi-info-circle me-1"></i>View Details
                 </button>
             </div>
@@ -113,110 +120,168 @@
 <style>
     .reward-card {
         transition: all 0.3s ease;
-        border: 2px solid transparent;
+        border: 1px solid rgba(0,0,0,0.125); /* Default bootstrap border */
     }
     
+    /* Hover effects remain the same */
     .reward-card:hover {
         transform: translateY(-10px);
         box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     }
     
-    .reward-card.badge:hover {
-        border-color: #0d6efd;
-    }
-    
-    .reward-card.achievement:hover {
-        border-color: #ffc107;
-    }
-    
-    .reward-card.bonus_xp:hover {
-        border-color: #0dcaf0;
-    }
-    
-    .reward-card.bonus_tokens:hover {
-        border-color: #198754;
-    }
-    
     .reward-header {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        /* This keeps the icon area light/grey as seen in your screenshot */
+        background: rgba(0, 0, 0, 0.05); 
         min-height: 120px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    
-    .reward-icon {
-        max-width: 80px;
-        max-height: 80px;
-        object-fit: contain;
-    }
-    
-    .reward-value {
-        font-size: 1.2rem;
-    }
-    
-    .requirement-section {
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 5px;
-    }
-    
+
+    /* THE FIX: Remove background-color and padding */
+    .requirement-section, 
     .games-section {
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 5px;
+        background-color: transparent !important; /* Forces it to use the card's color */
+        padding: 0;
+        border-color: rgba(0,0,0,0.1) !important;
     }
-    
-    .games-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
+
+    /* Adjust border color for Dark Mode specifically if needed */
+    [data-bs-theme="dark"] .requirement-section,
+    [data-bs-theme="dark"] .games-section {
+        border-color: rgba(255,255,255,0.1) !important;
     }
-    
-    .alert-sm {
-        padding: 0.5rem;
-        margin-bottom: 0;
+
+    .reward-value {
+        font-size: 1.25rem;
     }
 </style>
 
 <script>
-function showRewardDetails(id, name, description, requirement, games) {
+function showRewardDetails(button) {
+    // Get data from button attributes
+    const rewardId = button.getAttribute('data-reward-id');
+    const name = button.getAttribute('data-reward-name');
+    const description = button.getAttribute('data-reward-description');
+    const requirement = button.getAttribute('data-reward-requirement');
+    const type = button.getAttribute('data-reward-type');
+    const value = button.getAttribute('data-reward-value');
+    const icon = button.getAttribute('data-reward-icon');
+    
+    // Get games from the card (find parent card and extract game links)
+    const card = button.closest('.reward-card');
+    const gamesSection = card.querySelector('.games-section');
     let gamesHTML = '';
-    if (games && games.length > 0) {
+    
+    if (gamesSection) {
+        const gameLinks = gamesSection.querySelectorAll('a.badge');
+        if (gameLinks.length > 0) {
+            gamesHTML = `
+                <hr>
+                <h6><i class="bi bi-controller me-2"></i>Available in these games:</h6>
+                <div class="list-group">
+            `;
+            gameLinks.forEach(link => {
+                gamesHTML += `
+                    <a href="${link.href}" class="list-group-item list-group-item-action">
+                        ${link.textContent.trim()}
+                    </a>
+                `;
+            });
+            
+            // Check if there's a "more" badge
+            const moreBadge = gamesSection.querySelector('.badge.bg-light');
+            if (moreBadge) {
+                gamesHTML += `
+                    <div class="list-group-item text-muted">
+                        ${moreBadge.textContent.trim()}
+                    </div>
+                `;
+            }
+            gamesHTML += `</div>`;
+        }
+    } else {
         gamesHTML = `
             <hr>
-            <h6>Available in these games:</h6>
-            <ul class="list-group">
-                ${games.map(game => game.is_active ? `
-                    <li class="list-group-item">
-                        <a href="/games/${game.id}" class="text-decoration-none">
-                            ${game.name}
-                            <span class="badge bg-${game.difficulty === 'EASY' ? 'success' : game.difficulty === 'MEDIUM' ? 'warning' : 'danger'}">
-                                ${game.difficulty}
-                            </span>
-                        </a>
-                    </li>
-                ` : '').join('')}
-            </ul>
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>Not currently offered in any active game
+            </div>
         `;
     }
     
+    // Determine reward type badge
+    let typeBadgeClass = 'bg-secondary';
+    let typeIcon = '';
+    switch(type) {
+        case 'BADGE':
+            typeBadgeClass = 'bg-primary';
+            typeIcon = '<i class="bi bi-patch-check-fill me-1"></i>';
+            break;
+        case 'ACHIEVEMENT':
+            typeBadgeClass = 'bg-warning';
+            typeIcon = '<i class="bi bi-trophy-fill me-1"></i>';
+            break;
+        case 'BONUS_XP':
+            typeBadgeClass = 'bg-info';
+            typeIcon = '<i class="bi bi-star-fill me-1"></i>';
+            break;
+        case 'BONUS_TOKENS':
+            typeBadgeClass = 'bg-success';
+            typeIcon = '<i class="bi bi-coin me-1"></i>';
+            break;
+    }
+    
+    // Build value display
+    let valueHTML = '';
+    if (type === 'BONUS_XP') {
+        valueHTML = `<h4 class="text-info mb-0">+${value} XP</h4>`;
+    } else if (type === 'BONUS_TOKENS') {
+        valueHTML = `<h4 class="text-success mb-0">+${value} Tokens</h4>`;
+    }
+    
     const modalHTML = `
-        <div class="modal fade" id="rewardModal" tabindex="-1">
+        <div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">${name}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title" id="rewardModalLabel">
+                            ${icon ? `<span style="font-size: 1.5rem;" class="me-2">${icon}</span>` : ''}
+                            ${name}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <h6>Description:</h6>
-                        <p>${description || 'No description available.'}</p>
-                        ${requirement ? `
-                            <hr>
-                            <h6>How to Earn:</h6>
-                            <p>${requirement}</p>
+                        <!-- Reward Type -->
+                        <div class="text-center mb-3">
+                            <span class="badge ${typeBadgeClass}">
+                                ${typeIcon}${type.replace('_', ' ')}
+                            </span>
+                        </div>
+                        
+                        <!-- Value Display -->
+                        ${valueHTML ? `
+                        <div class="text-center mb-4">
+                            ${valueHTML}
+                        </div>
                         ` : ''}
+                        
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <h6><i class="bi bi-info-circle me-2"></i>Description:</h6>
+                            <p class="text-muted">${description || 'No description available.'}</p>
+                        </div>
+                        
+                        <!-- Requirement -->
+                        ${requirement ? `
+                        <div class="mb-3">
+                            <h6><i class="bi bi-list-check me-2"></i>How to Earn:</h6>
+                            <div class="alert alert-warning">
+                                ${requirement}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <!-- Games -->
                         ${gamesHTML}
                     </div>
                     <div class="modal-footer">
