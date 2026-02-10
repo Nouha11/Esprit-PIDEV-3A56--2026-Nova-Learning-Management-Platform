@@ -115,7 +115,7 @@
                                            max="50">
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="hourlyRate" class="form-label">Hourly Rate ($)</label>
+                                    <label for="hourlyRate" class="form-label">Hourly Rate (Dt)</label>
                                     <input type="number" 
                                            class="form-control" 
                                            id="hourlyRate" 
@@ -216,7 +216,7 @@
         </div>
         <div class="d-flex justify-content-between">
             <span class="text-muted">Hourly Rate:</span>
-            <strong>${{ tutor.hourlyRate ?? '0.00' }}</strong>
+            <strong>Dt{{ tutor.hourlyRate ?? '0.00' }}</strong>
         </div>
     </div>
 </div>
