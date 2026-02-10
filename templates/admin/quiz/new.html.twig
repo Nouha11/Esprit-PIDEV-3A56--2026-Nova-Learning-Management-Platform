@@ -1,8 +1,11 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base.html.twig' %}
 
 {% block title %}New Quiz{% endblock %}
 
-{% block body %}
+{% block admin_content %}
+{# 1. Define the current_prefix at the top of the block #}
+{% set current_prefix = app.request.attributes.get('prefix') %}
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -12,7 +15,8 @@
                     <h1 class="h3 mb-0">Create New Quiz</h1>
                     <p class="text-muted mb-0">Start a new assessment topic.</p>
                 </div>
-                <a href="{{ path('app_quiz_index') }}" class="btn btn-outline-secondary btn-sm">
+                {# FIX: Added prefix parameter to the path #}
+                <a href="{{ path('app_quiz_index', {'prefix': current_prefix}) }}" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-arrow-left me-1"></i> Back to List
                 </a>
             </div>
@@ -39,9 +43,9 @@
                             <div class="form-text text-danger">{{ form_errors(form.description) }}</div>
                         </div>
 
-                        {# 3. Any other fields your QuizType has (Generic render to be safe) #}
-                        {# If you have other fields like 'summary' or 'image', this loop will catch them #}
+                        {# 3. Dynamic Fields Loop #}
                         {% for child in form %}
+                            {# Added 'prefix' to the exclusion list just in case it's in the form #}
                             {% if child.vars.name not in ['title', 'description', '_token'] %}
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">{{ child.vars.label|default(child.vars.name|humanize) }}</label>

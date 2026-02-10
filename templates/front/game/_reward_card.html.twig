@@ -48,6 +48,33 @@
                 </div>
             </div>
 
+            <!-- Available in Games Section -->
+            {% if reward.games|length > 0 %}
+                <div class="games-section mb-3">
+                    <hr>
+                    <h6 class="text-muted small mb-2">
+                        <i class="bi bi-controller me-1"></i>Available in {{ reward.games|length }} game(s):
+                    </h6>
+                    <div class="games-list">
+                        {% for game in reward.games|slice(0, 3) %}
+                            {% if game.isActive %}
+                                <a href="{{ path('front_game_show', {id: game.id}) }}" 
+                                   class="badge bg-secondary text-decoration-none me-1 mb-1">
+                                    {{ game.name }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        {% if reward.games|length > 3 %}
+                            <span class="badge bg-light text-dark">+{{ reward.games|length - 3 }} more</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning alert-sm mt-auto">
+                    <small>Not currently offered in any active game</small>
+                </div>
+            {% endif %}
+
             <!-- Requirement -->
             {% if reward.requirement %}
                 <div class="requirement-section mt-auto">
@@ -75,7 +102,7 @@
         <div class="card-footer bg-transparent border-top-0">
             <div class="d-grid">
                 <button class="btn btn-outline-primary btn-sm" 
-                        onclick="showRewardDetails('{{ reward.name|escape('js') }}', '{{ reward.description|escape('js') }}', '{{ reward.requirement|escape('js') }}')">
+                        onclick="showRewardDetails({{ reward.id }}, '{{ reward.name|escape('js') }}', '{{ reward.description|escape('js') }}', '{{ reward.requirement|escape('js') }}', {{ reward.games|json_encode|escape('js') }})">
                     <i class="bi bi-info-circle me-1"></i>View Details
                 </button>
             </div>
@@ -133,13 +160,50 @@
         padding: 10px;
         border-radius: 5px;
     }
+    
+    .games-section {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    
+    .games-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .alert-sm {
+        padding: 0.5rem;
+        margin-bottom: 0;
+    }
 </style>
 
 <script>
-function showRewardDetails(name, description, requirement) {
+function showRewardDetails(id, name, description, requirement, games) {
+    let gamesHTML = '';
+    if (games && games.length > 0) {
+        gamesHTML = `
+            <hr>
+            <h6>Available in these games:</h6>
+            <ul class="list-group">
+                ${games.map(game => game.is_active ? `
+                    <li class="list-group-item">
+                        <a href="/games/${game.id}" class="text-decoration-none">
+                            ${game.name}
+                            <span class="badge bg-${game.difficulty === 'EASY' ? 'success' : game.difficulty === 'MEDIUM' ? 'warning' : 'danger'}">
+                                ${game.difficulty}
+                            </span>
+                        </a>
+                    </li>
+                ` : '').join('')}
+            </ul>
+        `;
+    }
+    
     const modalHTML = `
         <div class="modal fade" id="rewardModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">${name}</h5>
@@ -153,6 +217,7 @@ function showRewardDetails(name, description, requirement) {
                             <h6>How to Earn:</h6>
                             <p>${requirement}</p>
                         ` : ''}
+                        ${gamesHTML}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

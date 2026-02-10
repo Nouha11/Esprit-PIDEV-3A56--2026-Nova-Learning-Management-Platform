@@ -30,13 +30,14 @@
                         <h5>Game Details</h5>
                         <ul>
                             <li><strong>Cost to Play:</strong> {{ game.tokenCost }} tokens</li>
-                            <li><strong>Your Tokens:</strong> {{ app.user.studentProfile ? app.user.studentProfile.totalTokens : 0 }} tokens</li>                            <li><strong>Reward:</strong> {{ game.rewardTokens }} tokens + {{ game.rewardXP }} XP</li>
+                            <li><strong>Your Tokens:</strong> {{ app.user.studentProfile ? app.user.studentProfile.totalTokens : 0 }} tokens</li>
+                            <li><strong>Base Reward:</strong> {{ game.rewardTokens }} tokens + {{ game.rewardXP }} XP</li>
                             <li><strong>Type:</strong> {{ game.type }}</li>
                             <li><strong>Difficulty:</strong> {{ game.difficulty }}</li>
                         </ul>
                         
                         {# Show warning if not enough tokens #}
-                        {% if app.user.studentProfile.totalTokens < game.tokenCost %}
+                        {% if app.user.studentProfile and app.user.studentProfile.totalTokens < game.tokenCost %}
                             <div class="alert alert-danger mt-3">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <strong>Insufficient Tokens!</strong> 
@@ -46,9 +47,79 @@
                     </div>
                 </div>
 
+                {# Special Rewards Section #}
+                {% if game.rewards is not empty %}
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-trophy-fill me-2"></i>
+                            Special Rewards Available
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Complete this game to earn these additional rewards:</p>
+                        <div class="row g-3">
+                            {% for reward in game.rewards %}
+                                {% if reward.isActive %}
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 h-100 reward-item">
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-3">
+                                                {% if reward.icon %}
+                                                    <img src="{{ asset('images/rewards/' ~ reward.icon) }}" 
+                                                         alt="{{ reward.name }}" 
+                                                         class="reward-icon-small">
+                                                {% else %}
+                                                    {% if reward.type == 'BADGE' %}
+                                                        <i class="bi bi-patch-check-fill fs-2 text-primary"></i>
+                                                    {% elseif reward.type == 'ACHIEVEMENT' %}
+                                                        <i class="bi bi-trophy-fill fs-2 text-warning"></i>
+                                                    {% elseif reward.type == 'BONUS_XP' %}
+                                                        <i class="bi bi-star-fill fs-2 text-info"></i>
+                                                    {% elseif reward.type == 'BONUS_TOKENS' %}
+                                                        <i class="bi bi-coin fs-2 text-success"></i>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">{{ reward.name }}</h6>
+                                                <span class="badge 
+                                                    {% if reward.type == 'BADGE' %}bg-primary
+                                                    {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning
+                                                    {% elseif reward.type == 'BONUS_XP' %}bg-info
+                                                    {% elseif reward.type == 'BONUS_TOKENS' %}bg-success
+                                                    {% endif %} mb-2">
+                                                    {{ reward.type|replace({'_': ' '}) }}
+                                                </span>
+                                                {% if reward.description %}
+                                                    <p class="small text-muted mb-2">{{ reward.description }}</p>
+                                                {% endif %}
+                                                <div class="reward-value">
+                                                    {% if reward.type == 'BONUS_XP' %}
+                                                        <strong class="text-info">+{{ reward.value }} XP</strong>
+                                                    {% elseif reward.type == 'BONUS_TOKENS' %}
+                                                        <strong class="text-success">+{{ reward.value }} Tokens</strong>
+                                                    {% endif %}
+                                                </div>
+                                                {% if reward.requirement %}
+                                                    <small class="text-muted d-block mt-2">
+                                                        <i class="bi bi-info-circle me-1"></i>{{ reward.requirement }}
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
                 <div class="d-flex gap-3">
                     {# Disable button if not enough tokens #}
-                    {% if app.user.studentProfile.totalTokens >= game.tokenCost %}
+                    {% if app.user.studentProfile and app.user.studentProfile.totalTokens >= game.tokenCost %}
                         <a href="{{ path('front_game_play', {id: game.id}) }}" class="btn btn-lg btn-success">
                             <i class="fas fa-play"></i> Play Now
                         </a>
@@ -62,7 +133,55 @@
                     </a>
                 </div>
             </div>
+
+            {# Sidebar with Quick Stats #}
+            <div class="col-md-4">
+                {% if app.user.studentProfile %}
+                <div class="card mb-3 sticky-top" style="top: 20px;">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">Your Stats</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted">Level</small>
+                            <h4>{{ app.user.studentProfile.level }}</h4>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Total XP</small>
+                            <h4>{{ app.user.studentProfile.totalXP }}</h4>
+                        </div>
+                        <div>
+                            <small class="text-muted">Available Tokens</small>
+                            <h4>{{ app.user.studentProfile.totalTokens }}</h4>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .reward-item {
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+    }
+    
+    .reward-item:hover {
+        background-color: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .reward-icon-small {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+    }
+    
+    .reward-value {
+        font-size: 1.1rem;
+    }
+</style>
 {% endblock %}

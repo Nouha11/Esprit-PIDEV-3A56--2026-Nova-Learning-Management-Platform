@@ -63,6 +63,11 @@
                             {{ form_errors(form.isActive) }}
                         </div>
 
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Note:</strong> After creating this reward, you can associate it with games by editing the game settings.
+                        </div>
+
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle me-2"></i>Create Reward
@@ -75,7 +80,7 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card">
+            <div class="card sticky-top" style="top: 20px;">
                 <div class="card-header bg-light">
                     <h5 class="mb-0">Reward Types</h5>
                 </div>
@@ -85,7 +90,7 @@
                         <small>Collectible achievement badge. Automatically awarded based on milestones.</small>
                     </div>
                     <div class="mb-3">
-                        <h6><span class="badge bg-success">ACHIEVEMENT</span></h6>
+                        <h6><span class="badge bg-warning">ACHIEVEMENT</span></h6>
                         <small>Special achievement for completing specific tasks.</small>
                     </div>
                     <div class="mb-3">
@@ -93,7 +98,7 @@
                         <small>Bonus experience points. Set the value field.</small>
                     </div>
                     <div class="mb-3">
-                        <h6><span class="badge bg-warning">BONUS_TOKENS</span></h6>
+                        <h6><span class="badge bg-success">BONUS_TOKENS</span></h6>
                         <small>Bonus tokens. Set the value field.</small>
                     </div>
                 </div>

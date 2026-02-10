@@ -5,26 +5,176 @@
 {% block admin_content %}
     <div class="row">
         <div class="col-md-8">
-            <h1>{{ game.name }}</h1>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1>{{ game.name }}</h1>
+                <div>
+                    <a href="{{ path('admin_game_edit', {id: game.id}) }}" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Edit Game
+                    </a>
+                </div>
+            </div>
+            
             <div class="mb-3">
                 <span class="badge bg-info">{{ game.type }}</span>
                 <span class="badge bg-warning">{{ game.difficulty }}</span>
+                {% if game.isActive %}
+                    <span class="badge bg-success">Active</span>
+                {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                {% endif %}
             </div>
 
             <p class="lead">{{ game.description }}</p>
+            
             <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Game Details</h5>
+                </div>
                 <div class="card-body">
-                    <h5>Game Details</h5>
-                    <ul>
-                        <li><strong>Cost to Play:</strong> {{ game.tokenCost }} tokens</li>
-                        <li><strong>Reward:</strong> {{ game.rewardTokens }} tokens + {{ game.rewardXP }}XP</li>
-                        <li><strong>Type:</strong> {{ game.type }}</li>
-                        <li><strong>Difficulty:</strong> {{ game.difficulty }}</li>
-                    </ul>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><strong>Cost to Play:</strong> {{ game.tokenCost }} tokens</li>
+                                <li class="mb-2"><strong>Reward Tokens:</strong> {{ game.rewardTokens }} tokens</li>
+                                <li class="mb-2"><strong>Reward XP:</strong> {{ game.rewardXP }} XP</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><strong>Type:</strong> {{ game.type }}</li>
+                                <li class="mb-2"><strong>Difficulty:</strong> {{ game.difficulty }}</li>
+                                <li class="mb-2"><strong>Created:</strong> {{ game.createdAt|date('Y-m-d H:i') }}</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <a href="{{ path('admin_game_index') }}" class="btn btn-lg btn-secondary">Back to Games</a>
+            {# Associated Rewards Section #}
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-trophy-fill me-2"></i>Associated Rewards
+                    </h5>
+                    <span class="badge bg-light text-dark">{{ game.rewards|length }} reward(s)</span>
+                </div>
+                <div class="card-body">
+                    {% if game.rewards is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Value</th>
+                                        <th>Status</th>
+                                        <th>Requirement</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reward in game.rewards %}
+                                        <tr>
+                                            <td>{{ reward.id }}</td>
+                                            <td>
+                                                <strong>{{ reward.name }}</strong>
+                                                {% if reward.icon %}
+                                                    <i class="bi bi-image text-muted ms-1" title="Has icon"></i>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if reward.type == 'BADGE' %}bg-primary
+                                                    {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning
+                                                    {% elseif reward.type == 'BONUS_XP' %}bg-info
+                                                    {% elseif reward.type == 'BONUS_TOKENS' %}bg-success
+                                                    {% endif %}">
+                                                    {{ reward.type|replace({'_': ' '}) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if reward.type == 'BONUS_XP' %}
+                                                    <strong class="text-info">+{{ reward.value }} XP</strong>
+                                                {% elseif reward.type == 'BONUS_TOKENS' %}
+                                                    <strong class="text-success">+{{ reward.value }} Tokens</strong>
+                                                {% else %}
+                                                    {{ reward.value }}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if reward.isActive %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if reward.requirement %}
+                                                    <small class="text-muted">{{ reward.requirement|slice(0, 50) }}{{ reward.requirement|length > 50 ? '...' : '' }}</small>
+                                                {% else %}
+                                                    <small class="text-muted">—</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ path('admin_reward_show', {id: reward.id}) }}" 
+                                                   class="btn btn-sm btn-outline-primary" 
+                                                   title="View Reward">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            This game has no special rewards configured. Players will only receive the base rewards ({{ game.rewardTokens }} tokens + {{ game.rewardXP }} XP).
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{{ path('admin_game_index') }}" class="btn btn-lg btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Games
+                </a>
+                <a href="{{ path('admin_game_edit', {id: game.id}) }}" class="btn btn-lg btn-warning">
+                    <i class="bi bi-pencil"></i> Edit Game
+                </a>
+            </div>
+        </div>
+
+        {# Sidebar #}
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Quick Stats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Total Rewards</small>
+                        <h4>{{ game.rewards|length }}</h4>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Active Rewards</small>
+                        <h4>{{ game.rewards|filter(r => r.isActive)|length }}</h4>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Base Token Reward</small>
+                        <h4>{{ game.rewardTokens }}</h4>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ path('front_game_show', {id: game.id}) }}" 
+                       class="btn btn-sm btn-outline-primary w-100" 
+                       target="_blank">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>View on Frontend
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

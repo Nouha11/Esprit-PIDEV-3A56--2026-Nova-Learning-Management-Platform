@@ -85,4 +85,14 @@ class RewardAdminController extends AbstractController
     }
     return $this->redirectToRoute('admin_reward_index');
     }
+
+    #[Route('/{id}', name: 'admin_reward_show', methods: ['GET'])]
+    public function show(Reward $reward): Response
+    {
+        return $this->render('admin/reward/show.html.twig', [
+            'reward' => $reward,
+            'games' => $reward->getGames(), // Games offering this reward
+        ]);
+    }
+    
 }

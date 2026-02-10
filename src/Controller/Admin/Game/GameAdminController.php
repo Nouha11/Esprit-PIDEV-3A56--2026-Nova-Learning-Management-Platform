@@ -60,7 +60,8 @@ class GameAdminController extends AbstractController
     public function show(Game $game): Response
     {
         return $this->render('admin/game/show.html.twig', [
-        'game' => $game,
+            'game' => $game,
+            'rewards' => $game->getRewards(), // Show associated rewards
         ]);
     }
 

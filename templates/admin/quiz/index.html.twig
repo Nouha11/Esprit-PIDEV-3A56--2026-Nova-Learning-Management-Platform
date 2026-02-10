@@ -1,8 +1,8 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base.html.twig' %}
 
 {% block title %}Quiz Manager{% endblock %}
 
-{% block body %}
+{% block admin_content %}
 <div class="container py-5">
     
     <div class="d-flex justify-content-between align-items-center mb-5">
@@ -10,7 +10,7 @@
             <h1 class="h3 fw-bold mb-1">Quiz Manager</h1>
             <p class="text-muted">Manage your assessments and questions.</p>
         </div>
-        <a href="{{ path('app_quiz_new') }}" class="btn btn-primary">
+        <a href="{{ path('app_quiz_new', {'prefix': 'admin'}) }}" class="btn btn-primary">
             <i class="bi bi-plus-lg me-1"></i> Create New Quiz
         </a>
     </div>
@@ -27,9 +27,9 @@
                                     <i class="bi bi-three-dots"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="{{ path('app_quiz_edit', {'id': quiz.id}) }}">Edit Settings</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_quiz_edit', {'id': quiz.id, 'prefix': 'admin'}) }}">Edit Settings</a></li>
                                     <li>
-                                        <form method="post" action="{{ path('app_quiz_delete', {'id': quiz.id}) }}" onsubmit="return confirm('Delete this quiz?');">
+                                        <form method="post" action="{{ path('app_quiz_delete', {'id': quiz.id, 'prefix': 'admin'}) }}" onsubmit="return confirm('Delete this quiz?');">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
                                             <button class="dropdown-item text-danger">Delete</button>
                                         </form>
@@ -51,7 +51,7 @@
                     </div>
                     <div class="card-footer bg-white border-top-0 pb-3 pt-0">
                         <div class="d-grid gap-2">
-                            <a href="{{ path('app_quiz_show', {'id': quiz.id}) }}" class="btn btn-dark btn-sm">
+                            <a href="{{ path('app_quiz_show', {'id': quiz.id, 'prefix': 'admin'}) }}" class="btn btn-dark btn-sm">
                                 Manage Questions
                             </a>
                         </div>

@@ -1,103 +1,117 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Question{% endblock %}
+{% block title %}Edit Quiz{% endblock %}
 
 {% block body %}
-<div class="container py-4">
+{# Step 1: Fix the missing variable by defining it from the route attributes #}
+{% set current_prefix = app.request.attributes.get('prefix') %}
+
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">Edit Question</h1>
-                <a href="{{ path('app_quiz_show', {'id': question.quiz.id}) }}" class="btn btn-sm btn-light border">
-                    <i class="bi bi-arrow-left"></i> Back to Quiz
+        <div class="col-lg-7">
+            
+            {# Header Section #}
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-1">
+                            <li class="breadcrumb-item"><a href="{{ path('app_quiz_index', {'prefix': current_prefix}) }}" class="text-decoration-none">Quizzes</a></li>
+                            <li class="breadcrumb-item active">Edit</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0 fw-bold">Edit Quiz Details</h1>
+                </div>
+                <a href="{{ path('app_quiz_show', {'id': quiz.id, 'prefix': current_prefix}) }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="bi bi-arrow-left me-1"></i> Back to View
                 </a>
             </div>
 
-            <div class="card shadow-sm border rounded-3 mb-4">
-                <div class="card-body p-4">
-                    {{ form_start(form) }}
+            {# Main Form Card #}
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-body p-4 p-md-5">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
                         
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Question Text</label>
-                            {{ form_widget(form.text, {'attr': {'class': 'form-control form-control-lg'}}) }}
-                            <div class="form-text text-danger">{{ form_errors(form.text) }}</div>
+                            <label class="form-label fw-semibold text-secondary small text-uppercase tracking-wider">Quiz Title</label>
+                            {{ form_widget(form.title, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg bg-light border-0 px-3',
+                                    'placeholder': 'Enter a descriptive title...'
+                                }
+                            }) }}
+                            <div class="form-text text-danger">{{ form_errors(form.title) }}</div>
                         </div>
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">XP Reward</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-warning bg-opacity-10 text-warning border-0"><i class="bi bi-lightning-fill"></i></span>
-                                    {{ form_widget(form.xpValue, {'attr': {'class': 'form-control'}}) }}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Difficulty</label>
-                                {{ form_widget(form.difficulty, {'attr': {'class': 'form-select'}}) }}
-                            </div>
+                        {# Placeholder for other fields like Description or Category #}
+                        {% if form.description is defined %}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase tracking-wider">Description</label>
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control bg-light border-0', 'rows': '4'}}) }}
                         </div>
+                        {% endif %}
 
-                        <div class="d-none">{{ form_widget(form.quiz) }}</div>
+                        <hr class="my-4 opacity-50">
 
-                        <div class="bg-light p-3 rounded-3 mb-4">
-                            <label class="form-label fw-bold mb-3"><i class="bi bi-list-check me-2"></i>Answers</label>
-                            
-                            <div class="answers-wrapper" data-prototype="{{ form_widget(form.choices.vars.prototype)|e('html_attr') }}">
-                                {% for choice in form.choices %}
-                                    <div class="input-group mb-2 bg-white">
-                                        <div class="input-group-text bg-white">
-                                            {{ form_widget(choice.isCorrect, {'attr': {'class': 'form-check-input mt-0'}}) }}
-                                        </div>
-                                        {{ form_widget(choice.text, {'attr': {'class': 'form-control border-start-0'}}) }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            
-                            <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-2 add-answer-btn">
-                                <i class="bi bi-plus-lg"></i> Add Option
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 rounded-3 shadow-sm">
+                                <i class="bi bi-check2-circle me-2"></i>Save Changes
                             </button>
-                        </div>
-
-                        <div class="d-grid">
-                            <button class="btn btn-primary btn-lg">Update Question</button>
+                            <a href="{{ path('app_quiz_show', {'id': quiz.id, 'prefix': current_prefix}) }}" class="btn btn-link text-decoration-none text-muted">Cancel</a>
                         </div>
 
                     {{ form_end(form) }}
                 </div>
             </div>
 
-            <div class="card border-danger border-opacity-25 bg-danger bg-opacity-10">
-                <div class="card-body d-flex justify-content-between align-items-center p-3">
-                    <div class="text-danger fw-bold">Delete this Question</div>
-                    <form method="post" action="{{ path('app_quiz_question_delete', {'id': question.id}) }}" onsubmit="return confirm('Are you sure?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ question.id) }}">
-                        <button class="btn btn-danger btn-sm">Delete</button>
+            {# Danger Zone Section #}
+            <div class="card border-0 shadow-sm rounded-4 bg-danger bg-opacity-10 border-start border-danger border-4">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                    <div>
+                        <h5 class="mb-1 text-danger fw-bold">Danger Zone</h5>
+                        <p class="mb-0 text-muted small">Once you delete a quiz, there is no going back. Please be certain.</p>
+                    </div>
+                    <form method="post" action="{{ path('app_quiz_delete', {'id': quiz.id, 'prefix': current_prefix}) }}" onsubmit="return confirm('Permanently delete this quiz and all its questions?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
+                        <button class="btn btn-danger px-4 rounded-3">
+                            <i class="bi bi-trash3 me-2"></i>Delete
+                        </button>
                     </form>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
+{# Inline Script Fix: Only runs if the Add Answer button exists (avoids console errors on Quiz page) #}
 <script>
-    document.querySelector('.add-answer-btn').addEventListener('click', function (e) {
-        const list = document.querySelector('.answers-wrapper');
-        const prototype = list.dataset.prototype;
-        const index = list.children.length;
-        const newForm = prototype.replace(/__name__/g, index);
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = newForm;
-        const row = document.createElement('div');
-        row.className = 'input-group mb-2 bg-white';
-        row.innerHTML = `
-            <div class="input-group-text bg-white">
-                ${tempDiv.querySelector('input[type="checkbox"]').outerHTML}
-            </div>
-            ${tempDiv.querySelector('input[type="text"]').outerHTML}
-        `;
-        row.querySelector('input[type="checkbox"]').classList.add('form-check-input', 'mt-0');
-        row.querySelector('input[type="text"]').classList.add('form-control', 'border-start-0');
-        list.appendChild(row);
-    });
+    const addBtn = document.querySelector('.add-answer-btn');
+    if (addBtn) {
+        addBtn.addEventListener('click', function (e) {
+            const list = document.querySelector('.answers-wrapper');
+            const prototype = list.dataset.prototype;
+            const index = list.children.length;
+            const newForm = prototype.replace(/__name__/g, index);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newForm;
+            
+            const row = document.createElement('div');
+            row.className = 'input-group mb-2 bg-white shadow-sm rounded';
+            row.innerHTML = `
+                <div class="input-group-text bg-white border-end-0">
+                    ${tempDiv.querySelector('input[type="checkbox"]').outerHTML}
+                </div>
+                ${tempDiv.querySelector('input[type="text"]').outerHTML}
+            `;
+            
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            const textInput = row.querySelector('input[type="text"]');
+            
+            if (checkbox) checkbox.classList.add('form-check-input', 'mt-0');
+            if (textInput) textInput.classList.add('form-control', 'border-start-0', 'py-2');
+            
+            list.appendChild(row);
+        });
+    }
 </script>
 {% endblock %}
