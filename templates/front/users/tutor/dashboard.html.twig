@@ -103,7 +103,7 @@
                                 <div class="icon-lg bg-warning bg-opacity-10 rounded-circle text-warning mb-3 mx-auto">
                                     <i class="bi bi-currency-dollar fs-3"></i>
                                 </div>
-                                <h3 class="text-warning mb-0">${{ tutor.hourlyRate ?? '0.00' }}</h3>
+                                <h3 class="text-warning mb-0">Dt{{ tutor.hourlyRate ?? '0.00' }}</h3>
                                 <p class="text-muted mb-0 small">Hourly Rate</p>
                             </div>
                         </div>
@@ -155,7 +155,7 @@
                             <div class="col-md-6">
                                 <ul class="list-group list-group-borderless">
                                     <li class="list-group-item px-0 py-1">
-                                        <span class="fw-bold me-2">Hourly Rate:</span> ${{ tutor.hourlyRate ?? 'Not set' }}
+                                        <span class="fw-bold me-2">Hourly Rate:</span> Dt{{ tutor.hourlyRate ?? 'Not set' }}
                                     </li>
                                     <li class="list-group-item px-0 py-1">
                                         <span class="fw-bold me-2">Status:</span> 
