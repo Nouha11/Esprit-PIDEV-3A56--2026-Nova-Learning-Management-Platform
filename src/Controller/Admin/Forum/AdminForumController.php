@@ -35,6 +35,30 @@ class AdminForumController extends AbstractController
         ]);
     }
 
+
+// TOGGLE LOCK STATUS
+    #[Route('/{id}/toggle-lock', name: 'app_admin_forum_toggle_lock', methods: ['POST'])]
+    public function toggleLock(Request $request, Post $post, EntityManagerInterface $entityManager): Response
+    {
+        // CSRF Security Check (uses the same 'lock' token name we will put in the form)
+        if ($this->isCsrfTokenValid('lock'.$post->getId(), $request->request->get('_token'))) {
+            
+            // Flip the boolean: If true -> false. If false -> true.
+            $post->setIsLocked(!$post->isLocked());
+            
+            $entityManager->flush();
+            
+            // Nice message for the admin
+            $status = $post->isLocked() ? 'locked' : 'unlocked';
+            $this->addFlash('success', "Discussion has been $status.");
+        }
+
+        // Stay on the same page
+        return $this->redirectToRoute('app_admin_forum_index');
+    }
+
+
+
     // DELETE POST (Admin Power)
     #[Route('/{id}/delete', name: 'app_admin_forum_delete', methods: ['POST'])]
     public function delete(Request $request, Post $post, EntityManagerInterface $entityManager): Response
