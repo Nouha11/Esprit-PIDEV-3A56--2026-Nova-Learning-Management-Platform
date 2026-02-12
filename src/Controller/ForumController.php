@@ -23,7 +23,6 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Get the currently logged-in user
             $user = $this->getUser();
             
             if (!$user) {
@@ -31,12 +30,12 @@ class ForumController extends AbstractController
                 return $this->redirectToRoute('app_login');
             }
             
-            // Set the post data
             $post->setCreatedAt(new \DateTimeImmutable());
             $post->setUpvotes(0);
             $post->setAuthor($user);
+            // Ensure newly created posts are not locked by default
+            $post->setIsLocked(false);
 
-            // Save
             $entityManager->persist($post);
             $entityManager->flush();
 
@@ -44,9 +43,22 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum');
         }
 
+        // --- SEARCH LOGIC START ---
+        $searchQuery = $request->query->get('q');
+
+        if ($searchQuery) {
+            // Reuse the robust search logic from your repository
+            $posts = $postRepository->adminSearch($searchQuery);
+        } else {
+            // Default: Show all, sorted by newest first
+            $posts = $postRepository->findBy([], ['createdAt' => 'DESC']);
+        }
+        // --- SEARCH LOGIC END ---
+
         return $this->render('forum/index.html.twig', [
             'form' => $form->createView(),
-            'posts' => $postRepository->findAll(),
+            'posts' => $posts,
+            'searchQuery' => $searchQuery, // Pass query back to view
         ]);
     }
 
@@ -58,7 +70,6 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Get the currently logged-in user
             $user = $this->getUser();
             
             if (!$user) {
