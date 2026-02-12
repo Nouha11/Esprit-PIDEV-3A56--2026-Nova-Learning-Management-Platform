@@ -22,7 +22,15 @@
                                             <li class="breadcrumb-item active" aria-current="page">Discussion Details</li>
                                         </ol>
                                     </nav>
-                                    <h1 class="h3 mb-0">{{ post.title }}</h1>
+                                    <div class="d-flex align-items-center">
+                                        <h1 class="h3 mb-0">{{ post.title }}</h1>
+                                        {# Show Locked Badge in Header #}
+                                        {% if post.isLocked %}
+                                            <span class="badge bg-danger ms-3">
+                                                <i class="bi bi-lock-fill me-1"></i>Locked
+                                            </span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -31,6 +39,7 @@
             </div>
         </div>
     </section>
+
     <section class="pt-0">
         <div class="container">
             <div class="row">
@@ -42,14 +51,13 @@
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-md me-2">
-                                        {# Show username initials with colored background #}
                                         <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][post.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 16px;">
                                             <span class="fw-bold">{{ post.author.username|slice(0, 2)|upper }}</span>
                                         </div>
                                     </div>
                                     <div>
                                         <h6 class="mb-0">{{ post.author.username }}</h6>
-                                        <small class="text-muted">Posted on {{ post.createdAt|date('F d, Y') }}</small>
+                                        <small class="text-secondary">Posted on {{ post.createdAt|date('F d, Y') }}</small>
                                     </div>
                                 </div>
                                 <span class="badge bg-primary bg-opacity-10 text-primary">{{ post.upvotes }} Upvotes</span>
@@ -57,13 +65,17 @@
                         </div>
 
                         <div class="card-body p-4">
+                            {# text-body ensures contrast in light mode #}
                             <p class="mb-4 text-body">{{ post.content }}</p>
 
                             <div class="d-flex gap-2">
                                 <button class="btn btn-sm btn-light mb-0"><i class="bi bi-hand-thumbs-up me-1"></i> Upvote</button>
-                                <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
                                 
-                                {# Only show edit/delete to author or admin #}
+                                {# Hide Reply button if locked #}
+                                {% if not post.isLocked %}
+                                    <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
+                                {% endif %}
+                                
                                 {% if app.user and (app.user.id == post.author.id or app.user.role == 'ROLE_ADMIN') %}
                                     <a href="{{ path('app_forum_edit', {'id': post.id}) }}" class="btn btn-sm btn-warning-soft mb-0 ms-auto me-2">
                                         <i class="bi bi-pencil"></i> Edit
@@ -86,7 +98,6 @@
                             {% for comment in post.comments %}
                                 <div class="d-flex mb-4">
                                     <div class="avatar avatar-sm me-3">
-                                        {# Show username initials with colored background #}
                                         <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][comment.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
                                             <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
                                         </div>
@@ -95,41 +106,53 @@
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <h6 class="mb-0">{{ comment.author.username }}</h6>
-                                                <small class="text-muted">{{ comment.createdAt|date('M d, Y H:i') }}</small>
+                                                <small class="text-secondary">{{ comment.createdAt|date('M d, Y H:i') }}</small>
                                             </div>
                                             {% if comment.isSolution %}
                                                 <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Solution</span>
                                             {% endif %}
                                         </div>
-                                        <p class="mt-2 mb-0">{{ comment.content }}</p>
+                                        <p class="mt-2 mb-0 text-body">{{ comment.content }}</p>
                                     </div>
                                 </div>
                                 {% if not loop.last %}<hr>{% endif %}
                             {% else %}
                                 <div class="text-center py-4">
-                                    <i class="bi bi-chat-square-dots display-6 text-muted mb-3"></i>
-                                    <p class="text-muted mb-0">No replies yet. Be the first to help!</p>
+                                    <i class="bi bi-chat-square-dots display-6 text-secondary mb-3"></i>
+                                    <p class="text-secondary mb-0">No replies yet. Be the first to help!</p>
                                 </div>
                             {% endfor %}
                         </div>
                     </div>
 
-                    <div class="card border bg-transparent rounded-3 mt-4" id="replyForm">
-                        <div class="card-header bg-transparent border-bottom">
-                            <h5 class="mb-0">Leave a Reply</h5>
+                    {# Logic: Hide Form and show "Locked" alert if locked #}
+                    {% if post.isLocked %}
+                        <div class="alert alert-secondary d-flex align-items-center mt-4 p-4 rounded-3" role="alert">
+                            <div class="display-6 me-3"><i class="bi bi-lock-fill"></i></div>
+                            <div>
+                                <h6 class="mb-1">This discussion is locked</h6>
+                                <p class="mb-0 small">An administrator has closed this topic. New replies are no longer accepted.</p>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            {{ form_start(form) }}
-                                <div class="mb-3">
-                                    {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '4', 'placeholder': 'Type your answer here...'}}) }}
-                                    <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
-                                </div>
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-primary mb-0">Post Reply</button>
-                                </div>
-                            {{ form_end(form) }}
+                    {% else %}
+                        <div class="card border bg-transparent rounded-3 mt-4" id="replyForm">
+                            <div class="card-header bg-transparent border-bottom">
+                                <h5 class="mb-0">Leave a Reply</h5>
+                            </div>
+                            <div class="card-body">
+                                {{ form_start(form) }}
+                                    {# FIXED: No title field here #}
+                                    <div class="mb-3">
+                                        {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '4', 'placeholder': 'Type your answer here...'}}) }}
+                                        <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-primary mb-0">Post Reply</button>
+                                    </div>
+                                {{ form_end(form) }}
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
 
                 </div>
 
@@ -140,6 +163,10 @@
                         </div>
                         <div class="card-body">
                             <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-shield-lock-fill {{ post.isLocked ? 'text-danger' : 'text-secondary' }} me-2"></i>
+                                    <strong>Status:</strong> {{ post.isLocked ? 'Closed' : 'Open' }}
+                                </li>
                                 <li class="mb-2">
                                     <i class="bi bi-eye-fill text-info me-2"></i>
                                     <strong>Views:</strong> N/A
