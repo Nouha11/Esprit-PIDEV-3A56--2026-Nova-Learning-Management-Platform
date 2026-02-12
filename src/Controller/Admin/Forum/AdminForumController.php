@@ -13,12 +13,25 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/forum')]
 class AdminForumController extends AbstractController
 {
-    // LIST ALL POSTS
+    // LIST ALL POSTS (With Search Logic)
     #[Route('/', name: 'app_admin_forum_index', methods: ['GET'])]
-    public function index(PostRepository $postRepository): Response
+    public function index(PostRepository $postRepository, Request $request): Response
     {
+        // 1. Get the search query from the URL (e.g. ?q=spam)
+        $searchQuery = $request->query->get('q');
+
+        // 2. Fetch data based on search
+        if ($searchQuery) {
+            // Ensure you added the 'adminSearch' method to your PostRepository!
+            $posts = $postRepository->adminSearch($searchQuery);
+        } else {
+            // Default: Show all, newest first
+            $posts = $postRepository->findBy([], ['createdAt' => 'DESC']);
+        }
+
         return $this->render('admin/forum/index.html.twig', [
-            'posts' => $postRepository->findAll(),
+            'posts' => $posts,
+            'searchQuery' => $searchQuery // Pass back to view to keep input filled
         ]);
     }
 

@@ -40,4 +40,30 @@ class PostRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    
+
+    /**
+     * Search for posts by Title, Content, Author Name, or Author Email
+     */
+    
+    public function adminSearch(string $query)
+    {
+        return $this->createQueryBuilder('p')
+            // 1. Join the User table (p.author) and give it the alias 'a'
+            ->leftJoin('p.author', 'a') 
+            
+            // 2. Search everywhere: Post Title OR Post Content OR User Email OR User Name
+            ->andWhere('p.title LIKE :val OR p.content LIKE :val OR a.email LIKE :val OR a.username LIKE :val')
+            
+            // 3. Bind the value
+            ->setParameter('val', '%' . $query . '%')
+            
+            // 4. Sort newest first
+            ->orderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+
 }
