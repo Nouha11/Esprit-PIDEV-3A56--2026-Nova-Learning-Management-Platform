@@ -144,4 +144,20 @@ class Post
 
         return $this;
     }
+
+// new forum properties for lock and unlock feature ( admin )
+    #[ORM\Column]
+    private ?bool $isLocked = false;
+
+    public function isLocked(): ?bool
+    {
+        return $this->isLocked;
+    }
+
+    public function setIsLocked(bool $isLocked): static
+    {
+        $this->isLocked = $isLocked;
+
+        return $this;
+    }
 }
