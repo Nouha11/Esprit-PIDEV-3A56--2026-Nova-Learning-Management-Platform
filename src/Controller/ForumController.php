@@ -7,6 +7,7 @@ use App\Form\CommentType;
 use App\Entity\Forum\Post;
 use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
+use App\Entity\users\User; // <--- IMPORTANT: Importing your specific User entity
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +25,7 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var User $user */ // Tells editor this is your specific User entity
             $user = $this->getUser();
             
             if (!$user) {
@@ -66,12 +68,12 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // SECURITY GUARD
             if ($post->isLocked()) {
                 $this->addFlash('error', 'This discussion is locked. You cannot add new replies.');
                 return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
             }
 
+            /** @var User $user */
             $user = $this->getUser();
             
             if (!$user) {
@@ -100,6 +102,7 @@ class ForumController extends AbstractController
     #[Route('/forum/delete/{id}', name: 'app_forum_delete', methods: ['POST'])]
     public function delete(Post $post, EntityManagerInterface $entityManager): Response
     {
+        /** @var User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -107,12 +110,10 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        /** @var \App\Entity\User $user */
-        // FIXED: Use getRoles() array check instead of getRole()
+        // FIXED: Now the editor knows $user is App\Entity\users\User, so getId() works
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
         $isAuthor = $post->getAuthor()->getId() === $user->getId();
 
-        // If user is NOT author AND NOT admin, deny access
         if (!$isAuthor && !$isAdmin) {
             $this->addFlash('error', 'You cannot delete this post.');
             return $this->redirectToRoute('app_forum');
@@ -128,6 +129,7 @@ class ForumController extends AbstractController
     #[Route('/forum/edit/{id}', name: 'app_forum_edit')]
     public function edit(Post $post, Request $request, EntityManagerInterface $entityManager): Response
     {
+        /** @var User $user */
         $user = $this->getUser();
         
         if (!$user) {
@@ -135,8 +137,6 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        /** @var \App\Entity\User $user */
-        // FIXED: Use getRoles() array check
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
         $isAuthor = $post->getAuthor()->getId() === $user->getId();
 
@@ -150,7 +150,6 @@ class ForumController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
             $this->addFlash('success', 'Post updated successfully!');
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
@@ -160,33 +159,30 @@ class ForumController extends AbstractController
             'post' => $post,
         ]);
     }
-#[Route('/forum/post/{id}/upvote', name: 'app_forum_upvote', methods: ['POST'])]
-public function upvote(Post $post, EntityManagerInterface $entityManager): Response
-{
-    $user = $this->getUser();
 
-    // 1. Check if user is logged in
-    if (!$user) {
-        return $this->json(['error' => 'You must be logged in to upvote.'], 403);
+    #[Route('/forum/post/{id}/upvote', name: 'app_forum_upvote', methods: ['POST'])]
+    public function upvote(Post $post, EntityManagerInterface $entityManager): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['error' => 'You must be logged in to upvote.'], 403);
+        }
+
+        if ($post->isUpvotedBy($user)) {
+            $post->removeUpvoter($user);
+            $isUpvoted = false;
+        } else {
+            $post->addUpvoter($user);
+            $isUpvoted = true;
+        }
+
+        $entityManager->flush();
+
+        return $this->json([
+            'upvotes' => $post->getUpvotes(),
+            'isUpvoted' => $isUpvoted
+        ]);
     }
-
-    // 2. Toggle the upvote logic
-    if ($post->isUpvotedBy($user)) {
-        $post->removeUpvoter($user);
-        $isUpvoted = false;
-    } else {
-        $post->addUpvoter($user);
-        $isUpvoted = true;
-    }
-
-    // 3. Save to database
-    $entityManager->flush();
-
-    // 4. Return JSON for the AJAX call
-    return $this->json([
-        'upvotes' => $post->getUpvotes(),
-        'isUpvoted' => $isUpvoted
-    ]);
-}
-
 }

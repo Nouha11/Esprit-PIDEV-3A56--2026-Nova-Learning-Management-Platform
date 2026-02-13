@@ -58,7 +58,10 @@
                                         <small class="text-secondary">Posted on {{ post.createdAt|date('F d, Y') }}</small>
                                     </div>
                                 </div>
-                                <span class="badge bg-primary bg-opacity-10 text-primary">{{ post.upvotes }} Upvotes</span>
+                                {# UPDATED: Added ID to update this count via JS #}
+                                <span class="badge bg-primary bg-opacity-10 text-primary">
+                                    <span id="top-upvote-count">{{ post.upvotes }}</span> Upvotes
+                                </span>
                             </div>
                         </div>
 
@@ -66,13 +69,20 @@
                             <p class="mb-4 text-body">{{ post.content }}</p>
 
                             <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-light mb-0"><i class="bi bi-hand-thumbs-up me-1"></i> Upvote</button>
+                                {# UPDATED BUTTON START #}
+                                {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
+                                <button class="btn btn-sm mb-0 upvote-btn {{ is_upvoted ? 'btn-primary' : 'btn-light' }}" 
+                                        data-id="{{ post.id }}">
+                                    <i class="bi bi-hand-thumbs-up me-1"></i> 
+                                    <span class="btn-text">{{ is_upvoted ? 'Upvoted' : 'Upvote' }}</span>
+                                </button>
+                                {# UPDATED BUTTON END #}
                                 
                                 {% if not post.isLocked %}
                                     <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
                                 {% endif %}
                                 
-                                {% if app.user and (app.user.id == post.author.id or app.user.role == 'ROLE_ADMIN') %}
+                                {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
                                     <a href="{{ path('app_forum_edit', {'id': post.id}) }}" class="btn btn-sm btn-warning-soft mb-0 ms-auto me-2">
                                         <i class="bi bi-pencil"></i> Edit
                                     </a>
@@ -135,7 +145,6 @@
                                 <h5 class="mb-0">Leave a Reply</h5>
                             </div>
                             <div class="card-body">
-                                {# CHANGED: Added 'novalidate' here as well #}
                                 {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                                     <div class="mb-3">
                                         {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '4', 'placeholder': 'Type your answer here...'}}) }}
@@ -172,7 +181,8 @@
                                 </li>
                                 <li class="mb-2">
                                     <i class="bi bi-hand-thumbs-up-fill text-primary me-2"></i>
-                                    <strong>Upvotes:</strong> {{ post.upvotes }}
+                                    {# UPDATED: Added ID for sidebar stats #}
+                                    <strong>Upvotes:</strong> <span id="sidebar-upvote-count">{{ post.upvotes }}</span>
                                 </li>
                             </ul>
                         </div>
@@ -198,4 +208,56 @@
         </div>
     </section>
 </main>
+
+{# --- JAVASCRIPT FOR UPVOTES --- #}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const upvoteBtn = document.querySelector('.upvote-btn');
+        
+        if (upvoteBtn) {
+            upvoteBtn.addEventListener('click', function (e) {
+                e.preventDefault(); // Stop page reload
+                
+                const postId = this.dataset.id;
+                const textSpan = this.querySelector('.btn-text');
+                const topCount = document.getElementById('top-upvote-count');
+                const sideCount = document.getElementById('sidebar-upvote-count');
+
+                // AJAX Call
+                fetch(`/forum/post/${postId}/upvote`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (response.status === 403) {
+                        alert('You must be logged in to upvote!');
+                        throw new Error('Not logged in');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data) {
+                        // 1. Toggle Button Style
+                        if (data.isUpvoted) {
+                            this.classList.remove('btn-light');
+                            this.classList.add('btn-primary');
+                            textSpan.textContent = 'Upvoted';
+                        } else {
+                            this.classList.remove('btn-primary');
+                            this.classList.add('btn-light');
+                            textSpan.textContent = 'Upvote';
+                        }
+
+                        // 2. Update Counts
+                        if (topCount) topCount.textContent = data.upvotes;
+                        if (sideCount) sideCount.textContent = data.upvotes;
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+            });
+        }
+    });
+</script>
 {% endblock %}
