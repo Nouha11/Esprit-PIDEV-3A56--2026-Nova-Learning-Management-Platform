@@ -7,7 +7,7 @@ use App\Form\CommentType;
 use App\Entity\Forum\Post;
 use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
-use App\Entity\users\User; // <--- IMPORTANT: Importing your specific User entity
+use App\Entity\users\User; // Importing your specific User entity
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +25,7 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var User $user */ // Tells editor this is your specific User entity
+            /** @var User $user */
             $user = $this->getUser();
             
             if (!$user) {
@@ -110,7 +110,6 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // FIXED: Now the editor knows $user is App\Entity\users\User, so getId() works
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
         $isAuthor = $post->getAuthor()->getId() === $user->getId();
 
@@ -183,6 +182,41 @@ class ForumController extends AbstractController
         return $this->json([
             'upvotes' => $post->getUpvotes(),
             'isUpvoted' => $isUpvoted
+        ]);
+    }
+
+    #[Route('/forum/comment/{id}/solution', name: 'app_forum_solution', methods: ['POST'])]
+    public function markAsSolution(Comment $comment, EntityManagerInterface $entityManager): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $post = $comment->getPost();
+
+        // 1. Security Check: Only the Post Author or Admin can mark a solution
+        $isAuthor = $user && $post->getAuthor()->getId() === $user->getId();
+        $isAdmin = $user && in_array('ROLE_ADMIN', $user->getRoles());
+
+        if (!$isAuthor && !$isAdmin) {
+            return $this->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // 2. Logic: If clicking the same comment, toggle it OFF.
+        //    If clicking a new comment, turn others OFF and this one ON.
+        if ($comment->isSolution()) {
+            $comment->setIsSolution(false);
+        } else {
+            // Unmark all other comments in this post first
+            foreach ($post->getComments() as $otherComment) {
+                $otherComment->setIsSolution(false);
+            }
+            // Mark this one
+            $comment->setIsSolution(true);
+        }
+
+        $entityManager->flush();
+
+        return $this->json([
+            'isSolution' => $comment->isSolution()
         ]);
     }
 }

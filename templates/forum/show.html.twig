@@ -58,7 +58,6 @@
                                         <small class="text-secondary">Posted on {{ post.createdAt|date('F d, Y') }}</small>
                                     </div>
                                 </div>
-                                {# UPDATED: Added ID to update this count via JS #}
                                 <span class="badge bg-primary bg-opacity-10 text-primary">
                                     <span id="top-upvote-count">{{ post.upvotes }}</span> Upvotes
                                 </span>
@@ -69,14 +68,12 @@
                             <p class="mb-4 text-body">{{ post.content }}</p>
 
                             <div class="d-flex gap-2">
-                                {# UPDATED BUTTON START #}
                                 {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
                                 <button class="btn btn-sm mb-0 upvote-btn {{ is_upvoted ? 'btn-primary' : 'btn-light' }}" 
                                         data-id="{{ post.id }}">
                                     <i class="bi bi-hand-thumbs-up me-1"></i> 
                                     <span class="btn-text">{{ is_upvoted ? 'Upvoted' : 'Upvote' }}</span>
                                 </button>
-                                {# UPDATED BUTTON END #}
                                 
                                 {% if not post.isLocked %}
                                     <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
@@ -102,26 +99,45 @@
                         </div>
                         <div class="card-body">
                             {% for comment in post.comments %}
-                                <div class="d-flex mb-4">
+                                <div class="d-flex mb-4 p-3 rounded-3 {{ comment.isSolution ? 'bg-success bg-opacity-10 border border-success' : '' }}" id="comment-{{ comment.id }}">
                                     <div class="avatar avatar-sm me-3">
                                         <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][comment.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
                                             <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
                                         </div>
                                     </div>
                                     <div class="w-100">
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="mb-0">{{ comment.author.username }}</h6>
+                                                <h6 class="mb-0">
+                                                    {{ comment.author.username }}
+                                                    {% if comment.author.id == post.author.id %}
+                                                        <span class="badge bg-secondary ms-1" style="font-size: 0.6em;">AUTHOR</span>
+                                                    {% endif %}
+                                                </h6>
                                                 <small class="text-secondary">{{ comment.createdAt|date('M d, Y H:i') }}</small>
                                             </div>
-                                            {% if comment.isSolution %}
-                                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Solution</span>
-                                            {% endif %}
+
+                                            {# SOLUTION BADGE #}
+                                            <div class="solution-badge {{ comment.isSolution ? '' : 'd-none' }}">
+                                                <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Solution</span>
+                                            </div>
                                         </div>
-                                        <p class="mt-2 mb-0 text-body">{{ comment.content }}</p>
+
+                                        <p class="mt-2 mb-2 text-body">{{ comment.content }}</p>
+
+                                        {# MARK AS SOLUTION BUTTON #}
+                                        {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
+                                            <div class="d-flex justify-content-end">
+                                                <button class="btn btn-sm solution-btn {{ comment.isSolution ? 'btn-outline-success active' : 'btn-outline-secondary' }}" 
+                                                        data-id="{{ comment.id }}">
+                                                    <i class="bi bi-check-lg"></i> 
+                                                    <span class="btn-text">{{ comment.isSolution ? 'Unmark Solution' : 'Mark as Solution' }}</span>
+                                                </button>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
-                                {% if not loop.last %}<hr>{% endif %}
+                                {% if not loop.last %}<hr class="my-2">{% endif %}
                             {% else %}
                                 <div class="text-center py-4">
                                     <i class="bi bi-chat-square-dots display-6 text-secondary mb-3"></i>
@@ -181,7 +197,6 @@
                                 </li>
                                 <li class="mb-2">
                                     <i class="bi bi-hand-thumbs-up-fill text-primary me-2"></i>
-                                    {# UPDATED: Added ID for sidebar stats #}
                                     <strong>Upvotes:</strong> <span id="sidebar-upvote-count">{{ post.upvotes }}</span>
                                 </li>
                             </ul>
@@ -209,26 +224,22 @@
     </section>
 </main>
 
-{# --- JAVASCRIPT FOR UPVOTES --- #}
+{# --- JAVASCRIPT FOR UPVOTES AND SOLUTIONS --- #}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // UPVOTE LOGIC
         const upvoteBtn = document.querySelector('.upvote-btn');
-        
         if (upvoteBtn) {
             upvoteBtn.addEventListener('click', function (e) {
-                e.preventDefault(); // Stop page reload
-                
+                e.preventDefault();
                 const postId = this.dataset.id;
                 const textSpan = this.querySelector('.btn-text');
                 const topCount = document.getElementById('top-upvote-count');
                 const sideCount = document.getElementById('sidebar-upvote-count');
 
-                // AJAX Call
                 fetch(`/forum/post/${postId}/upvote`, {
                     method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                 .then(response => {
                     if (response.status === 403) {
@@ -239,7 +250,6 @@
                 })
                 .then(data => {
                     if (data) {
-                        // 1. Toggle Button Style
                         if (data.isUpvoted) {
                             this.classList.remove('btn-light');
                             this.classList.add('btn-primary');
@@ -249,8 +259,6 @@
                             this.classList.add('btn-light');
                             textSpan.textContent = 'Upvote';
                         }
-
-                        // 2. Update Counts
                         if (topCount) topCount.textContent = data.upvotes;
                         if (sideCount) sideCount.textContent = data.upvotes;
                     }
@@ -258,6 +266,52 @@
                 .catch(err => console.error('Error:', err));
             });
         }
+
+        // SOLUTION LOGIC
+        const solutionBtns = document.querySelectorAll('.solution-btn');
+        solutionBtns.forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const commentId = this.dataset.id;
+                const container = document.getElementById('comment-' + commentId);
+                const badge = container.querySelector('.solution-badge');
+                const btnText = this.querySelector('.btn-text');
+
+                fetch(`/forum/comment/${commentId}/solution`, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => {
+                    if (response.status === 403) {
+                        alert('Unauthorized action.');
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data) {
+                        // Reset all comments
+                        document.querySelectorAll('.solution-btn').forEach(b => {
+                            b.classList.remove('btn-outline-success', 'active');
+                            b.classList.add('btn-outline-secondary');
+                            b.querySelector('.btn-text').textContent = 'Mark as Solution';
+                        });
+                        document.querySelectorAll('.solution-badge').forEach(b => b.classList.add('d-none'));
+                        document.querySelectorAll('[id^="comment-"]').forEach(c => c.classList.remove('bg-success', 'bg-opacity-10', 'border', 'border-success'));
+
+                        // Activate selected comment if marked as solution
+                        if (data.isSolution) {
+                            container.classList.add('bg-success', 'bg-opacity-10', 'border', 'border-success');
+                            badge.classList.remove('d-none');
+                            this.classList.remove('btn-outline-secondary');
+                            this.classList.add('btn-outline-success', 'active');
+                            btnText.textContent = 'Unmark Solution';
+                        }
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+            });
+        });
     });
 </script>
 {% endblock %}
