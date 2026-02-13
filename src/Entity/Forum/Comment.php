@@ -6,7 +6,7 @@ use App\Entity\users\User;
 use App\Repository\Forum\CommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert; // oour la controle de saisie
+use Symfony\Component\Validator\Constraints as Assert; 
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -45,7 +45,8 @@ class Comment
         return $this->content;
     }
 
-    public function setContent(string $content): static
+    // ✅ FIXED: Added '?' to allow nulls
+    public function setContent(?string $content): static
     {
         $this->content = $content;
 

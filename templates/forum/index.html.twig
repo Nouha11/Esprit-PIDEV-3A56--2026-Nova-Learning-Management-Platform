@@ -18,12 +18,10 @@
                                 <div class="bg-body p-4 rounded-3 shadow-sm d-md-flex justify-content-between align-items-center">
                                     <div class="me-3">
                                         <h1 class="h3 mb-0">Community Forum</h1>
-                                        {# Use text-body to ensure it is visible in Light Mode #}
                                         <p class="mb-0 text-body">Join the conversation! Ask questions, share ideas, and help others.</p>
                                     </div>
 
                                     <div class="d-flex align-items-center mt-3 mt-md-0 gap-3">
-                                        
                                         <form method="get" action="{{ path('app_forum') }}" class="position-relative">
                                             <div class="d-flex align-items-center shadow-sm rounded-pill" style="background-color: #fff; border: 1px solid #ddd; padding: 5px 15px; min-width: 280px;">
                                                 <i class="bi bi-search text-secondary me-2"></i>
@@ -75,9 +73,7 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <br>
-                        
                         <div class="card border bg-transparent rounded-3 mt-4">
                             <div class="card-header bg-transparent border-bottom">
                                 <h3 class="mb-0 h5">Forum Rules</h3>
@@ -94,14 +90,14 @@
                 </div>
 
                 <div class="col-xl-9">
-                    
                     <div class="collapse mb-4 {{ form.vars.submitted ? 'show' : '' }}" id="addPostForm">
                         <div class="card border bg-transparent rounded-3 shadow-sm">
                             <div class="card-header bg-light border-bottom">
                                 <h5 class="card-title mb-0">Create New Discussion</h5>
                             </div>
                             <div class="card-body">
-                                {{ form_start(form) }}
+                                {# CHANGED: Added 'novalidate' to disable browser validation #}
+                                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                                     <div class="mb-3">
                                         <label class="form-label">Subject</label>
                                         {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'What is this regarding?'}}) }}
@@ -148,7 +144,6 @@
                                                         {{ post.title }}
                                                     </a>
                                                 </h6>
-                                                {# Use text-secondary for better contrast than text-muted #}
                                                 <small class="text-secondary">{{ post.content|slice(0, 60) }}...</small>
                                             </td>
 
