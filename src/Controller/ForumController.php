@@ -33,7 +33,6 @@ class ForumController extends AbstractController
             $post->setCreatedAt(new \DateTimeImmutable());
             $post->setUpvotes(0);
             $post->setAuthor($user);
-            // Ensure newly created posts are not locked by default
             $post->setIsLocked(false);
 
             $entityManager->persist($post);
@@ -43,22 +42,18 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum');
         }
 
-        // --- SEARCH LOGIC START ---
         $searchQuery = $request->query->get('q');
 
         if ($searchQuery) {
-            // Reuse the robust search logic from your repository
             $posts = $postRepository->adminSearch($searchQuery);
         } else {
-            // Default: Show all, sorted by newest first
             $posts = $postRepository->findBy([], ['createdAt' => 'DESC']);
         }
-        // --- SEARCH LOGIC END ---
 
         return $this->render('forum/index.html.twig', [
             'form' => $form->createView(),
             'posts' => $posts,
-            'searchQuery' => $searchQuery, // Pass query back to view
+            'searchQuery' => $searchQuery,
         ]);
     }
 
@@ -70,6 +65,12 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // SECURITY GUARD
+            if ($post->isLocked()) {
+                $this->addFlash('error', 'This discussion is locked. You cannot add new replies.');
+                return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+            }
+
             $user = $this->getUser();
             
             if (!$user) {
@@ -105,8 +106,13 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Check if user is the author or admin
-        if ($post->getAuthor()->getId() !== $user->getId() && $user->getRole() !== 'ROLE_ADMIN') {
+        /** @var \App\Entity\User $user */
+        // FIXED: Use getRoles() array check instead of getRole()
+        $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
+        $isAuthor = $post->getAuthor()->getId() === $user->getId();
+
+        // If user is NOT author AND NOT admin, deny access
+        if (!$isAuthor && !$isAdmin) {
             $this->addFlash('error', 'You cannot delete this post.');
             return $this->redirectToRoute('app_forum');
         }
@@ -128,8 +134,12 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Check if user is the author or admin
-        if ($post->getAuthor()->getId() !== $user->getId() && $user->getRole() !== 'ROLE_ADMIN') {
+        /** @var \App\Entity\User $user */
+        // FIXED: Use getRoles() array check
+        $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
+        $isAuthor = $post->getAuthor()->getId() === $user->getId();
+
+        if (!$isAuthor && !$isAdmin) {
             $this->addFlash('error', 'You cannot edit this post.');
             return $this->redirectToRoute('app_forum');
         }
