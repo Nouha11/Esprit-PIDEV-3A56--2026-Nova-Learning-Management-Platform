@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
+use App\Entity\StudySession\Planning; 
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 class Course
@@ -17,11 +17,11 @@ class Course
     #[ORM\Column]
     private ?int $id = null;
 
-    // Course.php relation OneToMany
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: Planning::class)]
     private Collection $plannings;
 
-    #[ORM\ManyToOne]
+    // --- FIXED: Added inversedBy to link back to User ---
+    #[ORM\ManyToOne(inversedBy: 'courses')]
     #[ORM\JoinColumn(nullable: true)]
     private ?\App\Entity\users\User $createdBy = null;
 
@@ -99,6 +99,8 @@ class Course
         $this->status = 'NOT_STARTED';
         $this->plannings = new ArrayCollection();
     }
+
+    // ... (Keep existing getters and setters exactly as they are below) ...
 
     public function getId(): ?int
     {
@@ -225,9 +227,6 @@ class Course
         return $this;
     }
 
-    /**
-     * @return Collection<int, Planning>
-     */
     public function getPlannings(): Collection
     {
         return $this->plannings;

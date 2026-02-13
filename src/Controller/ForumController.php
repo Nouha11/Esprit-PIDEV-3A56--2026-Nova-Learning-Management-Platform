@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ForumController extends AbstractController
 {
@@ -159,4 +160,33 @@ class ForumController extends AbstractController
             'post' => $post,
         ]);
     }
+#[Route('/forum/post/{id}/upvote', name: 'app_forum_upvote', methods: ['POST'])]
+public function upvote(Post $post, EntityManagerInterface $entityManager): Response
+{
+    $user = $this->getUser();
+
+    // 1. Check if user is logged in
+    if (!$user) {
+        return $this->json(['error' => 'You must be logged in to upvote.'], 403);
+    }
+
+    // 2. Toggle the upvote logic
+    if ($post->isUpvotedBy($user)) {
+        $post->removeUpvoter($user);
+        $isUpvoted = false;
+    } else {
+        $post->addUpvoter($user);
+        $isUpvoted = true;
+    }
+
+    // 3. Save to database
+    $entityManager->flush();
+
+    // 4. Return JSON for the AJAX call
+    return $this->json([
+        'upvotes' => $post->getUpvotes(),
+        'isUpvoted' => $isUpvoted
+    ]);
+}
+
 }

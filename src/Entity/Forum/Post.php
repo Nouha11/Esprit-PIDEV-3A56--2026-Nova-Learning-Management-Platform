@@ -29,7 +29,7 @@ class Post
     private ?string $content = null;
 
     #[ORM\Column]
-    private ?int $upvotes = null;
+    private ?int $upvotes = 0; // Default to 0
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -47,9 +47,16 @@ class Post
     #[ORM\Column]
     private ?bool $isLocked = false;
 
+    // --- NEW: Store the list of users who upvoted ---
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'post_upvoters')]  
+    private Collection $upvoters;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->upvoters = new ArrayCollection(); // Initialize the new collection
+        $this->upvotes = 0;
     }
 
     public function getId(): ?int
@@ -62,11 +69,9 @@ class Post
         return $this->title;
     }
 
-    // ✅ FIXED: Added '?' to allow nulls (prevents 500 Error on empty submit)
     public function setTitle(?string $title): static
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -75,11 +80,9 @@ class Post
         return $this->content;
     }
 
-    // ✅ FIXED: Added '?' to allow nulls
     public function setContent(?string $content): static
     {
         $this->content = $content;
-
         return $this;
     }
 
@@ -91,7 +94,6 @@ class Post
     public function setUpvotes(int $upvotes): static
     {
         $this->upvotes = $upvotes;
-
         return $this;
     }
 
@@ -103,7 +105,6 @@ class Post
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -115,7 +116,6 @@ class Post
     public function setAuthor(?User $author): static
     {
         $this->author = $author;
-
         return $this;
     }
 
@@ -133,7 +133,6 @@ class Post
             $this->comments->add($comment);
             $comment->setPost($this);
         }
-
         return $this;
     }
 
@@ -144,7 +143,6 @@ class Post
                 $comment->setPost(null);
             }
         }
-
         return $this;
     }
 
@@ -156,7 +154,38 @@ class Post
     public function setIsLocked(bool $isLocked): static
     {
         $this->isLocked = $isLocked;
-
         return $this;
+    }
+
+    // --- NEW: Methods to manage upvoters ---
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUpvoters(): Collection
+    {
+        return $this->upvoters;
+    }
+
+    public function addUpvoter(User $upvoter): static
+    {
+        if (!$this->upvoters->contains($upvoter)) {
+            $this->upvoters->add($upvoter);
+            $this->upvotes++; // Automatically increase count
+        }
+        return $this;
+    }
+
+    public function removeUpvoter(User $upvoter): static
+    {
+        if ($this->upvoters->removeElement($upvoter)) {
+            $this->upvotes--; // Automatically decrease count
+        }
+        return $this;
+    }
+
+    public function isUpvotedBy(User $user): bool
+    {
+        return $this->upvoters->contains($user);
     }
 }
