@@ -38,12 +38,14 @@ class Post
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null; 
 
-    
     /**
      * @var Collection<int, Comment>
      */
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['remove'])]
     private Collection $comments;
+
+    #[ORM\Column]
+    private ?bool $isLocked = false;
 
     public function __construct()
     {
@@ -60,7 +62,8 @@ class Post
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    // ✅ FIXED: Added '?' to allow nulls (prevents 500 Error on empty submit)
+    public function setTitle(?string $title): static
     {
         $this->title = $title;
 
@@ -72,7 +75,8 @@ class Post
         return $this->content;
     }
 
-    public function setContent(string $content): static
+    // ✅ FIXED: Added '?' to allow nulls
+    public function setContent(?string $content): static
     {
         $this->content = $content;
 
@@ -136,7 +140,6 @@ class Post
     public function removeComment(Comment $comment): static
     {
         if ($this->comments->removeElement($comment)) {
-            // set the owning side to null (unless already changed)
             if ($comment->getPost() === $this) {
                 $comment->setPost(null);
             }
@@ -144,10 +147,6 @@ class Post
 
         return $this;
     }
-
-// new forum properties for lock and unlock feature ( admin )
-    #[ORM\Column]
-    private ?bool $isLocked = false;
 
     public function isLocked(): ?bool
     {

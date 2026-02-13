@@ -24,7 +24,6 @@
                                     </nav>
                                     <div class="d-flex align-items-center">
                                         <h1 class="h3 mb-0">{{ post.title }}</h1>
-                                        {# Show Locked Badge in Header #}
                                         {% if post.isLocked %}
                                             <span class="badge bg-danger ms-3">
                                                 <i class="bi bi-lock-fill me-1"></i>Locked
@@ -43,7 +42,6 @@
     <section class="pt-0">
         <div class="container">
             <div class="row">
-                
                 <div class="col-xl-9">
                     
                     <div class="card border bg-transparent rounded-3 mb-4">
@@ -65,13 +63,11 @@
                         </div>
 
                         <div class="card-body p-4">
-                            {# text-body ensures contrast in light mode #}
                             <p class="mb-4 text-body">{{ post.content }}</p>
 
                             <div class="d-flex gap-2">
                                 <button class="btn btn-sm btn-light mb-0"><i class="bi bi-hand-thumbs-up me-1"></i> Upvote</button>
                                 
-                                {# Hide Reply button if locked #}
                                 {% if not post.isLocked %}
                                     <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
                                 {% endif %}
@@ -125,7 +121,6 @@
                         </div>
                     </div>
 
-                    {# Logic: Hide Form and show "Locked" alert if locked #}
                     {% if post.isLocked %}
                         <div class="alert alert-secondary d-flex align-items-center mt-4 p-4 rounded-3" role="alert">
                             <div class="display-6 me-3"><i class="bi bi-lock-fill"></i></div>
@@ -140,8 +135,8 @@
                                 <h5 class="mb-0">Leave a Reply</h5>
                             </div>
                             <div class="card-body">
-                                {{ form_start(form) }}
-                                    {# FIXED: No title field here #}
+                                {# CHANGED: Added 'novalidate' here as well #}
+                                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                                     <div class="mb-3">
                                         {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '4', 'placeholder': 'Type your answer here...'}}) }}
                                         <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
