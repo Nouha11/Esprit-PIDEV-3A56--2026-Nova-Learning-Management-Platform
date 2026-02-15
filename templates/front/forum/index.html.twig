@@ -126,7 +126,6 @@
                                         <tr>
                                             <th scope="col" class="border-0 rounded-start">Topic</th>
                                             <th scope="col" class="border-0">Author</th>
-                                            {# NEW COLUMN HEADER #}
                                             <th scope="col" class="border-0">Upvotes</th>
                                             <th scope="col" class="border-0">Replies</th>
                                             <th scope="col" class="border-0 rounded-end">Action</th>
@@ -162,7 +161,6 @@
                                                 </div>
                                             </td>
 
-                                            {# NEW UPVOTE COLUMN #}
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <i class="bi bi-hand-thumbs-up-fill text-primary me-2"></i>
@@ -186,7 +184,6 @@
                                         </tr>
                                         {% else %}
                                             <tr>
-                                                {# UPDATED COLSPAN TO 5 TO ACCOUNT FOR NEW COLUMN #}
                                                 <td colspan="5" class="text-center py-5">
                                                     {% if searchQuery is defined and searchQuery %}
                                                         <div class="mb-3">
@@ -206,6 +203,12 @@
                                 </table>
                             </div>
                         </div>
+                        
+                        {# --- PAGINATION LINKS (ADDED HERE) --- #}
+                        <div class="d-flex justify-content-center mt-3 pb-3">
+                            {{ knp_pagination_render(posts) }}
+                        </div>
+
                     </div>
                 </div>
             </div>
