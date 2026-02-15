@@ -151,14 +151,14 @@
                                             <label for="username" class="form-label">Username *</label>
                                             <div class="input-group input-group-lg">
                                                 <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person-fill"></i></span>
-                                                <input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="username" name="username" required minlength="3" placeholder="Username">
+                                                <input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="username" name="username" minlength="3" placeholder="Username">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="email" class="form-label">Email *</label>
                                             <div class="input-group input-group-lg">
                                                 <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-envelope-fill"></i></span>
-                                                <input type="email" class="form-control border-0 bg-light rounded-end ps-1" id="email" name="email" required placeholder="E-mail">
+                                                <input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="email" name="email"  placeholder="E-mail">
                                             </div>
                                         </div>
                                     </div>
@@ -168,7 +168,7 @@
                                             <label for="password" class="form-label">Password *</label>
                                             <div class="input-group input-group-lg">
                                                 <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
-                                                <input type="password" class="form-control border-0 bg-light rounded-end ps-1" id="password" name="password" required minlength="8" placeholder="Password">
+                                                <input type="password" class="form-control border-0 bg-light rounded-end ps-1" id="password" name="password"  minlength="8" placeholder="Password">
                                             </div>
                                             <div class="form-text">Your password must be 8 characters at least</div>
                                         </div>
@@ -176,7 +176,7 @@
                                             <label for="confirmPassword" class="form-label">Confirm Password *</label>
                                             <div class="input-group input-group-lg">
                                                 <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
-                                                <input type="password" class="form-control border-0 bg-light rounded-end ps-1" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password">
+                                                <input type="password" class="form-control border-0 bg-light rounded-end ps-1" id="confirmPassword" name="confirmPassword"  placeholder="Confirm Password">
                                             </div>
                                         </div>
                                     </div>
@@ -192,14 +192,14 @@
                                             <label for="firstName" class="form-label">First Name *</label>
                                             <div class="input-group input-group-lg">
                                                 <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person"></i></span>
-                                                <input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="firstName" name="firstName" required minlength="2" placeholder="First Name">
+                                                <input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="firstName" name="firstName"  minlength="2" placeholder="First Name">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="lastName" class="form-label">Last Name *</label>
                                             <div class="input-group input-group-lg">
                                                 <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person"></i></span>
-                                                <input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="lastName" name="lastName" required minlength="2" placeholder="Last Name">
+                                                <input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="lastName" name="lastName"  minlength="2" placeholder="Last Name">
                                             </div>
                                         </div>
                                     </div>
@@ -208,7 +208,7 @@
                                         <label for="university" class="form-label">University *</label>
                                         <div class="input-group input-group-lg">
                                             <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-building"></i></span>
-                                            <input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="university" name="university" required minlength="3" placeholder="University">
+                                            <input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="university" name="university"  minlength="3" placeholder="University">
                                         </div>
                                     </div>
                                     
@@ -243,7 +243,7 @@
                                             <button class="btn btn-primary btn-lg mb-0" type="submit">Create Student Account</button>
                                         </div>
                                         <div class="d-grid">
-                                            <a href="" class="btn btn-outline-secondary">Back to Role Selection</a>
+                                            <a href="{{ path('app_signup') }}" class="btn btn-outline-secondary">Back to Role Selection</a>
                                         </div>
                                     </div>
                                 </form>

@@ -29,7 +29,7 @@
                 <div class="row g-3">
                     {% for choice in question.choices %}
                         <div class="col-md-6">
-                            <input type="radio" class="btn-check" name="answer" id="choice_{{ choice.id }}" value="{{ choice.id }}" required>
+                            <input type="radio" class="btn-check" name="answer" id="choice_{{ choice.id }}" value="{{ choice.id }}" >
                             <label class="btn btn-outline-primary w-100 p-4 h-100 d-flex align-items-center justify-content-center rounded-3 shadow-sm choice-card" for="choice_{{ choice.id }}">
                                 <span class="fs-5">{{ choice.content }}</span>
                             </label>
