@@ -3,6 +3,8 @@
 {% block title %}Edit Question{% endblock %}
 
 {% block body %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -20,7 +22,7 @@
                 </div>
                 
                 <div class="card-body p-4">
-                    {{ form_start(form) }}
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                         
                         {# 1. Question Text #}
                         <div class="mb-4">
