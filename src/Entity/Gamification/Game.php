@@ -29,7 +29,6 @@ class Game
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: "Description is required")]
     private ?string $description = null;
 
     #[ORM\Column(length: 50)]
@@ -47,16 +46,19 @@ class Game
     private ?string $difficulty = null;
 
     #[ORM\Column]
-    #[Assert\PositiveOrZero(message: "Token cost must be 0 or positive")]
-    private ?int $tokenCost = 0;
+    #[Assert\NotNull(message: "Token cost is required")]
+    #[Assert\PositiveOrZero(message: "Token cost must be positive")]
+    private ?int $tokenCost ;
 
     #[ORM\Column]
-    #[Assert\PositiveOrZero]
-    private ?int $rewardTokens = 0;
+    #[Assert\NotNull(message: "Reward tokens is required")]
+    #[Assert\PositiveOrZero(message: "Reward tokens must be positive")]
+    private ?int $rewardTokens ;
 
     #[ORM\Column]
-    #[Assert\PositiveOrZero]
-    private ?int $rewardXP = 0;
+    #[Assert\NotNull(message: "Reward XP is required")]
+    #[Assert\PositiveOrZero(message: "Reward XP must be positive")]
+    private ?int $rewardXP;
 
     #[ORM\Column]
     private ?bool $isActive = true;

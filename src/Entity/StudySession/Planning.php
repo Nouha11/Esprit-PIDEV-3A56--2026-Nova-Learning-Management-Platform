@@ -44,7 +44,7 @@ class Planning
         "today",
         message: "Scheduled date cannot be in the past"
     )]
-    private ?\DateTimeImmutable $scheduledDate = null;
+    private ?\DateTimeImmutable $scheduledDate ;
 
     #[ORM\Column(type: Types::TIME_IMMUTABLE)]
     #[Assert\NotNull(message: "Scheduled time is required")]
@@ -106,7 +106,7 @@ class Planning
         return $this->scheduledDate;
     }
 
-    public function setScheduledDate(\DateTimeImmutable $scheduledDate): static
+    public function setScheduledDate(?\DateTimeImmutable $scheduledDate): static
     {
         $this->scheduledDate = $scheduledDate;
 
@@ -118,7 +118,7 @@ class Planning
         return $this->scheduledTime;
     }
 
-    public function setScheduledTime(\DateTimeImmutable $scheduledTime): static
+    public function setScheduledTime(?\DateTimeImmutable $scheduledTime): static
     {
         $this->scheduledTime = $scheduledTime;
 
