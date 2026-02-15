@@ -245,4 +245,42 @@ class ForumController extends AbstractController
 
         return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
     }
+
+    
+    #[Route('/forum/comment/{id}/vote/{type}', name: 'app_forum_comment_vote', methods: ['POST'])]
+    public function voteComment(Comment $comment, string $type, EntityManagerInterface $entityManager): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['error' => 'Login required'], 403);
+        }
+
+        if ($type === 'up') {
+            if ($comment->isUpvotedBy($user)) {
+                $comment->removeUpvoter($user); // Toggle OFF
+            } else {
+                $comment->addUpvoter($user);    // Add Upvote
+                $comment->removeDownvoter($user); // Remove Downvote if exists
+            }
+        } elseif ($type === 'down') {
+            if ($comment->isDownvotedBy($user)) {
+                $comment->removeDownvoter($user); // Toggle OFF
+            } else {
+                $comment->addDownvoter($user);    // Add Downvote
+                $comment->removeUpvoter($user);   // Remove Upvote if exists
+            }
+        }
+
+        $entityManager->flush();
+
+        return $this->json([
+            'score' => $comment->getScore(),
+            'upvoted' => $comment->isUpvotedBy($user),
+            'downvoted' => $comment->isDownvotedBy($user)
+        ]);
+    }
+
+
 }

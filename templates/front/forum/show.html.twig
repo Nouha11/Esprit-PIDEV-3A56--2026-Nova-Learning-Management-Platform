@@ -44,6 +44,7 @@
             <div class="row">
                 <div class="col-xl-9">
                     
+                    {# --- MAIN POST --- #}
                     <div class="card border bg-transparent rounded-3 mb-4">
                         <div class="card-header bg-transparent border-bottom p-3">
                             <div class="d-flex align-items-center justify-content-between">
@@ -68,7 +69,7 @@
                             <p class="mb-4 text-body">{{ post.content }}</p>
 
                             <div class="d-flex gap-2 align-items-center">
-                                {# UPVOTE BUTTON #}
+                                {# POST UPVOTE BUTTON #}
                                 {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
                                 <button class="btn btn-sm mb-0 upvote-btn {{ is_upvoted ? 'btn-primary' : 'btn-light' }}" 
                                         data-id="{{ post.id }}">
@@ -76,15 +77,14 @@
                                     <span class="btn-text">{{ is_upvoted ? 'Upvoted' : 'Upvote' }}</span>
                                 </button>
                                 
-                                {# REPLY BUTTON (Hidden if locked) #}
+                                {# REPLY BUTTON #}
                                 {% if not post.isLocked %}
                                     <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
                                 {% endif %}
                                 
-                                {# AUTHOR / ADMIN ACTIONS #}
+                                {# ADMIN/AUTHOR ACTIONS #}
                                 {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
                                     <div class="ms-auto d-flex gap-2">
-                                        {# NEW: LOCK/UNLOCK BUTTON #}
                                         <a href="{{ path('app_forum_toggle_lock', {'id': post.id}) }}" 
                                            class="btn btn-sm {{ post.isLocked ? 'btn-success-soft' : 'btn-secondary-soft' }} mb-0"
                                            title="{{ post.isLocked ? 'Unlock Discussion' : 'Lock Discussion' }}">
@@ -95,12 +95,10 @@
                                             {% endif %}
                                         </a>
 
-                                        {# EDIT BUTTON #}
                                         <a href="{{ path('app_forum_edit', {'id': post.id}) }}" class="btn btn-sm btn-warning-soft mb-0">
                                             <i class="bi bi-pencil"></i> Edit
                                         </a>
 
-                                        {# DELETE BUTTON #}
                                         <form method="post" action="{{ path('app_forum_delete', {'id': post.id}) }}" style="display:inline;" onsubmit="return confirm('Delete this post? This action cannot be undone.')">
                                             <button class="btn btn-sm btn-danger-soft mb-0" type="submit">
                                                 <i class="bi bi-trash"></i> Delete
@@ -112,6 +110,7 @@
                         </div>
                     </div>
 
+                    {# --- COMMENTS SECTION --- #}
                     <div class="card border bg-transparent rounded-3">
                         <div class="card-header bg-transparent border-bottom">
                             <h3 class="mb-0 h5">Replies ({{ post.comments|length }})</h3>
@@ -119,11 +118,30 @@
                         <div class="card-body">
                             {% for comment in post.comments %}
                                 <div class="d-flex mb-4 p-3 rounded-3 {{ comment.isSolution ? 'bg-success bg-opacity-10 border border-success' : '' }}" id="comment-{{ comment.id }}">
-                                    <div class="avatar avatar-sm me-3">
-                                        <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][comment.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
-                                            <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
+                                    
+                                    {# --- LEFT SIDE: AVATAR + VOTE CONTROLS --- #}
+                                    <div class="me-3 text-center d-flex flex-column align-items-center" style="min-width: 50px;">
+                                        <div class="avatar avatar-sm mb-2">
+                                            <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][comment.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
+                                                <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        {# Voting Arrows #}
+                                        <div class="d-flex flex-column align-items-center comment-vote-box" data-id="{{ comment.id }}">
+                                            <a href="#" class="vote-action text-secondary {{ app.user and comment.isUpvotedBy(app.user) ? 'text-success' : '' }}" data-type="up" style="text-decoration: none;">
+                                                <i class="bi bi-caret-up-fill fs-4"></i>
+                                            </a>
+                                            
+                                            <span class="fw-bold small score-count my-1">{{ comment.score }}</span>
+                                            
+                                            <a href="#" class="vote-action text-secondary {{ app.user and comment.isDownvotedBy(app.user) ? 'text-danger' : '' }}" data-type="down" style="text-decoration: none;">
+                                                <i class="bi bi-caret-down-fill fs-4"></i>
+                                            </a>
                                         </div>
                                     </div>
+
+                                    {# --- RIGHT SIDE: CONTENT --- #}
                                     <div class="w-100">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
@@ -164,6 +182,7 @@
                         </div>
                     </div>
 
+                    {# --- REPLY FORM / LOCKED ALERT --- #}
                     {% if post.isLocked %}
                         <div class="alert alert-secondary d-flex align-items-center mt-4 p-4 rounded-3" role="alert">
                             <div class="display-6 me-3"><i class="bi bi-lock-fill"></i></div>
@@ -193,6 +212,7 @@
 
                 </div>
 
+                {# --- SIDEBAR --- #}
                 <div class="col-xl-3">
                     <div class="card border bg-transparent rounded-3 mb-3">
                         <div class="card-header bg-transparent border-bottom">
@@ -241,10 +261,10 @@
     </section>
 </main>
 
-{# --- JAVASCRIPT FOR UPVOTES AND SOLUTIONS --- #}
+{# --- JAVASCRIPT --- #}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // UPVOTE LOGIC
+        // 1. MAIN POST UPVOTE LOGIC
         const upvoteBtn = document.querySelector('.upvote-btn');
         if (upvoteBtn) {
             upvoteBtn.addEventListener('click', function (e) {
@@ -284,7 +304,7 @@
             });
         }
 
-        // SOLUTION LOGIC
+        // 2. MARK AS SOLUTION LOGIC
         const solutionBtns = document.querySelectorAll('.solution-btn');
         solutionBtns.forEach(btn => {
             btn.addEventListener('click', function (e) {
@@ -327,6 +347,57 @@
                     }
                 })
                 .catch(err => console.error('Error:', err));
+            });
+        });
+
+        // 3. COMMENT VOTE LOGIC (REDDIT STYLE)
+        const voteActions = document.querySelectorAll('.vote-action');
+        
+        voteActions.forEach(action => {
+            action.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const container = this.closest('.comment-vote-box');
+                const commentId = container.dataset.id;
+                const type = this.dataset.type; // 'up' or 'down'
+                const scoreDisplay = container.querySelector('.score-count');
+                const upBtn = container.querySelector('[data-type="up"]');
+                const downBtn = container.querySelector('[data-type="down"]');
+
+                fetch(`/forum/comment/${commentId}/vote/${type}`, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => {
+                    if (response.status === 403) {
+                        alert('Please log in to vote.');
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if(data) {
+                        // Update Score
+                        scoreDisplay.textContent = data.score;
+
+                        // Reset Colors
+                        upBtn.classList.remove('text-success');
+                        upBtn.classList.add('text-secondary');
+                        downBtn.classList.remove('text-danger');
+                        downBtn.classList.add('text-secondary');
+
+                        // Apply Active Color
+                        if (data.upvoted) {
+                            upBtn.classList.remove('text-secondary');
+                            upBtn.classList.add('text-success');
+                        }
+                        if (data.downvoted) {
+                            downBtn.classList.remove('text-secondary');
+                            downBtn.classList.add('text-danger');
+                        }
+                    }
+                })
+                .catch(err => console.error(err));
             });
         });
     });
