@@ -219,4 +219,35 @@ class ForumController extends AbstractController
             'isSolution' => $comment->isSolution()
         ]);
     }
+
+    #[Route('/forum/post/{id}/lock', name: 'app_forum_toggle_lock')]
+    public function toggleLock(Post $post, EntityManagerInterface $entityManager): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$user) {
+            $this->addFlash('error', 'You must be logged in.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Check permissions: Author OR Admin
+        $isAuthor = $post->getAuthor()->getId() === $user->getId();
+        $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
+
+        if (!$isAuthor && !$isAdmin) {
+            $this->addFlash('error', 'You are not authorized to manage this discussion.');
+            return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+        }
+
+        // Toggle the lock status (True -> False, or False -> True)
+        $post->setIsLocked(!$post->isLocked());
+        $entityManager->flush();
+
+        $status = $post->isLocked() ? 'locked' : 'unlocked';
+        $this->addFlash('success', "Discussion has been $status.");
+
+        return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+    }
+
 }
