@@ -1,5 +1,9 @@
 {% extends 'base.html.twig' %}
 
+{# --- 1. ENABLE BOOTSTRAP 5 FORM THEME --- #}
+{# This automatically styles errors red and adds 'is-invalid' classes #}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block body %}
@@ -199,7 +203,10 @@
                             <div class="card-body">
                                 {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                                     <div class="mb-3">
+                                        {# The Theme handles the 'is-invalid' class automatically now #}
                                         {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '4', 'placeholder': 'Type your answer here...'}}) }}
+                                        
+                                        {# We can keep this just in case, or let the theme handle it #}
                                         <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
                                     </div>
                                     <div class="text-end">
