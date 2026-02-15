@@ -35,8 +35,11 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Scheduled Date *</label>
+                                {{ form_label(form.scheduledDate, 'Scheduled Date', {'label_attr': {'class': 'form-label'}}) }}
                                 {{ form_widget(form.scheduledDate, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.scheduledDate) }}
+                                <div class="text-danger small mt-1">
+                                    {{ form_errors(form.scheduledDate) }}
+                                </div>
                             </div>
 
                             <div class="col-md-6">

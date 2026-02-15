@@ -3,6 +3,8 @@
 {% block title %}Edit Reward{% endblock %}
 
 {% block admin_content %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Edit Reward: {{ reward.name }}</h1>
@@ -15,7 +17,11 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    {{ form_start(form) }}
+                    {{ form_start(form, {
+                        'attr': {
+                            'novalidate': 'novalidate'
+                        }
+                    }) }}
                         <div class="mb-3">
                             {{ form_label(form.name) }}
                             {{ form_widget(form.name) }}

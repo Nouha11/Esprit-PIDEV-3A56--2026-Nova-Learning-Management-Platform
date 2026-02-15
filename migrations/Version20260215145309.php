@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260215123533 extends AbstractMigration
+final class Version20260215145309 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,16 +20,11 @@ final class Version20260215123533 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE TABLE comment_upvoters (comment_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_C8E3F802F8697D13 (comment_id), INDEX IDX_C8E3F802A76ED395 (user_id), PRIMARY KEY (comment_id, user_id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE comment_downvoters (comment_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_FFFCACAAF8697D13 (comment_id), INDEX IDX_FFFCACAAA76ED395 (user_id), PRIMARY KEY (comment_id, user_id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('ALTER TABLE comment_upvoters ADD CONSTRAINT FK_C8E3F802F8697D13 FOREIGN KEY (comment_id) REFERENCES comment (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE comment_upvoters ADD CONSTRAINT FK_C8E3F802A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE comment_downvoters ADD CONSTRAINT FK_FFFCACAAF8697D13 FOREIGN KEY (comment_id) REFERENCES comment (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE comment_downvoters ADD CONSTRAINT FK_FFFCACAAA76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE books CHANGE price price NUMERIC(10, 2) DEFAULT NULL, CHANGE cover_image cover_image VARCHAR(255) DEFAULT NULL, CHANGE author author VARCHAR(255) DEFAULT NULL, CHANGE isbn isbn VARCHAR(20) DEFAULT NULL, CHANGE published_at published_at DATETIME DEFAULT NULL, CHANGE updated_at updated_at DATETIME DEFAULT NULL');
         $this->addSql('ALTER TABLE course CHANGE description description VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE libraries CHANGE address address VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE loans CHANGE end_at end_at DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE planning CHANGE scheduled_date scheduled_date TIME DEFAULT NULL');
         $this->addSql('ALTER TABLE reward CHANGE icon icon VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE student_profile CHANGE university university VARCHAR(100) DEFAULT NULL, CHANGE major major VARCHAR(100) DEFAULT NULL, CHANGE academic_level academic_level VARCHAR(50) DEFAULT NULL, CHANGE profile_picture profile_picture VARCHAR(255) DEFAULT NULL, CHANGE interests interests JSON DEFAULT NULL');
         $this->addSql('ALTER TABLE study_session CHANGE ended_at ended_at DATETIME DEFAULT NULL, CHANGE completed_at completed_at DATETIME DEFAULT NULL');
@@ -40,17 +35,12 @@ final class Version20260215123533 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE comment_upvoters DROP FOREIGN KEY FK_C8E3F802F8697D13');
-        $this->addSql('ALTER TABLE comment_upvoters DROP FOREIGN KEY FK_C8E3F802A76ED395');
-        $this->addSql('ALTER TABLE comment_downvoters DROP FOREIGN KEY FK_FFFCACAAF8697D13');
-        $this->addSql('ALTER TABLE comment_downvoters DROP FOREIGN KEY FK_FFFCACAAA76ED395');
-        $this->addSql('DROP TABLE comment_upvoters');
-        $this->addSql('DROP TABLE comment_downvoters');
         $this->addSql('ALTER TABLE books CHANGE price price NUMERIC(10, 2) DEFAULT \'NULL\', CHANGE cover_image cover_image VARCHAR(255) DEFAULT \'NULL\', CHANGE author author VARCHAR(255) DEFAULT \'NULL\', CHANGE isbn isbn VARCHAR(20) DEFAULT \'NULL\', CHANGE published_at published_at DATETIME DEFAULT \'NULL\', CHANGE updated_at updated_at DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE course CHANGE description description VARCHAR(255) DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE libraries CHANGE address address VARCHAR(255) DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE loans CHANGE end_at end_at DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE messenger_messages CHANGE delivered_at delivered_at DATETIME DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE planning CHANGE scheduled_date scheduled_date TIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE reward CHANGE icon icon VARCHAR(255) DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE student_profile CHANGE university university VARCHAR(100) DEFAULT \'NULL\', CHANGE major major VARCHAR(100) DEFAULT \'NULL\', CHANGE academic_level academic_level VARCHAR(50) DEFAULT \'NULL\', CHANGE profile_picture profile_picture VARCHAR(255) DEFAULT \'NULL\', CHANGE interests interests LONGTEXT DEFAULT NULL COLLATE `utf8mb4_bin`');
         $this->addSql('ALTER TABLE study_session CHANGE ended_at ended_at DATETIME DEFAULT \'NULL\', CHANGE completed_at completed_at DATETIME DEFAULT \'NULL\'');
