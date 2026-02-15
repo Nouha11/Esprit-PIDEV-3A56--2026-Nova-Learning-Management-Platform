@@ -3,8 +3,7 @@
 {% block title %}Create Course - NOVA{% endblock %}
 
 {% block body %}
-
-
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
 <!-- Main Content START -->
 <main>
     <div class="container">
@@ -44,7 +43,8 @@
                             <h5 class="mb-0">Course Information</h5>
                         </div>
                         <div class="card-body">
-                            {{ form_start(form) }}
+                            {{ form_start(form, 
+                                        {'attr': {'novalidate': 'novalidate'}}) }}
                                 
                                 <div class="mb-3">
                                     {{ form_label(form.courseName, 'Course Name', {'label_attr': {'class': 'form-label'}}) }}
