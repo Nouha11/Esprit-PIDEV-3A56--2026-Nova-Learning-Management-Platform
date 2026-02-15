@@ -22,8 +22,13 @@ class Question
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: "You must write a question!")]
-    #[Assert\Length(min: 5, minMessage: "The question is too short (min 5 characters).")]
+    #[Assert\NotBlank(message: "Text is required")]
+    #[Assert\Length(
+        min: 1,
+        max: 5000,
+        minMessage: "Text must be at least {{ limit }} character long",
+        maxMessage: "Text cannot be longer than {{ limit }} characters"
+    )]
     private ?string $text = null;
 
     #[ORM\Column]

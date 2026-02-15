@@ -25,21 +25,24 @@ class BookType extends AbstractType
             // Champ TITRE: Obligatoire, entre 3 et 255 caractères
             ->add('title', TextType::class, [
                 'label' => 'Titre du livre',
-                'attr' => ['class' => 'form-control', 'placeholder' => 'Entrez le titre du livre']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Entrez le titre du livre'],
+                'empty_data' => '',
             ])
             
             // Champ DESCRIPTION: Optionnel, maximum 5000 caractères
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'required' => false,
-                'attr' => ['class' => 'form-control', 'placeholder' => 'Entrez la description du livre', 'rows' => '5']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Entrez la description du livre', 'rows' => '5'],
+                'empty_data' => '',
             ])
             
             // Champ AUTEUR: Optionnel, entre 2 et 255 caractères si fourni
             ->add('author', TextType::class, [
                 'label' => 'Nom de l\'auteur',
                 'required' => false,
-                'attr' => ['class' => 'form-control', 'placeholder' => 'Entrez le nom de l\'auteur']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Entrez le nom de l\'auteur'],
+                'empty_data' => '',
             ])
             
             // Champ FORMAT: Booléen (case à cocher) - Digital ou Physique
@@ -66,7 +69,8 @@ class BookType extends AbstractType
                 'label' => 'Prix',
                 'currency' => 'USD',
                 'required' => false,
-                'attr' => ['class' => 'form-control', 'placeholder' => '0.00']
+                'attr' => ['class' => 'form-control', 'placeholder' => '0.00'],
+                'empty_data' => '0',
             ])
             
             // Champ DATE DE PUBLICATION: Optionnel, ne peut pas être dans le futur

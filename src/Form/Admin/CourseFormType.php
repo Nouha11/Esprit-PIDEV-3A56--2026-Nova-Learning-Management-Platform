@@ -19,13 +19,15 @@ class CourseFormType extends AbstractType
         $builder
             ->add('courseName', TextType::class, [
                 'label' => 'Course Name',
-                'attr' => ['class' => 'form-control', 'placeholder' => 'e.g., Introduction to PHP']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'e.g., Introduction to PHP'],
+                'empty_data' => '',
             ])
             
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'required' => false,
-                'attr' => ['class' => 'form-control', 'rows' => 4]
+                'attr' => ['class' => 'form-control', 'rows' => 4],
+                'empty_data' => '',
             ])
             
             ->add('difficulty', ChoiceType::class, [
@@ -40,13 +42,15 @@ class CourseFormType extends AbstractType
             
             ->add('estimatedDuration', IntegerType::class, [
                 'label' => 'Estimated Duration (minutes)',
-                'attr' => ['class' => 'form-control', 'min' => 1]
+                'attr' => ['class' => 'form-control', 'min' => 1],
+                'empty_data' => '0',
             ])
             
             ->add('progress', IntegerType::class, [
                 'label' => 'Progress (%)',
                 'required' => false,
-                'attr' => ['class' => 'form-control', 'min' => 0, 'max' => 100]
+                'attr' => ['class' => 'form-control', 'min' => 0, 'max' => 100],
+                'empty_data' => '0',
             ])
             
             ->add('status', ChoiceType::class, [
@@ -61,13 +65,15 @@ class CourseFormType extends AbstractType
             
             ->add('category', TextType::class, [
                 'label' => 'Category',
-                'attr' => ['class' => 'form-control', 'placeholder' => 'e.g., Programming']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'e.g., Programming'],
+                'empty_data' => '',
             ])
             
             ->add('maxStudents', IntegerType::class, [
                 'label' => 'Maximum Students',
                 'required' => false,
-                'attr' => ['class' => 'form-control', 'min' => 1]
+                'attr' => ['class' => 'form-control', 'min' => 1],
+                'empty_data' => '0',
             ])
             
             ->add('isPublished', CheckboxType::class, [

@@ -10,6 +10,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType; 
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType; // required for the dropdown
 
 class QuestionType extends AbstractType
@@ -24,15 +26,25 @@ class QuestionType extends AbstractType
                 'placeholder' => 'Select a Quiz...',
                 'label' => 'Assign to Quiz',
                 'required' => true,
+                'invalid_message' => 'Please select a valid quiz',
             ])
             
             // 👇 Existing fields
-            ->add('text', null, [
+            ->add('text', TextareaType::class, [
                 'label' => 'Question Text',
-                'attr' => ['placeholder' => 'e.g., What is 2 + 2?']
+                'required' => true,
+                'attr' => [
+                    'placeholder' => 'e.g., What is 2 + 2?',
+                    'rows' => 4
+                ],
+                'invalid_message' => 'Please enter valid question text',
+                'empty_data' => '', // Prevents null from being passed
             ])
-            ->add('xpValue', null, [
-                'label' => 'XP Reward'
+            ->add('xpValue', IntegerType::class, [
+                'label' => 'XP Reward',
+                'required' => true,
+                'invalid_message' => 'Please enter a valid XP value',
+                'empty_data' => '0',
             ])
             ->add('difficulty', ChoiceType::class, [
                 'choices'  => [
@@ -40,6 +52,9 @@ class QuestionType extends AbstractType
                     'Medium' => 'Medium',
                     'Hard' => 'Hard',
                 ],
+                'required' => true,
+                'placeholder' => 'Select difficulty...',
+                'invalid_message' => 'Please select a valid difficulty',
             ])
             ->add('choices', CollectionType::class, [
                 'entry_type' => AnswerType::class,

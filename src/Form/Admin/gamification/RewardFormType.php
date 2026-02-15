@@ -18,13 +18,15 @@ class RewardFormType extends AbstractType
         $builder
         ->add('name', TextType::class, [
             'label' => 'Reward Name',
-            'attr' => ['class' => 'form-control']
+            'attr' => ['class' => 'form-control'],
+            'empty_data' => '',
         ])
 
         ->add('description', TextareaType::class, [
             'label' => 'Description',
             'required' => false,
-            'attr' => ['class' => 'form-control', 'rows' => 3]
+            'attr' => ['class' => 'form-control', 'rows' => 3],
+            'empty_data' => '',
         ])
 
         ->add('type', ChoiceType::class, [
@@ -40,20 +42,23 @@ class RewardFormType extends AbstractType
 
         ->add('value', IntegerType::class, [
             'label' => 'Value (XP or Tokens)',
-            'attr' => ['class' => 'form-control', 'min' => 0]
+            'attr' => ['class' => 'form-control', 'min' => 0],
+            'empty_data' => '0',
         ])
 
         ->add('requirement', TextareaType::class, [
             'label' => 'Requirement to Unlock',
             'required' => false,
             'attr' => ['class' => 'form-control', 'rows' => 2,
-            'placeholder' => 'e.g., Complete 10 games']
+            'placeholder' => 'e.g., Complete 10 games'],
+            'empty_data' => '',
         ])
 
         ->add('icon', TextType::class, [
             'label' => 'Icon URL',
             'required' => false,
-            'attr' => ['class' => 'form-control']
+            'attr' => ['class' => 'form-control'],
+            'empty_data' => '',
         ])
 
         ->add('isActive', CheckboxType::class, [

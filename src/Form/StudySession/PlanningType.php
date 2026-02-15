@@ -16,14 +16,18 @@ class PlanningType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('title')
+            ->add('title', null, [
+                'empty_data' => '',
+            ])
             ->add('scheduledDate', DateType::class, [
                 'widget' => 'single_text'
             ])
             ->add('scheduledTime', TimeType::class, [
                 'widget' => 'single_text'
             ])
-            ->add('plannedDuration', IntegerType::class)
+            ->add('plannedDuration', IntegerType::class, [
+                'empty_data' => '0',
+            ])
             ->add('reminder', CheckboxType::class, [
                 'required' => false
             ]);
