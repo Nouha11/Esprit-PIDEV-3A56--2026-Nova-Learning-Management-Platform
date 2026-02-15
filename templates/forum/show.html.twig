@@ -67,7 +67,8 @@
                         <div class="card-body p-4">
                             <p class="mb-4 text-body">{{ post.content }}</p>
 
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 align-items-center">
+                                {# UPVOTE BUTTON #}
                                 {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
                                 <button class="btn btn-sm mb-0 upvote-btn {{ is_upvoted ? 'btn-primary' : 'btn-light' }}" 
                                         data-id="{{ post.id }}">
@@ -75,19 +76,38 @@
                                     <span class="btn-text">{{ is_upvoted ? 'Upvoted' : 'Upvote' }}</span>
                                 </button>
                                 
+                                {# REPLY BUTTON (Hidden if locked) #}
                                 {% if not post.isLocked %}
                                     <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
                                 {% endif %}
                                 
+                                {# AUTHOR / ADMIN ACTIONS (Pushed to the right) #}
                                 {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
-                                    <a href="{{ path('app_forum_edit', {'id': post.id}) }}" class="btn btn-sm btn-warning-soft mb-0 ms-auto me-2">
-                                        <i class="bi bi-pencil"></i> Edit
-                                    </a>
-                                    <form method="post" action="{{ path('app_forum_delete', {'id': post.id}) }}" style="display:inline;" onsubmit="return confirm('Delete this post? This action cannot be undone.')">
-                                        <button class="btn btn-sm btn-danger-soft mb-0" type="submit">
-                                            <i class="bi bi-trash"></i> Delete
-                                        </button>
-                                    </form>
+                                    <div class="ms-auto d-flex gap-2">
+                                        {# NEW: LOCK/UNLOCK BUTTON #}
+                                        <a href="{{ path('app_forum_toggle_lock', {'id': post.id}) }}" 
+                                           class="btn btn-sm {{ post.isLocked ? 'btn-success-soft' : 'btn-secondary-soft' }} mb-0"
+                                           data-bs-toggle="tooltip"
+                                           title="{{ post.isLocked ? 'Unlock Discussion' : 'Lock Discussion' }}">
+                                            {% if post.isLocked %}
+                                                <i class="bi bi-unlock-fill"></i> Unlock
+                                            {% else %}
+                                                <i class="bi bi-lock-fill"></i> Lock
+                                            {% endif %}
+                                        </a>
+
+                                        {# EDIT BUTTON #}
+                                        <a href="{{ path('app_forum_edit', {'id': post.id}) }}" class="btn btn-sm btn-warning-soft mb-0">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+
+                                        {# DELETE BUTTON #}
+                                        <form method="post" action="{{ path('app_forum_delete', {'id': post.id}) }}" style="display:inline;" onsubmit="return confirm('Delete this post? This action cannot be undone.')">
+                                            <button class="btn btn-sm btn-danger-soft mb-0" type="submit">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -117,7 +137,6 @@
                                                 <small class="text-secondary">{{ comment.createdAt|date('M d, Y H:i') }}</small>
                                             </div>
 
-                                            {# SOLUTION BADGE #}
                                             <div class="solution-badge {{ comment.isSolution ? '' : 'd-none' }}">
                                                 <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Solution</span>
                                             </div>
@@ -125,7 +144,6 @@
 
                                         <p class="mt-2 mb-2 text-body">{{ comment.content }}</p>
 
-                                        {# MARK AS SOLUTION BUTTON #}
                                         {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
                                             <div class="d-flex justify-content-end">
                                                 <button class="btn btn-sm solution-btn {{ comment.isSolution ? 'btn-outline-success active' : 'btn-outline-secondary' }}" 
@@ -152,7 +170,7 @@
                             <div class="display-6 me-3"><i class="bi bi-lock-fill"></i></div>
                             <div>
                                 <h6 class="mb-1">This discussion is locked</h6>
-                                <p class="mb-0 small">An administrator has closed this topic. New replies are no longer accepted.</p>
+                                <p class="mb-0 small">The author or an administrator has closed this topic. New replies are no longer accepted.</p>
                             </div>
                         </div>
                     {% else %}
