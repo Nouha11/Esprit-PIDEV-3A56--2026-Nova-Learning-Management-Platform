@@ -31,7 +31,16 @@ final class AdminTutorController extends AbstractController
             $tutor->setFirstName($request->request->get('firstName'));
             $tutor->setLastName($request->request->get('lastName'));
             $tutor->setBio($request->request->get('bio'));
-            $tutor->setExpertise($request->request->get('expertise'));
+            
+            // Convert expertise string to array
+            $expertiseString = $request->request->get('expertise');
+            if ($expertiseString) {
+                $expertiseArray = array_filter(array_map('trim', explode(',', $expertiseString)));
+                $tutor->setExpertise($expertiseArray);
+            } else {
+                $tutor->setExpertise(null);
+            }
+            
             $tutor->setQualifications($request->request->get('qualifications'));
             $tutor->setYearsOfExperience((int)$request->request->get('yearsOfExperience'));
             $tutor->setHourlyRate($request->request->get('hourlyRate'));
@@ -62,7 +71,16 @@ final class AdminTutorController extends AbstractController
             $tutor->setFirstName($request->request->get('firstName'));
             $tutor->setLastName($request->request->get('lastName'));
             $tutor->setBio($request->request->get('bio'));
-            $tutor->setExpertise($request->request->get('expertise'));
+            
+            // Convert expertise string to array
+            $expertiseString = $request->request->get('expertise');
+            if ($expertiseString) {
+                $expertiseArray = array_filter(array_map('trim', explode(',', $expertiseString)));
+                $tutor->setExpertise($expertiseArray);
+            } else {
+                $tutor->setExpertise(null);
+            }
+            
             $tutor->setQualifications($request->request->get('qualifications'));
             $tutor->setYearsOfExperience((int)$request->request->get('yearsOfExperience'));
             $tutor->setHourlyRate($request->request->get('hourlyRate'));
