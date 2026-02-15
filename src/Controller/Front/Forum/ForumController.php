@@ -9,6 +9,7 @@ use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
 use App\Entity\users\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface; // <--- ADDED THIS
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +19,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ForumController extends AbstractController
 {
     #[Route('/forum', name: 'app_forum')]
-    public function index(PostRepository $postRepository, Request $request, EntityManagerInterface $entityManager): Response
+    public function index(
+        PostRepository $postRepository, 
+        Request $request, 
+        EntityManagerInterface $entityManager,
+        PaginatorInterface $paginator // <--- INJECTED THIS
+    ): Response
     {
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
@@ -47,13 +53,24 @@ class ForumController extends AbstractController
 
         $searchQuery = $request->query->get('q');
 
+        // --- UPDATED LOGIC FOR PAGINATION ---
         if ($searchQuery) {
-            $posts = $postRepository->adminSearch($searchQuery);
+            // Assuming adminSearch returns a query or results we can paginate
+            $query = $postRepository->adminSearch($searchQuery);
         } else {
-            $posts = $postRepository->findBy([], ['createdAt' => 'DESC']);
+            // Use createQueryBuilder to get a Query object (optimized for pagination)
+            $query = $postRepository->createQueryBuilder('p')
+                ->orderBy('p.createdAt', 'DESC')
+                ->getQuery();
         }
 
-        // FIXED: Pointing to 'front/forum'
+        // Paginate the results (5 posts per page)
+        $posts = $paginator->paginate(
+            $query, 
+            $request->query->getInt('page', 1), /* page number */
+            5 /* limit per page */
+        );
+
         return $this->render('front/forum/index.html.twig', [
             'form' => $form->createView(),
             'posts' => $posts,
@@ -94,7 +111,6 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
-        // FIXED: Pointing to 'front/forum'
         return $this->render('front/forum/show.html.twig', [
             'post' => $post,
             'form' => $form->createView(),
@@ -155,7 +171,6 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
-        // FIXED: Pointing to 'front/forum'
         return $this->render('front/forum/edit.html.twig', [
             'form' => $form->createView(),
             'post' => $post,
@@ -246,7 +261,6 @@ class ForumController extends AbstractController
         return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
     }
 
-    
     #[Route('/forum/comment/{id}/vote/{type}', name: 'app_forum_comment_vote', methods: ['POST'])]
     public function voteComment(Comment $comment, string $type, EntityManagerInterface $entityManager): JsonResponse
     {
@@ -259,17 +273,17 @@ class ForumController extends AbstractController
 
         if ($type === 'up') {
             if ($comment->isUpvotedBy($user)) {
-                $comment->removeUpvoter($user); // Toggle OFF
+                $comment->removeUpvoter($user); 
             } else {
-                $comment->addUpvoter($user);    // Add Upvote
-                $comment->removeDownvoter($user); // Remove Downvote if exists
+                $comment->addUpvoter($user);    
+                $comment->removeDownvoter($user); 
             }
         } elseif ($type === 'down') {
             if ($comment->isDownvotedBy($user)) {
-                $comment->removeDownvoter($user); // Toggle OFF
+                $comment->removeDownvoter($user); 
             } else {
-                $comment->addDownvoter($user);    // Add Downvote
-                $comment->removeUpvoter($user);   // Remove Upvote if exists
+                $comment->addDownvoter($user);    
+                $comment->removeUpvoter($user);   
             }
         }
 
@@ -281,6 +295,4 @@ class ForumController extends AbstractController
             'downvoted' => $comment->isDownvotedBy($user)
         ]);
     }
-
-
 }
