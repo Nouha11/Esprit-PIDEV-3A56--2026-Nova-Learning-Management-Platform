@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: QuizRepository::class)]
 class Quiz
@@ -18,9 +19,20 @@ class Quiz
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Quiz title is required")]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: "Title must be at least {{ limit }} characters long",
+        maxMessage: "Title cannot be longer than {{ limit }} characters"
+    )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(
+        max: 1000,
+        maxMessage: "Description cannot be longer than {{ limit }} characters"
+    )]
     private ?string $description = null;
 
     /**
@@ -44,7 +56,7 @@ class Quiz
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(?string $title): static
     {
         $this->title = $title;
 

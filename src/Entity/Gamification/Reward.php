@@ -19,13 +19,24 @@ class Reward
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "Reward name is required")]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: "Name must be at least {{ limit }} characters long",
+        maxMessage: "Name cannot be longer than {{ limit }} characters"
+    )]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(
+        max: 1000,
+        maxMessage: "Description cannot be longer than {{ limit }} characters"
+    )]
     private ?string $description = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "Reward type is required")]
     #[Assert\Choice(
         choices: ['BADGE', 'ACHIEVEMENT', 'BONUS_XP', 'BONUS_TOKENS'],
         message: 'Choose a valid reward type'
@@ -33,10 +44,15 @@ class Reward
     private ?string $type = null;
 
     #[ORM\Column]
-    #[Assert\PositiveOrZero]
-    private ?int $value = 0;
+    #[Assert\NotNull(message: "Value is required")]
+    #[Assert\PositiveOrZero(message: "Value must be 0 or positive")]
+    private ?int $value;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(
+        max: 500,
+        maxMessage: "Requirement cannot be longer than {{ limit }} characters"
+    )]
     private ?string $requirement = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -70,7 +86,7 @@ class Reward
         return $this->name;
     }
     
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
         $this->name = $name;
         return $this;
@@ -92,7 +108,7 @@ class Reward
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(?string $type): static
     {
         $this->type = $type;
         return $this;
@@ -103,7 +119,7 @@ class Reward
         return $this->value;
     }
 
-    public function setValue(int $value): static
+    public function setValue(?int $value): static
     {
         $this->value = $value;
         return $this;
@@ -136,7 +152,7 @@ class Reward
         return $this->isActive;
     }
 
-    public function setIsActive(bool $isActive): static
+    public function setIsActive(?bool $isActive): static
     {
         $this->isActive = $isActive;
         return $this;

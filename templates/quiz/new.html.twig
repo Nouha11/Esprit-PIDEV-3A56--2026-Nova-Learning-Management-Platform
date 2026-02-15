@@ -3,6 +3,8 @@
 {% block title %}Create New Quiz{% endblock %}
 
 {% block body %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
@@ -14,7 +16,7 @@
 
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
-                    {{ form_start(form) }}
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                         
                         <div class="mb-4">
                             <label class="form-label fw-bold">Quiz Title</label>

@@ -5,6 +5,7 @@
 {% block admin_content %}
 {# 1. Define the current_prefix at the top of the block #}
 {% set current_prefix = app.request.attributes.get('prefix') %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
 
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -27,7 +28,7 @@
                 </div>
                 
                 <div class="card-body p-4">
-                    {{ form_start(form) }}
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                         
                         {# 1. Title Field #}
                         <div class="mb-4">

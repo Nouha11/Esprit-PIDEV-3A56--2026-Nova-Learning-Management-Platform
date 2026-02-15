@@ -5,6 +5,7 @@
 {% block admin_content %}
 {# 1. Define current_prefix to solve the "mandatory parameter" error #}
 {% set current_prefix = app.request.attributes.get('prefix') %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
 
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -34,7 +35,7 @@
                 </div>
                 
                 <div class="card-body p-4">
-                    {{ form_start(form) }}
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                         
                         {# 1. Question Text #}
                         <div class="mb-4">
