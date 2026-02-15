@@ -25,7 +25,7 @@ class ForumController extends AbstractController
         Request $request, 
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
-        CensorshipService $censorship // added to inject the service
+        CensorshipService $censorship
     ): Response
     {
         $post = new Post();
@@ -41,10 +41,9 @@ class ForumController extends AbstractController
                 return $this->redirectToRoute('app_login');
             }
 
-            // --- 1. CLEAN BAD WORDS (POSTS) ---
+            // Clean bad words
             $post->setTitle($censorship->purify($post->getTitle()));
             $post->setContent($censorship->purify($post->getContent()));
-            // ----------------------------------
             
             $post->setCreatedAt(new \DateTimeImmutable());
             $post->setUpvotes(0);
@@ -58,15 +57,15 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum');
         }
 
+        // --- FILTERING LOGIC ---
         $searchQuery = $request->query->get('q');
+        $filter = $request->query->get('filter'); // Get 'popular' or 'unanswered' from URL
 
-        // Pagination Logic
         if ($searchQuery) {
             $query = $postRepository->adminSearch($searchQuery);
         } else {
-            $query = $postRepository->createQueryBuilder('p')
-                ->orderBy('p.createdAt', 'DESC')
-                ->getQuery();
+            // If no search, check for filters
+            $query = $postRepository->findByFilter($filter);
         }
 
         $posts = $paginator->paginate(
@@ -79,6 +78,7 @@ class ForumController extends AbstractController
             'form' => $form->createView(),
             'posts' => $posts,
             'searchQuery' => $searchQuery,
+            'currentFilter' => $filter, // Pass filter to Twig for "Active" class
         ]);
     }
 
@@ -87,7 +87,7 @@ class ForumController extends AbstractController
         Post $post, 
         Request $request, 
         EntityManagerInterface $entityManager,
-        CensorshipService $censorship // <--- ADDED: Inject service here too
+        CensorshipService $censorship
     ): Response
     {
         $comment = new Comment();
@@ -108,9 +108,8 @@ class ForumController extends AbstractController
                 return $this->redirectToRoute('app_login');
             }
 
-            // --- 2. CLEAN BAD WORDS (COMMENTS) ---
+            // Clean bad words
             $comment->setContent($censorship->purify($comment->getContent()));
-            // -------------------------------------
 
             $comment->setCreatedAt(new \DateTimeImmutable());
             $comment->setIsSolution(false);
