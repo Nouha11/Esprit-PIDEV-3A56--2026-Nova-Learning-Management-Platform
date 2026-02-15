@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Front\Forum;
 
 use App\Entity\Forum\Comment;
 use App\Form\CommentType;
