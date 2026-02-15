@@ -81,13 +81,12 @@
                                     <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
                                 {% endif %}
                                 
-                                {# AUTHOR / ADMIN ACTIONS (Pushed to the right) #}
+                                {# AUTHOR / ADMIN ACTIONS #}
                                 {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
                                     <div class="ms-auto d-flex gap-2">
                                         {# NEW: LOCK/UNLOCK BUTTON #}
                                         <a href="{{ path('app_forum_toggle_lock', {'id': post.id}) }}" 
                                            class="btn btn-sm {{ post.isLocked ? 'btn-success-soft' : 'btn-secondary-soft' }} mb-0"
-                                           data-bs-toggle="tooltip"
                                            title="{{ post.isLocked ? 'Unlock Discussion' : 'Lock Discussion' }}">
                                             {% if post.isLocked %}
                                                 <i class="bi bi-unlock-fill"></i> Unlock
