@@ -46,10 +46,44 @@ final class StudentController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
-            $student->setFirstName($request->request->get('firstName'));
-            $student->setLastName($request->request->get('lastName'));
+            // Validate required fields
+            $firstName = trim($request->request->get('firstName'));
+            $lastName = trim($request->request->get('lastName'));
+            $university = trim($request->request->get('university'));
+            
+            $errors = [];
+            
+            if (empty($firstName)) {
+                $errors[] = 'First name is required.';
+            } elseif (strlen($firstName) < 2) {
+                $errors[] = 'First name must be at least 2 characters.';
+            }
+            
+            if (empty($lastName)) {
+                $errors[] = 'Last name is required.';
+            } elseif (strlen($lastName) < 2) {
+                $errors[] = 'Last name must be at least 2 characters.';
+            }
+            
+            if (empty($university)) {
+                $errors[] = 'University is required.';
+            } elseif (strlen($university) < 3) {
+                $errors[] = 'University must be at least 3 characters.';
+            }
+            
+            if (!empty($errors)) {
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error);
+                }
+                return $this->render('front/users/student/edit.html.twig', [
+                    'student' => $student,
+                ]);
+            }
+            
+            $student->setFirstName($firstName);
+            $student->setLastName($lastName);
             $student->setBio($request->request->get('bio'));
-            $student->setUniversity($request->request->get('university'));
+            $student->setUniversity($university);
             $student->setMajor($request->request->get('major'));
             $student->setAcademicLevel($request->request->get('academicLevel'));
             
