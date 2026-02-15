@@ -18,11 +18,11 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="username" class="form-label">Username *</label>
-                                <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required minlength="3">
+                                <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}"  minlength="3">
                             </div>
                             <div class="col-md-6">
                                 <label for="email" class="form-label">Email *</label>
-                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" >
                             </div>
                         </div>
 
@@ -34,7 +34,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="role" class="form-label">Role *</label>
-                                <select class="form-select" id="role" name="role" required>
+                                <select class="form-select" id="role" name="role" >
                                     <option value="ROLE_ADMIN" {% if user.role == 'ROLE_ADMIN' %}selected{% endif %}>Administrator</option>
                                     <option value="ROLE_STUDENT" {% if user.role == 'ROLE_STUDENT' %}selected{% endif %}>Student</option>
                                     <option value="ROLE_TUTOR" {% if user.role == 'ROLE_TUTOR' %}selected{% endif %}>Tutor</option>
