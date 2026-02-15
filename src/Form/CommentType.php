@@ -17,7 +17,8 @@ class CommentType extends AbstractType
         $builder
        ->add('content', null, [
             'label' => 'Your Answer',
-            'attr' => ['rows' => 5, 'placeholder' => 'Type your solution here...']
+            'attr' => ['rows' => 5, 'placeholder' => 'Type your solution here...'],
+            'empty_data' => '',
         ]);
     }
 

@@ -20,12 +20,14 @@ class GameFormType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'label' => 'Game Name',
-                'attr' => ['class' => 'form-control', 'placeholder' => 'e.g., Memory Master']
+                'attr' => ['class' => 'form-control', 'placeholder' => 'e.g., Memory Master'],
+                'empty_data' => '',
             ])
 
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
-                'attr' => ['class' => 'form-control', 'rows' => 4]
+                'attr' => ['class' => 'form-control', 'rows' => 4],
+                'empty_data' => '',
             ])
 
             ->add('type', ChoiceType::class, [
@@ -51,17 +53,20 @@ class GameFormType extends AbstractType
 
             ->add('tokenCost', IntegerType::class, [
                 'label' => 'Token Cost (0 for free)',
-                'attr' => ['class' => 'form-control', 'min' => 0]
+                'attr' => ['class' => 'form-control', 'min' => 0],
+                'empty_data' => '0',
             ])
 
             ->add('rewardTokens', IntegerType::class, [
                 'label' => 'Reward Tokens',
-                'attr' => ['class' => 'form-control', 'min' => 0]
+                'attr' => ['class' => 'form-control', 'min' => 0],
+                'empty_data' => '0',
             ])
 
             ->add('rewardXP', IntegerType::class, [
                 'label' => 'Reward XP',
-                'attr' => ['class' => 'form-control', 'min' => 0]
+                'attr' => ['class' => 'form-control', 'min' => 0],
+                'empty_data' => '0',
             ])
             
             ->add('isActive', CheckboxType::class, [
