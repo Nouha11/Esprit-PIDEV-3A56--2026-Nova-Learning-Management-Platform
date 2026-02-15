@@ -3,13 +3,15 @@
 {% block title %}Edit Course{% endblock %}
 
 {% block admin_content %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">Edit Course: {{ course.courseName }}</h1>
     </div>
 
     <div class="card shadow mb-4">
         <div class="card-body">
-            {{ form_start(form) }}
+            {{ form_start(form, 
+                        {'attr': {'novalidate': 'novalidate'}}) }}
                 <div class="row">
                     <div class="col-md-6">
                         {{ form_row(form.courseName) }}
