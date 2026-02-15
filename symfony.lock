@@ -35,6 +35,9 @@
             "./migrations/.gitignore"
         ]
     },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v6.10.0"
+    },
     "lexik/jwt-authentication-bundle": {
         "version": "2.18",
         "recipe": {
