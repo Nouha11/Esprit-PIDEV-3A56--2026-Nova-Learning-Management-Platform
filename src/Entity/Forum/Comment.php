@@ -4,6 +4,8 @@ namespace App\Entity\Forum;
 
 use App\Entity\users\User;
 use App\Repository\Forum\CommentRepository;
+use Doctrine\Common\Collections\ArrayCollection; // <--- NEEDED
+use Doctrine\Common\Collections\Collection;      // <--- NEEDED
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert; 
@@ -35,6 +37,40 @@ class Comment
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
+    // --- NEW VOTING FIELDS ---
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'comment_upvoters')]
+    private Collection $upvoters;
+
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'comment_downvoters')]
+    private Collection $downvoters;
+
+    public function __construct()
+    {
+        $this->upvoters = new ArrayCollection();
+        $this->downvoters = new ArrayCollection();
+    }
+
+    // --- LOGIC METHODS (For Twig & Controller) ---
+
+    public function getScore(): int
+    {
+        return $this->upvoters->count() - $this->downvoters->count();
+    }
+
+    public function isUpvotedBy(User $user): bool
+    {
+        return $this->upvoters->contains($user);
+    }
+
+    public function isDownvotedBy(User $user): bool
+    {
+        return $this->downvoters->contains($user);
+    }
+
+    // --- STANDARD GETTERS & SETTERS ---
+
     public function getId(): ?int
     {
         return $this->id;
@@ -45,11 +81,9 @@ class Comment
         return $this->content;
     }
 
-    // ✅ FIXED: Added '?' to allow nulls
     public function setContent(?string $content): static
     {
         $this->content = $content;
-
         return $this;
     }
 
@@ -61,7 +95,6 @@ class Comment
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -73,7 +106,6 @@ class Comment
     public function setIsSolution(bool $isSolution): static
     {
         $this->isSolution = $isSolution;
-
         return $this;
     }
 
@@ -85,7 +117,6 @@ class Comment
     public function setPost(?Post $post): static
     {
         $this->post = $post;
-
         return $this;
     }
 
@@ -97,7 +128,50 @@ class Comment
     public function setAuthor(?User $author): static
     {
         $this->author = $author;
+        return $this;
+    }
 
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUpvoters(): Collection
+    {
+        return $this->upvoters;
+    }
+
+    public function addUpvoter(User $upvoter): static
+    {
+        if (!$this->upvoters->contains($upvoter)) {
+            $this->upvoters->add($upvoter);
+        }
+        return $this;
+    }
+
+    public function removeUpvoter(User $upvoter): static
+    {
+        $this->upvoters->removeElement($upvoter);
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getDownvoters(): Collection
+    {
+        return $this->downvoters;
+    }
+
+    public function addDownvoter(User $downvoter): static
+    {
+        if (!$this->downvoters->contains($downvoter)) {
+            $this->downvoters->add($downvoter);
+        }
+        return $this;
+    }
+
+    public function removeDownvoter(User $downvoter): static
+    {
+        $this->downvoters->removeElement($downvoter);
         return $this;
     }
 }
