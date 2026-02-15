@@ -9,7 +9,8 @@ use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
 use App\Entity\users\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface; // <--- ADDED THIS
+use Knp\Component\Pager\PaginatorInterface;
+use App\Service\Forum\CensorshipService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +24,8 @@ class ForumController extends AbstractController
         PostRepository $postRepository, 
         Request $request, 
         EntityManagerInterface $entityManager,
-        PaginatorInterface $paginator // <--- INJECTED THIS
+        PaginatorInterface $paginator,
+        CensorshipService $censorship // added to inject the service
     ): Response
     {
         $post = new Post();
@@ -38,6 +40,11 @@ class ForumController extends AbstractController
                 $this->addFlash('error', 'You must be logged in to create a post.');
                 return $this->redirectToRoute('app_login');
             }
+
+            // --- 1. CLEAN BAD WORDS (POSTS) ---
+            $post->setTitle($censorship->purify($post->getTitle()));
+            $post->setContent($censorship->purify($post->getContent()));
+            // ----------------------------------
             
             $post->setCreatedAt(new \DateTimeImmutable());
             $post->setUpvotes(0);
@@ -53,22 +60,19 @@ class ForumController extends AbstractController
 
         $searchQuery = $request->query->get('q');
 
-        // --- UPDATED LOGIC FOR PAGINATION ---
+        // Pagination Logic
         if ($searchQuery) {
-            // Assuming adminSearch returns a query or results we can paginate
             $query = $postRepository->adminSearch($searchQuery);
         } else {
-            // Use createQueryBuilder to get a Query object (optimized for pagination)
             $query = $postRepository->createQueryBuilder('p')
                 ->orderBy('p.createdAt', 'DESC')
                 ->getQuery();
         }
 
-        // Paginate the results (5 posts per page)
         $posts = $paginator->paginate(
             $query, 
-            $request->query->getInt('page', 1), /* page number */
-            5 /* limit per page */
+            $request->query->getInt('page', 1), 
+            5 
         );
 
         return $this->render('front/forum/index.html.twig', [
@@ -79,7 +83,12 @@ class ForumController extends AbstractController
     }
 
     #[Route('/forum/{id}', name: 'app_forum_show')]
-    public function show(Post $post, Request $request, EntityManagerInterface $entityManager): Response
+    public function show(
+        Post $post, 
+        Request $request, 
+        EntityManagerInterface $entityManager,
+        CensorshipService $censorship // <--- ADDED: Inject service here too
+    ): Response
     {
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
@@ -98,6 +107,10 @@ class ForumController extends AbstractController
                 $this->addFlash('error', 'You must be logged in to comment.');
                 return $this->redirectToRoute('app_login');
             }
+
+            // --- 2. CLEAN BAD WORDS (COMMENTS) ---
+            $comment->setContent($censorship->purify($comment->getContent()));
+            // -------------------------------------
 
             $comment->setCreatedAt(new \DateTimeImmutable());
             $comment->setIsSolution(false);
