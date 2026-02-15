@@ -7,7 +7,7 @@ use App\Form\CommentType;
 use App\Entity\Forum\Post;
 use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
-use App\Entity\users\User; // Importing your specific User entity
+use App\Entity\users\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,7 +53,8 @@ class ForumController extends AbstractController
             $posts = $postRepository->findBy([], ['createdAt' => 'DESC']);
         }
 
-        return $this->render('forum/index.html.twig', [
+        // FIXED: Pointing to 'front/forum'
+        return $this->render('front/forum/index.html.twig', [
             'form' => $form->createView(),
             'posts' => $posts,
             'searchQuery' => $searchQuery,
@@ -93,7 +94,8 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
-        return $this->render('forum/show.html.twig', [
+        // FIXED: Pointing to 'front/forum'
+        return $this->render('front/forum/show.html.twig', [
             'post' => $post,
             'form' => $form->createView(),
         ]);
@@ -153,7 +155,8 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
-        return $this->render('forum/edit.html.twig', [
+        // FIXED: Pointing to 'front/forum'
+        return $this->render('front/forum/edit.html.twig', [
             'form' => $form->createView(),
             'post' => $post,
         ]);
@@ -192,7 +195,6 @@ class ForumController extends AbstractController
         $user = $this->getUser();
         $post = $comment->getPost();
 
-        // 1. Security Check: Only the Post Author or Admin can mark a solution
         $isAuthor = $user && $post->getAuthor()->getId() === $user->getId();
         $isAdmin = $user && in_array('ROLE_ADMIN', $user->getRoles());
 
@@ -200,16 +202,12 @@ class ForumController extends AbstractController
             return $this->json(['error' => 'Unauthorized'], 403);
         }
 
-        // 2. Logic: If clicking the same comment, toggle it OFF.
-        //    If clicking a new comment, turn others OFF and this one ON.
         if ($comment->isSolution()) {
             $comment->setIsSolution(false);
         } else {
-            // Unmark all other comments in this post first
             foreach ($post->getComments() as $otherComment) {
                 $otherComment->setIsSolution(false);
             }
-            // Mark this one
             $comment->setIsSolution(true);
         }
 
@@ -231,7 +229,6 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Check permissions: Author OR Admin
         $isAuthor = $post->getAuthor()->getId() === $user->getId();
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
 
@@ -240,7 +237,6 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
-        // Toggle the lock status (True -> False, or False -> True)
         $post->setIsLocked(!$post->isLocked());
         $entityManager->flush();
 
@@ -249,5 +245,4 @@ class ForumController extends AbstractController
 
         return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
     }
-
 }
