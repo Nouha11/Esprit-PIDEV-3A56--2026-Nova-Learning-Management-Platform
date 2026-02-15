@@ -49,7 +49,7 @@
 
                                 <div class="mb-3">
                                     <strong>Interests:</strong>
-                                    <p>{{ student.interests ?? 'Not specified' }}</p>
+                                    <p>{{ student.interests is iterable ? student.interests|join(', ') : (student.interests ?? 'Not specified') }}</p>
                                 </div>
 
                                 <div class="mt-4">
