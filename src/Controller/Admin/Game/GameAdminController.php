@@ -6,6 +6,7 @@ use App\Entity\Gamification\Game;
 use App\Form\Admin\GameFormType;
 use App\Repository\Gamification\GameRepository;
 use App\Service\game\GameService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -83,17 +84,26 @@ class GameAdminController extends AbstractController
         'game' => $game,
         ]);
     }
-
+    
     /**
-    * Delete game
-    */
+     * Delete game
+     */
     #[Route('/{id}/delete', name: 'admin_game_delete', methods: ['POST'])]
-    public function delete(Request $request, Game $game): Response
+    public function delete(Request $request, Game $game, EntityManagerInterface $entityManager): Response 
     {
         if ($this->isCsrfTokenValid('delete'.$game->getId(), $request->request->get('_token'))) {
-            $this->gameService->deleteGame($game);
-            $this->addFlash('success', 'Game deleted successfully!');
+            try {
+                $entityManager->remove($game);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Game deleted successfully!');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error deleting game: ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Invalid security token.');
         }
+        
         return $this->redirectToRoute('admin_game_index');
     }
 }
