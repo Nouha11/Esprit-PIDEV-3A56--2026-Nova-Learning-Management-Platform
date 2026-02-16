@@ -51,12 +51,52 @@ final class TutorController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
-            $tutor->setFirstName($request->request->get('firstName'));
-            $tutor->setLastName($request->request->get('lastName'));
+            // Validate required fields
+            $firstName = trim($request->request->get('firstName'));
+            $lastName = trim($request->request->get('lastName'));
+            $expertiseString = trim($request->request->get('expertise'));
+            $yearsOfExperience = $request->request->get('yearsOfExperience');
+            
+            $errors = [];
+            
+            if (empty($firstName)) {
+                $errors[] = 'First name is required.';
+            } elseif (strlen($firstName) < 2) {
+                $errors[] = 'First name must be at least 2 characters.';
+            }
+            
+            if (empty($lastName)) {
+                $errors[] = 'Last name is required.';
+            } elseif (strlen($lastName) < 2) {
+                $errors[] = 'Last name must be at least 2 characters.';
+            }
+            
+            if (empty($expertiseString)) {
+                $errors[] = 'Expertise is required.';
+            } elseif (strlen($expertiseString) < 3) {
+                $errors[] = 'Expertise must be at least 3 characters.';
+            }
+            
+            if ($yearsOfExperience === null || $yearsOfExperience === '') {
+                $errors[] = 'Years of experience is required.';
+            } elseif ($yearsOfExperience < 0 || $yearsOfExperience > 50) {
+                $errors[] = 'Years of experience must be between 0 and 50.';
+            }
+            
+            if (!empty($errors)) {
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error);
+                }
+                return $this->render('front/users/tutor/edit.html.twig', [
+                    'tutor' => $tutor,
+                ]);
+            }
+            
+            $tutor->setFirstName($firstName);
+            $tutor->setLastName($lastName);
             $tutor->setBio($request->request->get('bio'));
             
             // Convert expertise string to array
-            $expertiseString = $request->request->get('expertise');
             if ($expertiseString) {
                 $expertiseArray = array_filter(array_map('trim', explode(',', $expertiseString)));
                 $tutor->setExpertise($expertiseArray);
@@ -65,7 +105,7 @@ final class TutorController extends AbstractController
             }
             
             $tutor->setQualifications($request->request->get('qualifications'));
-            $tutor->setYearsOfExperience((int)$request->request->get('yearsOfExperience'));
+            $tutor->setYearsOfExperience((int)$yearsOfExperience);
             $tutor->setHourlyRate($request->request->get('hourlyRate'));
             $tutor->setIsAvailable($request->request->get('isAvailable') === '1');
             
