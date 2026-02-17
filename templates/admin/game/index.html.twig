@@ -75,12 +75,15 @@
                                            title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <button type="button" 
-                                                class="btn btn-danger" 
-                                                onclick="confirmDelete({{ game.id }}, '{{ game.name|escape('js') }}')"
-                                                title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <form method="post" 
+                                              action="{{ path('admin_game_delete', {id: game.id}) }}" 
+                                              style="display:inline;"
+                                              onsubmit="return confirm('Are you sure you want to delete {{ game.name|escape('js') }}? This action cannot be undone.');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ game.id) }}">
+                                            <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -100,41 +103,4 @@
             </div>
         </div>
     </div>
-
-    {# Delete confirmation modal #}
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Confirm Deletion</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete the game <strong id="gameName"></strong>?</p>
-                    <p class="text-danger mb-0">This action cannot be undone.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form method="post" id="deleteForm" style="display:inline;">
-                        <input type="hidden" name="_token" id="deleteToken">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-    <script>
-        function confirmDelete(gameId, gameName) {
-            document.getElementById('gameName').textContent = gameName;
-            document.getElementById('deleteForm').action = '{{ path('admin_game_delete', {id: '__ID__'}) }}'.replace('__ID__', gameId);
-            document.getElementById('deleteToken').value = '{{ csrf_token('delete') }}' + gameId;
-            
-            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-            modal.show();
-        }
-    </script>
 {% endblock %}
