@@ -5,6 +5,7 @@ use App\Entity\Gamification\Reward;
 use App\Form\Admin\RewardFormType;
 use App\Repository\Gamification\RewardRepository;
 use App\Service\game\RewardService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -73,17 +74,27 @@ class RewardAdminController extends AbstractController
         ]);
     }
 
+
     /**
-    * Delete reward
-    */
+     * Delete reward
+     */
     #[Route('/{id}/delete', name: 'admin_reward_delete', methods: ['POST'])]
-    public function delete(Request $request, Reward $reward): Response
+    public function delete(Request $request, Reward $reward, EntityManagerInterface $entityManager): Response
     {
-    if ($this->isCsrfTokenValid('delete'.$reward->getId(), $request->request->get('_token'))) {
-        $this->rewardService->deleteReward($reward);
-        $this->addFlash('success', 'Reward deleted successfully!');
-    }
-    return $this->redirectToRoute('admin_reward_index');
+        if ($this->isCsrfTokenValid('delete'.$reward->getId(), $request->request->get('_token'))) {
+            try {
+                $entityManager->remove($reward);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Reward deleted successfully!');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error deleting reward: ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Invalid security token.');
+        }
+        
+        return $this->redirectToRoute('admin_reward_index');
     }
 
     #[Route('/{id}', name: 'admin_reward_show', methods: ['GET'])]

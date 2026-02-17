@@ -9,6 +9,8 @@ use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
 use App\Entity\users\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
+use App\Service\Forum\CensorshipService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +20,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ForumController extends AbstractController
 {
     #[Route('/forum', name: 'app_forum')]
-    public function index(PostRepository $postRepository, Request $request, EntityManagerInterface $entityManager): Response
+    public function index(
+        PostRepository $postRepository, 
+        Request $request, 
+        EntityManagerInterface $entityManager,
+        PaginatorInterface $paginator,
+        CensorshipService $censorship
+    ): Response
     {
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
@@ -32,6 +40,10 @@ class ForumController extends AbstractController
                 $this->addFlash('error', 'You must be logged in to create a post.');
                 return $this->redirectToRoute('app_login');
             }
+
+            // Clean bad words
+            $post->setTitle($censorship->purify($post->getTitle()));
+            $post->setContent($censorship->purify($post->getContent()));
             
             $post->setCreatedAt(new \DateTimeImmutable());
             $post->setUpvotes(0);
@@ -45,24 +57,38 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum');
         }
 
+        // --- FILTERING LOGIC ---
         $searchQuery = $request->query->get('q');
+        $filter = $request->query->get('filter'); // Get 'popular' or 'unanswered' from URL
 
         if ($searchQuery) {
-            $posts = $postRepository->adminSearch($searchQuery);
+            $query = $postRepository->adminSearch($searchQuery);
         } else {
-            $posts = $postRepository->findBy([], ['createdAt' => 'DESC']);
+            // If no search, check for filters
+            $query = $postRepository->findByFilter($filter);
         }
 
-        // FIXED: Pointing to 'front/forum'
+        $posts = $paginator->paginate(
+            $query, 
+            $request->query->getInt('page', 1), 
+            5 
+        );
+
         return $this->render('front/forum/index.html.twig', [
             'form' => $form->createView(),
             'posts' => $posts,
             'searchQuery' => $searchQuery,
+            'currentFilter' => $filter, // Pass filter to Twig for "Active" class
         ]);
     }
 
     #[Route('/forum/{id}', name: 'app_forum_show')]
-    public function show(Post $post, Request $request, EntityManagerInterface $entityManager): Response
+    public function show(
+        Post $post, 
+        Request $request, 
+        EntityManagerInterface $entityManager,
+        CensorshipService $censorship
+    ): Response
     {
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
@@ -82,6 +108,9 @@ class ForumController extends AbstractController
                 return $this->redirectToRoute('app_login');
             }
 
+            // Clean bad words
+            $comment->setContent($censorship->purify($comment->getContent()));
+
             $comment->setCreatedAt(new \DateTimeImmutable());
             $comment->setIsSolution(false);
             $comment->setPost($post);
@@ -94,7 +123,6 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
-        // FIXED: Pointing to 'front/forum'
         return $this->render('front/forum/show.html.twig', [
             'post' => $post,
             'form' => $form->createView(),
@@ -155,7 +183,6 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
-        // FIXED: Pointing to 'front/forum'
         return $this->render('front/forum/edit.html.twig', [
             'form' => $form->createView(),
             'post' => $post,
@@ -246,7 +273,6 @@ class ForumController extends AbstractController
         return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
     }
 
-    
     #[Route('/forum/comment/{id}/vote/{type}', name: 'app_forum_comment_vote', methods: ['POST'])]
     public function voteComment(Comment $comment, string $type, EntityManagerInterface $entityManager): JsonResponse
     {
@@ -259,17 +285,17 @@ class ForumController extends AbstractController
 
         if ($type === 'up') {
             if ($comment->isUpvotedBy($user)) {
-                $comment->removeUpvoter($user); // Toggle OFF
+                $comment->removeUpvoter($user); 
             } else {
-                $comment->addUpvoter($user);    // Add Upvote
-                $comment->removeDownvoter($user); // Remove Downvote if exists
+                $comment->addUpvoter($user);    
+                $comment->removeDownvoter($user); 
             }
         } elseif ($type === 'down') {
             if ($comment->isDownvotedBy($user)) {
-                $comment->removeDownvoter($user); // Toggle OFF
+                $comment->removeDownvoter($user); 
             } else {
-                $comment->addDownvoter($user);    // Add Downvote
-                $comment->removeUpvoter($user);   // Remove Upvote if exists
+                $comment->addDownvoter($user);    
+                $comment->removeUpvoter($user);   
             }
         }
 
@@ -281,6 +307,4 @@ class ForumController extends AbstractController
             'downvoted' => $comment->isDownvotedBy($user)
         ]);
     }
-
-
 }
