@@ -25,6 +25,99 @@ class AdminBookController extends AbstractController
     {
     }
 
+    #[Route('/analytics', name: 'admin_books_analytics')]
+    public function analytics(EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        
+        // Get all books by this admin
+        $books = $em->getRepository(Book::class)->findBy(
+            ['uploaderId' => $user->getId()],
+            ['createdAt' => 'DESC']
+        );
+
+        // Get sales data over time (last 12 months)
+        $salesByMonth = [];
+        $revenueByMonth = [];
+        $months = [];
+        
+        for ($i = 11; $i >= 0; $i--) {
+            $date = new \DateTime();
+            $date->modify("-$i months");
+            $monthKey = $date->format('Y-m');
+            $monthLabel = $date->format('M Y');
+            
+            $months[] = $monthLabel;
+            $salesByMonth[$monthKey] = 0;
+            $revenueByMonth[$monthKey] = 0;
+        }
+
+        // Query payments grouped by month
+        $payments = $em->getRepository(\App\Entity\Library\Payment::class)
+            ->createQueryBuilder('p')
+            ->select('p')
+            ->join('p.book', 'b')
+            ->where('b.uploaderId = :userId')
+            ->andWhere('p.status = :status')
+            ->andWhere('p.createdAt >= :startDate')
+            ->setParameter('userId', $user->getId())
+            ->setParameter('status', \App\Entity\Library\Payment::STATUS_COMPLETED)
+            ->setParameter('startDate', new \DateTime('-11 months'))
+            ->orderBy('p.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        foreach ($payments as $payment) {
+            $monthKey = $payment->getCreatedAt()->format('Y-m');
+            if (isset($salesByMonth[$monthKey])) {
+                $salesByMonth[$monthKey]++;
+                $revenueByMonth[$monthKey] += (float)$payment->getAmount();
+            }
+        }
+
+        // Get sales by book (top 10)
+        $salesByBook = [];
+        foreach ($books as $book) {
+            $sales = $em->getRepository(\App\Entity\Library\Payment::class)
+                ->createQueryBuilder('p')
+                ->select('COUNT(p.id) as count, SUM(p.amount) as revenue')
+                ->where('p.book = :book')
+                ->andWhere('p.status = :status')
+                ->setParameter('book', $book)
+                ->setParameter('status', \App\Entity\Library\Payment::STATUS_COMPLETED)
+                ->getQuery()
+                ->getSingleResult();
+
+            if ($sales['count'] > 0) {
+                $salesByBook[] = [
+                    'title' => $book->getTitle(),
+                    'count' => (int)$sales['count'],
+                    'revenue' => (float)($sales['revenue'] ?? 0)
+                ];
+            }
+        }
+
+        // Sort by count and take top 10
+        usort($salesByBook, fn($a, $b) => $b['count'] - $a['count']);
+        $salesByBook = array_slice($salesByBook, 0, 10);
+
+        // Calculate overall statistics
+        $totalSales = array_sum($salesByMonth);
+        $totalRevenue = array_sum($revenueByMonth);
+        $avgOrderValue = $totalSales > 0 ? $totalRevenue / $totalSales : 0;
+
+        return $this->render('admin/book/analytics.html.twig', [
+            'months' => $months,
+            'salesByMonth' => array_values($salesByMonth),
+            'revenueByMonth' => array_values($revenueByMonth),
+            'salesByBook' => $salesByBook,
+            'totalSales' => $totalSales,
+            'totalRevenue' => $totalRevenue,
+            'avgOrderValue' => $avgOrderValue,
+            'totalBooks' => count($books),
+        ]);
+    }
+
     #[Route('/', name: 'admin_books_index')]
     public function index(EntityManagerInterface $em): Response
     {
@@ -36,8 +129,37 @@ class AdminBookController extends AbstractController
             ['createdAt' => 'DESC']
         );
 
+        // Calculate sales statistics for each book
+        $salesData = [];
+        $totalRevenue = 0;
+        $totalSales = 0;
+
+        foreach ($books as $book) {
+            // Count completed payments for this book
+            $sales = $em->getRepository(\App\Entity\Library\Payment::class)
+                ->createQueryBuilder('p')
+                ->select('COUNT(p.id) as count, SUM(p.amount) as revenue')
+                ->where('p.book = :book')
+                ->andWhere('p.status = :status')
+                ->setParameter('book', $book)
+                ->setParameter('status', \App\Entity\Library\Payment::STATUS_COMPLETED)
+                ->getQuery()
+                ->getSingleResult();
+
+            $salesData[$book->getId()] = [
+                'count' => (int)$sales['count'],
+                'revenue' => (float)($sales['revenue'] ?? 0)
+            ];
+
+            $totalSales += $salesData[$book->getId()]['count'];
+            $totalRevenue += $salesData[$book->getId()]['revenue'];
+        }
+
         return $this->render('admin/book/index.html.twig', [
             'books' => $books,
+            'salesData' => $salesData,
+            'totalSales' => $totalSales,
+            'totalRevenue' => $totalRevenue,
         ]);
     }
 

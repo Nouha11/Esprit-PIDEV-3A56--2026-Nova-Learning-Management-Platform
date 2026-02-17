@@ -13,13 +13,61 @@
     <div class="col-12">
         <div class="d-sm-flex justify-content-between align-items-center">
             <h1 class="h3 mb-2 mb-sm-0">Books Management</h1>
-            <a href="{{ path('admin_books_new') }}" class="btn btn-sm btn-primary mb-0">
-                <i class="bi bi-plus-circle me-2"></i>Add New Book
-            </a>
+            <div>
+                <a href="{{ path('admin_books_analytics') }}" class="btn btn-sm btn-info mb-0 me-2">
+                    <i class="bi bi-graph-up me-2"></i>View Analytics
+                </a>
+                <a href="{{ path('admin_books_new') }}" class="btn btn-sm btn-primary mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Add New Book
+                </a>
+            </div>
         </div>
     </div>
 </div>
 <!-- Title and Action END -->
+
+<!-- Sales Statistics START -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-primary">
+            <div class="card-body text-center">
+                <h3 class="text-primary mb-0">{{ books|length }}</h3>
+                <small class="text-muted">Total Books</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <h3 class="text-success mb-0">{{ totalSales }}</h3>
+                <small class="text-muted">Total Sales</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-info">
+            <div class="card-body text-center">
+                <h3 class="text-info mb-0">${{ totalRevenue|number_format(2) }}</h3>
+                <small class="text-muted">Total Revenue</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-warning">
+            <div class="card-body text-center">
+                <h3 class="text-warning mb-0">
+                    {% if totalSales > 0 %}
+                        ${{ (totalRevenue / totalSales)|number_format(2) }}
+                    {% else %}
+                        $0.00
+                    {% endif %}
+                </h3>
+                <small class="text-muted">Avg. Price</small>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Sales Statistics END -->
 
 <!-- Flash messages -->
 {% for label, messages in app.flashes %}
@@ -67,6 +115,8 @@
                                 <th scope="col" class="border-0">Author</th>
                                 <th scope="col" class="border-0">Type</th>
                                 <th scope="col" class="border-0">Price</th>
+                                <th scope="col" class="border-0">Sales</th>
+                                <th scope="col" class="border-0">Revenue</th>
                                 <th scope="col" class="border-0">Published</th>
                                 <th scope="col" class="border-0 rounded-end">Action</th>
                             </tr>
@@ -116,6 +166,20 @@
                                 <!-- Price -->
                                 <td>
                                     <h6 class="mb-0 fw-normal">${{ book.price ?? '0.00' }}</h6>
+                                </td>
+
+                                <!-- Sales -->
+                                <td>
+                                    {% set sales = salesData[book.id] %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-cart-check me-1"></i>{{ sales.count }}
+                                    </span>
+                                </td>
+
+                                <!-- Revenue -->
+                                <td>
+                                    {% set sales = salesData[book.id] %}
+                                    <h6 class="mb-0 fw-bold text-success">${{ sales.revenue|number_format(2) }}</h6>
                                 </td>
 
                                 <!-- Published date -->

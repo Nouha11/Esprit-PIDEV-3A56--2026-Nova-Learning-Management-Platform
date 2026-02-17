@@ -118,17 +118,8 @@ class BookController extends AbstractController
             throw $this->createNotFoundException('Book not found');
         }
 
-        // Get inventory data for each library
-        $inventoryData = [];
-        foreach ($book->getLibraries() as $library) {
-            $inventory = $em->getRepository(\App\Entity\Library\BookLibraryInventory::class)
-                ->findOneBy(['book' => $book, 'library' => $library]);
-            $inventoryData[$library->getId()] = $inventory;
-        }
-
         return $this->render('front/book/libraries.html.twig', [
             'book' => $book,
-            'inventoryData' => $inventoryData,
         ]);
     }
 
@@ -158,6 +149,17 @@ class BookController extends AbstractController
             $loan = new Loan();
             $loan->setBook($book);
             $loan->setUser($this->getUser());
+            $loan->setStatus(Loan::STATUS_PENDING); // Statut initial: en attente d'approbation
+            $loan->setRequestedAt(new \DateTimeImmutable());
+
+            // Set library if provided
+            $libraryId = $data['libraryId'] ?? $request->query->get('library');
+            if ($libraryId) {
+                $library = $em->getRepository(LibraryEntity::class)->find($libraryId);
+                if ($library) {
+                    $loan->setLibrary($library);
+                }
+            }
 
             $startRaw = $data['startAt'] ?? null;
             $start = null;
@@ -256,49 +258,96 @@ class BookController extends AbstractController
     }
 
     #[Route('/books/{id}/payment', name: 'book_payment')]
-    public function payment(Request $request, int $id, EntityManagerInterface $em): Response
+    public function payment(Request $request, int $id, EntityManagerInterface $em, \App\Service\Library\PaymentService $paymentService): Response
     {
         $book = $em->getRepository(Book::class)->find($id);
         if (! $book) {
             throw $this->createNotFoundException('Book not found');
         }
 
+        if (! $this->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
+
         // Get payment method from session
         $paymentMethod = $request->getSession()->get('payment_method', 'credit_card');
 
         if ($request->isMethod('POST')) {
-            if (! $this->getUser()) {
-                return $this->redirectToRoute('app_login');
-            }
+            // Create payment record
+            $payment = new \App\Entity\Library\Payment();
+            $payment->setUser($this->getUser());
+            $payment->setBook($book);
+            $payment->setAmount($book->getPrice() ?? '0.00');
+            $payment->setPaymentMethod($paymentMethod);
             
-            // Stub payment processing: assume success
-            $purchase = new DigitalPurchase();
-            $purchase->setBook($book);
-            $purchase->setUser($this->getUser());
-            $purchase->setPurchasedAt(new \DateTimeImmutable());
-            $em->persist($purchase);
+            $em->persist($payment);
 
-            $userLib = new UserLibrary();
-            $userLib->setBook($book);
-            $userLib->setUser($this->getUser());
-            $userLib->setGrantedAt(new \DateTimeImmutable());
-            $em->persist($userLib);
+            if ($paymentMethod === 'credit_card') {
+                // Process credit card payment
+                $cardNumber = $request->request->get('card_number', '');
+                $cardHolder = $request->request->get('card_holder', '');
+                $expiry = $request->request->get('expiry', '');
+                $cvc = $request->request->get('cvc', '');
 
-            $em->flush();
+                $result = $paymentService->processCreditCardPayment(
+                    $payment,
+                    $cardNumber,
+                    $cardHolder,
+                    $expiry,
+                    $cvc
+                );
 
-            // Clear session data
-            $request->getSession()->remove('payment_method');
-            $request->getSession()->remove('book_id');
+                if ($result['success']) {
+                    // Create digital purchase record
+                    $purchase = new DigitalPurchase();
+                    $purchase->setBook($book);
+                    $purchase->setUser($this->getUser());
+                    $purchase->setPurchasedAt(new \DateTimeImmutable());
+                    $em->persist($purchase);
 
-            // Success message based on payment method
-            $methodNames = [
-                'credit_card' => 'Credit Card',
-                'paypal' => 'PayPal',
-            ];
-            $methodName = $methodNames[$paymentMethod] ?? 'selected payment method';
+                    $em->flush();
 
-            $this->addFlash('success', "Payment successful via {$methodName}! The book has been added to your library.");
-            return $this->redirectToRoute('book_show', ['id' => $id]);
+                    // Clear session data
+                    $request->getSession()->remove('payment_method');
+                    $request->getSession()->remove('book_id');
+
+                    $this->addFlash('success', 'Payment successful! Transaction ID: ' . $result['transaction_id']);
+                    return $this->redirectToRoute('my_library');
+                } else {
+                    $em->flush(); // Save failed payment record
+                    
+                    foreach ($result['errors'] as $error) {
+                        $this->addFlash('error', $error);
+                    }
+                }
+            } elseif ($paymentMethod === 'paypal') {
+                // Process PayPal payment
+                $result = $paymentService->processPayPalPayment($payment);
+
+                if ($result['success']) {
+                    // Create digital purchase record
+                    $purchase = new DigitalPurchase();
+                    $purchase->setBook($book);
+                    $purchase->setUser($this->getUser());
+                    $purchase->setPurchasedAt(new \DateTimeImmutable());
+                    $em->persist($purchase);
+
+                    $em->flush();
+
+                    // Clear session data
+                    $request->getSession()->remove('payment_method');
+                    $request->getSession()->remove('book_id');
+
+                    $this->addFlash('success', 'PayPal payment successful! Transaction ID: ' . $result['transaction_id']);
+                    return $this->redirectToRoute('my_library');
+                } else {
+                    $em->flush(); // Save failed payment record
+                    
+                    foreach ($result['errors'] as $error) {
+                        $this->addFlash('error', $error);
+                    }
+                }
+            }
         }
 
         return $this->render('front/book/payment_form.html.twig', [

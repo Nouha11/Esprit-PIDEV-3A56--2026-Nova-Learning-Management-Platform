@@ -27,17 +27,22 @@ class MyLibraryController extends AbstractController
             ['purchasedAt' => 'DESC']
         );
         
-        // Récupérer les emprunts actifs (non retournés)
-        $activeLoans = $em->getRepository(Loan::class)->findBy(
-            ['user' => $user, 'endAt' => null],
-            ['startAt' => 'DESC']
-        );
+        // Récupérer les emprunts actifs (approuvés ou actifs, non retournés)
+        $activeLoans = $em->getRepository(Loan::class)->createQueryBuilder('l')
+            ->where('l.user = :user')
+            ->andWhere('l.status IN (:statuses)')
+            ->setParameter('user', $user)
+            ->setParameter('statuses', [Loan::STATUS_PENDING, Loan::STATUS_APPROVED, Loan::STATUS_ACTIVE])
+            ->orderBy('l.requestedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
         
-        // Récupérer l'historique des emprunts (retournés)
+        // Récupérer l'historique des emprunts (retournés ou rejetés)
         $loanHistory = $em->getRepository(Loan::class)->createQueryBuilder('l')
             ->where('l.user = :user')
-            ->andWhere('l.endAt IS NOT NULL')
+            ->andWhere('l.status IN (:statuses)')
             ->setParameter('user', $user)
+            ->setParameter('statuses', [Loan::STATUS_RETURNED, Loan::STATUS_REJECTED])
             ->orderBy('l.endAt', 'DESC')
             ->setMaxResults(10)
             ->getQuery()

@@ -1,0 +1,292 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Loan Management{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">Loan Management</h1>
+            <p class="text-muted">Manage book loan requests and approvals</p>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h3 class="text-warning mb-0">{{ stats.pending }}</h3>
+                    <small class="text-muted">Pending</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h3 class="text-success mb-0">{{ stats.approved }}</h3>
+                    <small class="text-muted">Approved</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h3 class="text-info mb-0">{{ stats.active }}</h3>
+                    <small class="text-muted">Active</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-secondary">
+                <div class="card-body text-center">
+                    <h3 class="text-secondary mb-0">{{ stats.returned }}</h3>
+                    <small class="text-muted">Returned</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h3 class="text-danger mb-0">{{ stats.rejected }}</h3>
+                    <small class="text-muted">Rejected</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link {% if currentStatus == 'all' %}active{% endif %}" href="{{ path('admin_loans_index', {status: 'all'}) }}">
+                All Loans
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if currentStatus == 'PENDING' %}active{% endif %}" href="{{ path('admin_loans_index', {status: 'PENDING'}) }}">
+                Pending <span class="badge bg-warning">{{ stats.pending }}</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if currentStatus == 'APPROVED' %}active{% endif %}" href="{{ path('admin_loans_index', {status: 'APPROVED'}) }}">
+                Approved
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if currentStatus == 'ACTIVE' %}active{% endif %}" href="{{ path('admin_loans_index', {status: 'ACTIVE'}) }}">
+                Active
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if currentStatus == 'RETURNED' %}active{% endif %}" href="{{ path('admin_loans_index', {status: 'RETURNED'}) }}">
+                Returned
+            </a>
+        </li>
+    </ul>
+
+    <!-- Loans Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if loans|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Book</th>
+                                <th>Library</th>
+                                <th>Requested</th>
+                                <th>Pickup Date</th>
+                                <th>Return Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loan in loans %}
+                                <tr>
+                                    <td>#{{ loan.id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-person-circle fs-4 me-2 text-muted"></i>
+                                            <div>
+                                                <div class="fw-bold">{{ loan.user.username }}</div>
+                                                <small class="text-muted">{{ loan.user.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ loan.book.title }}</div>
+                                        <small class="text-muted">{{ loan.book.author ?? 'Unknown' }}</small>
+                                    </td>
+                                    <td>
+                                        {% if loan.library %}
+                                            <i class="bi bi-building me-1"></i>{{ loan.library.name }}
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ loan.requestedAt|date('Y-m-d H:i') }}</small>
+                                    </td>
+                                    <td>
+                                        <small>{{ loan.startAt|date('Y-m-d H:i') }}</small>
+                                    </td>
+                                    <td>
+                                        {% if loan.endAt %}
+                                            <small>{{ loan.endAt|date('Y-m-d H:i') }}</small>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ loan.statusBadgeClass }}">
+                                            {{ loan.statusLabel }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ path('admin_loans_show', {id: loan.id}) }}" class="btn btn-outline-primary" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            
+                                            {% if loan.status == 'PENDING' %}
+                                                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ loan.id }}" title="Approve">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ loan.id }}" title="Reject">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            {% endif %}
+
+                                            {% if loan.status == 'APPROVED' %}
+                                                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#activeModal{{ loan.id }}" title="Mark as Active">
+                                                    <i class="bi bi-arrow-right"></i>
+                                                </button>
+                                            {% endif %}
+
+                                            {% if loan.status == 'ACTIVE' %}
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#returnModal{{ loan.id }}" title="Mark as Returned">
+                                                    <i class="bi bi-arrow-return-left"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Approve Modal -->
+                                        <div class="modal fade" id="approveModal{{ loan.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Approve Loan</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to approve this loan request?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="post" action="{{ path('admin_loans_approve', {id: loan.id}) }}" style="display: inline;">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('approve' ~ loan.id) }}">
+                                                            <button type="submit" class="btn btn-success">Approve</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Reject Modal -->
+                                        <div class="modal fade" id="rejectModal{{ loan.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form method="post" action="{{ path('admin_loans_reject', {id: loan.id}) }}">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Reject Loan</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label for="reason{{ loan.id }}" class="form-label">Rejection Reason</label>
+                                                                <textarea class="form-control" id="reason{{ loan.id }}" name="reason" rows="3" placeholder="Enter reason for rejection..."></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ loan.id) }}">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-danger">Reject</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mark Active Modal -->
+                                        <div class="modal fade" id="activeModal{{ loan.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Mark as Active</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Confirm that the user has picked up the book?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="post" action="{{ path('admin_loans_mark_active', {id: loan.id}) }}" style="display: inline;">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('mark_active' ~ loan.id) }}">
+                                                            <button type="submit" class="btn btn-info">Confirm</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mark Returned Modal -->
+                                        <div class="modal fade" id="returnModal{{ loan.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Mark as Returned</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Confirm that the book has been returned?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="post" action="{{ path('admin_loans_mark_returned', {id: loan.id}) }}" style="display: inline;">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('mark_returned' ~ loan.id) }}">
+                                                            <button type="submit" class="btn btn-success">Confirm Return</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="text-muted mt-3">No loans found for this filter.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
