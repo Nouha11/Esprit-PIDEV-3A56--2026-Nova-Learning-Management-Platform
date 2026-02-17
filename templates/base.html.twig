@@ -113,6 +113,15 @@
                         <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>Library</a>
                     </li>
 
+                    {% if app.user %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('my_library') }}"><i class="bi bi-collection me-2"></i>My Library</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('my_payments') }}"><i class="bi bi-credit-card me-2"></i>My Payments</a>
+                        </li>
+                    {% endif %}
+
                     {% if is_granted('ROLE_STUDENT') %}
                         <li><a class="nav-link" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
                         <li class="nav-item">

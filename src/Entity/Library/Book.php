@@ -151,6 +151,14 @@ class Book
         return $this;
     }
 
+    /**
+     * Vérifie si le livre est physique (inverse de isDigital)
+     */
+    public function isPhysical(): bool
+    {
+        return !$this->isDigital;
+    }
+
     public function getPrice(): ?string
     {
         return $this->price;
