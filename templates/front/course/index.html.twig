@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
 
-{% block title %}Course List - NOVA{% endblock %}
+{% block title %}{{ t.t('Course List') }} - NOVA{% endblock %}
 
 {% block body %}
 
@@ -21,12 +22,12 @@
         <!-- Page content -->
 		<section class="bg-body-secondary p-5 mt-4">
 			<div class="d-flex justify-content-between align-items-center">
-				<h1 class="mb-0 text-body-emphasis">Course List</h1>
+				<h1 class="mb-0 text-body-emphasis">{{ t.t('Course List') }}</h1>
 				
 				{# Show Create New Course button only for ADMIN users #}
 				{% if is_granted('ROLE_TUTOR') %}
 					<a href="{{ path('course_new') }}" class="btn btn-success">
-						<i class="bi bi-plus-circle me-2"></i>Create New Course
+						<i class="bi bi-plus-circle me-2"></i>{{ t.t('Create New Course') }}
 					</a>
 				{% endif %}
 			</div>
@@ -37,7 +38,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header bg-light">
                     <h5 class="mb-0">
-                        <i class="bi bi-funnel"></i> Filter Courses
+                        <i class="bi bi-funnel"></i> {{ t.t('Filter Courses') }}
                     </h5>
                 </div>
                 <div class="card-body">
