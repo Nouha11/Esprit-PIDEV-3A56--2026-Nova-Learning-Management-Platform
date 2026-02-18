@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SecurityController extends AbstractController
 {
@@ -60,7 +61,8 @@ class SecurityController extends AbstractController
         EntityManagerInterface $entityManager, 
         UserPasswordHasherInterface $passwordHasher,
         ValidatorInterface $validator,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        TranslatorInterface $translator
     ): Response
     {
         if ($this->getUser()) {
@@ -68,13 +70,16 @@ class SecurityController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            // Get current locale for translations
+            $locale = $request->getSession()->get('_locale', 'en');
+            
             $username = $request->request->get('username');
             $email = $request->request->get('email');
 
             // Check if username already exists
             $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
             if ($existingUserByUsername) {
-                $this->addFlash('error', 'This username is already taken. Please choose another one.');
+                $this->addFlash('error', $translator->trans('This username is already taken', [], 'validators', $locale));
                 return $this->render('security/signup_student.html.twig', [
                     'formData' => $request->request->all()
                 ]);
@@ -83,7 +88,7 @@ class SecurityController extends AbstractController
             // Check if email already exists
             $existingUserByEmail = $userRepository->findOneBy(['email' => $email]);
             if ($existingUserByEmail) {
-                $this->addFlash('error', 'This email is already registered. Please use another email or login.');
+                $this->addFlash('error', $translator->trans('This email is already registered', [], 'validators', $locale));
                 return $this->render('security/signup_student.html.twig', [
                     'formData' => $request->request->all()
                 ]);
@@ -128,10 +133,10 @@ class SecurityController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Student account created successfully! Please login.');
+                $this->addFlash('success', $translator->trans('Student account created successfully! Please login.', [], 'validators', $locale));
                 return $this->redirectToRoute('app_login');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'An error occurred while creating your account. Please try again.');
+                $this->addFlash('error', $translator->trans('An error occurred while creating your account. Please try again.', [], 'validators', $locale));
             }
         }
 
@@ -144,7 +149,8 @@ class SecurityController extends AbstractController
         EntityManagerInterface $entityManager, 
         UserPasswordHasherInterface $passwordHasher,
         ValidatorInterface $validator,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        TranslatorInterface $translator
     ): Response
     {
         if ($this->getUser()) {
@@ -152,13 +158,16 @@ class SecurityController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            // Get current locale for translations
+            $locale = $request->getSession()->get('_locale', 'en');
+            
             $username = $request->request->get('username');
             $email = $request->request->get('email');
 
             // Check if username already exists
             $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
             if ($existingUserByUsername) {
-                $this->addFlash('error', 'This username is already taken. Please choose another one.');
+                $this->addFlash('error', $translator->trans('This username is already taken', [], 'validators', $locale));
                 return $this->render('security/signup_tutor.html.twig', [
                     'formData' => $request->request->all()
                 ]);
@@ -167,7 +176,7 @@ class SecurityController extends AbstractController
             // Check if email already exists
             $existingUserByEmail = $userRepository->findOneBy(['email' => $email]);
             if ($existingUserByEmail) {
-                $this->addFlash('error', 'This email is already registered. Please use another email or login.');
+                $this->addFlash('error', $translator->trans('This email is already registered', [], 'validators', $locale));
                 return $this->render('security/signup_tutor.html.twig', [
                     'formData' => $request->request->all()
                 ]);
@@ -219,10 +228,10 @@ class SecurityController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Tutor account created successfully! Please login.');
+                $this->addFlash('success', $translator->trans('Tutor account created successfully! Please login.', [], 'validators', $locale));
                 return $this->redirectToRoute('app_login');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'An error occurred while creating your account. Please try again.');
+                $this->addFlash('error', $translator->trans('An error occurred while creating your account. Please try again.', [], 'validators', $locale));
             }
         }
 

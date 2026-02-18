@@ -50,8 +50,8 @@
                             
                             <div class="mb-3">
                                 <small class="text-muted">
-                                    <i class="fas fa-coins"></i> Cost: {{ game.tokenCost }} tokens<br>
-                                    <i class="fas fa-trophy"></i> Reward: {{ game.rewardTokens }}T + {{ game.rewardXP }}XP
+                                    <i class="fas fa-coins"></i> {{ t.t('Cost') }}: {{ game.tokenCost }} {{ t.t('tokens') }}<br>
+                                    <i class="fas fa-trophy"></i> {{ t.t('Reward') }}: {{ game.rewardTokens }}T + {{ game.rewardXP }}XP
                                 </small>
                             </div>
                             
@@ -59,13 +59,13 @@
                             {% if game.rewards|length > 0 %}
                                 <div class="alert alert-success alert-sm mb-3">
                                     <i class="bi bi-star-fill me-1"></i>
-                                    <strong>{{ game.rewards|length }}</strong> special reward{{ game.rewards|length > 1 ? 's' : '' }} available!
+                                    <strong>{{ game.rewards|length }}</strong> {{ game.rewards|length > 1 ? t.t('special rewards') : t.t('special reward') }} {{ t.t('available!') }}
                                 </div>
                             {% endif %}
                             
                             <a href="{{ path('front_game_show', {id: game.id}) }}" 
                                 class="btn btn-primary btn-sm w-100 mt-auto">
-                                View Details
+                                {{ t.t('View Details') }}
                             </a>
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                 {% else %}
                 <div class="col-12">
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> No games available at the moment.
+                        <i class="fas fa-info-circle"></i> {{ t.t('No games available at the moment.') }}
                     </div>
                 </div>
                 {% endfor %}
