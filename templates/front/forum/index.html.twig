@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
 
-{% block title %}Community Forum{% endblock %}
+{% block title %}{{ t.t('Community Forum') }}{% endblock %}
 
 {% block body %}
 <main>
@@ -17,8 +18,8 @@
                             <div class="col-12">
                                 <div class="bg-body p-4 rounded-3 shadow-sm d-md-flex justify-content-between align-items-center">
                                     <div class="me-3">
-                                        <h1 class="h3 mb-0">Community Forum</h1>
-                                        <p class="mb-0 text-body">Join the conversation! Ask questions, share ideas, and help others.</p>
+                                        <h1 class="h3 mb-0">{{ t.t('Community Forum') }}</h1>
+                                        <p class="mb-0 text-body">{{ t.t('Join the conversation! Ask questions, share ideas, and help others.') }}</p>
                                     </div>
 
                                     <div class="d-flex align-items-center mt-3 mt-md-0 gap-3">
@@ -28,8 +29,8 @@
                                                 <input type="search" 
                                                        name="q" 
                                                        value="{{ searchQuery|default('') }}" 
-                                                       placeholder="Search discussions..." 
-                                                       aria-label="Search"
+                                                       placeholder="{{ t.t('Search discussions...') }}" 
+                                                       aria-label="{{ t.t('Search') }}"
                                                        class="border-0 bg-transparent shadow-none w-100 text-dark" 
                                                        style="outline: none;">
                                                 
@@ -42,7 +43,7 @@
                                         </form>
 
                                         <button class="btn btn-primary mb-0 rounded-pill px-4 shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#addPostForm" aria-expanded="false">
-                                            <i class="bi bi-plus-lg me-1"></i> Start Discussion
+                                            <i class="bi bi-plus-lg me-1"></i> {{ t.t('Start Discussion') }}
                                         </button>
                                     </div>
                                 </div>

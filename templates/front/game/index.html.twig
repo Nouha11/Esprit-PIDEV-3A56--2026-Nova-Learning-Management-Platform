@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
 
-{% block title %}Browse Games - NOVA{% endblock %}
+{% block title %}{{ t.t('Browse Games') }} - NOVA{% endblock %}
 
 {% block body %}
 <div class="container-fluid py-5">
@@ -9,26 +10,26 @@
         <section class="pt-5">
             <div class="row mb-4">
                 <div class="col-12">
-                    <h1 class="fs-1">Discover Amazing Games</h1>
-                    <p class="mb-0">Challenge yourself and earn rewards!</p>
+                    <h1 class="fs-1">{{ t.t('Discover Amazing Games') }}</h1>
+                    <p class="mb-0">{{ t.t('Challenge yourself and earn rewards!') }}</p>
                 </div>
             </div>
 
             <!-- Filter Buttons -->
             <div class="row mb-4">
                 <div class="col-12">
-                    <a href="{{ path('front_game_index') }}" class="btn btn-outline-primary">All Games</a>
+                    <a href="{{ path('front_game_index') }}" class="btn btn-outline-primary">{{ t.t('All Games') }}</a>
                     <a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="btn btn-outline-success">
-                        <i class="fas fa-puzzle-piece"></i> Puzzle
+                        <i class="fas fa-puzzle-piece"></i> {{ t.t('Puzzle') }}
                     </a>
                     <a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="btn btn-outline-info">
-                        <i class="fas fa-brain"></i> Memory
+                        <i class="fas fa-brain"></i> {{ t.t('Memory') }}
                     </a>
                     <a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="btn btn-outline-warning">
-                        <i class="fas fa-question-circle"></i> Trivia
+                        <i class="fas fa-question-circle"></i> {{ t.t('Trivia') }}
                     </a>
                     <a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="btn btn-outline-danger">
-                        <i class="fas fa-gamepad"></i> Arcade
+                        <i class="fas fa-gamepad"></i> {{ t.t('Arcade') }}
                     </a>
                 </div>
             </div>

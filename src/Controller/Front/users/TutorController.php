@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted; // Added for security
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/tutor')]
 #[IsGranted('ROLE_TUTOR')] // Restrict this whole controller to Tutors only
@@ -34,7 +35,7 @@ final class TutorController extends AbstractController
     }
 
     #[Route('/profile/edit', name: 'app_tutor_profile_edit', methods: ['GET', 'POST'])]
-    public function editProfile(Request $request, EntityManagerInterface $entityManager): Response
+    public function editProfile(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -51,6 +52,9 @@ final class TutorController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            // Get current locale for translations
+            $locale = $request->getSession()->get('_locale', 'en');
+            
             // Validate required fields
             $firstName = trim($request->request->get('firstName'));
             $lastName = trim($request->request->get('lastName'));
@@ -60,27 +64,27 @@ final class TutorController extends AbstractController
             $errors = [];
             
             if (empty($firstName)) {
-                $errors[] = 'First name is required.';
+                $errors[] = $translator->trans('First name is required', [], 'validators', $locale);
             } elseif (strlen($firstName) < 2) {
-                $errors[] = 'First name must be at least 2 characters.';
+                $errors[] = $translator->trans('First name must be at least {{ limit }} characters', ['{{ limit }}' => 2], 'validators', $locale);
             }
             
             if (empty($lastName)) {
-                $errors[] = 'Last name is required.';
+                $errors[] = $translator->trans('Last name is required', [], 'validators', $locale);
             } elseif (strlen($lastName) < 2) {
-                $errors[] = 'Last name must be at least 2 characters.';
+                $errors[] = $translator->trans('Last name must be at least {{ limit }} characters', ['{{ limit }}' => 2], 'validators', $locale);
             }
             
             if (empty($expertiseString)) {
-                $errors[] = 'Expertise is required.';
+                $errors[] = $translator->trans('Expertise is required', [], 'validators', $locale);
             } elseif (strlen($expertiseString) < 3) {
-                $errors[] = 'Expertise must be at least 3 characters.';
+                $errors[] = $translator->trans('Expertise must be at least {{ limit }} characters', ['{{ limit }}' => 3], 'validators', $locale);
             }
             
             if ($yearsOfExperience === null || $yearsOfExperience === '') {
-                $errors[] = 'Years of experience is required.';
+                $errors[] = $translator->trans('Years of experience is required', [], 'validators', $locale);
             } elseif ($yearsOfExperience < 0 || $yearsOfExperience > 50) {
-                $errors[] = 'Years of experience must be between 0 and 50.';
+                $errors[] = $translator->trans('Years of experience must be between {{ min }} and {{ max }}', ['{{ min }}' => 0, '{{ max }}' => 50], 'validators', $locale);
             }
             
             if (!empty($errors)) {
@@ -111,7 +115,8 @@ final class TutorController extends AbstractController
             
             $entityManager->flush();
 
-            $this->addFlash('success', 'Tutor profile updated successfully.');
+            $successMessage = $translator->trans('Tutor profile updated successfully.', [], 'validators', $locale);
+            $this->addFlash('success', $successMessage);
             return $this->redirectToRoute('app_tutor_profile');
         }
 

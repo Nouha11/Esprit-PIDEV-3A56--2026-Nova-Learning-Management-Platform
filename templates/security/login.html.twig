@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_locale() }}">
 <head>
-	<title>Login - NOVA LMS</title>
+	<title>{{ t.t('Login') }} - NOVA LMS</title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
@@ -84,6 +84,8 @@
 	<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
 
 </head>
+
+{% import 'macros/translation.html.twig' as t %}
 
 <body>
 

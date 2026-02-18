@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
 
-{% block title %}Books{% endblock %}
+{% block title %}{{ t.t('Books') }}{% endblock %}
 
 {% block body %}
 
@@ -37,14 +38,14 @@
                             <!-- Content -->
                             <div class="col-md-6 px-md-5">
                                 <!-- Title -->
-                                <h1 class="mb-3">Welcome to our online book store!</h1>
-                                <p class="mb-3">Expand knowledge by reading book Two before narrow not relied on how except moment myself Dejection assurance. </p>
+                                <h1 class="mb-3">{{ t.t('Welcome to our online book store!') }}</h1>
+                                <p class="mb-3">{{ t.t('Expand knowledge by reading book Two before narrow not relied on how except moment myself Dejection assurance.') }}</p>
 
                                 <!-- Search -->
                                 <form class="bg-body rounded p-2" method="get" action="{{ path('book_list') }}">
                                     <div class="input-group position-relative">
-                                        <input class="form-control border-0 me-1" type="search" name="search" id="searchInput" placeholder="Search book" value="{{ currentSearch }}" autocomplete="off">
-                                        <button type="submit" class="btn btn-primary mb-0 rounded">Search</button>
+                                        <input class="form-control border-0 me-1" type="search" name="search" id="searchInput" placeholder="{{ t.t('Search book') }}" value="{{ currentSearch }}" autocomplete="off">
+                                        <button type="submit" class="btn btn-primary mb-0 rounded">{{ t.t('Search') }}</button>
                                         
                                         <!-- Search results dropdown -->
                                         <div id="searchResults" class="position-absolute bg-white border rounded shadow-lg w-100" style="top: 100%; left: 0; z-index: 1000; display: none; max-height: 400px; overflow-y: auto;">

@@ -1,7 +1,8 @@
+{% import 'macros/translation.html.twig' as t %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_locale() }}">
 <head>
-    <title>{% block title %}NOVA - Intelligent Study Coaching Platform{% endblock %}</title>
+    <title>{% block title %}{{ t.t('NOVA - Intelligent Study Coaching Platform') }}{% endblock %}</title>
 
     <!-- Meta Tags -->
     <meta charset="utf-8">
@@ -74,7 +75,60 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
 
     <!-- Theme CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}?v={{ random() }}">
+    
+    <!-- Custom Navbar Fixes -->
+    <style>
+        /* Force navbar layout fixes */
+        .navbar-nav.me-auto {
+            margin-right: auto !important;
+            flex: 1 !important;
+        }
+        .navbar .nav.flex-row {
+            margin-left: auto !important;
+            flex-shrink: 0 !important;
+        }
+        .language-switcher .btn {
+            font-size: 1.1rem !important;
+            min-width: 32px !important;
+            text-align: center !important;
+            padding: 0.25rem 0.5rem !important;
+            border: none !important;
+            background: transparent !important;
+        }
+        .nav-item.me-2 {
+            margin-right: 0.75rem !important;
+        }
+        .navbar-nav .nav-item {
+            margin-right: 0.5rem !important;
+        }
+        .navbar-nav .nav-link {
+            padding: 0.5rem 0.75rem !important;
+            white-space: nowrap !important;
+        }
+        /* Ensure proper spacing between main nav and profile section */
+        .navbar-collapse {
+            justify-content: space-between !important;
+        }
+        /* Mobile responsive fixes */
+        @media (max-width: 991.98px) {
+            .navbar-collapse .navbar-nav {
+                margin-bottom: 1rem !important;
+            }
+            .navbar-collapse .nav.flex-row {
+                margin-left: 0 !important;
+                justify-content: center !important;
+            }
+        }
+        /* Language switcher specific fixes */
+        .language-switcher .dropdown-menu {
+            min-width: 120px !important;
+        }
+        .language-switcher .dropdown-item {
+            padding: 0.5rem 1rem !important;
+            font-size: 0.9rem !important;
+        }
+    </style>
     {% endblock %}
 </head>
 
@@ -102,62 +156,71 @@
             <!-- Main navbar START -->
             <div class="navbar-collapse collapse" id="navbarCollapse">
                 <!-- Nav Main menu START -->
-                <ul class="navbar-nav navbar-nav-scroll">
+                <ul class="navbar-nav navbar-nav-scroll me-auto" style="margin-right: auto !important;">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ path('app_home') }}"><i class="bi bi-house me-2"></i>Home</a>
+                        <a class="nav-link active" href="{{ path('app_home') }}"><i class="bi bi-house me-2"></i>{{ t.t('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('course_index') }}"><i class="bi bi-book me-2"></i>Courses</a>
+                        <a class="nav-link" href="{{ path('course_index') }}"><i class="bi bi-book me-2"></i>{{ t.t('Courses') }}</a>
                     </li>                    
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>Library</a>
+                        <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>{{ t.t('Library') }}</a>
                     </li>
 
                     {% if is_granted('ROLE_STUDENT') %}
-                        <li><a class="nav-link" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('front_game_index') }}"><i class="bi bi-controller me-2"></i>Games</a>
+                            <a class="nav-link" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('front_reward_browse') }}"><i class="bi bi-trophy me-2"></i>Rewards</a>
+                            <a class="nav-link" href="{{ path('front_game_index') }}"><i class="bi bi-controller me-2"></i>{{ t.t('Games') }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_front_quiz_index') }}"><i class="bi bi-lightning-charge me-2"></i>Quizzes</a>
+                            <a class="nav-link" href="{{ path('front_reward_browse') }}"><i class="bi bi-trophy me-2"></i>{{ t.t('Rewards') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_front_quiz_index') }}"><i class="bi bi-lightning-charge me-2"></i>{{ t.t('Quizzes') }}</a>
                         </li>
                     {% elseif is_granted('ROLE_TUTOR') %}
-                        <li><a class="nav-link" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
-                        <li><a class="nav-link" href="{{ path('app_quiz_index', {'prefix': 'tutor'}) }}"><i class="bi bi-lightning-charge me-2"></i>Manage Quizzes</a></li>
-
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_quiz_index', {'prefix': 'tutor'}) }}"><i class="bi bi-lightning-charge me-2"></i>{{ t.t('Manage Quizzes') }}</a>
+                        </li>
                     {% endif %}
-                    <li><a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-headset me-2"></i>Forum</a></li>
-
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-headset me-2"></i>{{ t.t('Forum') }}</a>
+                    </li>
                 </ul>
                 <!-- Nav Main menu END -->
             </div>
             <!-- Main navbar END -->
 
             <!-- Profile and notification START -->
-            <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-                <!-- Dark/Light mode toggle - ALWAYS VISIBLE -->
-                <li class="nav-item me-3 d-none d-sm-block">
+            <ul class="nav flex-row align-items-center list-unstyled" style="margin-left: auto !important;">
+                <!-- Language Switcher -->
+                <li class="nav-item me-2">
+                    {% include 'components/language_switcher.html.twig' %}
+                </li>
+
+                <!-- Dark/Light mode toggle -->
+                <li class="nav-item me-2 d-none d-sm-block">
                     <div class="mode-switch theme-icon-active d-flex align-items-center">
                         <button type="button" class="btn btn-link nav-link mb-0 p-0" data-bs-theme-value="light">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sun fa-fw mode-switch" viewBox="0 0 16 16">
                                 <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
-                                <use href="#"></use>
                             </svg>
                         </button>
                         <button type="button" class="btn btn-link nav-link mb-0 p-0" data-bs-theme-value="dark">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-moon-stars fa-fw mode-switch" viewBox="0 0 16 16">
                                 <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
                                 <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
-                                <use href="#"></use>
                             </svg>
                         </button>
                         <button type="button" class="btn btn-link nav-link mb-0 p-0 active" data-bs-theme-value="auto">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-circle-half fa-fw mode-switch" viewBox="0 0 16 16">
                                 <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
-                                <use href="#"></use>
                             </svg>
                         </button>
                     </div>
@@ -403,9 +466,9 @@
                                     <path d="M69.0166 69.7017C56.5959 80.712 39.8019 84.7239 25.181 80.1338C24.3382 79.9118 23.8242 78.9676 24.1599 78.1317C24.3819 77.2889 25.3261 76.7749 26.162 77.1106C39.7195 81.3514 55.3555 77.6122 66.9322 67.3502C78.5088 57.0882 84.0965 42.0136 81.5127 28.0453C81.3934 27.1819 81.9032 26.2994 82.7665 26.1801C83.6299 26.0608 84.5124 26.5706 84.6317 27.4339C87.4951 42.4465 81.4374 58.6914 69.0166 69.7017Z"/>
                                 </svg>
                             </span>
-                            Learning Might be
-                            <span>Closed, Not Your</span>
-                            <span class="position-relative d-inline-block">Curiosity
+                            {{ t.t('Learning Might be') }}
+                            <span>{{ t.t('Closed, Not Your') }}</span>
+                            <span class="position-relative d-inline-block">{{ t.t('Curiosity') }}
                                 <span class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-sm-block">
                                     <svg class="fill-orange" width="303" height="86" viewBox="0 0 303 86">
                                         <path d="M288.197 19.3999C281.599 15.6998 273.654 13.03 265.424 10.926C256.533 8.64794 247.263 6.92124 237.946 5.4267C218.461 2.249 198.384 0.406219 178.237 0.0579769C158.609 -0.275755 138.888 0.8125 119.733 3.49686C108.17 5.10748 96.8189 7.2985 85.8466 10.0264C81.4955 11.0131 77.168 12.0723 72.9115 13.2331C56.382 17.7022 40.5146 23.4192 26.3972 30.355C12.9182 36.9861 0.716203 46.0404 0.999971 57.2131C1.14185 62.2772 4.16871 67.051 9.98595 70.693C15.4721 74.1319 22.6846 76.3809 29.9679 78.0206C38.7647 80.0085 48.0345 81.3289 57.257 82.4026C67.1179 83.5489 77.0734 84.2889 87.0762 84.6807C107.413 85.4642 127.892 84.7968 148.063 83.0266C168.399 81.2418 188.429 78.3543 208.127 74.8139C227.399 71.3459 246.436 67.2976 265.141 62.8285C278.927 59.5348 294.227 55.0802 300.446 46.2435C307.091 36.812 299.949 25.973 288.197 19.3999Z"/>
@@ -414,15 +477,15 @@
                             </span>
                         </h1>
 
-                        <p class="mb-3 col-lg-8">NOVA is an intelligent study coaching platform designed to help you achieve academic excellence through gamification and personalized learning.</p>
+                        <p class="mb-3 col-lg-8">{{ t.t('NOVA is an intelligent study coaching platform designed to help you achieve academic excellence through gamification and personalized learning.') }}</p>
 
-                        <a href="{{ path('course_index') }}" class="btn btn-lg btn-blue mb-0">Explore Courses</a>
+                        <a href="{{ path('course_index') }}" class="btn btn-lg btn-blue mb-0">{{ t.t('Explore Courses') }}</a>
                     </div>
                     <!-- Left content END -->
 
                     <!-- Right content START -->
                     <div class="col-lg-5 col-xxl-3 position-relative">
-                        <h4 class="mb-4">Top Students This Month</h4>
+                        <h4 class="mb-4">{{ t.t('Top Students This Month') }}</h4>
 
                         <!-- Avatar 1 -->
                         <div class="d-flex align-items-center mb-3">
@@ -486,8 +549,8 @@
                                 <h6>Easy Level</h6>
                             </div>
                             <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="stretched-link">Puzzle Games</a></h3>
-                                <h6 class="lead">Fun & Simple</h6>
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="stretched-link">{{ t.t('Puzzle Games') }}</a></h3>
+                                <h6 class="lead">{{ t.t('Fun & Simple') }}</h6>
                                 <img src="{{ asset('assets/images/element/primary-school.svg') }}" class="opacity-5 mb-n5" alt="">
                             </div>
                         </div>
@@ -499,8 +562,8 @@
                                 <h6>Medium Level</h6>
                             </div>
                             <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="stretched-link">Memory Games</a></h3>
-                                <h6 class="lead">Train Your Brain</h6>
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="stretched-link">{{ t.t('Memory Games') }}</a></h3>
+                                <h6 class="lead">{{ t.t('Train Your Brain') }}</h6>
                                 <img src="{{ asset('assets/images/element/middle-school.svg') }}" class="opacity-5 mb-n5" alt="">
                             </div>
                         </div>
@@ -512,8 +575,8 @@
                                 <h6>Hard Level</h6>
                             </div>
                             <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="stretched-link">Trivia Games</a></h3>
-                                <h6 class="lead">Test Knowledge</h6>
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="stretched-link">{{ t.t('Trivia Games') }}</a></h3>
+                                <h6 class="lead">{{ t.t('Test Knowledge') }}</h6>
                                 <img src="{{ asset('assets/images/element/high-school.svg') }}" class="opacity-5 mb-n5" alt="">
                             </div>
                         </div>
@@ -525,8 +588,8 @@
                                 <h6>Expert Level</h6>
                             </div>
                             <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="stretched-link">Arcade Games</a></h3>
-                                <h6 class="lead">Ultimate Challenge</h6>
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="stretched-link">{{ t.t('Arcade Games') }}</a></h3>
+                                <h6 class="lead">{{ t.t('Ultimate Challenge') }}</h6>
                                 <img src="{{ asset('assets/images/element/exam.svg') }}" class="opacity-5 mb-n5" alt="">
                             </div>
                         </div>
