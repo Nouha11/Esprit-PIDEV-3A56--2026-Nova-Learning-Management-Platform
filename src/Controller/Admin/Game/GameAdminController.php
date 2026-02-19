@@ -31,12 +31,11 @@ class GameAdminController extends AbstractController
     #[Route('', name: 'admin_game_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $query = $this->gameRepository->createQueryBuilder('g')
-            ->orderBy('g.createdAt', 'DESC')
-            ->getQuery();
+        $queryBuilder = $this->gameRepository->createQueryBuilder('g')
+            ->orderBy('g.createdAt', 'DESC');
 
         $pagination = $this->paginator->paginate(
-            $query,
+            $queryBuilder,
             $request->query->getInt('page', 1),
             10 // 10 games per page
         );

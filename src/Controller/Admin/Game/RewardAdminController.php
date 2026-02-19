@@ -30,12 +30,11 @@ class RewardAdminController extends AbstractController
     #[Route('', name: 'admin_reward_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $query = $this->rewardRepository->createQueryBuilder('r')
-            ->orderBy('r.id', 'DESC')
-            ->getQuery();
+        $queryBuilder = $this->rewardRepository->createQueryBuilder('r')
+            ->orderBy('r.id', 'DESC');
 
         $pagination = $this->paginator->paginate(
-            $query,
+            $queryBuilder,
             $request->query->getInt('page', 1),
             10 // 10 rewards per page
         );

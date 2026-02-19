@@ -83,7 +83,7 @@
                     {{ t.t('No rewards available at the moment. Check back later!') }}
                 </div>
             {% else %}
-                <div class="row">
+                <div class="row g-3">
                     {% for reward in rewards %}
                         {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
                     {% endfor %}
@@ -94,7 +94,7 @@
             <div class="row mt-4">
                 <div class="col-12">
                     <div class="navigation d-flex justify-content-center">
-                        {{ knp_pagination_render(rewards) }}
+                        {{ knp_pagination_render(rewards, 'pagination/custom_pagination.html.twig') }}
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@
 
         <!-- Badges Tab -->
         <div class="tab-pane fade" id="badge" role="tabpanel">
-            <div class="row">
+            <div class="row g-3">
                 {% set badgeRewards = rewards|filter(r => r.type == 'BADGE') %}
                 {% if badgeRewards is empty %}
                     <div class="col-12">
@@ -121,7 +121,7 @@
 
         <!-- Achievements Tab -->
         <div class="tab-pane fade" id="achievement" role="tabpanel">
-            <div class="row">
+            <div class="row g-3">
                 {% set achievementRewards = rewards|filter(r => r.type == 'ACHIEVEMENT') %}
                 {% if achievementRewards is empty %}
                     <div class="col-12">
@@ -140,7 +140,7 @@
 
         <!-- Bonuses Tab -->
         <div class="tab-pane fade" id="bonus" role="tabpanel">
-            <div class="row">
+            <div class="row g-3">
                 {% set bonusRewards = rewards|filter(r => r.type in ['BONUS_XP', 'BONUS_TOKENS']) %}
                 {% if bonusRewards is empty %}
                     <div class="col-12">
