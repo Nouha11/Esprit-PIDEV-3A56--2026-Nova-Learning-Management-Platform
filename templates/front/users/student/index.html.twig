@@ -1,12 +1,13 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
 
-{% block title %}Student Profile{% endblock %}
+{% block title %}{{ t.t('Student Profile') }}{% endblock %}
 
 {% block body %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12">
-            <h1 class="mb-4">Student Profile</h1>
+            <h1 class="mb-4">{{ t.t('Student Profile') }}</h1>
             
             {% if student %}
                 <div class="card">
@@ -21,40 +22,40 @@
                                     </div>
                                 {% endif %}
                                 <h4>{{ student.firstName }} {{ student.lastName }}</h4>
-                                <p class="text-muted">Student</p>
+                                <p class="text-muted">{{ t.t('Student') }}</p>
                             </div>
                             <div class="col-md-9">
-                                <h5 class="mb-3">Profile Information</h5>
+                                <h5 class="mb-3">{{ t.t('Profile Information') }}</h5>
                                 
                                 <div class="mb-3">
-                                    <strong>Bio:</strong>
-                                    <p>{{ student.bio ?? 'No bio provided yet.' }}</p>
+                                    <strong>{{ t.t('Bio') }}:</strong>
+                                    <p>{{ student.bio ?? t.t('No bio provided yet.') }}</p>
                                 </div>
 
                                 <div class="mb-3">
-                                    <strong>University:</strong>
+                                    <strong>{{ t.t('University') }}:</strong>
                                     <p>{{ student.university }}</p>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <strong>Major:</strong>
-                                        <p>{{ student.major ?? 'Not specified' }}</p>
+                                        <strong>{{ t.t('Major') }}:</strong>
+                                        <p>{{ student.major ?? t.t('Not specified') }}</p>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <strong>Academic Level:</strong>
-                                        <p>{{ student.academicLevel ?? 'Not specified' }}</p>
+                                        <strong>{{ t.t('Academic Level') }}:</strong>
+                                        <p>{{ student.academicLevel ?? t.t('Not specified') }}</p>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <strong>Interests:</strong>
-                                    <p>{{ student.interests is iterable ? student.interests|join(', ') : (student.interests ?? 'Not specified') }}</p>
+                                    <strong>{{ t.t('Interests') }}:</strong>
+                                    <p>{{ student.interests is iterable ? student.interests|join(', ') : (student.interests ?? t.t('Not specified')) }}</p>
                                 </div>
 
                                 <div class="mt-4">
-                                    <a href="{{ path('app_student_profile_edit') }}" class="btn btn-primary">Edit Profile</a>
-                                    <a href="{{ path('app_student_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                                    <a href="{{ path('app_student_profile_edit') }}" class="btn btn-primary">{{ t.t('Edit Profile') }}</a>
+                                    <a href="{{ path('app_student_dashboard') }}" class="btn btn-outline-secondary">{{ t.t('Back to Dashboard') }}</a>
                                 </div>
                             </div>
                         </div>
@@ -62,9 +63,9 @@
                 </div>
             {% else %}
                 <div class="alert alert-warning">
-                    <h4>No Student Profile Found</h4>
-                    <p>You don't have a student profile yet. Please create one to get started.</p>
-                    <a href="{{ path('app_student_profile_edit') }}" class="btn btn-primary">Create Profile</a>
+                    <h4>{{ t.t('No Student Profile Found') }}</h4>
+                    <p>{{ t.t('You don\'t have a student profile yet. Please create one to get started.') }}</p>
+                    <a href="{{ path('app_student_profile_edit') }}" class="btn btn-primary">{{ t.t('Create Profile') }}</a>
                 </div>
             {% endif %}
         </div>
