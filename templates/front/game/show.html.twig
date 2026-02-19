@@ -118,15 +118,19 @@
                 {% endif %}
 
                 <div class="d-flex gap-3">
-                    {# Disable button if not enough tokens #}
-                    {% if app.user.studentProfile and app.user.studentProfile.totalTokens >= game.tokenCost %}
-                        <a href="{{ path('front_game_play', {id: game.id}) }}" class="btn btn-lg btn-success">
+                    {% if is_granted('ROLE_STUDENT') %}
+                        {# Ajax-enabled play button #}
+                        <button id="play-game-btn" 
+                                class="btn btn-lg btn-success" 
+                                data-game-id="{{ game.id }}"
+                                data-game-cost="{{ game.tokenCost }}"
+                                data-student-tokens="{{ app.user.studentProfile ? app.user.studentProfile.totalTokens : 0 }}">
                             <i class="fas fa-play"></i> Play Now
-                        </a>
-                    {% else %}
-                        <button class="btn btn-lg btn-secondary" disabled title="Not enough tokens">
-                            <i class="fas fa-lock"></i> Not Enough Tokens
                         </button>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="btn btn-lg btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login to Play
+                        </a>
                     {% endif %}
                     <a href="{{ path('front_game_index') }}" class="btn btn-lg btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Games
@@ -174,6 +178,16 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     
+    [data-bs-theme="dark"] .reward-item {
+        background-color: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+    
+    [data-bs-theme="dark"] .reward-item:hover {
+        background-color: rgba(255,255,255,0.08);
+        box-shadow: 0 4px 8px rgba(255,255,255,0.1);
+    }
+    
     .reward-icon-small {
         width: 50px;
         height: 50px;
@@ -183,5 +197,205 @@
     .reward-value {
         font-size: 1.1rem;
     }
+    
+    /* Dark mode adjustments for cards */
+    [data-bs-theme="dark"] .card {
+        background-color: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.1);
+    }
+    
+    [data-bs-theme="dark"] .card-header {
+        background-color: rgba(255,255,255,0.08) !important;
+        border-bottom-color: rgba(255,255,255,0.1);
+    }
+    
+    [data-bs-theme="dark"] .card-header.bg-primary {
+        background-color: rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    [data-bs-theme="dark"] .card-header.bg-info {
+        background-color: rgba(23, 162, 184, 0.3) !important;
+    }
+    
+    /* Dark mode text adjustments */
+    [data-bs-theme="dark"] .text-muted {
+        color: rgba(255,255,255,0.6) !important;
+    }
+    
+    [data-bs-theme="dark"] .lead {
+        color: rgba(255,255,255,0.9);
+    }
+    
+    /* Dark mode alert adjustments */
+    [data-bs-theme="dark"] .alert-danger {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #ff6b6b;
+    }
+    
+    /* Dark mode badge adjustments */
+    [data-bs-theme="dark"] .badge.bg-info {
+        background-color: #20c9e3 !important;
+        color: #000 !important;
+    }
+    
+    [data-bs-theme="dark"] .badge.bg-warning {
+        background-color: #ff9800 !important;
+        color: #000 !important;
+    }
+    
+    [data-bs-theme="dark"] .badge.bg-primary {
+        background-color: #667eea !important;
+    }
+    
+    [data-bs-theme="dark"] .badge.bg-success {
+        background-color: #20c997 !important;
+    }
+    
+    /* Dark mode reward value colors */
+    [data-bs-theme="dark"] .text-info {
+        color: #20c9e3 !important;
+    }
+    
+    [data-bs-theme="dark"] .text-success {
+        color: #20c997 !important;
+    }
+    
+    [data-bs-theme="dark"] .text-warning {
+        color: #ffc107 !important;
+    }
+    
+    [data-bs-theme="dark"] .text-primary {
+        color: #667eea !important;
+    }
+    
+    /* Sticky card in dark mode */
+    [data-bs-theme="dark"] .sticky-top {
+        background-color: transparent;
+    }
 </style>
+
+<!-- Insufficient Tokens Modal -->
+<div class="modal fade" id="insufficientTokensModal" tabindex="-1" aria-labelledby="insufficientTokensModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="insufficientTokensModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Insufficient Tokens
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-4">
+                    <i class="bi bi-coin text-warning" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="mb-3">Not Enough Tokens!</h4>
+                <p class="lead mb-3" id="token-message">You need more tokens to play this game.</p>
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <small class="text-muted d-block">Your Balance</small>
+                                <h3 class="mb-0 text-primary" id="current-balance">0</h3>
+                                <small class="text-muted">tokens</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <small class="text-muted d-block">Game Cost</small>
+                                <h3 class="mb-0 text-danger" id="game-cost">0</h3>
+                                <small class="text-muted">tokens</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle me-2"></i>
+                    You need <strong id="missing-tokens">0</strong> more token(s) to play this game.
+                </div>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Play other games or complete challenges to earn more tokens!
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ path('front_game_index') }}" class="btn btn-primary">
+                    <i class="bi bi-controller me-1"></i>
+                    Browse Games
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const playBtn = document.getElementById('play-game-btn');
+            
+            if (playBtn) {
+                playBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const gameId = this.dataset.gameId;
+                    const gameCost = parseInt(this.dataset.gameCost);
+                    const studentTokens = parseInt(this.dataset.studentTokens);
+                    
+                    // Show loading state
+                    const originalHtml = this.innerHTML;
+                    this.disabled = true;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Checking...';
+                    
+                    // Check tokens via Ajax
+                    fetch('{{ path('front_game_check_tokens', {id: '__ID__'}) }}'.replace('__ID__', gameId), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.canAfford) {
+                            // Sufficient tokens - redirect to play
+                            window.location.href = '{{ path('front_game_play', {id: '__ID__'}) }}'.replace('__ID__', gameId);
+                        } else {
+                            // Insufficient tokens - show modal
+                            showInsufficientTokensModal(data);
+                            
+                            // Reset button
+                            playBtn.disabled = false;
+                            playBtn.innerHTML = originalHtml;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking tokens:', error);
+                        alert('An error occurred. Please try again.');
+                        
+                        // Reset button
+                        playBtn.disabled = false;
+                        playBtn.innerHTML = originalHtml;
+                    });
+                });
+            }
+        });
+        
+        function showInsufficientTokensModal(data) {
+            // Update modal content
+            document.getElementById('token-message').textContent = data.message;
+            document.getElementById('current-balance').textContent = data.currentBalance;
+            document.getElementById('game-cost').textContent = data.gameCost;
+            document.getElementById('missing-tokens').textContent = data.missing;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('insufficientTokensModal'));
+            modal.show();
+        }
+    </script>
 {% endblock %}

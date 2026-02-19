@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate of Achievement</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: white;
+            padding: 0;
+            margin: 0;
+            width: 297mm;
+            height: 210mm;
+            overflow: hidden;
+        }
+
+        .certificate-container {
+            background: white;
+            width: 297mm;
+            height: 210mm;
+            padding: 8mm;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .certificate-container::before {
+            content: '';
+            position: absolute;
+            top: 6mm;
+            left: 6mm;
+            right: 6mm;
+            bottom: 6mm;
+            border: 3px solid #667eea;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .certificate-container::after {
+            content: '';
+            position: absolute;
+            top: 8mm;
+            left: 8mm;
+            right: 8mm;
+            bottom: 8mm;
+            border: 1px solid #e2e8f0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 2px;
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .certificate-logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto -10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .certificate-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .certificate-title {
+            font-size: 28px;
+            color: #2d3748;
+            font-weight: bold;
+            margin-bottom: 1px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .certificate-subtitle {
+            font-size: 12px;
+            color: #667eea;
+            font-style: italic;
+            margin-bottom: 1px;
+        }
+
+        .certificate-body {
+            text-align: center;
+            margin: 4px 0;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .presented-to {
+            font-size: 9px;
+            color: #718096;
+            margin-bottom: 3px;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .recipient-name {
+            font-size: 24px;
+            color: #2d3748;
+            font-weight: bold;
+            margin: 4px 0;
+            padding: 4px 0;
+            border-bottom: 3px solid #667eea;
+            display: inline-block;
+            min-width: 300px;
+        }
+
+        .achievement-text {
+            font-size: 10px;
+            color: #4a5568;
+            margin: 4px auto;
+            max-width: 550px;
+            line-height: 1.2;
+        }
+
+        .reward-details {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 6px;
+            border-radius: 6px;
+            margin: 4px auto;
+            max-width: 600px;
+            border-left: 4px solid #667eea;
+        }
+
+        .reward-name {
+            font-size: 16px;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .reward-type {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .reward-description {
+            font-size: 9px;
+            color: #4a5568;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+        
+        .reward-value {
+            font-size: 9px;
+            margin-top: 3px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .certificate-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 0;
+            padding-top: 6px;
+            border-top: 2px solid #e2e8f0;
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .date-section {
+            text-align: left;
+            flex: 0 0 auto;
+        }
+        
+        .signature-section {
+            text-align: right;
+            flex: 0 0 auto;
+        }
+
+        .date-value, .signature-line {
+            font-size: 12px;
+            color: #2d3748;
+            font-weight: bold;
+            margin-bottom: 2px;
+            padding-bottom: 2px;
+            border-bottom: 2px solid #2d3748;
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        .date-label, .signature-label {
+            font-size: 8px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 100px;
+            color: rgba(102, 126, 234, 0.03);
+            font-weight: bold;
+            z-index: 0;
+            pointer-events: none;
+            letter-spacing: 10px;
+        }
+
+        .decorative-corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px solid #667eea;
+            z-index: 0;
+        }
+
+        .decorative-corner.top-left {
+            top: 14mm;
+            left: 14mm;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .decorative-corner.top-right {
+            top: 14mm;
+            right: 14mm;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .decorative-corner.bottom-left {
+            bottom: 14mm;
+            left: 14mm;
+            border-right: none;
+            border-top: none;
+        }
+
+        .decorative-corner.bottom-right {
+            bottom: 14mm;
+            right: 14mm;
+            border-left: none;
+            border-top: none;
+        }
+        
+        .achievement-icon {
+            font-size: 18px;
+            margin: 2px 0;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-container">
+        <!-- Decorative Corners -->
+        <div class="decorative-corner top-left"></div>
+        <div class="decorative-corner top-right"></div>
+        <div class="decorative-corner bottom-left"></div>
+        <div class="decorative-corner bottom-right"></div>
+
+        <!-- Watermark -->
+        <div class="watermark">NOVA</div>
+
+        <!-- Header -->
+        <div class="certificate-header">
+            <div class="certificate-logo">
+                <img src="{{ absolute_url(asset('assets/images/logo.png')) }}" alt="NOVA Logo">
+            </div>
+            <h1 class="certificate-title">Certificate of Achievement</h1>
+            <p class="certificate-subtitle">NOVA - Intelligent Study Coaching Platform</p>
+        </div>
+
+        <!-- Body -->
+        <div class="certificate-body">
+            <p class="presented-to">This certificate is proudly presented to</p>
+            
+            <div class="recipient-name">
+                {{ student.firstName }} {{ student.lastName }}
+            </div>
+
+            <div class="achievement-icon">
+                    ★
+            </div>
+
+            <p class="achievement-text">
+                For outstanding achievement and dedication in earning the following reward through exceptional performance and commitment to learning excellence.
+            </p>
+
+            <!-- Reward Details -->
+            <div class="reward-details">
+                <div class="reward-type">{{ reward.type|replace({'_': ' '}) }}</div>
+                <div class="reward-name">{{ reward.name }}</div>
+                {% if reward.description %}
+                    <div class="reward-description">
+                        {{ reward.description }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="certificate-footer">
+            <div class="date-section">
+                <div class="date-value">{{ earnedDate|date('F d, Y') }}</div>
+                <div class="date-label">Date Earned</div>
+            </div>
+            
+            <div class="signature-section">
+                <div class="signature-line">NOVA Platform</div>
+                <div class="signature-label">Authorized Signature</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

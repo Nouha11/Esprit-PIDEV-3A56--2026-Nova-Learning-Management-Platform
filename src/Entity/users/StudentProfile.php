@@ -46,6 +46,10 @@ class StudentProfile
     )]
     private ?string $lastName = null;
 
+    #[ORM\Column(length: 180, unique: true, nullable: true)]
+    #[Assert\Email(message: 'Please enter a valid email address')]
+    private ?string $email = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(
         max: 1000,
@@ -124,6 +128,17 @@ class StudentProfile
     public function setLastName(string $lastName): static
     {
         $this->lastName = $lastName;
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
         return $this;
     }
 
