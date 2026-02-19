@@ -1,8 +1,8 @@
-<div class="col-md-6 col-lg-4 mb-4">
-    <div class="card h-100 reward-card {{ reward.type|lower }}">
-        <div class="card-header text-center py-3 reward-header">
+<div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+    <div class="card h-100 reward-card">
+        <div class="card-header text-center py-4 reward-header">
             {% if reward.icon %}
-                <img src="{{ asset('images/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="reward-icon">
+                <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="reward-icon" style="width: 80px; height: 80px; object-fit: contain;">
             {% else %}
                 {% if reward.type == 'BADGE' %}
                     <i class="bi bi-patch-check-fill display-3 text-primary"></i>
@@ -15,14 +15,17 @@
                 {% endif %}
             {% endif %}
         </div>
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title text-center mb-3">{{ reward.name }}</h5>
+        
+        <div class="card-body d-flex flex-column p-3">
+            <h5 class="card-title text-center mb-2" style="min-height: 48px; display: flex; align-items: center; justify-content: center;">
+                {{ reward.name }}
+            </h5>
             
             <!-- Reward Type Badge -->
-            <div class="text-center mb-3">
+            <div class="text-center mb-2">
                 <span class="badge 
                     {% if reward.type == 'BADGE' %}bg-primary
-                    {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning
+                    {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning text-dark
                     {% elseif reward.type == 'BONUS_XP' %}bg-info
                     {% elseif reward.type == 'BONUS_TOKENS' %}bg-success
                     {% endif %}">
@@ -30,64 +33,19 @@
                 </span>
             </div>
 
-            <!-- Description -->
-            {% if reward.description %}
-                <p class="card-text text-light small mb-3">{{ reward.description }}</p>
-            {% endif %}
-
             <!-- Value -->
             <div class="text-center mb-3">
-                <div class="reward-value">
-                    {% if reward.type == 'BONUS_XP' %}
-                        <span class="text-info fw-bold">+{{ reward.value }} XP</span>
-                    {% elseif reward.type == 'BONUS_TOKENS' %}
-                        <span class="text-success fw-bold">+{{ reward.value }} Tokens</span>
-                    {% else %}
-                        <span class="text-primary fw-bold">Value: {{ reward.value }}</span>
-                    {% endif %}
-                </div>
+                {% if reward.type == 'BONUS_XP' %}
+                    <span class="text-info fw-bold">Value: {{ reward.value }}</span>
+                {% elseif reward.type == 'BONUS_TOKENS' %}
+                    <span class="text-success fw-bold">Value: {{ reward.value }}</span>
+                {% else %}
+                    <span class="text-primary fw-bold">Value: {{ reward.value }}</span>
+                {% endif %}
             </div>
 
-            <!-- Available in Games Section -->
-            {% if reward.games|length > 0 %}
-                <div class="games-section mb-3 border-top pt-2"> <h6 class="text-secondary small mb-2">
-                        <i class="bi bi-controller me-1"></i>Available in {{ reward.games|length }} game(s):
-                    </h6>
-                    <div class="games-list">
-                        {% for game in reward.games|slice(0, 3) %}
-                            {% if game.isActive %}
-                                <a href="{{ path('front_game_show', {id: game.id}) }}" 
-                                class="badge bg-secondary text-decoration-none">
-                                    {{ game.name }}
-                                </a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-
-            {% if reward.requirement %}
-                <div class="requirement-section mt-auto border-top pt-2">
-                    <h6 class="text-secondary small mb-2">
-                        <i class="bi bi-list-check me-1"></i>Requirement:
-                    </h6>
-                    <p class="small mb-0">{{ reward.requirement }}</p>
-                </div>
-            {% endif %}
-
-            <!-- Requirement -->
-            {% if reward.requirement %}
-                <div class="requirement-section mt-auto">
-                    <hr>
-                    <h6 class="text-muted small mb-2">
-                        <i class="bi bi-list-check me-1"></i>Requirement:
-                    </h6>
-                    <p class="small mb-0">{{ reward.requirement }}</p>
-                </div>
-            {% endif %}
-
             <!-- Status Badge -->
-            <div class="mt-3 text-center">
+            <div class="mt-auto text-center">
                 {% if reward.isActive %}
                     <span class="badge bg-success">
                         <i class="bi bi-check-circle-fill me-1"></i>Active
@@ -99,19 +57,12 @@
                 {% endif %}
             </div>
         </div>
-        <div class="card-footer bg-transparent border-top-0">
+        
+        <div class="card-footer bg-transparent border-top">
             <div class="d-grid">
-                <button class="btn btn-outline-primary btn-sm" 
-                        data-reward-id="{{ reward.id }}"
-                        data-reward-name="{{ reward.name }}"
-                        data-reward-description="{{ reward.description ?? '' }}"
-                        data-reward-requirement="{{ reward.requirement ?? '' }}"
-                        data-reward-type="{{ reward.type }}"
-                        data-reward-value="{{ reward.value }}"
-                        data-reward-icon="{{ reward.icon ?? '' }}"
-                        onclick="showRewardDetails(this)">
+                <a href="{{ path('front_reward_show', {id: reward.id}) }}" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-info-circle me-1"></i>View Details
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -120,194 +71,36 @@
 <style>
     .reward-card {
         transition: all 0.3s ease;
-        border: 1px solid rgba(0,0,0,0.125); /* Default bootstrap border */
+        border: 1px solid rgba(0,0,0,0.125);
     }
     
-    /* Hover effects remain the same */
     .reward-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    [data-bs-theme="dark"] .reward-card:hover {
+        box-shadow: 0 8px 20px rgba(255,255,255,0.1);
     }
     
     .reward-header {
-        /* This keeps the icon area light/grey as seen in your screenshot */
-        background: rgba(0, 0, 0, 0.05); 
-        min-height: 120px;
+        background: rgba(0, 0, 0, 0.03);
+        min-height: 140px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-
-    /* THE FIX: Remove background-color and padding */
-    .requirement-section, 
-    .games-section {
-        background-color: transparent !important; /* Forces it to use the card's color */
-        padding: 0;
-        border-color: rgba(0,0,0,0.1) !important;
+    
+    [data-bs-theme="dark"] .reward-header {
+        background: rgba(255, 255, 255, 0.05);
     }
-
-    /* Adjust border color for Dark Mode specifically if needed */
-    [data-bs-theme="dark"] .requirement-section,
-    [data-bs-theme="dark"] .games-section {
-        border-color: rgba(255,255,255,0.1) !important;
+    
+    [data-bs-theme="dark"] .card-footer {
+        border-top-color: rgba(255, 255, 255, 0.1) !important;
     }
-
-    .reward-value {
-        font-size: 1.25rem;
+    
+    /* Ensure all cards have same height */
+    .reward-card .card-body {
+        min-height: 200px;
     }
 </style>
-
-<script>
-function showRewardDetails(button) {
-    // Get data from button attributes
-    const rewardId = button.getAttribute('data-reward-id');
-    const name = button.getAttribute('data-reward-name');
-    const description = button.getAttribute('data-reward-description');
-    const requirement = button.getAttribute('data-reward-requirement');
-    const type = button.getAttribute('data-reward-type');
-    const value = button.getAttribute('data-reward-value');
-    const icon = button.getAttribute('data-reward-icon');
-    
-    // Get games from the card (find parent card and extract game links)
-    const card = button.closest('.reward-card');
-    const gamesSection = card.querySelector('.games-section');
-    let gamesHTML = '';
-    
-    if (gamesSection) {
-        const gameLinks = gamesSection.querySelectorAll('a.badge');
-        if (gameLinks.length > 0) {
-            gamesHTML = `
-                <hr>
-                <h6><i class="bi bi-controller me-2"></i>Available in these games:</h6>
-                <div class="list-group">
-            `;
-            gameLinks.forEach(link => {
-                gamesHTML += `
-                    <a href="${link.href}" class="list-group-item list-group-item-action">
-                        ${link.textContent.trim()}
-                    </a>
-                `;
-            });
-            
-            // Check if there's a "more" badge
-            const moreBadge = gamesSection.querySelector('.badge.bg-light');
-            if (moreBadge) {
-                gamesHTML += `
-                    <div class="list-group-item text-muted">
-                        ${moreBadge.textContent.trim()}
-                    </div>
-                `;
-            }
-            gamesHTML += `</div>`;
-        }
-    } else {
-        gamesHTML = `
-            <hr>
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>Not currently offered in any active game
-            </div>
-        `;
-    }
-    
-    // Determine reward type badge
-    let typeBadgeClass = 'bg-secondary';
-    let typeIcon = '';
-    switch(type) {
-        case 'BADGE':
-            typeBadgeClass = 'bg-primary';
-            typeIcon = '<i class="bi bi-patch-check-fill me-1"></i>';
-            break;
-        case 'ACHIEVEMENT':
-            typeBadgeClass = 'bg-warning';
-            typeIcon = '<i class="bi bi-trophy-fill me-1"></i>';
-            break;
-        case 'BONUS_XP':
-            typeBadgeClass = 'bg-info';
-            typeIcon = '<i class="bi bi-star-fill me-1"></i>';
-            break;
-        case 'BONUS_TOKENS':
-            typeBadgeClass = 'bg-success';
-            typeIcon = '<i class="bi bi-coin me-1"></i>';
-            break;
-    }
-    
-    // Build value display
-    let valueHTML = '';
-    if (type === 'BONUS_XP') {
-        valueHTML = `<h4 class="text-info mb-0">+${value} XP</h4>`;
-    } else if (type === 'BONUS_TOKENS') {
-        valueHTML = `<h4 class="text-success mb-0">+${value} Tokens</h4>`;
-    }
-    
-    const modalHTML = `
-        <div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-light">
-                        <h5 class="modal-title" id="rewardModalLabel">
-                            ${icon ? `<span style="font-size: 1.5rem;" class="me-2">${icon}</span>` : ''}
-                            ${name}
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Reward Type -->
-                        <div class="text-center mb-3">
-                            <span class="badge ${typeBadgeClass}">
-                                ${typeIcon}${type.replace('_', ' ')}
-                            </span>
-                        </div>
-                        
-                        <!-- Value Display -->
-                        ${valueHTML ? `
-                        <div class="text-center mb-4">
-                            ${valueHTML}
-                        </div>
-                        ` : ''}
-                        
-                        <!-- Description -->
-                        <div class="mb-3">
-                            <h6><i class="bi bi-info-circle me-2"></i>Description:</h6>
-                            <p class="text-muted">${description || 'No description available.'}</p>
-                        </div>
-                        
-                        <!-- Requirement -->
-                        ${requirement ? `
-                        <div class="mb-3">
-                            <h6><i class="bi bi-list-check me-2"></i>How to Earn:</h6>
-                            <div class="alert alert-warning">
-                                ${requirement}
-                            </div>
-                        </div>
-                        ` : ''}
-                        
-                        <!-- Games -->
-                        ${gamesHTML}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Remove existing modal if any
-    const existingModal = document.getElementById('rewardModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
-    // Add new modal
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('rewardModal'));
-    modal.show();
-    
-    // Clean up after close
-    document.getElementById('rewardModal').addEventListener('hidden.bs.modal', function () {
-        this.remove();
-    });
-}
-</script>
