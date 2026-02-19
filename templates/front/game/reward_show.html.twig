@@ -1,0 +1,373 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ reward.name }} - Reward Details{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <!-- Back Button -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <a href="{{ path('front_reward_browse') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Rewards
+            </a>
+        </div>
+    </div>
+
+    <!-- Reward Details Card -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-lg border-0">
+                <!-- Card Header with Reward Type Badge -->
+                <div class="card-header bg-gradient text-white text-center py-4" 
+                     style="background: linear-gradient(135deg, 
+                     {% if reward.type == 'BADGE' %}#ffc107, #ff9800
+                     {% elseif reward.type == 'ACHIEVEMENT' %}#28a745, #20c997
+                     {% elseif reward.type == 'BONUS_XP' %}#17a2b8, #007bff
+                     {% else %}#ffc107, #fd7e14{% endif %});">
+                    <span class="badge bg-white text-dark fs-6 mb-3">
+                        {{ reward.type|replace({'_': ' '}) }}
+                    </span>
+                    <h1 class="display-5 mb-0">{{ reward.name }}</h1>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body p-5">
+                    <!-- Reward Icon -->
+                    <div class="text-center mb-4">
+                        {% if reward.icon %}
+                            <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="reward-icon-large mb-3" style="width: 120px; height: 120px; object-fit: contain;">
+                        {% else %}
+                            <div class="reward-icon-placeholder-large mb-3">
+                                {% if reward.type == 'BADGE' %}
+                                    <i class="bi bi-award-fill text-warning" style="font-size: 6rem;"></i>
+                                {% elseif reward.type == 'ACHIEVEMENT' %}
+                                    <i class="bi bi-trophy-fill text-success" style="font-size: 6rem;"></i>
+                                {% elseif reward.type == 'BONUS_XP' %}
+                                    <i class="bi bi-star-fill text-info" style="font-size: 6rem;"></i>
+                                {% else %}
+                                    <i class="bi bi-coin text-warning" style="font-size: 6rem;"></i>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    {% if reward.description %}
+                        <div class="mb-4">
+                            <h5 class="text-muted mb-3">
+                                <i class="bi bi-info-circle me-2"></i>Description
+                            </h5>
+                            <p class="lead">{{ reward.description }}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Reward Value -->
+                    {% if reward.value > 0 %}
+                        <div class="mb-4">
+                            <h5 class="text-muted mb-3">
+                                <i class="bi bi-gem me-2"></i>Value
+                            </h5>
+                            <div class="alert alert-info d-flex align-items-center">
+                                <i class="bi bi-{{ reward.type == 'BONUS_XP' ? 'star' : 'coin' }} fs-3 me-3"></i>
+                                <div>
+                                    <strong class="fs-4">{{ reward.value }}</strong>
+                                    <span class="ms-2">{{ reward.type == 'BONUS_XP' ? 'Experience Points' : 'Tokens' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Requirement -->
+                    {% if reward.requirement %}
+                        <div class="mb-4">
+                            <h5 class="text-muted mb-3">
+                                <i class="bi bi-clipboard-check me-2"></i>How to Earn
+                            </h5>
+                            <div class="alert alert-warning">
+                                <i class="bi bi-lightbulb-fill me-2"></i>
+                                {{ reward.requirement }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- QR Code Section -->
+                    <div class="mb-4">
+                        <h5 class="text-muted mb-3">
+                            <i class="bi bi-qr-code me-2"></i>Share This Reward
+                        </h5>
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <img src="{{ qrCode }}" alt="QR Code for {{ reward.name }}" class="img-fluid mb-3" style="max-width: 250px;">
+                                <p class="small text-muted mb-0">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Scan this QR code to view this reward
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status for Logged-in Students -->
+                    {% if student %}
+                        <div class="mb-4">
+                            <h5 class="text-muted mb-3">
+                                <i class="bi bi-person-check me-2"></i>Your Status
+                            </h5>
+                            {% if student.hasEarnedReward(reward) %}
+                                <div class="alert alert-success d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+                                    <div>
+                                        <strong>Congratulations!</strong> You've earned this reward!
+                                    </div>
+                                </div>
+                                
+                                <!-- Certificate Download Button - Only for Achievements -->
+                                {% if reward.type == 'ACHIEVEMENT' %}
+                                    <div class="d-grid gap-2 mt-3">
+                                        <a href="{{ path('front_reward_certificate', {id: reward.id}) }}" 
+                                           class="btn btn-success btn-lg" 
+                                           target="_blank">
+                                            <i class="bi bi-file-earmark-pdf me-2"></i>
+                                            Download Certificate
+                                        </a>
+                                        <small class="text-muted text-center">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Certificates are available for Achievement rewards
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="alert alert-secondary d-flex align-items-center">
+                                    <i class="bi bi-hourglass-split fs-3 me-3"></i>
+                                    <div>
+                                        You haven't earned this reward yet. Keep playing to unlock it!
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Associated Games -->
+                    {% if games|length > 0 %}
+                        <div class="mb-4">
+                            <h5 class="text-muted mb-3">
+                                <i class="bi bi-controller me-2"></i>Games Offering This Reward
+                            </h5>
+                            <div class="row g-3">
+                                {% for game in games %}
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-primary">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="bi bi-joystick me-1"></i>
+                                                    {{ game.name }}
+                                                </h6>
+                                                <p class="card-text small text-muted">
+                                                    {{ game.description|length > 80 ? game.description|slice(0, 80) ~ '...' : game.description }}
+                                                </p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="badge bg-{{ game.difficulty == 'EASY' ? 'success' : (game.difficulty == 'MEDIUM' ? 'warning' : 'danger') }}">
+                                                        {{ game.difficulty }}
+                                                    </span>
+                                                    <a href="{{ path('front_game_show', {id: game.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                        View Game
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No games currently offer this reward. Check back later!
+                        </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 mt-4">
+                        {% if student %}
+                            <a href="{{ path('front_reward_my_rewards') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-trophy me-2"></i>View My Rewards
+                            </a>
+                        {% endif %}
+                        <a href="{{ path('front_game_index') }}" class="btn btn-primary">
+                            <i class="bi bi-controller me-2"></i>Play Games to Earn This Reward
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Status: {{ reward.isActive ? 'Active' : 'Inactive' }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Info Section -->
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-lightbulb-fill text-warning me-2"></i>
+                        Tips for Earning Rewards
+                    </h5>
+                    <ul class="mb-0">
+                        <li>Play games regularly to increase your chances of earning rewards</li>
+                        <li>Higher difficulty games often offer better rewards</li>
+                        <li>Complete game challenges to unlock special achievements</li>
+                        <li>Check the requirements to know exactly what you need to do</li>
+                        {% if reward.type == 'ACHIEVEMENT' %}
+                            <li><strong>Earn this achievement to download a personalized certificate!</strong></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    [data-bs-theme="dark"] .card:hover {
+        box-shadow: 0 8px 25px rgba(255,255,255,0.1);
+    }
+
+    .reward-icon-large {
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    [data-bs-theme="dark"] .reward-icon-large {
+        box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+    }
+
+    .reward-icon-placeholder-large {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+    }
+
+    .alert {
+        border-radius: 10px;
+    }
+    
+    [data-bs-theme="dark"] .alert-info {
+        background-color: rgba(23, 162, 184, 0.2);
+        border-color: rgba(23, 162, 184, 0.3);
+        color: #20c9e3;
+    }
+    
+    [data-bs-theme="dark"] .alert-warning {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-color: rgba(255, 193, 7, 0.3);
+        color: #ffc107;
+    }
+    
+    [data-bs-theme="dark"] .alert-success {
+        background-color: rgba(40, 167, 69, 0.2);
+        border-color: rgba(40, 167, 69, 0.3);
+        color: #20c997;
+    }
+    
+    [data-bs-theme="dark"] .alert-secondary {
+        background-color: rgba(108, 117, 125, 0.2);
+        border-color: rgba(108, 117, 125, 0.3);
+        color: #adb5bd;
+    }
+
+    .btn {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    [data-bs-theme="dark"] .btn:hover {
+        box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+    }
+    
+    /* Card header gradient adjustments for dark mode */
+    [data-bs-theme="dark"] .card-header.bg-gradient {
+        opacity: 0.95;
+    }
+    
+    /* Text adjustments for dark mode */
+    [data-bs-theme="dark"] .text-muted {
+        color: rgba(255,255,255,0.6) !important;
+    }
+    
+    [data-bs-theme="dark"] .lead {
+        color: rgba(255,255,255,0.9);
+    }
+    
+    /* Card body background for dark mode */
+    [data-bs-theme="dark"] .card-body {
+        background-color: rgba(255,255,255,0.02);
+    }
+    
+    /* Border adjustments for dark mode */
+    [data-bs-theme="dark"] .card.border-primary {
+        border-color: rgba(102, 126, 234, 0.5) !important;
+    }
+    
+    [data-bs-theme="dark"] .card.border-success {
+        border-color: rgba(40, 167, 69, 0.5) !important;
+    }
+    
+    [data-bs-theme="dark"] .card.border-warning {
+        border-color: rgba(255, 193, 7, 0.5) !important;
+    }
+    
+    [data-bs-theme="dark"] .card.border-danger {
+        border-color: rgba(220, 53, 69, 0.5) !important;
+    }
+    
+    /* Badge adjustments for dark mode */
+    [data-bs-theme="dark"] .badge.bg-success {
+        background-color: #20c997 !important;
+    }
+    
+    [data-bs-theme="dark"] .badge.bg-warning {
+        background-color: #ff9800 !important;
+        color: #000 !important;
+    }
+    
+    [data-bs-theme="dark"] .badge.bg-danger {
+        background-color: #dc3545 !important;
+    }
+    
+    /* Card footer for dark mode */
+    [data-bs-theme="dark"] .card-footer {
+        background-color: rgba(255,255,255,0.05) !important;
+        border-top-color: rgba(255,255,255,0.1) !important;
+    }
+    
+    /* Light mode card background */
+    [data-bs-theme="dark"] .card.bg-light {
+        background-color: rgba(255,255,255,0.05) !important;
+    }
+</style>
+{% endblock %}

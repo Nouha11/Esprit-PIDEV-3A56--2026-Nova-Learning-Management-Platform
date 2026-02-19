@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
+    <title>Reward Unlocked!</title>
+    <style>
+        /* Base styles */
+        :root {
+            color-scheme: light dark;
+            supported-color-schemes: light dark;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1d20;
+            }
+            .email-container {
+                background-color: #2d3238 !important;
+                color: #e9ecef !important;
+            }
+            .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            }
+            .content {
+                background-color: #343a40 !important;
+                color: #e9ecef !important;
+            }
+            .reward-card {
+                background-color: #495057 !important;
+                border-color: #6c757d !important;
+            }
+            .stats-box {
+                background-color: #495057 !important;
+                border-color: #6c757d !important;
+            }
+            .footer {
+                background-color: #212529 !important;
+                color: #adb5bd !important;
+            }
+            h1, h2, h3, p {
+                color: #e9ecef !important;
+            }
+            .text-muted {
+                color: #adb5bd !important;
+            }
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: white !important;
+        }
+
+        .header .emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .content {
+            padding: 40px 30px;
+            background-color: #ffffff;
+        }
+
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .reward-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .reward-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        .reward-icon img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: contain;
+        }
+
+        .reward-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .reward-type {
+            display: inline-block;
+            background-color: #667eea;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .reward-description {
+            font-size: 16px;
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .stats-container {
+            display: table;
+            width: 100%;
+            margin: 30px 0;
+        }
+
+        .stats-box {
+            display: table-cell;
+            width: 33.33%;
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        .stats-box:not(:last-child) {
+            border-right: none;
+        }
+
+        .stats-box:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .stats-box:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .stats-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stats-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #667eea, transparent);
+            margin: 30px 0;
+        }
+
+        .text-muted {
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* Mobile responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .reward-card {
+                padding: 20px;
+            }
+
+            .stats-container {
+                display: block;
+            }
+
+            .stats-box {
+                display: block;
+                width: 100%;
+                margin-bottom: 10px;
+                border-radius: 8px !important;
+                border-right: 1px solid #e9ecef !important;
+            }
+
+            .stats-box:last-child {
+                margin-bottom: 0;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .reward-name {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <span class="emoji">🎉</span>
+            <h1>Congratulations!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; color: rgba(255,255,255,0.9);">
+                You've Unlocked a New Reward
+            </p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <p class="greeting">
+                Hi <strong>{{ userName }}</strong>,
+            </p>
+
+            <p>
+                Great news! You've just unlocked a new reward on NOVA Platform. Your dedication and hard work are paying off!
+            </p>
+
+            <!-- Reward Card -->
+            <div class="reward-card">
+                <div class="reward-icon">
+                    {% if rewardIcon %}
+                        <img src="{{ absolute_url(asset('uploads/rewards/' ~ rewardIcon)) }}" alt="{{ rewardName }}">
+                    {% else %}
+                        {% if reward.type == 'BADGE' %}
+                            🏅
+                        {% elseif reward.type == 'ACHIEVEMENT' %}
+                            🏆
+                        {% elseif reward.type == 'BONUS_XP' %}
+                            ⭐
+                        {% elseif reward.type == 'BONUS_TOKENS' %}
+                            💰
+                        {% else %}
+                            🎁
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="reward-type">{{ rewardType }}</div>
+                
+                <h2 class="reward-name">{{ rewardName }}</h2>
+
+                {% if rewardDescription %}
+                    <p class="reward-description">{{ rewardDescription }}</p>
+                {% endif %}
+
+                {% if reward.value > 0 %}
+                    <p style="font-size: 18px; color: #667eea; font-weight: 600; margin-top: 15px;">
+                        {% if reward.type == 'BONUS_XP' %}
+                            +{{ reward.value }} XP Bonus!
+                        {% elseif reward.type == 'BONUS_TOKENS' %}
+                            +{{ reward.value }} Tokens Bonus!
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Stats -->
+            <h3 style="text-align: center; color: #333; margin-bottom: 20px;">Your Current Progress</h3>
+            
+            <div class="stats-container">
+                <div class="stats-box">
+                    <span class="stats-value">{{ currentLevel }}</span>
+                    <span class="stats-label">Level</span>
+                </div>
+                <div class="stats-box">
+                    <span class="stats-value">{{ totalXP|number_format }}</span>
+                    <span class="stats-label">Total XP</span>
+                </div>
+                <div class="stats-box">
+                    <span class="stats-value">{{ totalTokens|number_format }}</span>
+                    <span class="stats-label">Tokens</span>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <div style="text-align: center;">
+                <a href="{{ absolute_url(path('front_reward_my_rewards')) }}" class="cta-button">
+                    View My Rewards
+                </a>
+            </div>
+
+            <p class="text-muted" style="text-align: center; margin-top: 30px;">
+                Keep up the great work! More rewards await you as you continue your learning journey.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p style="margin: 0 0 10px 0;">
+                <strong>NOVA - Intelligent Study Coaching Platform</strong>
+            </p>
+            <p style="margin: 0 0 10px 0;">
+                This email was sent because you unlocked a reward on our platform.
+            </p>
+            <p style="margin: 0;">
+                <a href="{{ absolute_url(path('app_home')) }}">Visit NOVA</a> | 
+                <a href="{{ absolute_url(path('front_reward_browse')) }}">Browse Rewards</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

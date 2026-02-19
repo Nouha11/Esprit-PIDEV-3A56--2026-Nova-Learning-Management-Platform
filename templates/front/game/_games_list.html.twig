@@ -1,0 +1,64 @@
+{% if games|length > 0 %}
+    <div class="row g-4">
+        {% for game in games %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm hover-lift">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">{{ game.name }}</h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                {% if app.user %}
+                                    <button class="btn btn-sm btn-outline-danger favorite-btn" 
+                                            data-game-id="{{ game.id }}"
+                                            data-favorited="{{ app.user.hasFavoriteGame(game) ? 'true' : 'false' }}"
+                                            title="{{ app.user.hasFavoriteGame(game) ? 'Remove from favorites' : 'Add to favorites' }}">
+                                        <i class="bi bi-heart{{ app.user.hasFavoriteGame(game) ? '-fill' : '' }}"></i>
+                                    </button>
+                                {% endif %}
+                                {% if game.tokenCost == 0 %}
+                                    <span class="badge bg-success">FREE</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">{{ game.tokenCost }} 🪙</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <span class="badge bg-info me-1">{{ game.type }}</span>
+                            <span class="badge bg-{{ game.difficulty == 'EASY' ? 'success' : (game.difficulty == 'MEDIUM' ? 'warning' : 'danger') }}">
+                                {{ game.difficulty }}
+                            </span>
+                        </div>
+                        
+                        <p class="card-text text-muted small">
+                            {{ game.description|length > 100 ? game.description|slice(0, 100) ~ '...' : game.description }}
+                        </p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="small text-muted">
+                                <i class="bi bi-trophy-fill text-warning"></i> {{ game.rewardXP }} XP
+                                <i class="bi bi-coin text-warning ms-2"></i> {{ game.rewardTokens }}
+                            </div>
+                            <a href="{{ path('front_game_show', {id: game.id}) }}" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4">
+        {{ knp_pagination_render(games, 'pagination/custom_pagination.html.twig') }}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox fs-1 text-muted"></i>
+        <p class="text-muted mt-3">No games found matching your filters.</p>
+        <button class="btn btn-outline-primary" onclick="clearFilters()">
+            <i class="bi bi-x-circle me-1"></i>Clear Filters
+        </button>
+    </div>
+{% endif %}

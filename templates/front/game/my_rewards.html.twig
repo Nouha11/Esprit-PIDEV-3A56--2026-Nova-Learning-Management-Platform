@@ -64,7 +64,7 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="mb-0">
                     <i class="bi bi-award-fill text-primary me-2"></i>
-                    Your Achievements
+                    Your Rewards Collection
                 </h2>
                 <a href="{{ path('front_reward_browse') }}" class="btn btn-outline-primary">
                     <i class="bi bi-shop me-1"></i>Browse All Rewards
@@ -73,19 +73,211 @@
         </div>
     </div>
 
-    <!-- Placeholder for earned rewards -->
-    <div class="row">
-        <div class="col-12">
-            <div class="alert alert-info d-flex align-items-center" role="alert">
-                <i class="bi bi-info-circle-fill me-3 fs-4"></i>
-                <div>
-                    <h5 class="alert-heading mb-1">Reward Tracking Coming Soon!</h5>
-                    <p class="mb-0">
-                        Keep playing games to earn XP and tokens. Your earned rewards will be displayed here once the tracking system is implemented.
-                    </p>
+    <!-- Achievements Section -->
+    {% set achievements = student.earnedRewards|filter(r => r.type == 'ACHIEVEMENT') %}
+    {% if achievements|length > 0 %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="section-header mb-4">
+                    <h3 class="section-title">
+                        <i class="bi bi-trophy-fill text-success me-2"></i>
+                        Achievements
+                        <span class="badge bg-success ms-2">{{ achievements|length }}</span>
+                    </h3>
+                    <p class="text-muted">Major accomplishments with downloadable certificates</p>
                 </div>
             </div>
+            {% for reward in achievements %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 achievement-card">
+                        <div class="achievement-ribbon">
+                            <i class="bi bi-trophy-fill"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                {% if reward.icon %}
+                                    <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="reward-icon mb-2">
+                                {% else %}
+                                    <div class="reward-icon-placeholder achievement-icon-bg mb-2">
+                                        <i class="bi bi-trophy-fill"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <h5 class="card-title text-center mb-2 achievement-title">{{ reward.name }}</h5>
+                            
+                            {% if reward.description %}
+                                <p class="card-text text-muted small text-center mb-3">
+                                    {{ reward.description|length > 100 ? reward.description|slice(0, 100) ~ '...' : reward.description }}
+                                </p>
+                            {% endif %}
+
+                            {% if reward.value > 0 %}
+                                <div class="text-center mb-3">
+                                    <span class="badge bg-success achievement-value">
+                                        <i class="bi bi-star me-1"></i>
+                                        {{ reward.value }} XP
+                                    </span>
+                                </div>
+                            {% endif %}
+
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('front_reward_certificate', {id: reward.id}) }}" 
+                                   class="btn btn-success" 
+                                   target="_blank">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>
+                                    Download Certificate
+                                </a>
+                                <a href="{{ path('front_reward_show', {id: reward.id}) }}" 
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-eye me-1"></i>
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar-check me-1"></i>
+                                Earned recently
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
+    {% endif %}
+
+    <!-- Badges Section -->
+    {% set badges = student.earnedRewards|filter(r => r.type == 'BADGE') %}
+    {% if badges|length > 0 %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="section-header mb-4">
+                    <h3 class="section-title">
+                        <i class="bi bi-award-fill text-warning me-2"></i>
+                        Badges
+                        <span class="badge bg-warning text-dark ms-2">{{ badges|length }}</span>
+                    </h3>
+                    <p class="text-muted">Special recognitions and milestones</p>
+                </div>
+            </div>
+            {% for reward in badges %}
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card h-100 badge-card">
+                        <div class="badge-shine"></div>
+                        <div class="card-body text-center">
+                            {% if reward.icon %}
+                                <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="badge-icon mb-3">
+                            {% else %}
+                                <div class="badge-icon-placeholder mb-3">
+                                    <i class="bi bi-award-fill"></i>
+                                </div>
+                            {% endif %}
+
+                            <h5 class="card-title badge-title mb-2">{{ reward.name }}</h5>
+                            
+                            {% if reward.description %}
+                                <p class="card-text text-muted small mb-3">
+                                    {{ reward.description|length > 80 ? reward.description|slice(0, 80) ~ '...' : reward.description }}
+                                </p>
+                            {% endif %}
+
+                            {% if reward.value > 0 %}
+                                <div class="mb-3">
+                                    <span class="badge bg-warning text-dark badge-value">
+                                        <i class="bi bi-coin me-1"></i>
+                                        {{ reward.value }} Tokens
+                                    </span>
+                                </div>
+                            {% endif %}
+
+                            <a href="{{ path('front_reward_show', {id: reward.id}) }}" 
+                               class="btn btn-outline-warning btn-sm w-100">
+                                <i class="bi bi-eye me-1"></i>
+                                View Details
+                            </a>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <small class="text-muted text-center d-block">
+                                <i class="bi bi-calendar-check me-1"></i>
+                                Earned recently
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Bonus Rewards Section -->
+    {% set bonusRewards = student.earnedRewards|filter(r => r.type in ['BONUS_XP', 'BONUS_TOKENS']) %}
+    {% if bonusRewards|length > 0 %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="section-header mb-4">
+                    <h3 class="section-title">
+                        <i class="bi bi-gift-fill text-info me-2"></i>
+                        Bonus Rewards
+                        <span class="badge bg-info ms-2">{{ bonusRewards|length }}</span>
+                    </h3>
+                    <p class="text-muted">Extra XP and tokens earned</p>
+                </div>
+            </div>
+            {% for reward in bonusRewards %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 bonus-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bonus-icon-wrapper me-3">
+                                    {% if reward.type == 'BONUS_XP' %}
+                                        <i class="bi bi-star-fill text-info"></i>
+                                    {% else %}
+                                        <i class="bi bi-coin text-warning"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">{{ reward.name }}</h6>
+                                    <small class="text-muted">{{ reward.type|replace({'_': ' '}) }}</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-{{ reward.type == 'BONUS_XP' ? 'info' : 'warning' }} bonus-value-badge">
+                                        +{{ reward.value }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {% if reward.description %}
+                                <p class="card-text text-muted small mb-3">
+                                    {{ reward.description }}
+                                </p>
+                            {% endif %}
+
+                            <a href="{{ path('front_reward_show', {id: reward.id}) }}" 
+                               class="btn btn-outline-info btn-sm w-100">
+                                <i class="bi bi-eye me-1"></i>
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- No Rewards Message -->
+    {% if student.earnedRewards|length == 0 %}
+            <div class="col-12">
+                <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">No Rewards Earned Yet!</h5>
+                        <p class="mb-0">
+                            Keep playing games to earn XP and tokens. Complete challenges to unlock badges and achievements!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 
     <!-- Quick Stats -->
@@ -123,12 +315,18 @@
 
 <style>
     .card {
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-radius: 15px;
+        overflow: hidden;
     }
     
     .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transform: translateY(-8px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    [data-bs-theme="dark"] .card:hover {
+        box-shadow: 0 8px 25px rgba(255,255,255,0.1);
     }
     
     .progress {
@@ -137,6 +335,284 @@
     
     .progress-bar {
         border-radius: 10px;
+    }
+
+    /* Section Headers */
+    .section-header {
+        border-bottom: 3px solid #e2e8f0;
+        padding-bottom: 15px;
+    }
+    
+    [data-bs-theme="dark"] .section-header {
+        border-bottom-color: rgba(255,255,255,0.1);
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #2d3748;
+    }
+    
+    [data-bs-theme="dark"] .section-title {
+        color: #e2e8f0;
+    }
+
+    /* Achievement Cards */
+    .achievement-card {
+        border: 3px solid #28a745;
+        background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
+        position: relative;
+        overflow: visible;
+    }
+    
+    [data-bs-theme="dark"] .achievement-card {
+        background: linear-gradient(135deg, #1a1a1a 0%, #1a3a1f 100%);
+        border-color: #20c997;
+    }
+
+    .achievement-card:hover {
+        border-color: #20c997;
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+    }
+    
+    [data-bs-theme="dark"] .achievement-card:hover {
+        box-shadow: 0 10px 30px rgba(32, 201, 151, 0.4);
+    }
+
+    .achievement-ribbon {
+        position: absolute;
+        top: -5px;
+        right: 20px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        width: 50px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
+        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+        z-index: 10;
+    }
+
+    .achievement-title {
+        color: #28a745;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    [data-bs-theme="dark"] .achievement-title {
+        color: #20c997;
+    }
+
+    .achievement-icon-bg {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto;
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    [data-bs-theme="dark"] .achievement-icon-bg {
+        box-shadow: 0 5px 15px rgba(32, 201, 151, 0.5);
+    }
+
+    .achievement-value {
+        font-size: 1rem;
+        padding: 8px 16px;
+    }
+
+    .reward-icon {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    [data-bs-theme="dark"] .reward-icon {
+        box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+    }
+
+    /* Badge Cards */
+    .badge-card {
+        border: 3px solid #ffc107;
+        background: linear-gradient(135deg, #ffffff 0%, #fffbf0 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    [data-bs-theme="dark"] .badge-card {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2416 100%);
+        border-color: #ff9800;
+    }
+
+    .badge-card:hover {
+        border-color: #ff9800;
+        box-shadow: 0 10px 30px rgba(255, 193, 7, 0.3);
+    }
+    
+    [data-bs-theme="dark"] .badge-card:hover {
+        box-shadow: 0 10px 30px rgba(255, 152, 0, 0.4);
+    }
+
+    .badge-shine {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transform: rotate(45deg);
+        animation: shine 3s infinite;
+    }
+    
+    [data-bs-theme="dark"] .badge-shine {
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    }
+
+    @keyframes shine {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .badge-title {
+        color: #ff9800;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    
+    [data-bs-theme="dark"] .badge-title {
+        color: #ffc107;
+    }
+
+    .badge-icon {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 8px rgba(255, 193, 7, 0.3));
+    }
+    
+    [data-bs-theme="dark"] .badge-icon {
+        filter: drop-shadow(0 4px 8px rgba(255, 152, 0, 0.4));
+    }
+
+    .badge-icon-placeholder {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        color: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto;
+        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+        animation: pulse 2s infinite;
+    }
+    
+    [data-bs-theme="dark"] .badge-icon-placeholder {
+        box-shadow: 0 5px 15px rgba(255, 152, 0, 0.5);
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .badge-value {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+        font-weight: 600;
+    }
+
+    /* Bonus Cards */
+    .bonus-card {
+        border: 2px solid #17a2b8;
+        background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+        border-radius: 12px;
+    }
+    
+    [data-bs-theme="dark"] .bonus-card {
+        background: linear-gradient(135deg, #1a1a1a 0%, #162a2e 100%);
+        border-color: #20c9e3;
+    }
+
+    .bonus-card:hover {
+        border-color: #138496;
+        box-shadow: 0 8px 20px rgba(23, 162, 184, 0.2);
+    }
+    
+    [data-bs-theme="dark"] .bonus-card:hover {
+        box-shadow: 0 8px 20px rgba(32, 201, 227, 0.3);
+    }
+
+    .bonus-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3);
+    }
+    
+    [data-bs-theme="dark"] .bonus-icon-wrapper {
+        background: linear-gradient(135deg, #20c9e3 0%, #17a2b8 100%);
+        box-shadow: 0 4px 10px rgba(32, 201, 227, 0.4);
+    }
+
+    .bonus-value-badge {
+        font-size: 1.1rem;
+        padding: 8px 12px;
+        font-weight: 700;
+    }
+    
+    /* Text color adjustments for dark mode */
+    [data-bs-theme="dark"] .card-text,
+    [data-bs-theme="dark"] .text-muted {
+        color: rgba(255,255,255,0.7) !important;
+    }
+    
+    [data-bs-theme="dark"] .card-footer {
+        background-color: rgba(255,255,255,0.05) !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .section-title {
+            font-size: 1.5rem;
+        }
+        
+        .achievement-ribbon {
+            width: 40px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+        
+        .achievement-icon-bg,
+        .reward-icon {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .badge-icon,
+        .badge-icon-placeholder {
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+        }
     }
 </style>
 {% endblock %}

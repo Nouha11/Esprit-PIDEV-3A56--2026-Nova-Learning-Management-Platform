@@ -169,6 +169,9 @@
                             <a class="nav-link" href="{{ path('front_reward_browse') }}"><i class="bi bi-trophy me-2"></i>{{ t.t('Rewards') }}</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ path('front_leaderboard_index') }}"><i class="bi bi-bar-chart me-2"></i>{{ t.t('Leaderboard') }}</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_front_quiz_index') }}"><i class="bi bi-lightning-charge me-2"></i>{{ t.t('Quizzes') }}</a>
                         </li>
                     {% elseif is_granted('ROLE_TUTOR') %}
@@ -437,47 +440,42 @@
                     <div class="col-lg-5 col-xxl-3 position-relative">
                         <h4 class="mb-4">{{ t.t('Top Students This Month') }}</h4>
 
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="avatar avatar-xl">
-                                <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
-                                <div class="position-absolute bottom-0 end-0">
-                                    <img src="{{ asset('assets/images/element/medal-badge.png') }}" class="position-relative" alt="">
-                                    <span class="fw-bold text-dark smaller position-absolute top-50 start-50 translate-middle">1<sup>st</sup></span>
+                        {% if topStudents is defined and topStudents|length > 0 %}
+                            {% for index, data in topStudents %}
+                                <div class="d-flex align-items-center {{ loop.last ? '' : 'mb-3' }}">
+                                    <div class="avatar avatar-xl">
+                                        {% if data.student.profilePicture %}
+                                            <img class="avatar-img rounded-circle" src="{{ asset(data.student.profilePicture) }}" alt="{{ data.student.firstName }}">
+                                        {% else %}
+                                            <div class="avatar-img rounded-circle bg-{{ get_level_badge_color(data.levelInfo.level) }} text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">
+                                                {{ data.student.firstName|slice(0, 1) }}{{ data.student.lastName|slice(0, 1) }}
+                                            </div>
+                                        {% endif %}
+                                        <div class="position-absolute bottom-0 end-0">
+                                            <img src="{{ asset('assets/images/element/medal-badge.png') }}" class="position-relative" alt="">
+                                            <span class="fw-bold text-dark smaller position-absolute top-50 start-50 translate-middle">
+                                                {{ loop.index }}{{ loop.index == 1 ? '<sup>st</sup>' : (loop.index == 2 ? '<sup>nd</sup>' : '<sup>rd</sup>') }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-1">{{ data.student.firstName }} {{ data.student.lastName }}</h5>
+                                        <p class="mb-0">
+                                            <span class="badge bg-{{ get_level_badge_color(data.levelInfo.level) }} me-1">
+                                                <i class="{{ get_level_icon(data.levelInfo.level) }}"></i>
+                                                {{ data.levelInfo.name }}
+                                            </span>
+                                            {{ data.student.totalXP|number_format }} XP
+                                        </p>
+                                    </div>
                                 </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="bi bi-trophy fs-1 text-muted"></i>
+                                <p class="text-muted mt-2">No students yet. Be the first!</p>
                             </div>
-                            <div class="ms-3">
-                                <h5 class="mb-1">{{ t.t('Top Performer') }}</h5>
-                                <p class="mb-0">1,250 XP</p>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="avatar avatar-xl">
-                                <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar">
-                                <div class="position-absolute bottom-0 end-0">
-                                    <img src="{{ asset('assets/images/element/medal-badge.png') }}" class="position-relative" alt="">
-                                    <span class="fw-bold text-dark smaller position-absolute top-50 start-50 translate-middle">2<sup>nd</sup></span>
-                                </div>
-                            </div>
-                            <div class="ms-3">
-                                <h5 class="mb-1">{{ t.t('Rising Star') }}</h5>
-                                <p class="mb-0">1,100 XP</p>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center">
-                            <div class="avatar avatar-xl">
-                                <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/06.jpg') }}" alt="avatar">
-                                <div class="position-absolute bottom-0 end-0">
-                                    <img src="{{ asset('assets/images/element/medal-badge.png') }}" class="position-relative" alt="">
-                                    <span class="fw-bold text-dark smaller position-absolute top-50 start-50 translate-middle">3<sup>rd</sup></span>
-                                </div>
-                            </div>
-                            <div class="ms-3">
-                                <h5 class="mb-1">{{ t.t('Consistent Learner') }}</h5>
-                                <p class="mb-0">950 XP</p>
-                            </div>
-                        </div>
+                        {% endif %}
                     </div>
                     </div>
             </div>
@@ -767,8 +765,8 @@
                             <h5 class="mb-2 mb-md-4">Platform</h5>
                             <ul class="nav flex-column">
                                 <li class="nav-item"><a class="nav-link" href="{{ path('front_game_index') }}">Games</a></li>
-                                <li class="nav-item"><a class="nav-link" href="{{ path('front_reward_my_rewards') }}">Rewards</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#">Leaderboard</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ path('front_reward_browse') }}">Rewards</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ path('front_leaderboard_index') }}">Leaderboard</a></li>
                             </ul>
                         </div>
                         <div class="col-6 col-md-4">
