@@ -96,6 +96,9 @@
                                 <a class="list-group-item" href="{{ path('front_game_index') }}">
                                     <i class="bi bi-controller fa-fw me-2"></i>Games
                                 </a>
+                                <a class="list-group-item" href="{{ path('front_game_favorites') }}">
+                                    <i class="bi bi-heart-fill fa-fw me-2 text-danger"></i>My Favorites
+                                </a>
                                 <a class="list-group-item" href="{{ path('front_reward_my_rewards') }}">
                                     <i class="bi bi-trophy fa-fw me-2"></i>My Rewards
                                 </a>
@@ -178,6 +181,15 @@
                                 </div>
                                 
                                 <div class="col-sm-6 col-lg-4">
+                                    <a href="{{ path('front_game_favorites') }}" class="card card-body bg-danger bg-opacity-10 text-center h-100">
+                                        <div class="icon-lg bg-danger bg-opacity-10 rounded-circle text-danger mb-2 mx-auto">
+                                            <i class="bi bi-heart-fill fs-4"></i>
+                                        </div>
+                                        <h6 class="mb-0">My Favorites</h6>
+                                    </a>
+                                </div>
+                                
+                                <div class="col-sm-6 col-lg-4">
                                     <a href="{{ path('front_reward_browse') }}" class="card card-body bg-success bg-opacity-10 text-center h-100">
                                         <div class="icon-lg bg-success bg-opacity-10 rounded-circle text-success mb-2 mx-auto">
                                             <i class="fas fa-gift fs-4"></i>
@@ -210,15 +222,6 @@
                                             <i class="fas fa-question-circle fs-4"></i>
                                         </div>
                                         <h6 class="mb-0">Take Quiz</h6>
-                                    </a>
-                                </div>
-                                
-                                <div class="col-sm-6 col-lg-4">
-                                    <a href="{{ path('app_forum') }}" class="card card-body bg-danger bg-opacity-10 text-center h-100">
-                                        <div class="icon-lg bg-danger bg-opacity-10 rounded-circle text-danger mb-2 mx-auto">
-                                            <i class="bi bi-chat-dots fs-4"></i>
-                                        </div>
-                                        <h6 class="mb-0">Community Forum</h6>
                                     </a>
                                 </div>
                             </div>
