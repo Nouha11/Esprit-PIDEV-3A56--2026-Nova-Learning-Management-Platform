@@ -74,11 +74,16 @@ class Game
     #[ORM\ManyToMany(targetEntity: Reward::class, inversedBy: 'games')]
     #[ORM\JoinTable(name: 'game_rewards')]
     private Collection $rewards;
+
+    // Many-to-many: Game can be favorited by many users
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'favoriteGames')]
+    private Collection $favoritedBy;
     
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->rewards = new ArrayCollection();
+        $this->favoritedBy = new ArrayCollection();
     }
 
     // Getters and Setters
@@ -210,6 +215,31 @@ class Game
     public function removeReward(Reward $reward): static
     {
         $this->rewards->removeElement($reward);
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getFavoritedBy(): Collection
+    {
+        return $this->favoritedBy;
+    }
+
+    public function addFavoritedBy(User $user): static
+    {
+        if (!$this->favoritedBy->contains($user)) {
+            $this->favoritedBy->add($user);
+            $user->addFavoriteGame($this);
+        }
+        return $this;
+    }
+
+    public function removeFavoritedBy(User $user): static
+    {
+        if ($this->favoritedBy->removeElement($user)) {
+            $user->removeFavoriteGame($this);
+        }
         return $this;
     }
 }

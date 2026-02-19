@@ -62,7 +62,7 @@ class RewardService
     /**
      * Award a reward to a student
      */
-    public function awardRewardToStudent(Reward $reward, StudentProfile $student): bool
+    public function awardRewardToStudent(Reward $reward, StudentProfile $student, bool $sendEmail = true): bool
     {
         // Check if student already has this reward
         if ($student->hasEarnedReward($reward)) {
@@ -86,7 +86,22 @@ class RewardService
         }
 
         $this->em->flush();
+
+        // Send email notification if enabled
+        if ($sendEmail) {
+            $this->sendRewardNotification($student, $reward);
+        }
+
         return true;
+    }
+
+    /**
+     * Send reward notification email
+     */
+    private function sendRewardNotification(StudentProfile $student, Reward $reward): void
+    {
+        // This will be injected via constructor
+        // For now, we'll handle it in the controller
     }
 
     /**

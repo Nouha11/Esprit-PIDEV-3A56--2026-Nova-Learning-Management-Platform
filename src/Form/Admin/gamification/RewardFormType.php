@@ -1,15 +1,19 @@
 <?php
 namespace App\Form\Admin;
 
+use App\Entity\Gamification\Game;
 use App\Entity\Gamification\Reward;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class RewardFormType extends AbstractType
 {
@@ -54,11 +58,42 @@ class RewardFormType extends AbstractType
             'empty_data' => '',
         ])
 
-        ->add('icon', TextType::class, [
-            'label' => 'Icon URL',
+        ->add('iconFile', FileType::class, [
+            'label' => 'Icon Image (PNG, JPG, SVG)',
+            'mapped' => false,
             'required' => false,
-            'attr' => ['class' => 'form-control'],
-            'empty_data' => '',
+            'attr' => ['class' => 'form-control', 'accept' => 'image/*'],
+            'constraints' => [
+                new File([
+                    'maxSize' => '2M',
+                    'mimeTypes' => [
+                        'image/png',
+                        'image/jpeg',
+                        'image/jpg',
+                        'image/svg+xml',
+                        'image/webp',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid image file (PNG, JPG, SVG, WEBP)',
+                ])
+            ],
+            'help' => 'Current icon: ' . ($options['data']->getIcon() ?? 'None'),
+        ])
+
+        ->add('games', EntityType::class, [
+            'class' => Game::class,
+            'choice_label' => function(Game $game) {
+                return $game->getName() . ' (' . $game->getType() . ' - ' . $game->getDifficulty() . ')';
+            },
+            'multiple' => true,
+            'expanded' => true,
+            'required' => false,
+            'by_reference' => false,
+            'label' => 'Associated Games',
+            'help' => 'Check the games that should offer this reward',
+            'query_builder' => function($repository) {
+                return $repository->createQueryBuilder('g')
+                    ->orderBy('g.name', 'ASC');
+            },
         ])
 
         ->add('isActive', CheckboxType::class, [

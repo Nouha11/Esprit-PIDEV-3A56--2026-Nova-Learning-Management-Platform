@@ -136,15 +136,15 @@
                             <div class="list-group-item px-0">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h6 class="mb-0">{{ user.username }}</h6>
-                                        <small class="text-muted">{{ user.email }}</small>
+                                        <h6 class="mb-0">{{ user.getUsername() }}</h6>
+                                        <small class="text-muted">{{ user.getEmail() }}</small>
                                     </div>
                                     <div>
-                                        {% if user.role == 'ROLE_ADMIN' %}
+                                        {% if user.getRole() == 'ROLE_ADMIN' %}
                                             <span class="badge badge-warning">Admin</span>
-                                        {% elseif user.role == 'ROLE_STUDENT' %}
+                                        {% elseif user.getRole() == 'ROLE_STUDENT' %}
                                             <span class="badge badge-success">Student</span>
-                                        {% elseif user.role == 'ROLE_TUTOR' %}
+                                        {% elseif user.getRole() == 'ROLE_TUTOR' %}
                                             <span class="badge badge-info">Tutor</span>
                                         {% else %}
                                             <span class="badge badge-secondary">User</span>

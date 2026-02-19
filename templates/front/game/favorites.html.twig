@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
+
+{% block title %}{{ t.t('My Favorite Games') }} - NOVA{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <!-- Page Heading -->
+        <section class="pt-5">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="fs-1">
+                        <i class="bi bi-heart-fill text-danger me-2"></i>
+                        {{ t.t('My Favorite Games') }}
+                    </h1>
+                    <p class="mb-0">{{ t.t('Your collection of favorite games') }}</p>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="card shadow-sm mb-4 bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h3 class="mb-0">{{ games.getTotalItemCount }}</h3>
+                            <small>Favorite Games</small>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 class="mb-0">
+                                <i class="bi bi-heart-fill"></i>
+                            </h3>
+                            <small>Keep Playing!</small>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ path('front_game_index') }}" class="btn btn-light btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i>Browse More Games
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Games Grid -->
+            <div id="games-container">
+                {% include 'front/game/_games_list.html.twig' %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Favorite button click handler (delegated event)
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.favorite-btn')) {
+                e.preventDefault();
+                const btn = e.target.closest('.favorite-btn');
+                toggleFavorite(btn);
+            }
+        });
+
+        // Toggle favorite status
+        function toggleFavorite(button) {
+            const gameId = button.dataset.gameId;
+            const isFavorited = button.dataset.favorited === 'true';
+            const icon = button.querySelector('i');
+            const gameCard = button.closest('.col-md-6, .col-lg-4');
+
+            // Disable button during request
+            button.disabled = true;
+
+            fetch(`/games/${gameId}/toggle-favorite`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.action === 'removed') {
+                        // Remove card from favorites page with animation
+                        gameCard.style.transition = 'opacity 0.3s ease';
+                        gameCard.style.opacity = '0';
+                        setTimeout(() => {
+                            gameCard.remove();
+                            
+                            // Check if no games left
+                            const gamesContainer = document.querySelector('#games-container .row');
+                            if (gamesContainer && gamesContainer.children.length === 0) {
+                                location.reload(); // Reload to show empty state
+                            }
+                        }, 300);
+                    }
+
+                    // Show toast notification
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.message || 'Failed to update favorite', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error toggling favorite:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+        }
+
+        // Simple toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                ${message}
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+{% endblock %}

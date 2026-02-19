@@ -18,7 +18,8 @@
                 <div class="card-body">
                 {{ form_start(form, {
                     'attr': {
-                        'novalidate': 'novalidate'
+                        'novalidate': 'novalidate',
+                        'enctype': 'multipart/form-data'
                     }
                 }) }}
                         <div class="mb-3">
@@ -56,21 +57,70 @@
                         </div>
 
                         <div class="mb-3">
-                            {{ form_label(form.icon) }}
-                            {{ form_widget(form.icon) }}
-                            {{ form_errors(form.icon) }}
-                            <small class="form-text text-muted">Use emoji or icon URL (e.g., 🏆, 👑, ⭐)</small>
+                            {{ form_label(form.iconFile) }}
+                            {{ form_widget(form.iconFile) }}
+                            {{ form_errors(form.iconFile) }}
+                            <small class="form-text text-muted">Upload an image file (PNG, JPG, SVG, WEBP - max 2MB)</small>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.games.vars.label }}</label>
+                            <div class="mb-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllGames(true)">
+                                    <i class="bi bi-check-square me-1"></i>Select All
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllGames(false)">
+                                    <i class="bi bi-square me-1"></i>Deselect All
+                                </button>
+                            </div>
+                            <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto; background-color: var(--bs-body-bg);">
+                                <div class="row g-2">
+                                    {% for game_checkbox in form.games %}
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                {{ form_widget(game_checkbox, {'attr': {'class': 'form-check-input game-checkbox'}}) }}
+                                                {{ form_label(game_checkbox, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {{ form_errors(form.games) }}
+                            <small class="text-muted d-block mt-1">
+                                <i class="bi bi-info-circle me-1"></i>
+                                {{ form.games.vars.help }}
+                            </small>
+                        </div>
+
+                        <script>
+                            function selectAllGames(checked) {
+                                document.querySelectorAll('.game-checkbox').forEach(checkbox => {
+                                    checkbox.checked = checked;
+                                });
+                            }
+                        </script>
+
+                        <style>
+                            .form-check-input:checked {
+                                background-color: #667eea;
+                                border-color: #667eea;
+                            }
+                            .form-check-label {
+                                cursor: pointer;
+                                user-select: none;
+                            }
+                            .form-check:hover {
+                                background-color: rgba(102, 126, 234, 0.1);
+                                border-radius: 4px;
+                                padding: 2px 4px;
+                                margin: -2px -4px;
+                            }
+                        </style>
 
                         <div class="mb-3 form-check">
                             {{ form_widget(form.isActive) }}
                             {{ form_label(form.isActive) }}
                             {{ form_errors(form.isActive) }}
-                        </div>
-
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <strong>Note:</strong> After creating this reward, you can associate it with games by editing the game settings.
                         </div>
 
                         <div class="d-flex gap-2">
