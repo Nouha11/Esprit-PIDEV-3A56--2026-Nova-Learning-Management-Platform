@@ -25,13 +25,34 @@ class AdminDashboardController extends AbstractController
         $totalStudents = count($studentRepository->findAll());
         $totalTutors = count($tutorRepository->findAll());
         
-        // Count by role
-        $adminCount = count($userRepository->findBy(['role' => 'ROLE_ADMIN']));
-        $studentCount = count($userRepository->findBy(['role' => 'ROLE_STUDENT']));
-        $tutorCount = count($userRepository->findBy(['role' => 'ROLE_TUTOR']));
+        // Count by role using DQL to avoid issues
+        $adminCount = $userRepository->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.role = :role')
+            ->setParameter('role', 'ROLE_ADMIN')
+            ->getQuery()
+            ->getSingleScalarResult();
+            
+        $studentCount = $userRepository->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.role = :role')
+            ->setParameter('role', 'ROLE_STUDENT')
+            ->getQuery()
+            ->getSingleScalarResult();
+            
+        $tutorCount = $userRepository->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.role = :role')
+            ->setParameter('role', 'ROLE_TUTOR')
+            ->getQuery()
+            ->getSingleScalarResult();
         
-        // Get recent users
-        $recentUsers = $userRepository->findBy([], ['id' => 'DESC'], 5);
+        // Get recent users with proper entity hydration
+        $recentUsers = $userRepository->createQueryBuilder('u')
+            ->orderBy('u.id', 'DESC')
+            ->setMaxResults(5)
+            ->getQuery()
+            ->getResult();
 
         return $this->render('admin/dashboard/index.html.twig', [
             'totalUsers' => $totalUsers,

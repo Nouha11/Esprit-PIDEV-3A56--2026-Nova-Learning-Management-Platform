@@ -1,0 +1,482 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Leaderboard - Top Players{% endblock %}
+
+{% block body %}
+<div class="container my-5" style="overflow: visible;">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">
+                <i class="bi bi-trophy-fill text-warning me-2"></i>
+                Leaderboard
+            </h1>
+            <p class="lead text-muted">Compete with other players and climb to the top!</p>
+        </div>
+    </div>
+
+    <!-- My Rank Card (for logged-in students) -->
+    {% if is_granted('ROLE_STUDENT') %}
+        <div class="row mb-4">
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-primary shadow-sm" id="my-rank-card">
+                    <div class="card-body text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mb-0 mt-2">Loading your rank...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Search Bar -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-primary text-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               id="search-input" 
+                               placeholder="Search by name..."
+                               autocomplete="off">
+                        <button class="btn btn-outline-secondary" type="button" id="clear-search">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Search results update in real-time
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow" style="overflow: visible;">
+                <div class="card-header bg-gradient text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ol me-2"></i>
+                        Top Players
+                        <span class="badge bg-white text-dark ms-2" id="total-players">0</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0" style="overflow: visible;">
+                    <!-- Loading State -->
+                    <div id="loading-state" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Loading leaderboard...</p>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-state" class="text-center py-5 d-none">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <p class="mt-3 text-muted">No players found</p>
+                    </div>
+
+                    <!-- Leaderboard Table -->
+                    <div id="leaderboard-container" class="d-none" style="overflow-x: auto; overflow-y: visible;">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="80" class="text-center">Rank</th>
+                                        <th>Player</th>
+                                        <th width="150" class="text-center">Level</th>
+                                        <th width="120" class="text-center">XP</th>
+                                        <th width="120" class="text-center">Tokens</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboard-body">
+                                    <!-- Populated via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Legend -->
+    <div class="row mt-4">
+        <div class="col-lg-10 mx-auto">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Level System
+                    </h6>
+                    <div class="row g-2">
+                        <div class="col-md-4 col-lg-2">
+                            <div class="text-center p-2 border rounded">
+                                <i class="bi bi-star text-secondary fs-4"></i>
+                                <div class="small fw-bold mt-1">Novice</div>
+                                <div class="small text-muted">0-99 XP</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="text-center p-2 border rounded">
+                                <i class="bi bi-star-fill text-info fs-4"></i>
+                                <div class="small fw-bold mt-1">Apprentice</div>
+                                <div class="small text-muted">100-249 XP</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="text-center p-2 border rounded">
+                                <i class="bi bi-trophy text-primary fs-4"></i>
+                                <div class="small fw-bold mt-1">Adept</div>
+                                <div class="small text-muted">250-499 XP</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="text-center p-2 border rounded">
+                                <i class="bi bi-trophy-fill text-warning fs-4"></i>
+                                <div class="small fw-bold mt-1">Expert</div>
+                                <div class="small text-muted">500-999 XP</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="text-center p-2 border rounded">
+                                <i class="bi bi-gem text-success fs-4"></i>
+                                <div class="small fw-bold mt-1">Master</div>
+                                <div class="small text-muted">1000+ XP</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    /* Ensure dropdowns are not clipped */
+    body {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .container {
+        overflow: visible !important;
+    }
+
+    .card {
+        overflow: visible !important;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        overflow-y: visible !important;
+    }
+
+    /* Ensure navbar dropdowns work */
+    .navbar {
+        overflow: visible !important;
+    }
+
+    .dropdown-menu {
+        z-index: 9999 !important;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        transform: scale(1.01);
+    }
+
+    .rank-badge {
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .rank-1 {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: #000;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    }
+
+    .rank-2 {
+        background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+        color: #000;
+        box-shadow: 0 4px 15px rgba(192, 192, 192, 0.4);
+    }
+
+    .rank-3 {
+        background: linear-gradient(135deg, #CD7F32, #B87333);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
+    }
+
+    .rank-other {
+        background: #f8f9fa;
+        color: #6c757d;
+    }
+
+    .progress {
+        height: 8px;
+    }
+
+    #search-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Dark mode support */
+    [data-bs-theme="dark"] .table tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.2);
+    }
+
+    [data-bs-theme="dark"] .rank-other {
+        background: rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.7);
+    }
+
+    [data-bs-theme="dark"] .card.bg-light {
+        background-color: rgba(255,255,255,0.05) !important;
+    }
+
+    [data-bs-theme="dark"] .table-light {
+        background-color: rgba(255,255,255,0.05) !important;
+        color: rgba(255,255,255,0.9);
+    }
+
+    [data-bs-theme="dark"] .card:hover {
+        box-shadow: 0 8px 25px rgba(255,255,255,0.1) !important;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        let searchTimeout = null;
+
+        // Load leaderboard data
+        function loadLeaderboard(search = '') {
+            const loadingState = document.getElementById('loading-state');
+            const emptyState = document.getElementById('empty-state');
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            const totalPlayers = document.getElementById('total-players');
+
+            // Show loading state
+            loadingState.classList.remove('d-none');
+            emptyState.classList.add('d-none');
+            leaderboardContainer.classList.add('d-none');
+
+            // Fetch data
+            fetch('{{ path('front_leaderboard_data') }}?search=' + encodeURIComponent(search))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.length > 0) {
+                        // Populate table
+                        leaderboardBody.innerHTML = '';
+                        data.data.forEach(player => {
+                            const row = createLeaderboardRow(player);
+                            leaderboardBody.appendChild(row);
+                        });
+
+                        // Update total count
+                        totalPlayers.textContent = data.total;
+
+                        // Show table
+                        loadingState.classList.add('d-none');
+                        leaderboardContainer.classList.remove('d-none');
+                    } else {
+                        // Show empty state
+                        loadingState.classList.add('d-none');
+                        emptyState.classList.remove('d-none');
+                        totalPlayers.textContent = '0';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading leaderboard:', error);
+                    loadingState.classList.add('d-none');
+                    emptyState.classList.remove('d-none');
+                });
+        }
+
+        // Create leaderboard row
+        function createLeaderboardRow(player) {
+            const tr = document.createElement('tr');
+            
+            // Rank badge class
+            let rankClass = 'rank-other';
+            if (player.rank === 1) rankClass = 'rank-1';
+            else if (player.rank === 2) rankClass = 'rank-2';
+            else if (player.rank === 3) rankClass = 'rank-3';
+
+            tr.innerHTML = `
+                <td class="text-center">
+                    <div class="rank-badge ${rankClass}">
+                        ${player.rank <= 3 ? '<i class="bi bi-trophy-fill"></i>' : player.rank}
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-circle bg-${player.badgeColor} text-white me-3">
+                            ${player.firstName.charAt(0)}${player.lastName.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="fw-bold">${player.fullName}</div>
+                            <small class="text-muted">ID: ${player.id}</small>
+                        </div>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <span class="badge bg-${player.badgeColor} d-inline-flex align-items-center">
+                        <i class="${player.icon} me-1"></i>
+                        ${player.levelName}
+                    </span>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar bg-${player.badgeColor}" 
+                             role="progressbar" 
+                             style="width: ${player.progress}%"
+                             aria-valuenow="${player.progress}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"></div>
+                    </div>
+                    <small class="text-muted">${player.progress}%</small>
+                </td>
+                <td class="text-center">
+                    <strong class="text-primary">${player.xp.toLocaleString()}</strong>
+                    <div><small class="text-muted">XP</small></div>
+                </td>
+                <td class="text-center">
+                    <strong class="text-warning">${player.tokens.toLocaleString()}</strong>
+                    <div><small class="text-muted">Tokens</small></div>
+                </td>
+            `;
+
+            return tr;
+        }
+
+        // Load my rank (for logged-in students)
+        function loadMyRank() {
+            const myRankCard = document.getElementById('my-rank-card');
+            if (!myRankCard) return;
+
+            fetch('{{ path('front_leaderboard_my_rank') }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const player = data.data;
+                        myRankCard.innerHTML = `
+                            <div class="row align-items-center">
+                                <div class="col-md-3 text-center mb-3 mb-md-0">
+                                    <div class="display-4 fw-bold text-primary">#${player.rank}</div>
+                                    <small class="text-muted">Your Rank</small>
+                                </div>
+                                <div class="col-md-3 text-center mb-3 mb-md-0">
+                                    <span class="badge bg-${getBadgeColor(player.level)} fs-6 p-2">
+                                        <i class="${getIcon(player.level)} me-1"></i>
+                                        ${player.levelName}
+                                    </span>
+                                    <div class="progress mt-2" style="height: 8px;">
+                                        <div class="progress-bar" 
+                                             role="progressbar" 
+                                             style="width: ${player.progress}%"></div>
+                                    </div>
+                                    <small class="text-muted">${player.progress}% to next level</small>
+                                </div>
+                                <div class="col-md-3 text-center mb-3 mb-md-0">
+                                    <div class="fs-4 fw-bold text-primary">${player.xp.toLocaleString()}</div>
+                                    <small class="text-muted">Total XP</small>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <div class="fs-4 fw-bold text-warning">${player.tokens.toLocaleString()}</div>
+                                    <small class="text-muted">Tokens</small>
+                                </div>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading rank:', error);
+                    myRankCard.innerHTML = `
+                        <div class="alert alert-danger mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Unable to load your rank
+                        </div>
+                    `;
+                });
+        }
+
+        // Helper functions
+        function getBadgeColor(level) {
+            const colors = {1: 'secondary', 2: 'info', 3: 'primary', 4: 'warning', 5: 'success'};
+            return colors[level] || 'secondary';
+        }
+
+        function getIcon(level) {
+            const icons = {1: 'bi-star', 2: 'bi-star-fill', 3: 'bi-trophy', 4: 'bi-trophy-fill', 5: 'bi-gem'};
+            return icons[level] || 'bi-star';
+        }
+
+        // Search functionality
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                loadLeaderboard(e.target.value);
+            }, 300); // Debounce 300ms
+        });
+
+        // Clear search
+        document.getElementById('clear-search').addEventListener('click', function() {
+            document.getElementById('search-input').value = '';
+            loadLeaderboard('');
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLeaderboard();
+            loadMyRank();
+        });
+    </script>
+
+    <style>
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+    </style>
+{% endblock %}

@@ -1,0 +1,549 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Statistics Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="bi bi-graph-up me-2"></i>Statistics Dashboard</h1>
+            <p class="text-muted mb-0">Real-time gamification analytics</p>
+        </div>
+        <button class="btn btn-primary" onclick="refreshAllCharts()">
+            <i class="bi bi-arrow-clockwise me-2"></i>Refresh Data
+        </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center summary-card">
+                <div class="card-body">
+                    <i class="bi bi-people-fill text-primary" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0" id="totalStudents">-</h3>
+                    <p class="text-muted mb-0">Total Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center summary-card">
+                <div class="card-body">
+                    <i class="bi bi-controller text-success" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0" id="totalGames">-</h3>
+                    <p class="text-muted mb-0">Active Games</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center summary-card">
+                <div class="card-body">
+                    <i class="bi bi-trophy-fill text-warning" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0" id="totalRewards">-</h3>
+                    <p class="text-muted mb-0">Active Rewards</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center summary-card">
+                <div class="card-body">
+                    <i class="bi bi-star-fill text-info" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0" id="totalXP">-</h3>
+                    <p class="text-muted mb-0">Total XP Earned</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart-fill me-2"></i>Top 10 Users by XP
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="topUsersChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart-fill me-2"></i>Game Types Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="gameTypesChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up-arrow me-2"></i>Rewards by Type
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="rewardsChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-heart-fill text-danger me-2"></i>Most Favorite Games
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="favoritesChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle-fill me-2"></i>Quick Stats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <div class="stat-box">
+                                <i class="bi bi-coin text-warning fs-3"></i>
+                                <h4 class="mt-2" id="totalTokens">-</h4>
+                                <p class="text-muted mb-0">Total Tokens</p>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-box">
+                                <i class="bi bi-graph-up text-success fs-3"></i>
+                                <h4 class="mt-2" id="avgXP">-</h4>
+                                <p class="text-muted mb-0">Avg XP per Student</p>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-lightbulb-fill me-2"></i>
+                        <strong>Tip:</strong> Charts update automatically when you click "Refresh Data"
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load Google Charts -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+    // Load Google Charts
+    google.charts.load('current', {'packages':['corechart', 'bar']});
+    google.charts.setOnLoadCallback(initCharts);
+
+    let topUsersChart, gameTypesChart, rewardsChart, favoritesChart;
+
+    // Detect current theme
+    function isDarkMode() {
+        return document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    }
+
+    // Get theme-aware colors
+    function getChartColors() {
+        const dark = isDarkMode();
+        return {
+            backgroundColor: dark ? '#1a1d20' : '#ffffff',
+            textColor: dark ? '#e9ecef' : '#212529',
+            gridColor: dark ? '#495057' : '#e9ecef',
+            primaryColor: '#667eea',
+            colors: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a']
+        };
+    }
+
+    function initCharts() {
+        // Initialize all charts
+        loadSummary();
+        loadTopUsersChart();
+        loadGameTypesChart();
+        loadRewardsChart();
+        loadFavoritesChart();
+
+        // Listen for theme changes
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'data-bs-theme') {
+                    // Redraw all charts with new theme
+                    loadTopUsersChart();
+                    loadGameTypesChart();
+                    loadRewardsChart();
+                    loadFavoritesChart();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-bs-theme']
+        });
+    }
+
+    function loadSummary() {
+        fetch('{{ path('admin_statistics_summary') }}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('totalStudents').textContent = data.totalStudents.toLocaleString();
+                document.getElementById('totalGames').textContent = data.totalGames.toLocaleString();
+                document.getElementById('totalRewards').textContent = data.totalRewards.toLocaleString();
+                document.getElementById('totalXP').textContent = data.totalXP.toLocaleString();
+                document.getElementById('totalTokens').textContent = data.totalTokens.toLocaleString();
+                
+                const avgXP = data.totalStudents > 0 ? Math.round(data.totalXP / data.totalStudents) : 0;
+                document.getElementById('avgXP').textContent = avgXP.toLocaleString();
+            })
+            .catch(error => {
+                console.error('Error loading summary:', error);
+            });
+    }
+
+    function loadTopUsersChart() {
+        fetch('{{ path('admin_statistics_top_users_xp') }}')
+            .then(response => response.json())
+            .then(data => {
+                const chartData = google.visualization.arrayToDataTable(data);
+                const colors = getChartColors();
+
+                const options = {
+                    title: 'Top 10 Users by Total XP',
+                    chartArea: {width: '70%'},
+                    colors: [colors.primaryColor],
+                    hAxis: {
+                        title: 'Total XP',
+                        minValue: 0,
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor },
+                        gridlines: { color: colors.gridColor }
+                    },
+                    vAxis: {
+                        title: 'User',
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor }
+                    },
+                    legend: { position: 'none' },
+                    backgroundColor: colors.backgroundColor,
+                    titleTextStyle: { color: colors.textColor }
+                };
+
+                topUsersChart = new google.visualization.BarChart(document.getElementById('topUsersChart'));
+                topUsersChart.draw(chartData, options);
+            })
+            .catch(error => {
+                console.error('Error loading top users chart:', error);
+                document.getElementById('topUsersChart').innerHTML = 
+                    '<div class="alert alert-warning">Error loading chart data</div>';
+            });
+    }
+
+    function loadGameTypesChart() {
+        fetch('{{ path('admin_statistics_game_types') }}')
+            .then(response => response.json())
+            .then(data => {
+                const chartData = google.visualization.arrayToDataTable(data);
+                const colors = getChartColors();
+
+                const options = {
+                    title: 'Game Types Distribution',
+                    pieHole: 0.4,
+                    colors: colors.colors,
+                    legend: { 
+                        position: 'bottom',
+                        textStyle: { color: colors.textColor }
+                    },
+                    backgroundColor: colors.backgroundColor,
+                    chartArea: {width: '90%', height: '75%'},
+                    titleTextStyle: { color: colors.textColor },
+                    pieSliceTextStyle: { color: colors.textColor }
+                };
+
+                gameTypesChart = new google.visualization.PieChart(document.getElementById('gameTypesChart'));
+                gameTypesChart.draw(chartData, options);
+            })
+            .catch(error => {
+                console.error('Error loading game types chart:', error);
+                document.getElementById('gameTypesChart').innerHTML = 
+                    '<div class="alert alert-warning">Error loading chart data</div>';
+            });
+    }
+
+    function loadRewardsChart() {
+        fetch('{{ path('admin_statistics_rewards_by_type') }}')
+            .then(response => response.json())
+            .then(data => {
+                const chartData = google.visualization.arrayToDataTable(data);
+                const colors = getChartColors();
+
+                const options = {
+                    title: 'Rewards by Type',
+                    colors: [colors.primaryColor],
+                    legend: { position: 'none' },
+                    backgroundColor: colors.backgroundColor,
+                    chartArea: {width: '80%', height: '70%'},
+                    vAxis: {
+                        title: 'Number of Rewards',
+                        minValue: 0,
+                        format: '0',
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor },
+                        gridlines: { color: colors.gridColor }
+                    },
+                    hAxis: {
+                        title: 'Reward Type',
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor }
+                    },
+                    titleTextStyle: { color: colors.textColor }
+                };
+
+                rewardsChart = new google.visualization.ColumnChart(document.getElementById('rewardsChart'));
+                rewardsChart.draw(chartData, options);
+            })
+            .catch(error => {
+                console.error('Error loading rewards chart:', error);
+                document.getElementById('rewardsChart').innerHTML = 
+                    '<div class="alert alert-warning">Error loading chart data</div>';
+            });
+    }
+
+    function loadFavoritesChart() {
+        fetch('{{ path('admin_statistics_most_favorite_games') }}')
+            .then(response => response.json())
+            .then(data => {
+                const chartData = google.visualization.arrayToDataTable(data);
+                const colors = getChartColors();
+
+                const options = {
+                    title: 'Top 10 Most Favorited Games',
+                    colors: ['#dc3545'], // Red color for hearts/favorites
+                    legend: { position: 'none' },
+                    backgroundColor: colors.backgroundColor,
+                    chartArea: {width: '80%', height: '70%'},
+                    vAxis: {
+                        title: 'Number of Favorites',
+                        minValue: 0,
+                        format: '0',
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor },
+                        gridlines: { color: colors.gridColor }
+                    },
+                    hAxis: {
+                        title: 'Game Name',
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor },
+                        slantedText: true,
+                        slantedTextAngle: 45
+                    },
+                    titleTextStyle: { color: colors.textColor }
+                };
+
+                favoritesChart = new google.visualization.ColumnChart(document.getElementById('favoritesChart'));
+                favoritesChart.draw(chartData, options);
+            })
+            .catch(error => {
+                console.error('Error loading favorites chart:', error);
+                document.getElementById('favoritesChart').innerHTML = 
+                    '<div class="alert alert-warning">Error loading chart data</div>';
+            });
+    }
+
+    function refreshAllCharts() {
+        const btn = event.target.closest('button');
+        const icon = btn.querySelector('i');
+        
+        // Add spinning animation
+        icon.classList.add('spin-animation');
+        btn.disabled = true;
+
+        // Reload all data
+        loadSummary();
+        loadTopUsersChart();
+        loadGameTypesChart();
+        loadRewardsChart();
+        loadFavoritesChart();
+
+        // Remove animation after 1 second
+        setTimeout(() => {
+            icon.classList.remove('spin-animation');
+            btn.disabled = false;
+        }, 1000);
+    }
+
+    // Responsive charts - redraw on window resize
+    window.addEventListener('resize', function() {
+        if (topUsersChart) loadTopUsersChart();
+        if (gameTypesChart) loadGameTypesChart();
+        if (rewardsChart) loadRewardsChart();
+        if (favoritesChart) loadFavoritesChart();
+    });
+</script>
+
+<style>
+    .summary-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.125);
+    }
+
+    [data-bs-theme="dark"] .summary-card {
+        background-color: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.1);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    [data-bs-theme="dark"] .summary-card:hover {
+        box-shadow: 0 8px 20px rgba(255,255,255,0.1);
+    }
+
+    .stat-box {
+        text-align: center;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: rgba(102, 126, 234, 0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    [data-bs-theme="dark"] .stat-box {
+        background-color: rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.2);
+    }
+
+    .spin-animation {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .card {
+        transition: box-shadow 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.125);
+    }
+
+    [data-bs-theme="dark"] .card {
+        background-color: rgba(255,255,255,0.03);
+        border-color: rgba(255,255,255,0.1);
+    }
+
+    .card:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    [data-bs-theme="dark"] .card:hover {
+        box-shadow: 0 4px 15px rgba(255,255,255,0.05);
+    }
+
+    /* Dark mode adjustments for card headers */
+    [data-bs-theme="dark"] .card-header {
+        background-color: rgba(255,255,255,0.05) !important;
+        border-bottom-color: rgba(255,255,255,0.1);
+    }
+
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,0.125);
+    }
+
+    /* Chart containers */
+    #topUsersChart, #gameTypesChart, #rewardsChart {
+        border-radius: 8px;
+    }
+
+    /* Alert styling for dark mode */
+    [data-bs-theme="dark"] .alert-info {
+        background-color: rgba(23, 162, 184, 0.2);
+        border-color: rgba(23, 162, 184, 0.3);
+        color: #20c9e3;
+    }
+
+    [data-bs-theme="dark"] .alert-warning {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-color: rgba(255, 193, 7, 0.3);
+        color: #ffc107;
+    }
+
+    /* Text color adjustments */
+    [data-bs-theme="dark"] h1,
+    [data-bs-theme="dark"] h3,
+    [data-bs-theme="dark"] h4,
+    [data-bs-theme="dark"] h5 {
+        color: #e9ecef;
+    }
+
+    [data-bs-theme="dark"] .text-muted {
+        color: rgba(255,255,255,0.6) !important;
+    }
+
+    /* Icon colors in dark mode */
+    [data-bs-theme="dark"] .bi-people-fill {
+        color: #667eea !important;
+    }
+
+    [data-bs-theme="dark"] .bi-controller {
+        color: #20c997 !important;
+    }
+
+    [data-bs-theme="dark"] .bi-trophy-fill {
+        color: #ffc107 !important;
+    }
+
+    [data-bs-theme="dark"] .bi-star-fill {
+        color: #17a2b8 !important;
+    }
+
+    [data-bs-theme="dark"] .bi-coin {
+        color: #ffc107 !important;
+    }
+
+    [data-bs-theme="dark"] .bi-graph-up {
+        color: #20c997 !important;
+    }
+
+    /* Button styling */
+    .btn-primary {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .btn-primary:hover {
+        background-color: #5568d3;
+        border-color: #5568d3;
+    }
+
+    [data-bs-theme="dark"] .btn-primary {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: #fff;
+    }
+
+    [data-bs-theme="dark"] .btn-primary:hover {
+        background-color: #7c8ef0;
+        border-color: #7c8ef0;
+    }
+</style>
+{% endblock %}
