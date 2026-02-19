@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/student')]
 final class StudentController extends AbstractController
@@ -30,7 +31,7 @@ final class StudentController extends AbstractController
     }
 
     #[Route('/profile/edit', name: 'app_student_profile_edit', methods: ['GET', 'POST'])]
-    public function editProfile(Request $request, EntityManagerInterface $entityManager): Response
+    public function editProfile(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
         $user = $this->getUser();
         
@@ -46,6 +47,9 @@ final class StudentController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            // Get current locale for translations
+            $locale = $request->getSession()->get('_locale', 'en');
+            
             // Validate required fields
             $firstName = trim($request->request->get('firstName'));
             $lastName = trim($request->request->get('lastName'));
@@ -54,21 +58,21 @@ final class StudentController extends AbstractController
             $errors = [];
             
             if (empty($firstName)) {
-                $errors[] = 'First name is required.';
+                $errors[] = $translator->trans('First name is required', [], 'validators', $locale);
             } elseif (strlen($firstName) < 2) {
-                $errors[] = 'First name must be at least 2 characters.';
+                $errors[] = $translator->trans('First name must be at least {{ limit }} characters', ['{{ limit }}' => 2], 'validators', $locale);
             }
             
             if (empty($lastName)) {
-                $errors[] = 'Last name is required.';
+                $errors[] = $translator->trans('Last name is required', [], 'validators', $locale);
             } elseif (strlen($lastName) < 2) {
-                $errors[] = 'Last name must be at least 2 characters.';
+                $errors[] = $translator->trans('Last name must be at least {{ limit }} characters', ['{{ limit }}' => 2], 'validators', $locale);
             }
             
             if (empty($university)) {
-                $errors[] = 'University is required.';
+                $errors[] = $translator->trans('University is required', [], 'validators', $locale);
             } elseif (strlen($university) < 3) {
-                $errors[] = 'University must be at least 3 characters.';
+                $errors[] = $translator->trans('University must be at least {{ limit }} characters', ['{{ limit }}' => 3], 'validators', $locale);
             }
             
             if (!empty($errors)) {
@@ -98,7 +102,8 @@ final class StudentController extends AbstractController
             
             $entityManager->flush();
 
-            $this->addFlash('success', 'Student profile updated successfully.');
+            $successMessage = $translator->trans('Student profile updated successfully.', [], 'validators', $locale);
+            $this->addFlash('success', $successMessage);
             return $this->redirectToRoute('app_student_profile');
         }
 
