@@ -77,6 +77,15 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <!-- Pagination -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="navigation d-flex justify-content-center">
+                        {{ knp_pagination_render(games) }}
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 </div>
