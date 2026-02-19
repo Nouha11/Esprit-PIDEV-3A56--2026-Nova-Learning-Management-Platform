@@ -88,6 +88,15 @@
                     {% endfor %}
                 </div>
             {% endif %}
+
+            <!-- Pagination -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="navigation d-flex justify-content-center">
+                        {{ knp_pagination_render(rewards) }}
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Badges Tab -->

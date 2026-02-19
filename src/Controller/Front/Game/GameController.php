@@ -4,7 +4,9 @@ namespace App\Controller\Front\Game;
 use App\Entity\Gamification\Game;
 use App\Repository\Gamification\GameRepository as GamificationGameRepository;
 use App\Service\game\GameService;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -14,19 +16,31 @@ class GameController extends AbstractController
 {
     public function __construct(
         private GameService $gameService,
-        private GamificationGameRepository $gameRepository
+        private GamificationGameRepository $gameRepository,
+        private PaginatorInterface $paginator
     ) {
     }
 
     /**
-    * Browse all available games
+    * Browse all available games with pagination
     */
     #[Route('', name: 'front_game_index', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $games = $this->gameService->getActiveGames();
+        $query = $this->gameRepository->createQueryBuilder('g')
+            ->where('g.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('g.createdAt', 'DESC')
+            ->getQuery();
+
+        $pagination = $this->paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            6 // 6 games per page
+        );
+
         return $this->render('front/game/index.html.twig', [
-        'games' => $games,
+            'games' => $pagination,
         ]);
     }
 
@@ -132,18 +146,32 @@ class GameController extends AbstractController
     }
 
     /**
-    * Filter games by type
+    * Filter games by type with pagination
     */
     #[Route('/type/{type}', name: 'front_game_by_type', methods: ['GET'])]
-    public function byType(string $type): Response
+    public function byType(string $type, Request $request): Response
     {
         $validTypes = ['PUZZLE', 'MEMORY', 'TRIVIA', 'ARCADE'];
         if (!in_array($type, $validTypes)) {
             throw $this->createNotFoundException('Invalid game type');
         }
-        $games = $this->gameRepository->findByType($type);
+
+        $query = $this->gameRepository->createQueryBuilder('g')
+            ->where('g.isActive = :active')
+            ->andWhere('g.type = :type')
+            ->setParameter('active', true)
+            ->setParameter('type', $type)
+            ->orderBy('g.createdAt', 'DESC')
+            ->getQuery();
+
+        $pagination = $this->paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            6 // 6 games per page
+        );
+
         return $this->render('front/game/index.html.twig', [
-            'games' => $games,
+            'games' => $pagination,
             'filter_type' => $type,
         ]);
     }

@@ -7,6 +7,7 @@ use App\Form\Admin\GameFormType;
 use App\Repository\Gamification\GameRepository;
 use App\Service\game\GameService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +20,8 @@ class GameAdminController extends AbstractController
 {
     public function __construct(
         private GameService $gameService,
-        private GameRepository $gameRepository
+        private GameRepository $gameRepository,
+        private PaginatorInterface $paginator
     ) {
     }
 
@@ -27,11 +29,20 @@ class GameAdminController extends AbstractController
     * List all games
     */
     #[Route('', name: 'admin_game_index', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $games = $this->gameRepository->findAll();
+        $query = $this->gameRepository->createQueryBuilder('g')
+            ->orderBy('g.createdAt', 'DESC')
+            ->getQuery();
+
+        $pagination = $this->paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10 // 10 games per page
+        );
+
         return $this->render('admin/game/index.html.twig', [
-        'games' => $games,
+            'games' => $pagination,
         ]);
     }
 

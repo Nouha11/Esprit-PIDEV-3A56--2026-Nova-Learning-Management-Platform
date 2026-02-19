@@ -1,0 +1,17 @@
+knp_snappy:
+    pdf:
+        enabled: true
+        # Using environment variable (recommended for cross-platform compatibility)
+        binary: '%env(WKHTMLTOPDF_PATH)%'
+        
+        # Alternative Windows paths (if not using env variable):
+        # With quotes for spaces: binary: '"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"'
+        # Short path format: binary: 'C:\PROGRA~1\wkhtmltopdf\bin\wkhtmltopdf.exe'
+        # No spaces path: binary: 'C:\wkhtmltopdf\bin\wkhtmltopdf.exe'
+        
+        # Linux/Mac path example:
+        # binary: /usr/local/bin/wkhtmltopdf
+        
+        options:
+            enable-local-file-access: true
+        

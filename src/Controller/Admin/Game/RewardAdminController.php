@@ -6,6 +6,7 @@ use App\Form\Admin\RewardFormType;
 use App\Repository\Gamification\RewardRepository;
 use App\Service\game\RewardService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +19,8 @@ class RewardAdminController extends AbstractController
 {
     public function __construct(
         private RewardService $rewardService,
-        private RewardRepository $rewardRepository
+        private RewardRepository $rewardRepository,
+        private PaginatorInterface $paginator
     ) {
     }
 
@@ -26,11 +28,20 @@ class RewardAdminController extends AbstractController
     * List all rewards
     */
     #[Route('', name: 'admin_reward_index', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $rewards = $this->rewardRepository->findAll();
+        $query = $this->rewardRepository->createQueryBuilder('r')
+            ->orderBy('r.id', 'DESC')
+            ->getQuery();
+
+        $pagination = $this->paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10 // 10 rewards per page
+        );
+
         return $this->render('admin/reward/index.html.twig', [
-        'rewards' => $rewards,
+            'rewards' => $pagination,
         ]);
     }
 
