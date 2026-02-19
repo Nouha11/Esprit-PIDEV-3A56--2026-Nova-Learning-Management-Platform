@@ -41,130 +41,81 @@
     </div>
     {% endif %}
 
-    <!-- Filter Tabs -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <ul class="nav nav-pills mb-3" id="rewardFilter" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="all-tab" data-bs-toggle="pill" 
-                            data-bs-target="#all" type="button" role="tab">
-                        <i class="bi bi-grid-3x3-gap-fill me-1"></i>{{ t.t('All Rewards') }}
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="badge-tab" data-bs-toggle="pill" 
-                            data-bs-target="#badge" type="button" role="tab">
-                        <i class="bi bi-patch-check-fill me-1"></i>{{ t.t('Badges') }}
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="achievement-tab" data-bs-toggle="pill" 
-                            data-bs-target="#achievement" type="button" role="tab">
-                        <i class="bi bi-trophy-fill me-1"></i>{{ t.t('Achievements') }}
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="bonus-tab" data-bs-toggle="pill" 
-                            data-bs-target="#bonus" type="button" role="tab">
-                        <i class="bi bi-gift-fill me-1"></i>{{ t.t('Bonuses') }}
-                    </button>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Rewards Grid -->
-    <div class="tab-content" id="rewardFilterContent">
-        <!-- All Rewards Tab -->
-        <div class="tab-pane fade show active" id="all" role="tabpanel">
-            {% if rewards is empty %}
-                <div class="alert alert-warning" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    {{ t.t('No rewards available at the moment. Check back later!') }}
+    <!-- Ajax Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <!-- Search Input -->
+                <div class="col-md-5">
+                    <label for="search-input" class="form-label">
+                        <i class="bi bi-search"></i> Search Rewards
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="search-input" 
+                           placeholder="Search by name..."
+                           value="{{ search }}">
                 </div>
-            {% else %}
-                <div class="row g-3">
-                    {% for reward in rewards %}
-                        {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
-                    {% endfor %}
-                </div>
-            {% endif %}
 
-            <!-- Pagination -->
-            <div class="row mt-4">
+                <!-- Type Filter -->
+                <div class="col-md-3">
+                    <label for="type-filter" class="form-label">
+                        <i class="bi bi-trophy"></i> Reward Type
+                    </label>
+                    <select class="form-select" id="type-filter">
+                        <option value="">All Types</option>
+                        <option value="BADGE" {{ type == 'BADGE' ? 'selected' : '' }}>Badge</option>
+                        <option value="ACHIEVEMENT" {{ type == 'ACHIEVEMENT' ? 'selected' : '' }}>Achievement</option>
+                        <option value="BONUS_XP" {{ type == 'BONUS_XP' ? 'selected' : '' }}>Bonus XP</option>
+                        <option value="BONUS_TOKENS" {{ type == 'BONUS_TOKENS' ? 'selected' : '' }}>Bonus Tokens</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter (only for logged-in students) -->
+                {% if student %}
+                <div class="col-md-2">
+                    <label for="status-filter" class="form-label">
+                        <i class="bi bi-check-circle"></i> Status
+                    </label>
+                    <select class="form-select" id="status-filter">
+                        <option value="">All</option>
+                        <option value="earned" {{ status == 'earned' ? 'selected' : '' }}>Earned</option>
+                        <option value="not_earned" {{ status == 'not_earned' ? 'selected' : '' }}>Not Earned</option>
+                    </select>
+                </div>
+                {% endif %}
+
+                <!-- Clear Button -->
+                <div class="col-md-2">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Status -->
+            <div class="row mt-3">
                 <div class="col-12">
-                    <div class="navigation d-flex justify-content-center">
-                        {{ knp_pagination_render(rewards, 'pagination/custom_pagination.html.twig') }}
-                    </div>
+                    <span class="text-muted">
+                        <i class="bi bi-funnel"></i> <span id="results-count">{{ rewards.getTotalItemCount }}</span> reward(s) found
+                    </span>
                 </div>
-            </div>
-        </div>
-
-        <!-- Badges Tab -->
-        <div class="tab-pane fade" id="badge" role="tabpanel">
-            <div class="row g-3">
-                {% set badgeRewards = rewards|filter(r => r.type == 'BADGE') %}
-                {% if badgeRewards is empty %}
-                    <div class="col-12">
-                        <div class="alert alert-info" role="alert">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            {{ t.t('No badges available yet.') }}
-                        </div>
-                    </div>
-                {% else %}
-                    {% for reward in badgeRewards %}
-                        {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Achievements Tab -->
-        <div class="tab-pane fade" id="achievement" role="tabpanel">
-            <div class="row g-3">
-                {% set achievementRewards = rewards|filter(r => r.type == 'ACHIEVEMENT') %}
-                {% if achievementRewards is empty %}
-                    <div class="col-12">
-                        <div class="alert alert-info" role="alert">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            {{ t.t('No achievements available yet.') }}
-                        </div>
-                    </div>
-                {% else %}
-                    {% for reward in achievementRewards %}
-                        {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Bonuses Tab -->
-        <div class="tab-pane fade" id="bonus" role="tabpanel">
-            <div class="row g-3">
-                {% set bonusRewards = rewards|filter(r => r.type in ['BONUS_XP', 'BONUS_TOKENS']) %}
-                {% if bonusRewards is empty %}
-                    <div class="col-12">
-                        <div class="alert alert-info" role="alert">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            {{ t.t('No bonus rewards available yet.') }}
-                        </div>
-                    </div>
-                {% else %}
-                    {% for reward in bonusRewards %}
-                        {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
-                    {% endfor %}
-                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Back Button -->
-    <div class="row mt-5">
-        <div class="col-12 text-center">
-            <a href="{{ path('front_reward_my_rewards') }}" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-left me-2"></i>{{ t.t('Back to My Rewards') }}
-            </a>
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="text-center py-4 d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
         </div>
+        <p class="mt-2 text-muted">Loading rewards...</p>
+    </div>
+
+    <!-- Rewards Grid Container -->
+    <div id="rewards-container">
+        {% include 'front/game/_rewards_list.html.twig' %}
     </div>
 </div>
 
@@ -172,18 +123,77 @@
     .bg-gradient-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
-    
-    .nav-pills .nav-link {
-        border-radius: 20px;
-        margin-right: 10px;
-    }
-    
-    .nav-pills .nav-link.active {
-        background-color: #667eea;
-    }
-    
-    .nav-pills .nav-link:hover:not(.active) {
-        background-color: #f0f0f0;
-    }
 </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        let searchTimeout = null;
+
+        // Load rewards with filters
+        function loadRewards() {
+            const search = document.getElementById('search-input').value;
+            const type = document.getElementById('type-filter').value;
+            const statusFilter = document.getElementById('status-filter');
+            const status = statusFilter ? statusFilter.value : '';
+
+            // Build query string
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (type) params.append('type', type);
+            if (status) params.append('status', status);
+
+            // Show loading indicator
+            document.getElementById('loading-indicator').classList.remove('d-none');
+            document.getElementById('rewards-container').style.opacity = '0.5';
+
+            // Fetch filtered rewards
+            fetch('{{ path('front_reward_browse') }}?' + params.toString(), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('rewards-container').innerHTML = html;
+                document.getElementById('loading-indicator').classList.add('d-none');
+                document.getElementById('rewards-container').style.opacity = '1';
+                
+                // Update URL without reload
+                const newUrl = '{{ path('front_reward_browse') }}?' + params.toString();
+                window.history.pushState({}, '', newUrl);
+            })
+            .catch(error => {
+                console.error('Error loading rewards:', error);
+                document.getElementById('loading-indicator').classList.add('d-none');
+                document.getElementById('rewards-container').style.opacity = '1';
+            });
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('type-filter').value = '';
+            const statusFilter = document.getElementById('status-filter');
+            if (statusFilter) statusFilter.value = '';
+            loadRewards();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search input with debounce
+            document.getElementById('search-input').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(loadRewards, 500);
+            });
+
+            // Dropdown filters
+            document.getElementById('type-filter').addEventListener('change', loadRewards);
+            const statusFilter = document.getElementById('status-filter');
+            if (statusFilter) {
+                statusFilter.addEventListener('change', loadRewards);
+            }
+        });
+    </script>
 {% endblock %}

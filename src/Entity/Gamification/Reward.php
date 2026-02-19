@@ -166,6 +166,23 @@ class Reward
         return $this->games;
     }
 
+    public function addGame(Game $game): static
+    {
+        if (!$this->games->contains($game)) {
+            $this->games->add($game);
+            $game->addReward($this);
+        }
+        return $this;
+    }
+
+    public function removeGame(Game $game): static
+    {
+        if ($this->games->removeElement($game)) {
+            $game->removeReward($this);
+        }
+        return $this;
+    }
+
     /**
      * @return Collection<int, StudentProfile>
      */

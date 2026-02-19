@@ -49,7 +49,7 @@ class RewardController extends AbstractController
     }
 
     /**
-    * View all available rewards (gallery) with pagination
+    * View all available rewards (gallery) with pagination and Ajax filters
     */
     #[Route('/browse', name: 'front_reward_browse', methods: ['GET'])]
     public function browse(Request $request): Response
@@ -57,10 +57,45 @@ class RewardController extends AbstractController
         $user = $this->getUser();
         $student = $user ? $user->getStudentProfile() : null;
 
+        $search = $request->query->get('search', '');
+        $type = $request->query->get('type', '');
+        $status = $request->query->get('status', ''); // earned/not_earned
+        $isAjax = $request->isXmlHttpRequest();
+
         $queryBuilder = $this->rewardRepository->createQueryBuilder('r')
             ->where('r.isActive = :active')
-            ->setParameter('active', true)
-            ->orderBy('r.id', 'DESC');
+            ->setParameter('active', true);
+
+        // Apply search filter
+        if (!empty($search)) {
+            $queryBuilder
+                ->andWhere('r.name LIKE :search OR r.description LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        // Apply type filter
+        if (!empty($type)) {
+            $queryBuilder
+                ->andWhere('r.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        // Apply earned status filter (only if student is logged in)
+        if ($student && !empty($status)) {
+            if ($status === 'earned') {
+                $queryBuilder
+                    ->join('r.students', 's')
+                    ->andWhere('s.id = :studentId')
+                    ->setParameter('studentId', $student->getId());
+            } elseif ($status === 'not_earned') {
+                $queryBuilder
+                    ->leftJoin('r.students', 's', 'WITH', 's.id = :studentId')
+                    ->andWhere('s.id IS NULL')
+                    ->setParameter('studentId', $student->getId());
+            }
+        }
+
+        $queryBuilder->orderBy('r.id', 'DESC');
 
         $pagination = $this->paginator->paginate(
             $queryBuilder,
@@ -68,9 +103,20 @@ class RewardController extends AbstractController
             8 // 8 rewards per page
         );
 
+        // If Ajax request, return only the rewards partial
+        if ($isAjax) {
+            return $this->render('front/game/_rewards_list.html.twig', [
+                'rewards' => $pagination,
+                'student' => $student,
+            ]);
+        }
+
         return $this->render('front/game/browse.html.twig', [
             'rewards' => $pagination,
             'student' => $student,
+            'search' => $search,
+            'type' => $type,
+            'status' => $status,
         ]);
     }
 
@@ -99,9 +145,14 @@ class RewardController extends AbstractController
         $result = $writer->write($qrCode);
         $qrCodeDataUri = $result->getDataUri();
 
+        // Filter only active games
+        $activeGames = $reward->getGames()->filter(function($game) {
+            return $game->isActive();
+        });
+
         return $this->render('front/game/reward_show.html.twig', [
             'reward' => $reward,
-            'games' => $reward->getGames(),
+            'games' => $activeGames,
             'student' => $student,
             'qrCode' => $qrCodeDataUri,
         ]);

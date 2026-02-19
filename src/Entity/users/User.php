@@ -92,6 +92,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: \App\Entity\StudySession\Course::class, mappedBy: 'createdBy')]
     private Collection $courses;
 
+    // Many-to-many: User can favorite many games
+    #[ORM\ManyToMany(targetEntity: \App\Entity\Gamification\Game::class, inversedBy: 'favoritedBy')]
+    #[ORM\JoinTable(name: 'user_favorite_games')]
+    private Collection $favoriteGames;
+
     public function __construct()
     {
         $this->studySessions = new ArrayCollection();
@@ -101,6 +106,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->games = new ArrayCollection();
         $this->questions = new ArrayCollection();
         $this->courses = new ArrayCollection();
+        $this->favoriteGames = new ArrayCollection();
         $this->xp = 0;
     }
 
@@ -219,4 +225,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAtValue(): void { $this->updatedAt = new \DateTime(); }
     public function getXp(): ?int { return $this->xp; }
     public function setXp(int $xp): static { $this->xp = $xp; return $this; }
+
+    /**
+     * @return Collection<int, \App\Entity\Gamification\Game>
+     */
+    public function getFavoriteGames(): Collection
+    {
+        return $this->favoriteGames;
+    }
+
+    public function addFavoriteGame(\App\Entity\Gamification\Game $game): static
+    {
+        if (!$this->favoriteGames->contains($game)) {
+            $this->favoriteGames->add($game);
+        }
+        return $this;
+    }
+
+    public function removeFavoriteGame(\App\Entity\Gamification\Game $game): static
+    {
+        $this->favoriteGames->removeElement($game);
+        return $this;
+    }
+
+    public function hasFavoriteGame(\App\Entity\Gamification\Game $game): bool
+    {
+        return $this->favoriteGames->contains($game);
+    }
 }
