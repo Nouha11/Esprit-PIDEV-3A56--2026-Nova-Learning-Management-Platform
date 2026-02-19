@@ -1,0 +1,27 @@
+{% macro t(text) %}
+    {%- if is_french() -%}
+        {{ translate_text(text) }}
+    {%- else -%}
+        {{ text }}
+    {%- endif -%}
+{% endmacro %}
+
+{% macro button(text, classes = 'btn btn-primary') %}
+    <button class="{{ classes }}">
+        {% if is_french() %}
+            {{ translate_text(text) }}
+        {% else %}
+            {{ text }}
+        {% endif %}
+    </button>
+{% endmacro %}
+
+{% macro link(text, url, classes = '') %}
+    <a href="{{ url }}" class="{{ classes }}">
+        {% if is_french() %}
+            {{ translate_text(text) }}
+        {% else %}
+            {{ text }}
+        {% endif %}
+    </a>
+{% endmacro %}

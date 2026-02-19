@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
 
-{% block title %}Browse Rewards{% endblock %}
+{% block title %}{{ t.t('Browse Rewards') }}{% endblock %}
 
 {% block body %}
 <div class="container my-5">
@@ -8,9 +9,9 @@
         <div class="col-12">
             <h1 class="display-4 mb-3">
                 <i class="bi bi-shop text-primary me-2"></i>
-                Rewards Gallery
+                {{ t.t('Rewards Gallery') }}
             </h1>
-            <p class="lead text-muted">Browse all available rewards you can earn</p>
+            <p class="lead text-muted">{{ t.t('Browse all available rewards you can earn') }}</p>
         </div>
     </div>
 
@@ -22,15 +23,15 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-md-4 text-center mb-3 mb-md-0">
-                            <h6 class="mb-1">Your Level</h6>
+                            <h6 class="mb-1">{{ t.t('Your Level') }}</h6>
                             <h2 class="mb-0">{{ student.level }}</h2>
                         </div>
                         <div class="col-md-4 text-center mb-3 mb-md-0">
-                            <h6 class="mb-1">Total XP</h6>
+                            <h6 class="mb-1">{{ t.t('Total XP') }}</h6>
                             <h2 class="mb-0">{{ student.totalXP }}</h2>
                         </div>
                         <div class="col-md-4 text-center">
-                            <h6 class="mb-1">Available Tokens</h6>
+                            <h6 class="mb-1">{{ t.t('Available Tokens') }}</h6>
                             <h2 class="mb-0">{{ student.totalTokens }}</h2>
                         </div>
                     </div>
@@ -47,25 +48,25 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="all-tab" data-bs-toggle="pill" 
                             data-bs-target="#all" type="button" role="tab">
-                        <i class="bi bi-grid-3x3-gap-fill me-1"></i>All Rewards
+                        <i class="bi bi-grid-3x3-gap-fill me-1"></i>{{ t.t('All Rewards') }}
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="badge-tab" data-bs-toggle="pill" 
                             data-bs-target="#badge" type="button" role="tab">
-                        <i class="bi bi-patch-check-fill me-1"></i>Badges
+                        <i class="bi bi-patch-check-fill me-1"></i>{{ t.t('Badges') }}
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="achievement-tab" data-bs-toggle="pill" 
                             data-bs-target="#achievement" type="button" role="tab">
-                        <i class="bi bi-trophy-fill me-1"></i>Achievements
+                        <i class="bi bi-trophy-fill me-1"></i>{{ t.t('Achievements') }}
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="bonus-tab" data-bs-toggle="pill" 
                             data-bs-target="#bonus" type="button" role="tab">
-                        <i class="bi bi-gift-fill me-1"></i>Bonuses
+                        <i class="bi bi-gift-fill me-1"></i>{{ t.t('Bonuses') }}
                     </button>
                 </li>
             </ul>
@@ -79,7 +80,7 @@
             {% if rewards is empty %}
                 <div class="alert alert-warning" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    No rewards available at the moment. Check back later!
+                    {{ t.t('No rewards available at the moment. Check back later!') }}
                 </div>
             {% else %}
                 <div class="row">
@@ -107,7 +108,7 @@
                     <div class="col-12">
                         <div class="alert alert-info" role="alert">
                             <i class="bi bi-info-circle-fill me-2"></i>
-                            No badges available yet.
+                            {{ t.t('No badges available yet.') }}
                         </div>
                     </div>
                 {% else %}
@@ -126,7 +127,7 @@
                     <div class="col-12">
                         <div class="alert alert-info" role="alert">
                             <i class="bi bi-info-circle-fill me-2"></i>
-                            No achievements available yet.
+                            {{ t.t('No achievements available yet.') }}
                         </div>
                     </div>
                 {% else %}
@@ -145,7 +146,7 @@
                     <div class="col-12">
                         <div class="alert alert-info" role="alert">
                             <i class="bi bi-info-circle-fill me-2"></i>
-                            No bonus rewards available yet.
+                            {{ t.t('No bonus rewards available yet.') }}
                         </div>
                     </div>
                 {% else %}
@@ -161,7 +162,7 @@
     <div class="row mt-5">
         <div class="col-12 text-center">
             <a href="{{ path('front_reward_my_rewards') }}" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-left me-2"></i>Back to My Rewards
+                <i class="bi bi-arrow-left me-2"></i>{{ t.t('Back to My Rewards') }}
             </a>
         </div>
     </div>

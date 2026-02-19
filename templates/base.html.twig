@@ -1,7 +1,8 @@
+{% import 'macros/translation.html.twig' as t %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_locale() }}">
 <head>
-    <title>{% block title %}NOVA - Intelligent Study Coaching Platform{% endblock %}</title>
+    <title>{% block title %}{{ t.t('NOVA - Intelligent Study Coaching Platform') }}{% endblock %}</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -71,7 +72,60 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
 
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}?v={{ random() }}">
+    
+    <!-- Custom Navbar Fixes -->
+    <style>
+        /* Force navbar layout fixes */
+        .navbar-nav.me-auto {
+            margin-right: auto !important;
+            flex: 1 !important;
+        }
+        .navbar .nav.flex-row {
+            margin-left: auto !important;
+            flex-shrink: 0 !important;
+        }
+        .language-switcher .btn {
+            font-size: 1.1rem !important;
+            min-width: 32px !important;
+            text-align: center !important;
+            padding: 0.25rem 0.5rem !important;
+            border: none !important;
+            background: transparent !important;
+        }
+        .nav-item.me-2 {
+            margin-right: 0.75rem !important;
+        }
+        .navbar-nav .nav-item {
+            margin-right: 0.5rem !important;
+        }
+        .navbar-nav .nav-link {
+            padding: 0.5rem 0.75rem !important;
+            white-space: nowrap !important;
+        }
+        /* Ensure proper spacing between main nav and profile section */
+        .navbar-collapse {
+            justify-content: space-between !important;
+        }
+        /* Mobile responsive fixes */
+        @media (max-width: 991.98px) {
+            .navbar-collapse .navbar-nav {
+                margin-bottom: 1rem !important;
+            }
+            .navbar-collapse .nav.flex-row {
+                margin-left: 0 !important;
+                justify-content: center !important;
+            }
+        }
+        /* Language switcher specific fixes */
+        .language-switcher .dropdown-menu {
+            min-width: 120px !important;
+        }
+        .language-switcher .dropdown-item {
+            padding: 0.5rem 1rem !important;
+            font-size: 0.9rem !important;
+        }
+    </style>
     {% endblock %}
 </head>
 
@@ -92,39 +146,57 @@
             </button>
 
             <div class="navbar-collapse collapse" id="navbarCollapse">
-                <ul class="navbar-nav navbar-nav-scroll">
+                <!-- Nav Main menu START -->
+                <ul class="navbar-nav navbar-nav-scroll me-auto" style="margin-right: auto !important;">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ path('app_home') }}"><i class="bi bi-house me-2"></i>Home</a>
+                        <a class="nav-link active" href="{{ path('app_home') }}"><i class="bi bi-house me-2"></i>{{ t.t('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('course_index') }}"><i class="bi bi-book me-2"></i>Courses</a>
+                        <a class="nav-link" href="{{ path('course_index') }}"><i class="bi bi-book me-2"></i>{{ t.t('Courses') }}</a>
                     </li>                    
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>Library</a>
+                        <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>{{ t.t('Library') }}</a>
                     </li>
 
                     {% if is_granted('ROLE_STUDENT') %}
-                        <li><a class="nav-link" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('front_game_index') }}"><i class="bi bi-controller me-2"></i>Games</a>
+                            <a class="nav-link" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('front_reward_browse') }}"><i class="bi bi-trophy me-2"></i>Rewards</a>
+                            <a class="nav-link" href="{{ path('front_game_index') }}"><i class="bi bi-controller me-2"></i>{{ t.t('Games') }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_front_quiz_index') }}"><i class="bi bi-lightning-charge me-2"></i>Quizzes</a>
+                            <a class="nav-link" href="{{ path('front_reward_browse') }}"><i class="bi bi-trophy me-2"></i>{{ t.t('Rewards') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_front_quiz_index') }}"><i class="bi bi-lightning-charge me-2"></i>{{ t.t('Quizzes') }}</a>
                         </li>
                     {% elseif is_granted('ROLE_TUTOR') %}
-                        <li><a class="nav-link" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
-                        <li><a class="nav-link" href="{{ path('app_quiz_index', {'prefix': 'tutor'}) }}"><i class="bi bi-lightning-charge me-2"></i>Manage Quizzes</a></li>
-
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_quiz_index', {'prefix': 'tutor'}) }}"><i class="bi bi-lightning-charge me-2"></i>{{ t.t('Manage Quizzes') }}</a>
+                        </li>
                     {% endif %}
-                    <li><a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-headset me-2"></i>Forum</a></li>
-
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-headset me-2"></i>{{ t.t('Forum') }}</a>
+                    </li>
                 </ul>
-                </div>
-            <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-                <li class="nav-item me-3 d-none d-sm-block">
+                <!-- Nav Main menu END -->
+            </div>
+            <!-- Main navbar END -->
+
+            <!-- Profile and notification START -->
+            <ul class="nav flex-row align-items-center list-unstyled" style="margin-left: auto !important;">
+                <!-- Language Switcher -->
+                <li class="nav-item me-2">
+                    {% include 'components/language_switcher.html.twig' %}
+                </li>
+
+                <!-- Dark/Light mode toggle -->
+                <li class="nav-item me-2 d-none d-sm-block">
                     <div class="mode-switch theme-icon-active d-flex align-items-center">
                         <button type="button" class="btn btn-link nav-link mb-0 p-0" data-bs-theme-value="light">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sun fa-fw mode-switch" viewBox="0 0 16 16">
@@ -160,7 +232,7 @@
                     <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
                         <div class="card bg-transparent">
                             <div class="card-header bg-transparent border-bottom py-4">
-                                <h5 class="m-0">Cart items</h5>
+                                <h5 class="m-0">{{ t.t('Cart items') }}</h5>
                             </div>
                             <div class="card-body p-0">
                                 <div class="row p-3 g-2">
@@ -207,8 +279,8 @@
                                 </div>
                                 </div>
                             <div class="card-footer bg-transparent border-top py-3 text-center d-flex justify-content-between position-relative">
-                                <a href="#" class="btn btn-sm btn-light mb-0">View Cart</a>
-                                <a href="#" class="btn btn-sm btn-success mb-0">Checkout</a>
+                                <a href="#" class="btn btn-sm btn-light mb-0">{{ t.t('View Cart') }}</a>
+                                <a href="#" class="btn btn-sm btn-success mb-0">{{ t.t('Checkout') }}</a>
                             </div>
                         </div>
                     </div>
@@ -222,8 +294,8 @@
                     <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
                         <div class="card bg-transparent">
                             <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
-                                <h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
-                                <a class="small" href="#">Clear all</a>
+                                <h6 class="m-0">{{ t.t('Notifications') }} <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 {{ t.t('new') }}</span></h6>
+                                <a class="small" href="#">{{ t.t('Clear all') }}</a>
                             </div>
                             <div class="card-body p-0">
                                 <ul class="list-group list-unstyled list-group-flush">
@@ -244,7 +316,7 @@
                                 </ul>
                             </div>
                             <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
-                                <a href="#" class="stretched-link">See all incoming activity</a>
+                                <a href="#" class="stretched-link">{{ t.t('See all incoming activity') }}</a>
                             </div>
                         </div>
                     </div>
@@ -269,31 +341,31 @@
                         <li><hr class="dropdown-divider"></li>
                         
                         {% if 'ROLE_STUDENT' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>My Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>{{ t.t('My Dashboard') }}</a></li>
                         {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_tutor_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>Tutor Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_tutor_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>{{ t.t('Tutor Dashboard') }}</a></li>
                         {% endif %}
 
                         {% if 'ROLE_STUDENT' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a></li>
                         {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a></li>
                         {% endif %}
                         
-<li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Help</a></li>
-                        <li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>{{ t.t('Help') }}</a></li>
+                        <li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>{{ t.t('Sign Out') }}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         
                         <li>
                             <div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center gap-2 p-2 rounded mt-2">
                                 <button type="button" class="btn btn-sm btn-light mb-0 flex-fill" data-bs-theme-value="light">
-                                    <i class="bi bi-sun me-1"></i> Light
+                                    <i class="bi bi-sun me-1"></i> {{ t.t('Light') }}
                                 </button>
                                 <button type="button" class="btn btn-sm btn-light mb-0 flex-fill" data-bs-theme-value="dark">
-                                    <i class="bi bi-moon-stars me-1"></i> Dark
+                                    <i class="bi bi-moon-stars me-1"></i> {{ t.t('Dark') }}
                                 </button>
                                 <button type="button" class="btn btn-sm btn-primary mb-0 flex-fill active" data-bs-theme-value="auto">
-                                    <i class="bi bi-circle-half me-1"></i> Auto
+                                    <i class="bi bi-circle-half me-1"></i> {{ t.t('Auto') }}
                                 </button>
                             </div>
                         </li> 
@@ -302,12 +374,12 @@
                 {% else %}
                 <li class="nav-item ms-2">
                     <a href="{{ path('app_login') }}" class="btn btn-sm btn-outline-primary mb-0">
-                        <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                        <i class="bi bi-box-arrow-in-right me-1"></i>{{ t.t('Sign In') }}
                     </a>
                 </li>
                 <li class="nav-item ms-2">
                     <a href="{{ path('app_signup') }}" class="btn btn-sm btn-primary mb-0">
-                        <i class="bi bi-person-plus me-1"></i>Get Started
+                        <i class="bi bi-person-plus me-1"></i>{{ t.t('Get Started') }}
                     </a>
                 </li>
                 {% endif %}
@@ -347,9 +419,9 @@
                                     <path d="M69.0166 69.7017C56.5959 80.712 39.8019 84.7239 25.181 80.1338C24.3382 79.9118 23.8242 78.9676 24.1599 78.1317C24.3819 77.2889 25.3261 76.7749 26.162 77.1106C39.7195 81.3514 55.3555 77.6122 66.9322 67.3502C78.5088 57.0882 84.0965 42.0136 81.5127 28.0453C81.3934 27.1819 81.9032 26.2994 82.7665 26.1801C83.6299 26.0608 84.5124 26.5706 84.6317 27.4339C87.4951 42.4465 81.4374 58.6914 69.0166 69.7017Z"/>
                                 </svg>
                             </span>
-                            Learning Might be
-                            <span>Closed, Not Your</span>
-                            <span class="position-relative d-inline-block">Curiosity
+                            {{ t.t('Learning Might be') }}
+                            <span>{{ t.t('Closed, Not Your') }}</span>
+                            <span class="position-relative d-inline-block">{{ t.t('Curiosity') }}
                                 <span class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-sm-block">
                                     <svg class="fill-orange" width="303" height="86" viewBox="0 0 303 86">
                                         <path d="M288.197 19.3999C281.599 15.6998 273.654 13.03 265.424 10.926C256.533 8.64794 247.263 6.92124 237.946 5.4267C218.461 2.249 198.384 0.406219 178.237 0.0579769C158.609 -0.275755 138.888 0.8125 119.733 3.49686C108.17 5.10748 96.8189 7.2985 85.8466 10.0264C81.4955 11.0131 77.168 12.0723 72.9115 13.2331C56.382 17.7022 40.5146 23.4192 26.3972 30.355C12.9182 36.9861 0.716203 46.0404 0.999971 57.2131C1.14185 62.2772 4.16871 67.051 9.98595 70.693C15.4721 74.1319 22.6846 76.3809 29.9679 78.0206C38.7647 80.0085 48.0345 81.3289 57.257 82.4026C67.1179 83.5489 77.0734 84.2889 87.0762 84.6807C107.413 85.4642 127.892 84.7968 148.063 83.0266C168.399 81.2418 188.429 78.3543 208.127 74.8139C227.399 71.3459 246.436 67.2976 265.141 62.8285C278.927 59.5348 294.227 55.0802 300.446 46.2435C307.091 36.812 299.949 25.973 288.197 19.3999Z"/>
@@ -358,12 +430,12 @@
                             </span>
                         </h1>
 
-                        <p class="mb-3 col-lg-8">NOVA is an intelligent study coaching platform designed to help you achieve academic excellence through gamification and personalized learning.</p>
+                        <p class="mb-3 col-lg-8">{{ t.t('NOVA is an intelligent study coaching platform designed to help you achieve academic excellence through gamification and personalized learning.') }}</p>
 
-                        <a href="{{ path('course_index') }}" class="btn btn-lg btn-blue mb-0">Explore Courses</a>
+                        <a href="{{ path('course_index') }}" class="btn btn-lg btn-blue mb-0">{{ t.t('Explore Courses') }}</a>
                     </div>
                     <div class="col-lg-5 col-xxl-3 position-relative">
-                        <h4 class="mb-4">Top Students This Month</h4>
+                        <h4 class="mb-4">{{ t.t('Top Students This Month') }}</h4>
 
                         <div class="d-flex align-items-center mb-3">
                             <div class="avatar avatar-xl">
@@ -374,7 +446,7 @@
                                 </div>
                             </div>
                             <div class="ms-3">
-                                <h5 class="mb-1">Top Performer</h5>
+                                <h5 class="mb-1">{{ t.t('Top Performer') }}</h5>
                                 <p class="mb-0">1,250 XP</p>
                             </div>
                         </div>
@@ -388,7 +460,7 @@
                                 </div>
                             </div>
                             <div class="ms-3">
-                                <h5 class="mb-1">Rising Star</h5>
+                                <h5 class="mb-1">{{ t.t('Rising Star') }}</h5>
                                 <p class="mb-0">1,100 XP</p>
                             </div>
                         </div>
@@ -402,7 +474,7 @@
                                 </div>
                             </div>
                             <div class="ms-3">
-                                <h5 class="mb-1">Consistent Learner</h5>
+                                <h5 class="mb-1">{{ t.t('Consistent Learner') }}</h5>
                                 <p class="mb-0">950 XP</p>
                             </div>
                         </div>
@@ -417,11 +489,11 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="card bg-warning bg-opacity-50 p-4 overflow-hidden h-100">
                             <div class="card-header bg-transparent p-0">
-                                <h6>Easy Level</h6>
+                                <h6>{{ t.t('Easy Level') }}</h6>
                             </div>
                             <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="stretched-link">Puzzle Games</a></h3>
-                                <h6 class="lead">Fun & Simple</h6>
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="stretched-link">{{ t.t('Puzzle Games') }}</a></h3>
+                                <h6 class="lead">{{ t.t('Fun & Simple') }}</h6>
                                 <img src="{{ asset('assets/images/element/primary-school.svg') }}" class="opacity-5 mb-n5" alt="">
                             </div>
                         </div>
@@ -430,11 +502,11 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="card bg-purple bg-opacity-50 p-4 overflow-hidden h-100">
                             <div class="card-header bg-transparent p-0">
-                                <h6>Medium Level</h6>
+                                <h6>{{ t.t('Medium Level') }}</h6>
                             </div>
                             <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="stretched-link">Memory Games</a></h3>
-                                <h6 class="lead">Train Your Brain</h6>
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="stretched-link">{{ t.t('Memory Games') }}</a></h3>
+                                <h6 class="lead">{{ t.t('Train Your Brain') }}</h6>
                                 <img src="{{ asset('assets/images/element/middle-school.svg') }}" class="opacity-5 mb-n5" alt="">
                             </div>
                         </div>
@@ -443,11 +515,11 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="card bg-orange bg-opacity-50 p-4 overflow-hidden h-100">
                             <div class="card-header bg-transparent p-0">
-                                <h6>Hard Level</h6>
+                                <h6>{{ t.t('Hard Level') }}</h6>
                             </div>
                             <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="stretched-link">Trivia Games</a></h3>
-                                <h6 class="lead">Test Knowledge</h6>
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="stretched-link">{{ t.t('Trivia Games') }}</a></h3>
+                                <h6 class="lead">{{ t.t('Test Knowledge') }}</h6>
                                 <img src="{{ asset('assets/images/element/high-school.svg') }}" class="opacity-5 mb-n5" alt="">
                             </div>
                         </div>
@@ -456,11 +528,11 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="card bg-info bg-opacity-50 p-4 overflow-hidden h-100">
                             <div class="card-header bg-transparent p-0">
-                                <h6>Expert Level</h6>
+                                <h6>{{ t.t('Expert Level') }}</h6>
                             </div>
                             <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="stretched-link">Arcade Games</a></h3>
-                                <h6 class="lead">Ultimate Challenge</h6>
+                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="stretched-link">{{ t.t('Arcade Games') }}</a></h3>
+                                <h6 class="lead">{{ t.t('Ultimate Challenge') }}</h6>
                                 <img src="{{ asset('assets/images/element/exam.svg') }}" class="opacity-5 mb-n5" alt="">
                             </div>
                         </div>
@@ -474,7 +546,7 @@
                 <div class="row align-items-center">
                     <div class="col-lg-5 col-xxl-6 position-relative">
                         <h2 class="h1">
-                            <span class="position-relative z-index-9">Achieve Your Goals With</span>
+                            <span class="position-relative z-index-9">{{ t.t('Achieve Your Goals With') }}</span>
                             <span class="position-relative z-index-1">NOVA
                                 <span class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-sm-block">
                                     <svg class="fill-orange" width="180" height="86" viewBox="0 0 303 86">
@@ -484,34 +556,34 @@
                             </span>
                         </h2>
 
-                        <p class="mt-4 mb-0">NOVA combines gamification with intelligent learning to help you excel in your studies. Earn XP, unlock badges, and compete with friends while mastering your subjects.</p>
+                        <p class="mt-4 mb-0">{{ t.t('NOVA combines gamification with intelligent learning to help you excel in your studies. Earn XP, unlock badges, and compete with friends while mastering your subjects.') }}</p>
 
                         <ul class="list-group list-group-borderless mt-4">
                             <li class="list-group-item h6 d-flex fw-normal mb-0">
-                                <i class="bi bi-patch-check-fill text-success me-2"></i>Interactive games that make learning fun
+                                <i class="bi bi-patch-check-fill text-success me-2"></i>{{ t.t('Interactive games that make learning fun') }}
                             </li>
                             <li class="list-group-item h6 d-flex fw-normal mb-0">
-                                <i class="bi bi-patch-check-fill text-success me-2"></i>Track your progress with XP and achievements
+                                <i class="bi bi-patch-check-fill text-success me-2"></i>{{ t.t('Track your progress with XP and achievements') }}
                             </li>
                             <li class="list-group-item h6 d-flex fw-normal mb-0">
-                                <i class="bi bi-patch-check-fill text-success me-2"></i>Compete on leaderboards and earn rewards
+                                <i class="bi bi-patch-check-fill text-success me-2"></i>{{ t.t('Compete on leaderboards and earn rewards') }}
                             </li>
                         </ul>
 
                         <div class="d-sm-flex align-items-center mt-4">
-                            <a href="{{ path('front_game_index') }}" class="btn btn-lg btn-dark me-2 mb-4 mb-sm-0">Get Started</a>
+                            <a href="{{ path('front_game_index') }}" class="btn btn-lg btn-dark me-2 mb-4 mb-sm-0">{{ t.t('Get Started') }}</a>
                         </div>
                     </div>
                     <div class="col-lg-7 col-xxl-6 my-5 mt-lg-0">
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="bg-danger bg-opacity-10 p-4 p-xl-5 text-center rounded-3 mb-4">
-                                    <h6>Active Since</h6>
+                                    <h6>{{ t.t('Active Since') }}</h6>
                                     <span class="h2 text-danger mb-2">2026</span>
                                 </div>
                                 <div class="bg-light p-4 p-xl-5 text-center rounded-3">
                                     <span class="h2 text-primary mb-2">50+</span>
-                                    <h6>Games Available</h6>
+                                    <h6>{{ t.t('Games Available') }}</h6>
                                 </div>
                             </div>
 
