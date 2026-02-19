@@ -57,14 +57,13 @@ class RewardController extends AbstractController
         $user = $this->getUser();
         $student = $user ? $user->getStudentProfile() : null;
 
-        $query = $this->rewardRepository->createQueryBuilder('r')
+        $queryBuilder = $this->rewardRepository->createQueryBuilder('r')
             ->where('r.isActive = :active')
             ->setParameter('active', true)
-            ->orderBy('r.id', 'DESC')
-            ->getQuery();
+            ->orderBy('r.id', 'DESC');
 
         $pagination = $this->paginator->paginate(
-            $query,
+            $queryBuilder,
             $request->query->getInt('page', 1),
             8 // 8 rewards per page
         );

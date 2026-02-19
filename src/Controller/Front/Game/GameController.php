@@ -27,14 +27,13 @@ class GameController extends AbstractController
     #[Route('', name: 'front_game_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $query = $this->gameRepository->createQueryBuilder('g')
+        $queryBuilder = $this->gameRepository->createQueryBuilder('g')
             ->where('g.isActive = :active')
             ->setParameter('active', true)
-            ->orderBy('g.createdAt', 'DESC')
-            ->getQuery();
+            ->orderBy('g.createdAt', 'DESC');
 
         $pagination = $this->paginator->paginate(
-            $query,
+            $queryBuilder,
             $request->query->getInt('page', 1),
             6 // 6 games per page
         );
@@ -156,16 +155,15 @@ class GameController extends AbstractController
             throw $this->createNotFoundException('Invalid game type');
         }
 
-        $query = $this->gameRepository->createQueryBuilder('g')
+        $queryBuilder = $this->gameRepository->createQueryBuilder('g')
             ->where('g.isActive = :active')
             ->andWhere('g.type = :type')
             ->setParameter('active', true)
             ->setParameter('type', $type)
-            ->orderBy('g.createdAt', 'DESC')
-            ->getQuery();
+            ->orderBy('g.createdAt', 'DESC');
 
         $pagination = $this->paginator->paginate(
-            $query,
+            $queryBuilder,
             $request->query->getInt('page', 1),
             6 // 6 games per page
         );
