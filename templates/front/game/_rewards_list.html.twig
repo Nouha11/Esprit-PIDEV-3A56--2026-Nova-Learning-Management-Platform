@@ -1,0 +1,20 @@
+{% if rewards|length > 0 %}
+    <div class="row g-3">
+        {% for reward in rewards %}
+            {% include 'front/game/_reward_card.html.twig' with {'reward': reward, 'student': student} %}
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4">
+        {{ knp_pagination_render(rewards, 'pagination/custom_pagination.html.twig') }}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox fs-1 text-muted"></i>
+        <p class="text-muted mt-3">No rewards found matching your filters.</p>
+        <button class="btn btn-outline-primary" onclick="clearFilters()">
+            <i class="bi bi-x-circle me-1"></i>Clear Filters
+        </button>
+    </div>
+{% endif %}

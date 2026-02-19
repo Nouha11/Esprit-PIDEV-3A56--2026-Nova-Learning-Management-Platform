@@ -15,95 +15,256 @@
                 </div>
             </div>
 
-            <!-- Filter Buttons -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <a href="{{ path('front_game_index') }}" class="btn btn-outline-primary">{{ t.t('All Games') }}</a>
-                    <a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="btn btn-outline-success">
-                        <i class="fas fa-puzzle-piece"></i> {{ t.t('Puzzle') }}
-                    </a>
-                    <a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="btn btn-outline-info">
-                        <i class="fas fa-brain"></i> {{ t.t('Memory') }}
-                    </a>
-                    <a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="btn btn-outline-warning">
-                        <i class="fas fa-question-circle"></i> {{ t.t('Trivia') }}
-                    </a>
-                    <a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="btn btn-outline-danger">
-                        <i class="fas fa-gamepad"></i> {{ t.t('Arcade') }}
-                    </a>
-                </div>
-            </div>
+            <!-- Ajax Filters -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Search Input -->
+                        <div class="col-md-4">
+                            <label for="search-input" class="form-label">
+                                <i class="bi bi-search"></i> Search Games
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="search-input" 
+                                   placeholder="Search by name..."
+                                   value="{{ search }}">
+                        </div>
 
-            <!-- Games Grid -->
-            <div class="row g-4">
-                {% for game in games %}
-                <div class="col-sm-6 col-lg-4 col-xl-3">
-                    <div class="card p-2 shadow h-100 game-card">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="badge bg-info">{{ game.type }}</span>
-                                <span class="badge bg-warning text-dark">{{ game.difficulty }}</span>
+                        <!-- Type Filter -->
+                        <div class="col-md-3">
+                            <label for="type-filter" class="form-label">
+                                <i class="bi bi-controller"></i> Game Type
+                            </label>
+                            <select class="form-select" id="type-filter">
+                                <option value="">All Types</option>
+                                <option value="PUZZLE" {{ type == 'PUZZLE' ? 'selected' : '' }}>Puzzle</option>
+                                <option value="MEMORY" {{ type == 'MEMORY' ? 'selected' : '' }}>Memory</option>
+                                <option value="TRIVIA" {{ type == 'TRIVIA' ? 'selected' : '' }}>Trivia</option>
+                                <option value="ARCADE" {{ type == 'ARCADE' ? 'selected' : '' }}>Arcade</option>
+                            </select>
+                        </div>
+
+                        <!-- Difficulty Filter -->
+                        <div class="col-md-3">
+                            <label for="difficulty-filter" class="form-label">
+                                <i class="bi bi-speedometer"></i> Difficulty
+                            </label>
+                            <select class="form-select" id="difficulty-filter">
+                                <option value="">All Levels</option>
+                                <option value="EASY" {{ difficulty == 'EASY' ? 'selected' : '' }}>Easy</option>
+                                <option value="MEDIUM" {{ difficulty == 'MEDIUM' ? 'selected' : '' }}>Medium</option>
+                                <option value="HARD" {{ difficulty == 'HARD' ? 'selected' : '' }}>Hard</option>
+                            </select>
+                        </div>
+
+                        <!-- Free Only Checkbox -->
+                        <div class="col-md-2">
+                            <label class="form-label d-block">&nbsp;</label>
+                            <div class="form-check">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       id="free-only-filter"
+                                       {{ freeOnly ? 'checked' : '' }}>
+                                <label class="form-check-label" for="free-only-filter">
+                                    <i class="bi bi-coin text-success"></i> Free Only
+                                </label>
                             </div>
-                            
-                            <h5 class="card-title">{{ game.name }}</h5>
-                            <p class="card-text">{{ game.description|slice(0, 100) }}...</p>
-                            
-                            <div class="mb-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-coins"></i> {{ t.t('Cost') }}: {{ game.tokenCost }} {{ t.t('tokens') }}<br>
-                                    <i class="fas fa-trophy"></i> {{ t.t('Reward') }}: {{ game.rewardTokens }}T + {{ game.rewardXP }}XP
-                                </small>
-                            </div>
-                            
-                            {# Special Rewards Indicator #}
-                            {% if game.rewards|length > 0 %}
-                                <div class="alert alert-success alert-sm mb-3">
-                                    <i class="bi bi-star-fill me-1"></i>
-                                    <strong>{{ game.rewards|length }}</strong> {{ game.rewards|length > 1 ? t.t('special rewards') : t.t('special reward') }} {{ t.t('available!') }}
-                                </div>
-                            {% endif %}
-                            
-                            <a href="{{ path('front_game_show', {id: game.id}) }}" 
-                                class="btn btn-primary btn-sm w-100 mt-auto">
-                                {{ t.t('View Details') }}
-                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Filter Actions -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+                                <i class="bi bi-x-circle"></i> Clear Filters
+                            </button>
+                            <span class="ms-3 text-muted" id="filter-status">
+                                <i class="bi bi-funnel"></i> <span id="results-count">{{ games.getTotalItemCount }}</span> game(s) found
+                            </span>
                         </div>
                     </div>
                 </div>
-                {% else %}
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> {{ t.t('No games available at the moment.') }}
-                    </div>
-                </div>
-                {% endfor %}
             </div>
 
-            <!-- Pagination -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="navigation d-flex justify-content-center">
-                        {{ knp_pagination_render(games, 'pagination/custom_pagination.html.twig') }}
-                    </div>
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="text-center py-4 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
+                <p class="mt-2 text-muted">Loading games...</p>
+            </div>
+
+            <!-- Games Grid Container -->
+            <div id="games-container">
+                {% include 'front/game/_games_list.html.twig' %}
             </div>
         </section>
     </div>
 </div>
 
 <style>
-    .game-card {
+    .hover-lift {
         transition: all 0.3s ease;
     }
     
-    .game-card:hover {
+    .hover-lift:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
     }
     
-    .alert-sm {
-        padding: 0.5rem;
-        font-size: 0.875rem;
+    .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
     }
 </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        let searchTimeout = null;
+
+        // Load games with filters
+        function loadGames() {
+            const search = document.getElementById('search-input').value;
+            const type = document.getElementById('type-filter').value;
+            const difficulty = document.getElementById('difficulty-filter').value;
+            const freeOnly = document.getElementById('free-only-filter').checked;
+
+            // Build query string
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (type) params.append('type', type);
+            if (difficulty) params.append('difficulty', difficulty);
+            if (freeOnly) params.append('free_only', 'true');
+
+            // Show loading indicator
+            document.getElementById('loading-indicator').classList.remove('d-none');
+            document.getElementById('games-container').style.opacity = '0.5';
+
+            // Fetch filtered games
+            fetch('{{ path('front_game_index') }}?' + params.toString(), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('games-container').innerHTML = html;
+                document.getElementById('loading-indicator').classList.add('d-none');
+                document.getElementById('games-container').style.opacity = '1';
+                
+                // Update URL without reload
+                const newUrl = '{{ path('front_game_index') }}?' + params.toString();
+                window.history.pushState({}, '', newUrl);
+            })
+            .catch(error => {
+                console.error('Error loading games:', error);
+                document.getElementById('loading-indicator').classList.add('d-none');
+                document.getElementById('games-container').style.opacity = '1';
+            });
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('type-filter').value = '';
+            document.getElementById('difficulty-filter').value = '';
+            document.getElementById('free-only-filter').checked = false;
+            loadGames();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search input with debounce
+            document.getElementById('search-input').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(loadGames, 500);
+            });
+
+            // Dropdown filters
+            document.getElementById('type-filter').addEventListener('change', loadGames);
+            document.getElementById('difficulty-filter').addEventListener('change', loadGames);
+            document.getElementById('free-only-filter').addEventListener('change', loadGames);
+
+            // Favorite button click handler (delegated event)
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.favorite-btn')) {
+                    e.preventDefault();
+                    const btn = e.target.closest('.favorite-btn');
+                    toggleFavorite(btn);
+                }
+            });
+        });
+
+        // Toggle favorite status
+        function toggleFavorite(button) {
+            const gameId = button.dataset.gameId;
+            const isFavorited = button.dataset.favorited === 'true';
+            const icon = button.querySelector('i');
+
+            // Disable button during request
+            button.disabled = true;
+
+            fetch(`/games/${gameId}/toggle-favorite`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                // Log response for debugging
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    // Update button state
+                    button.dataset.favorited = data.isFavorited ? 'true' : 'false';
+                    
+                    // Update icon
+                    if (data.isFavorited) {
+                        icon.classList.remove('bi-heart');
+                        icon.classList.add('bi-heart-fill');
+                        button.title = 'Remove from favorites';
+                    } else {
+                        icon.classList.remove('bi-heart-fill');
+                        icon.classList.add('bi-heart');
+                        button.title = 'Add to favorites';
+                    }
+
+                    // Show toast notification
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.message || 'Failed to update favorite', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error toggling favorite:', error);
+                showToast('Error: ' + error.message, 'error');
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+        }
+
+        // Simple toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                ${message}
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
 {% endblock %}

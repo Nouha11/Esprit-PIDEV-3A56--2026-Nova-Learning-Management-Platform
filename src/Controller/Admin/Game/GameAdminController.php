@@ -26,13 +26,48 @@ class GameAdminController extends AbstractController
     }
 
     /**
-    * List all games
+    * List all games with Ajax filters
     */
     #[Route('', name: 'admin_game_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $queryBuilder = $this->gameRepository->createQueryBuilder('g')
-            ->orderBy('g.createdAt', 'DESC');
+        $search = $request->query->get('search', '');
+        $type = $request->query->get('type', '');
+        $difficulty = $request->query->get('difficulty', '');
+        $status = $request->query->get('status', ''); // active/inactive
+        $isAjax = $request->isXmlHttpRequest();
+
+        $queryBuilder = $this->gameRepository->createQueryBuilder('g');
+
+        // Apply search filter
+        if (!empty($search)) {
+            $queryBuilder
+                ->where('g.name LIKE :search OR g.description LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        // Apply type filter
+        if (!empty($type)) {
+            $queryBuilder
+                ->andWhere('g.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        // Apply difficulty filter
+        if (!empty($difficulty)) {
+            $queryBuilder
+                ->andWhere('g.difficulty = :difficulty')
+                ->setParameter('difficulty', $difficulty);
+        }
+
+        // Apply status filter
+        if ($status === 'active') {
+            $queryBuilder->andWhere('g.isActive = true');
+        } elseif ($status === 'inactive') {
+            $queryBuilder->andWhere('g.isActive = false');
+        }
+
+        $queryBuilder->orderBy('g.createdAt', 'DESC');
 
         $pagination = $this->paginator->paginate(
             $queryBuilder,
@@ -40,8 +75,19 @@ class GameAdminController extends AbstractController
             10 // 10 games per page
         );
 
+        // If Ajax request, return only the table partial
+        if ($isAjax) {
+            return $this->render('admin/game/_games_table.html.twig', [
+                'games' => $pagination,
+            ]);
+        }
+
         return $this->render('admin/game/index.html.twig', [
             'games' => $pagination,
+            'search' => $search,
+            'type' => $type,
+            'difficulty' => $difficulty,
+            'status' => $status,
         ]);
     }
 
@@ -95,6 +141,45 @@ class GameAdminController extends AbstractController
         ]);
     }
     
+    /**
+     * Toggle game active status (Ajax)
+     */
+    #[Route('/{id}/toggle-active', name: 'admin_game_toggle_active', methods: ['POST'])]
+    public function toggleActive(Request $request, Game $game, EntityManagerInterface $entityManager): Response
+    {
+        // Verify CSRF token
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('toggle_active_' . $game->getId(), $token)) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Invalid security token.'
+            ], 400);
+        }
+
+        try {
+            // Toggle the active status
+            $newStatus = !$game->isActive();
+            $game->setIsActive($newStatus);
+            $entityManager->flush();
+
+            $statusText = $newStatus ? 'activated' : 'deactivated';
+            $message = sprintf('Game "%s" has been %s successfully!', $game->getName(), $statusText);
+
+            return $this->json([
+                'success' => true,
+                'message' => $message,
+                'isActive' => $newStatus,
+                'gameId' => $game->getId(),
+                'gameName' => $game->getName()
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error toggling game status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     /**
      * Delete game
      */

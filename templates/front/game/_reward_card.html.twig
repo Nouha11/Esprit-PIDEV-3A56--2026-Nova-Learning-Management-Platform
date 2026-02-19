@@ -1,8 +1,8 @@
-<div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+<div class="col-12 col-sm-6 col-lg-4 col-xl-3">
     <div class="card h-100 reward-card">
         <div class="card-header text-center py-4 reward-header">
             {% if reward.icon %}
-                <img src="{{ asset('images/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="reward-icon" style="width: 80px; height: 80px;">
+                <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="reward-icon" style="width: 80px; height: 80px; object-fit: contain;">
             {% else %}
                 {% if reward.type == 'BADGE' %}
                     <i class="bi bi-patch-check-fill display-3 text-primary"></i>

@@ -21,149 +21,79 @@
         </div>
     {% endfor %}
 
-    <div class="card">
+    <!-- Ajax Filters -->
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Icon</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Value</th>
-                            <th>Associated Games</th>
-                            <th>Requirement</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if rewards is empty %}
-                            <tr>
-                                <td colspan="9" class="text-center py-4">
-                                    <i class="bi bi-inbox fs-1 text-muted"></i>
-                                    <p class="text-muted mb-3 mt-2">No rewards created yet.</p>
-                                    <a href="{{ path('admin_reward_new') }}" class="btn btn-primary">
-                                        Create Your First Reward
-                                    </a>
-                                </td>
-                            </tr>
-                        {% else %}
-                            {% for reward in rewards %}
-                                <tr>
-                                    <td>{{ reward.id }}</td>
-                                    <td>
-                                        {% if reward.icon %}
-                                            <span style="font-size: 2rem;">{{ reward.icon }}</span>
-                                        {% else %}
-                                            <i class="bi bi-award text-muted" style="font-size: 2rem;"></i>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <strong>{{ reward.name }}</strong>
-                                        {% if reward.description %}
-                                            <br><small class="text-muted">{{ reward.description|slice(0, 50) }}{% if reward.description|length > 50 %}...{% endif %}</small>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if reward.type == 'BADGE' %}
-                                            <span class="badge bg-primary">Badge</span>
-                                        {% elseif reward.type == 'ACHIEVEMENT' %}
-                                            <span class="badge bg-warning text-dark">Achievement</span>
-                                        {% elseif reward.type == 'BONUS_XP' %}
-                                            <span class="badge bg-info">Bonus XP</span>
-                                        {% elseif reward.type == 'BONUS_TOKENS' %}
-                                            <span class="badge bg-success">Bonus Tokens</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if reward.type in ['BONUS_XP', 'BONUS_TOKENS'] %}
-                                            <strong>{{ reward.value }}</strong>
-                                        {% else %}
-                                            <span class="text-muted">—</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if reward.games|length > 0 %}
-                                            <span class="badge bg-success" title="{{ reward.games|length }} game(s) offer this reward">
-                                                <i class="bi bi-controller me-1"></i>{{ reward.games|length }}
-                                            </span>
-                                            <button class="btn btn-sm btn-outline-info" 
-                                                    type="button" 
-                                                    data-bs-toggle="collapse" 
-                                                    data-bs-target="#games-{{ reward.id }}" 
-                                                    aria-expanded="false">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
-                                        {% else %}
-                                            <span class="badge bg-secondary">None</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <small>{{ reward.requirement|slice(0, 40) }}{% if reward.requirement|length > 40 %}...{% endif %}</small>
-                                    </td>
-                                    <td>
-                                        {% if reward.isActive %}
-                                            <span class="badge bg-success">Active</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Inactive</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ path('admin_reward_show', {id: reward.id}) }}" 
-                                               class="btn btn-sm btn-outline-info" 
-                                               title="View">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <a href="{{ path('admin_reward_edit', {id: reward.id}) }}" 
-                                               class="btn btn-sm btn-outline-warning" 
-                                               title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <form method="post" 
-                                                  action="{{ path('admin_reward_delete', {id: reward.id}) }}" 
-                                                  style="display:inline;"
-                                                  onsubmit="return confirm('Are you sure you want to delete {{ reward.name|escape('js') }}? This will remove the reward from all associated games.');">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reward.id) }}">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% if reward.games|length > 0 %}
-                                <tr class="collapse" id="games-{{ reward.id }}">
-                                    <td colspan="9" class="bg-light">
-                                        <div class="p-3">
-                                            <h6 class="mb-2"><i class="bi bi-controller me-2"></i>Games offering this reward:</h6>
-                                            <div class="d-flex flex-wrap gap-2">
-                                                {% for game in reward.games %}
-                                                    <a href="{{ path('admin_game_show', {id: game.id}) }}" 
-                                                       class="btn btn-sm btn-outline-primary">
-                                                        {{ game.name }}
-                                                        <span class="badge bg-{{ game.difficulty == 'EASY' ? 'success' : (game.difficulty == 'MEDIUM' ? 'warning' : 'danger') }}">
-                                                            {{ game.difficulty }}
-                                                        </span>
-                                                    </a>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                    </tbody>
-                </table>
+            <div class="row g-3">
+                <!-- Search Input -->
+                <div class="col-md-4">
+                    <label for="search-input" class="form-label">
+                        <i class="bi bi-search"></i> Search Rewards
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="search-input" 
+                           placeholder="Search by name or description..."
+                           value="{{ search }}">
+                </div>
+
+                <!-- Type Filter -->
+                <div class="col-md-3">
+                    <label for="type-filter" class="form-label">
+                        <i class="bi bi-trophy"></i> Reward Type
+                    </label>
+                    <select class="form-select" id="type-filter">
+                        <option value="">All Types</option>
+                        <option value="BADGE" {{ type == 'BADGE' ? 'selected' : '' }}>Badge</option>
+                        <option value="ACHIEVEMENT" {{ type == 'ACHIEVEMENT' ? 'selected' : '' }}>Achievement</option>
+                        <option value="BONUS_XP" {{ type == 'BONUS_XP' ? 'selected' : '' }}>Bonus XP</option>
+                        <option value="BONUS_TOKENS" {{ type == 'BONUS_TOKENS' ? 'selected' : '' }}>Bonus Tokens</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="col-md-3">
+                    <label for="status-filter" class="form-label">
+                        <i class="bi bi-toggle-on"></i> Status
+                    </label>
+                    <select class="form-select" id="status-filter">
+                        <option value="">All Status</option>
+                        <option value="active" {{ status == 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                </div>
+
+                <!-- Clear Button -->
+                <div class="col-md-2">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </button>
+                </div>
             </div>
-            
-            <!-- Pagination -->
-            <div class="mt-3">
-                {{ knp_pagination_render(rewards, 'pagination/custom_pagination.html.twig') }}
+
+            <!-- Filter Status -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <span class="text-muted">
+                        <i class="bi bi-funnel"></i> <span id="results-count">{{ rewards.getTotalItemCount }}</span> reward(s) found
+                    </span>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="text-center py-4 d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading rewards...</p>
+    </div>
+
+    <div class="card">
+        <div class="card-body" id="rewards-table-container">
+            {% include 'admin/reward/_rewards_table.html.twig' %}
         </div>
     </div>
 
@@ -204,4 +134,68 @@
         </div>
     </div>
 </div>
+
+<script>
+    let searchTimeout = null;
+
+    // Load rewards with filters
+    function loadRewards() {
+        const search = document.getElementById('search-input').value;
+        const type = document.getElementById('type-filter').value;
+        const status = document.getElementById('status-filter').value;
+
+        // Build query string
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (type) params.append('type', type);
+        if (status) params.append('status', status);
+
+        // Show loading indicator
+        document.getElementById('loading-indicator').classList.remove('d-none');
+        document.getElementById('rewards-table-container').style.opacity = '0.5';
+
+        // Fetch filtered rewards
+        fetch('{{ path('admin_reward_index') }}?' + params.toString(), {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('rewards-table-container').innerHTML = html;
+            document.getElementById('loading-indicator').classList.add('d-none');
+            document.getElementById('rewards-table-container').style.opacity = '1';
+            
+            // Update URL without reload
+            const newUrl = '{{ path('admin_reward_index') }}?' + params.toString();
+            window.history.pushState({}, '', newUrl);
+        })
+        .catch(error => {
+            console.error('Error loading rewards:', error);
+            document.getElementById('loading-indicator').classList.add('d-none');
+            document.getElementById('rewards-table-container').style.opacity = '1';
+        });
+    }
+
+    // Clear all filters
+    function clearFilters() {
+        document.getElementById('search-input').value = '';
+        document.getElementById('type-filter').value = '';
+        document.getElementById('status-filter').value = '';
+        loadRewards();
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search input with debounce
+        document.getElementById('search-input').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(loadRewards, 500);
+        });
+
+        // Dropdown filters
+        document.getElementById('type-filter').addEventListener('change', loadRewards);
+        document.getElementById('status-filter').addEventListener('change', loadRewards);
+    });
+</script>
 {% endblock %}

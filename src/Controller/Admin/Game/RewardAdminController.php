@@ -25,13 +25,39 @@ class RewardAdminController extends AbstractController
     }
 
     /**
-    * List all rewards
+    * List all rewards with Ajax filters
     */
     #[Route('', name: 'admin_reward_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $queryBuilder = $this->rewardRepository->createQueryBuilder('r')
-            ->orderBy('r.id', 'DESC');
+        // Get filter parameters
+        $search = $request->query->get('search', '');
+        $type = $request->query->get('type', '');
+        $status = $request->query->get('status', '');
+
+        // Build query with filters
+        $queryBuilder = $this->rewardRepository->createQueryBuilder('r');
+
+        // Search filter
+        if ($search) {
+            $queryBuilder->andWhere('r.name LIKE :search OR r.description LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        // Type filter
+        if ($type) {
+            $queryBuilder->andWhere('r.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        // Status filter
+        if ($status === 'active') {
+            $queryBuilder->andWhere('r.isActive = true');
+        } elseif ($status === 'inactive') {
+            $queryBuilder->andWhere('r.isActive = false');
+        }
+
+        $queryBuilder->orderBy('r.id', 'DESC');
 
         $pagination = $this->paginator->paginate(
             $queryBuilder,
@@ -39,8 +65,19 @@ class RewardAdminController extends AbstractController
             10 // 10 rewards per page
         );
 
+        // Ajax request - return partial
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('admin/reward/_rewards_table.html.twig', [
+                'rewards' => $pagination,
+            ]);
+        }
+
+        // Full page render
         return $this->render('admin/reward/index.html.twig', [
             'rewards' => $pagination,
+            'search' => $search,
+            'type' => $type,
+            'status' => $status,
         ]);
     }
 
@@ -55,6 +92,13 @@ class RewardAdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handle file upload
+            $iconFile = $form->get('iconFile')->getData();
+            if ($iconFile) {
+                $newFilename = $this->handleFileUpload($iconFile);
+                $reward->setIcon($newFilename);
+            }
+
             $this->rewardService->createReward($reward);
             $this->addFlash('success', 'Reward created successfully!');
             return $this->redirectToRoute('admin_reward_index');
@@ -68,13 +112,29 @@ class RewardAdminController extends AbstractController
     * Edit reward
     */
     #[Route('/{id}/edit', name: 'admin_reward_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Reward $reward): Response
+    public function edit(Request $request, Reward $reward, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(RewardFormType::class, $reward);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->rewardService->updateReward($reward);
+            // Handle file upload
+            $iconFile = $form->get('iconFile')->getData();
+            if ($iconFile) {
+                // Delete old icon if exists
+                if ($reward->getIcon()) {
+                    $oldIconPath = $this->getParameter('kernel.project_dir') . '/public/uploads/rewards/' . $reward->getIcon();
+                    if (file_exists($oldIconPath)) {
+                        unlink($oldIconPath);
+                    }
+                }
+                
+                $newFilename = $this->handleFileUpload($iconFile);
+                $reward->setIcon($newFilename);
+            }
+
+            $entityManager->flush();
+            
             $this->addFlash('success', 'Reward updated successfully!');
             return $this->redirectToRoute('admin_reward_index');
         }
@@ -114,6 +174,27 @@ class RewardAdminController extends AbstractController
             'reward' => $reward,
             'games' => $reward->getGames(), // Games offering this reward
         ]);
+    }
+
+    /**
+     * Handle file upload for reward icons
+     */
+    private function handleFileUpload($file): string
+    {
+        $uploadsDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/rewards';
+        
+        // Create directory if it doesn't exist
+        if (!file_exists($uploadsDirectory)) {
+            mkdir($uploadsDirectory, 0777, true);
+        }
+
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+        $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+        $file->move($uploadsDirectory, $newFilename);
+
+        return $newFilename;
     }
     
 }
