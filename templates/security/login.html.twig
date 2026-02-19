@@ -1,11 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_locale() }}">
 <head>
-<<<<<<< Updated upstream
 	<title>Login - NOVA LMS</title>
-=======
-	<title>Login- NOVA LMS</title>
->>>>>>> Stashed changes
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
@@ -88,6 +84,8 @@
 	<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
 
 </head>
+
+{% import 'macros/translation.html.twig' as t %}
 
 <body>
 
