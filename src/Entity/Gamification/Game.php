@@ -45,10 +45,21 @@ class Game
     )]
     private ?string $difficulty = null;
 
+    #[ORM\Column(length: 50)]
+    #[Assert\Choice(
+        choices: ['FULL_GAME', 'MINI_GAME'],
+        message: 'Choose a valid game category'
+    )]
+    private ?string $category = 'FULL_GAME';
+
     #[ORM\Column]
     #[Assert\NotNull(message: "Token cost is required")]
     #[Assert\PositiveOrZero(message: "Token cost must be positive")]
     private ?int $tokenCost ;
+
+    #[ORM\Column(nullable: true)]
+    #[Assert\PositiveOrZero(message: "Energy points must be positive")]
+    private ?int $energyPoints = null;
 
     #[ORM\Column]
     #[Assert\NotNull(message: "Reward tokens is required")]
@@ -136,6 +147,27 @@ class Game
         return $this;
     }
 
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(string $category): static
+    {
+        $this->category = $category;
+        return $this;
+    }
+
+    public function isMiniGame(): bool
+    {
+        return $this->category === 'MINI_GAME';
+    }
+
+    public function isFullGame(): bool
+    {
+        return $this->category === 'FULL_GAME';
+    }
+
     public function getTokenCost(): ?int
     {
         return $this->tokenCost;
@@ -144,6 +176,17 @@ class Game
     public function setTokenCost(int $tokenCost): static
     {
         $this->tokenCost = $tokenCost;
+        return $this;
+    }
+
+    public function getEnergyPoints(): ?int
+    {
+        return $this->energyPoints;
+    }
+
+    public function setEnergyPoints(?int $energyPoints): static
+    {
+        $this->energyPoints = $energyPoints;
         return $this;
     }
 

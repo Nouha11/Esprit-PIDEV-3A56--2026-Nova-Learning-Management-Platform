@@ -16,7 +16,7 @@
 
     <!-- Summary Cards -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card text-center summary-card">
                 <div class="card-body">
                     <i class="bi bi-people-fill text-primary" style="font-size: 2rem;"></i>
@@ -25,7 +25,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card text-center summary-card">
                 <div class="card-body">
                     <i class="bi bi-controller text-success" style="font-size: 2rem;"></i>
@@ -34,7 +34,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card text-center summary-card">
                 <div class="card-body">
                     <i class="bi bi-trophy-fill text-warning" style="font-size: 2rem;"></i>
@@ -43,12 +43,30 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card text-center summary-card">
                 <div class="card-body">
                     <i class="bi bi-star-fill text-info" style="font-size: 2rem;"></i>
                     <h3 class="mt-2 mb-0" id="totalXP">-</h3>
                     <p class="text-muted mb-0">Total XP Earned</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center summary-card">
+                <div class="card-body">
+                    <i class="bi bi-star-half text-warning" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0" id="totalRatings">-</h3>
+                    <p class="text-muted mb-0">Total Ratings</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center summary-card">
+                <div class="card-body">
+                    <i class="bi bi-star-fill text-warning" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0" id="avgRating">-</h3>
+                    <p class="text-muted mb-0">Avg Rating</p>
                 </div>
             </div>
         </div>
@@ -110,7 +128,35 @@
         </div>
     </div>
 
-    <!-- Charts Row 3 -->
+    <!-- Charts Row 3 - Game Ratings -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-star-fill text-warning me-2"></i>Top Rated Games
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="topRatedChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart-fill text-info me-2"></i>Rating Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="ratingDistributionChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 4 -->
     <div class="row mb-4">
         <div class="col-lg-12">
             <div class="card">
@@ -155,7 +201,7 @@
     google.charts.load('current', {'packages':['corechart', 'bar']});
     google.charts.setOnLoadCallback(initCharts);
 
-    let topUsersChart, gameTypesChart, rewardsChart, favoritesChart;
+    let topUsersChart, gameTypesChart, rewardsChart, favoritesChart, topRatedChart, ratingDistributionChart;
 
     // Detect current theme
     function isDarkMode() {
@@ -181,6 +227,8 @@
         loadGameTypesChart();
         loadRewardsChart();
         loadFavoritesChart();
+        loadTopRatedChart();
+        loadRatingDistributionChart();
 
         // Listen for theme changes
         const observer = new MutationObserver(function(mutations) {
@@ -191,6 +239,8 @@
                     loadGameTypesChart();
                     loadRewardsChart();
                     loadFavoritesChart();
+                    loadTopRatedChart();
+                    loadRatingDistributionChart();
                 }
             });
         });
@@ -210,6 +260,8 @@
                 document.getElementById('totalRewards').textContent = data.totalRewards.toLocaleString();
                 document.getElementById('totalXP').textContent = data.totalXP.toLocaleString();
                 document.getElementById('totalTokens').textContent = data.totalTokens.toLocaleString();
+                document.getElementById('totalRatings').textContent = data.totalRatings.toLocaleString();
+                document.getElementById('avgRating').textContent = data.avgRating.toFixed(1);
                 
                 const avgXP = data.totalStudents > 0 ? Math.round(data.totalXP / data.totalStudents) : 0;
                 document.getElementById('avgXP').textContent = avgXP.toLocaleString();
@@ -368,6 +420,87 @@
             });
     }
 
+    function loadTopRatedChart() {
+        fetch('{{ path('admin_statistics_top_rated_games') }}')
+            .then(response => response.json())
+            .then(data => {
+                const chartData = google.visualization.arrayToDataTable(data);
+                const colors = getChartColors();
+
+                const options = {
+                    title: 'Top 10 Highest Rated Games',
+                    colors: ['#ffc107'], // Gold color for ratings
+                    legend: { position: 'none' },
+                    backgroundColor: colors.backgroundColor,
+                    chartArea: {width: '80%', height: '70%'},
+                    vAxis: {
+                        title: 'Average Rating',
+                        minValue: 0,
+                        maxValue: 5,
+                        format: '0.0',
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor },
+                        gridlines: { color: colors.gridColor }
+                    },
+                    hAxis: {
+                        title: 'Game Name',
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor },
+                        slantedText: true,
+                        slantedTextAngle: 45
+                    },
+                    titleTextStyle: { color: colors.textColor }
+                };
+
+                topRatedChart = new google.visualization.ColumnChart(document.getElementById('topRatedChart'));
+                topRatedChart.draw(chartData, options);
+            })
+            .catch(error => {
+                console.error('Error loading top rated chart:', error);
+                document.getElementById('topRatedChart').innerHTML = 
+                    '<div class="alert alert-warning">Error loading chart data</div>';
+            });
+    }
+
+    function loadRatingDistributionChart() {
+        fetch('{{ path('admin_statistics_rating_distribution') }}')
+            .then(response => response.json())
+            .then(data => {
+                const chartData = google.visualization.arrayToDataTable(data);
+                const colors = getChartColors();
+
+                const options = {
+                    title: 'Rating Distribution (1-5 Stars)',
+                    colors: ['#17a2b8'], // Info color
+                    legend: { position: 'none' },
+                    backgroundColor: colors.backgroundColor,
+                    chartArea: {width: '80%', height: '70%'},
+                    vAxis: {
+                        title: 'Number of Ratings',
+                        minValue: 0,
+                        format: '0',
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor },
+                        gridlines: { color: colors.gridColor }
+                    },
+                    hAxis: {
+                        title: 'Star Rating',
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor }
+                    },
+                    titleTextStyle: { color: colors.textColor }
+                };
+
+                ratingDistributionChart = new google.visualization.ColumnChart(document.getElementById('ratingDistributionChart'));
+                ratingDistributionChart.draw(chartData, options);
+            })
+            .catch(error => {
+                console.error('Error loading rating distribution chart:', error);
+                document.getElementById('ratingDistributionChart').innerHTML = 
+                    '<div class="alert alert-warning">Error loading chart data</div>';
+            });
+    }
+
     function refreshAllCharts() {
         const btn = event.target.closest('button');
         const icon = btn.querySelector('i');
@@ -382,6 +515,8 @@
         loadGameTypesChart();
         loadRewardsChart();
         loadFavoritesChart();
+        loadTopRatedChart();
+        loadRatingDistributionChart();
 
         // Remove animation after 1 second
         setTimeout(() => {
@@ -396,6 +531,8 @@
         if (gameTypesChart) loadGameTypesChart();
         if (rewardsChart) loadRewardsChart();
         if (favoritesChart) loadFavoritesChart();
+        if (topRatedChart) loadTopRatedChart();
+        if (ratingDistributionChart) loadRatingDistributionChart();
     });
 </script>
 

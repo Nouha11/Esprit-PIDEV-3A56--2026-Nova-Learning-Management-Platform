@@ -1,0 +1,48 @@
+{# Star Rating Display Component #}
+{# Parameters: 
+   - rating: average rating (float)
+   - count: total number of ratings
+   - size: 'sm', 'md', 'lg' (optional, default 'md')
+   - showCount: boolean (optional, default true)
+#}
+
+{% set size = size|default('md') %}
+{% set showCount = showCount|default(true) %}
+{% set rating = rating|default(0) %}
+{% set count = count|default(0) %}
+
+{% set sizeClass = size == 'sm' ? 'fs-6' : (size == 'lg' ? 'fs-3' : 'fs-5') %}
+
+<div class="star-rating-display d-inline-flex align-items-center">
+    <div class="stars {{ sizeClass }}">
+        {% for i in 1..5 %}
+            {% if rating >= i %}
+                <i class="bi bi-star-fill text-warning"></i>
+            {% elseif rating >= (i - 0.5) %}
+                <i class="bi bi-star-half text-warning"></i>
+            {% else %}
+                <i class="bi bi-star text-muted"></i>
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+    {% if showCount %}
+        <span class="ms-2 text-muted small">
+            {% if rating > 0 %}
+                {{ rating }} ({{ count }} {{ count == 1 ? 'rating' : 'ratings' }})
+            {% else %}
+                No ratings yet
+            {% endif %}
+        </span>
+    {% endif %}
+</div>
+
+<style>
+    .star-rating-display .stars i {
+        margin-right: 2px;
+    }
+    
+    [data-bs-theme="dark"] .star-rating-display .bi-star {
+        color: rgba(255, 255, 255, 0.3) !important;
+    }
+</style>

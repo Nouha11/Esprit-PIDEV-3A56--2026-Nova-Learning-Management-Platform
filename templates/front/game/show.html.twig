@@ -47,6 +47,35 @@
                     </div>
                 </div>
 
+                {# Rating Section #}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-star-fill text-warning me-2"></i>
+                            Game Rating
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if is_granted('ROLE_STUDENT') or is_granted('ROLE_TUTOR') or is_granted('ROLE_ADMIN') %}
+                            {% include 'front/game/_star_rating_input.html.twig' with {
+                                'gameId': game.id,
+                                'userRating': userRating|default(0),
+                                'averageRating': averageRating|default(0),
+                                'totalRatings': totalRatings|default(0)
+                            } %}
+                        {% else %}
+                            {% include 'front/game/_star_rating.html.twig' with {
+                                'rating': averageRating|default(0),
+                                'count': totalRatings|default(0),
+                                'size': 'lg'
+                            } %}
+                            <p class="text-muted mt-2">
+                                <a href="{{ path('app_login') }}">Login</a> to rate this game
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
                 {# Special Rewards Section #}
                 {% if game.rewards is not empty %}
                 <div class="card mb-4">

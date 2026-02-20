@@ -1,0 +1,151 @@
+{# Interactive Star Rating Input Component #}
+{# Parameters: 
+   - gameId: ID of the game
+   - userRating: current user's rating (optional)
+   - averageRating: average rating (optional)
+   - totalRatings: total count (optional)
+#}
+
+{% set userRating = userRating|default(0) %}
+{% set averageRating = averageRating|default(0) %}
+{% set totalRatings = totalRatings|default(0) %}
+
+<div class="star-rating-input" data-game-id="{{ gameId }}">
+    <div class="mb-3">
+        <h6 class="mb-2">Rate this game:</h6>
+        <div class="rating-stars" data-current-rating="{{ userRating }}">
+            {% for i in 1..5 %}
+                <i class="bi bi-star{{ userRating >= i ? '-fill' : '' }} star-icon" 
+                   data-rating="{{ i }}" 
+                   style="cursor: pointer; font-size: 2rem; color: {{ userRating >= i ? '#ffc107' : 'var(--bs-secondary)' }};">
+                </i>
+            {% endfor %}
+        </div>
+        <small class="text-muted d-block mt-2" id="rating-message-{{ gameId }}">
+            {% if userRating > 0 %}
+                You rated this game {{ userRating }} star{{ userRating > 1 ? 's' : '' }}
+            {% else %}
+                Click on a star to rate
+            {% endif %}
+        </small>
+    </div>
+    
+    <div class="current-rating">
+        <strong>Average Rating:</strong>
+        <span id="avg-rating-{{ gameId }}">{{ averageRating }}</span>
+        <i class="bi bi-star-fill text-warning ms-1"></i>
+        <span class="text-muted">
+            (<span id="total-ratings-{{ gameId }}">{{ totalRatings }}</span> rating{{ totalRatings != 1 ? 's' : '' }})
+        </span>
+    </div>
+</div>
+
+<style>
+    .star-rating-input .star-icon {
+        transition: all 0.2s ease;
+        margin-right: 5px;
+    }
+    
+    .star-rating-input .star-icon:hover {
+        transform: scale(1.2);
+    }
+    
+    [data-bs-theme="dark"] .star-rating-input .star-icon {
+        color: var(--bs-secondary);
+    }
+    
+    [data-bs-theme="dark"] .star-rating-input .star-icon.bi-star-fill {
+        color: #ffc107 !important;
+    }
+</style>
+
+<script>
+(function() {
+    const gameId = {{ gameId }};
+    const ratingStars = document.querySelector('[data-game-id="{{ gameId }}"] .rating-stars');
+    const stars = ratingStars.querySelectorAll('.star-icon');
+    let currentRating = parseInt(ratingStars.dataset.currentRating) || 0;
+
+    // Hover effect
+    stars.forEach((star, index) => {
+        star.addEventListener('mouseenter', function() {
+            highlightStars(index + 1);
+        });
+    });
+
+    ratingStars.addEventListener('mouseleave', function() {
+        highlightStars(currentRating);
+    });
+
+    // Click to rate
+    stars.forEach((star, index) => {
+        star.addEventListener('click', function() {
+            const rating = index + 1;
+            submitRating(rating);
+        });
+    });
+
+    function highlightStars(count) {
+        stars.forEach((star, index) => {
+            if (index < count) {
+                star.classList.remove('bi-star');
+                star.classList.add('bi-star-fill');
+                star.style.color = '#ffc107';
+            } else {
+                star.classList.remove('bi-star-fill');
+                star.classList.add('bi-star');
+                star.style.color = 'var(--bs-secondary)';
+            }
+        });
+    }
+
+    function submitRating(rating) {
+        fetch(`/games/${gameId}/rate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ rating: rating })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentRating = rating;
+                ratingStars.dataset.currentRating = rating;
+                highlightStars(rating);
+                
+                // Update display
+                document.getElementById('rating-message-{{ gameId }}').textContent = 
+                    `You rated this game ${rating} star${rating > 1 ? 's' : ''}`;
+                document.getElementById('avg-rating-{{ gameId }}').textContent = data.averageRating;
+                document.getElementById('total-ratings-{{ gameId }}').textContent = data.totalRatings;
+                
+                // Show success toast
+                showToast(data.message, 'success');
+            } else {
+                showToast(data.message || 'Failed to submit rating', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error submitting rating:', error);
+            showToast('An error occurred. Please try again.', 'error');
+        });
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed top-0 end-0 m-3`;
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            ${message}
+        `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+})();
+</script>
