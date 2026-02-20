@@ -84,12 +84,18 @@ class ForumController extends AbstractController
 
     #[Route('/forum/{id}', name: 'app_forum_show')]
     public function show(
-        Post $post, 
+        ?Post $post, // <-- Notice the '?' makes this nullable!
         Request $request, 
         EntityManagerInterface $entityManager,
         CensorshipService $censorship
     ): Response
     {
+        // 1. Check if the post was deleted (or never existed)
+        if (!$post) {
+            // Render our brand new "Deleted" page!
+            return $this->render('front/forum/deleted.html.twig');
+        }
+
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
@@ -306,5 +312,40 @@ class ForumController extends AbstractController
             'upvoted' => $comment->isUpvotedBy($user),
             'downvoted' => $comment->isDownvotedBy($user)
         ]);
+    }
+
+
+    #[Route('/post/{id}/report', name: 'app_forum_report', methods: ['POST'])]
+    public function report(\App\Entity\Forum\Post $post, \Symfony\Component\HttpFoundation\Request $request, \Doctrine\ORM\EntityManagerInterface $entityManager): \Symfony\Component\HttpFoundation\Response
+    {
+        $user = $this->getUser();
+        
+        // 1. Security Check
+        if (!$user) {
+            $this->addFlash('error', 'You must be logged in to report a post.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        // 2. Prevent the author from reporting their own post
+        if ($user === $post->getAuthor()) {
+            $this->addFlash('warning', 'You cannot report your own post.');
+            return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+        }
+
+        // 3. Create the Report
+        $reason = $request->request->get('reason', 'Inappropriate content');
+        
+        $report = new \App\Entity\Forum\Report();
+        $report->setPost($post);
+        $report->setReporter($user); // The person clicking the button
+        $report->setReason($reason);
+        $report->setCreatedAt(new \DateTimeImmutable());
+
+        // 4. Save to Database
+        $entityManager->persist($report);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Thank you. The post has been reported to moderators.');
+        return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
     }
 }

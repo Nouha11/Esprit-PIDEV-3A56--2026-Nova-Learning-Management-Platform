@@ -86,9 +86,16 @@
                                     <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
                                 {% endif %}
                                 
-                                {# ADMIN/AUTHOR ACTIONS #}
-                                {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
-                                    <div class="ms-auto d-flex gap-2">
+                                <div class="ms-auto d-flex gap-2">
+                                    {# --- MODAL TRIGGER: REPORT BUTTON --- #}
+                                    {% if app.user and app.user != post.author %}
+                                        <button type="button" class="btn btn-sm btn-outline-danger mb-0" data-bs-toggle="modal" data-bs-target="#reportModal-{{ post.id }}">
+                                            <i class="bi bi-flag-fill me-1"></i> Report
+                                        </button>
+                                    {% endif %}
+
+                                    {# ADMIN/AUTHOR ACTIONS #}
+                                    {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
                                         <a href="{{ path('app_forum_toggle_lock', {'id': post.id}) }}" 
                                            class="btn btn-sm {{ post.isLocked ? 'btn-success-soft' : 'btn-secondary-soft' }} mb-0"
                                            title="{{ post.isLocked ? 'Unlock Discussion' : 'Lock Discussion' }}">
@@ -108,8 +115,8 @@
                                                 <i class="bi bi-trash"></i> Delete
                                             </button>
                                         </form>
-                                    </div>
-                                {% endif %}
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -206,7 +213,6 @@
                                         {# The Theme handles the 'is-invalid' class automatically now #}
                                         {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '4', 'placeholder': 'Type your answer here...'}}) }}
                                         
-                                        {# We can keep this just in case, or let the theme handle it #}
                                         <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
                                     </div>
                                     <div class="text-end">
@@ -267,6 +273,46 @@
         </div>
     </section>
 </main>
+
+{# --- REPORT MODAL --- #}
+{% if app.user and app.user != post.author %}
+<div class="modal fade" id="reportModal-{{ post.id }}" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="reportModalLabel"><i class="bi bi-flag-fill text-danger me-2"></i>Report Discussion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ path('app_forum_report', {id: post.id}) }}" method="POST">
+                <div class="modal-body">
+                    <p class="mb-3 text-secondary">Please tell us why you are reporting <strong>"{{ post.title|slice(0, 30) }}..."</strong>. Your report will be sent to the moderators.</p>
+                    
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="reason" id="reasonSpam" value="Spam or Advertising" required>
+                        <label class="form-check-label" for="reasonSpam">Spam or Advertising</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="reason" id="reasonHarassment" value="Harassment or Hate Speech">
+                        <label class="form-check-label" for="reasonHarassment">Harassment or Hate Speech</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="reason" id="reasonOffTopic" value="Off-Topic or Inappropriate">
+                        <label class="form-check-label" for="reasonOffTopic">Off-Topic or Inappropriate</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="reason" id="reasonOther" value="Other Rule Violation">
+                        <label class="form-check-label" for="reasonOther">Other Rule Violation</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 {# --- JAVASCRIPT --- #}
 <script>
