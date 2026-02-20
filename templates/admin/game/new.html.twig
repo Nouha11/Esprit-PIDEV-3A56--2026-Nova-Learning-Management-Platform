@@ -40,7 +40,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            {{ form_row(form.tokenCost) }}
+                            {{ form_row(form.category) }}
                         </div>
 
                         <div class="col-md-4">
@@ -50,33 +50,44 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            {{ form_row(form.rewardTokens) }}
+                            {{ form_row(form.tokenCost) }}
                         </div>
-                        <div class="col-md-6">
-                            {{ form_row(form.rewardXP) }}
+                        <div class="col-md-6" id="energy-points-field">
+                            {{ form_row(form.energyPoints) }}
                         </div>
                     </div>
 
-                    {# Rewards association field if it exists in the form #}
-                    {% if form.rewards is defined %}
+                    <div id="full-game-rewards">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="card bg-light">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">
-                                            <i class="bi bi-trophy me-1"></i>Special Rewards (Optional)
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        {{ form_row(form.rewards) }}
-                                        <small class="text-muted">
-                                            Select special rewards that players can earn by completing this game.
-                                        </small>
+                            <div class="col-md-6">
+                                {{ form_row(form.rewardTokens) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(form.rewardXP) }}
+                            </div>
+                        </div>
+
+                        {# Rewards association field if it exists in the form #}
+                        {% if form.rewards is defined %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card bg-light">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">
+                                                <i class="bi bi-trophy me-1"></i>Special Rewards (Optional)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            {{ form_row(form.rewards) }}
+                                            <small class="text-muted">
+                                                Select special rewards that players can earn by completing this game.
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
 
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">
@@ -105,6 +116,12 @@
                     <li><strong>ARCADE:</strong> Action and reflex games</li>
                 </ul>
 
+                <h6 class="mt-3">Game Categories:</h6>
+                <ul class="small">
+                    <li><strong>Full Game:</strong> Offers rewards, XP, and tokens</li>
+                    <li><strong>Mini Game:</strong> Only regenerates energy points (for future energy system)</li>
+                </ul>
+
                 <h6 class="mt-3">Difficulty Levels:</h6>
                 <ul class="small">
                     <li><strong>EASY:</strong> Beginner-friendly</li>
@@ -114,10 +131,42 @@
 
                 <h6 class="mt-3">Rewards:</h6>
                 <p class="small mb-0">
-                    Set base token and XP rewards. You can also associate special rewards after creating the game.
+                    <strong>Full Games:</strong> Set base token and XP rewards, plus optional special rewards.<br>
+                    <strong>Mini Games:</strong> Set energy points to regenerate (no other rewards).
                 </p>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.querySelector('[data-game-category="true"]');
+            const energyField = document.getElementById('energy-points-field');
+            const fullGameRewards = document.getElementById('full-game-rewards');
+
+            function toggleFields() {
+                const category = categorySelect.value;
+                
+                if (category === 'MINI_GAME') {
+                    // Show energy points, hide rewards
+                    energyField.style.display = 'block';
+                    fullGameRewards.style.display = 'none';
+                } else {
+                    // Hide energy points, show rewards
+                    energyField.style.display = 'none';
+                    fullGameRewards.style.display = 'block';
+                }
+            }
+
+            // Initial state
+            toggleFields();
+
+            // Listen for changes
+            categorySelect.addEventListener('change', toggleFields);
+        });
+    </script>
 {% endblock %}

@@ -44,7 +44,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            {{ form_row(form.tokenCost) }}
+                            {{ form_row(form.category) }}
                         </div>
 
                         <div class="col-md-4">
@@ -54,34 +54,45 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            {{ form_row(form.rewardTokens) }}
+                            {{ form_row(form.tokenCost) }}
                         </div>
-                        <div class="col-md-6">
-                            {{ form_row(form.rewardXP) }}
+                        <div class="col-md-6" id="energy-points-field">
+                            {{ form_row(form.energyPoints) }}
                         </div>
                     </div>
 
-                    {# Rewards association field if it exists in the form #}
-                    {% if form.rewards is defined %}
+                    <div id="full-game-rewards">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="card bg-light">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">
-                                            <i class="bi bi-trophy me-1"></i>Special Rewards
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        {{ form_row(form.rewards) }}
-                                        <small class="text-muted">
-                                            Select special rewards that players can earn by completing this game.
-                                            Currently: {{ game.rewards|length }} reward(s) selected.
-                                        </small>
+                            <div class="col-md-6">
+                                {{ form_row(form.rewardTokens) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(form.rewardXP) }}
+                            </div>
+                        </div>
+
+                        {# Rewards association field if it exists in the form #}
+                        {% if form.rewards is defined %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card bg-light">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">
+                                                <i class="bi bi-trophy me-1"></i>Special Rewards
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            {{ form_row(form.rewards) }}
+                                            <small class="text-muted">
+                                                Select special rewards that players can earn by completing this game.
+                                                Currently: {{ game.rewards|length }} reward(s) selected.
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
 
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">
@@ -99,30 +110,76 @@
     <div class="col-md-4">
         <div class="card sticky-top" style="top: 20px;">
             <div class="card-header bg-info text-white">
-                <h6 class="mb-0">Current Rewards</h6>
+                <h6 class="mb-0">
+                    {% if game.isMiniGame() %}
+                        <i class="bi bi-lightning-charge me-1"></i>Mini Game Info
+                    {% else %}
+                        <i class="bi bi-trophy me-1"></i>Current Rewards
+                    {% endif %}
+                </h6>
             </div>
             <div class="card-body">
-                {% if game.rewards is not empty %}
-                    <ul class="list-unstyled mb-0">
-                        {% for reward in game.rewards %}
-                            <li class="mb-2">
-                                <span class="badge 
-                                    {% if reward.type == 'BADGE' %}bg-primary
-                                    {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning
-                                    {% elseif reward.type == 'BONUS_XP' %}bg-info
-                                    {% elseif reward.type == 'BONUS_TOKENS' %}bg-success
-                                    {% endif %}">
-                                    {{ reward.type }}
-                                </span>
-                                {{ reward.name }}
-                            </li>
-                        {% endfor %}
-                    </ul>
+                {% if game.isMiniGame() %}
+                    <p class="mb-2"><strong>Category:</strong> Mini Game</p>
+                    <p class="mb-2"><strong>Energy Points:</strong> {{ game.energyPoints ?? 'Not set' }}</p>
+                    <div class="alert alert-info small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Mini games regenerate energy and don't offer traditional rewards.
+                    </div>
                 {% else %}
-                    <p class="text-muted mb-0">No special rewards configured</p>
+                    {% if game.rewards is not empty %}
+                        <ul class="list-unstyled mb-0">
+                            {% for reward in game.rewards %}
+                                <li class="mb-2">
+                                    <span class="badge 
+                                        {% if reward.type == 'BADGE' %}bg-primary
+                                        {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning
+                                        {% elseif reward.type == 'BONUS_XP' %}bg-info
+                                        {% elseif reward.type == 'BONUS_TOKENS' %}bg-success
+                                        {% endif %}">
+                                        {{ reward.type }}
+                                    </span>
+                                    {{ reward.name }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">No special rewards configured</p>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.querySelector('[data-game-category="true"]');
+            const energyField = document.getElementById('energy-points-field');
+            const fullGameRewards = document.getElementById('full-game-rewards');
+
+            function toggleFields() {
+                const category = categorySelect.value;
+                
+                if (category === 'MINI_GAME') {
+                    // Show energy points, hide rewards
+                    energyField.style.display = 'block';
+                    fullGameRewards.style.display = 'none';
+                } else {
+                    // Hide energy points, show rewards
+                    energyField.style.display = 'none';
+                    fullGameRewards.style.display = 'block';
+                }
+            }
+
+            // Initial state
+            toggleFields();
+
+            // Listen for changes
+            categorySelect.addEventListener('change', toggleFields);
+        });
+    </script>
 {% endblock %}
