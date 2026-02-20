@@ -17,6 +17,11 @@
             <div class="mb-3">
                 <span class="badge bg-info">{{ game.type }}</span>
                 <span class="badge bg-warning">{{ game.difficulty }}</span>
+                {% if game.isMiniGame() %}
+                    <span class="badge bg-purple"><i class="bi bi-lightning-charge me-1"></i>Mini Game</span>
+                {% else %}
+                    <span class="badge bg-primary"><i class="bi bi-trophy me-1"></i>Full Game</span>
+                {% endif %}
                 {% if game.isActive %}
                     <span class="badge bg-success">Active</span>
                 {% else %}
@@ -34,9 +39,22 @@
                     <div class="row">
                         <div class="col-md-6">
                             <ul class="list-unstyled">
+                                <li class="mb-2"><strong>Category:</strong> 
+                                    {% if game.isMiniGame() %}
+                                        <span class="badge bg-purple">Mini Game</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">Full Game</span>
+                                    {% endif %}
+                                </li>
                                 <li class="mb-2"><strong>Cost to Play:</strong> {{ game.tokenCost }} tokens</li>
-                                <li class="mb-2"><strong>Reward Tokens:</strong> {{ game.rewardTokens }} tokens</li>
-                                <li class="mb-2"><strong>Reward XP:</strong> {{ game.rewardXP }} XP</li>
+                                {% if game.isMiniGame() %}
+                                    <li class="mb-2"><strong>Energy Points:</strong> 
+                                        <span class="text-success">{{ game.energyPoints ?? 'Not set' }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="mb-2"><strong>Reward Tokens:</strong> {{ game.rewardTokens }} tokens</li>
+                                    <li class="mb-2"><strong>Reward XP:</strong> {{ game.rewardXP }} XP</li>
+                                {% endif %}
                             </ul>
                         </div>
                         <div class="col-md-6">
@@ -47,10 +65,17 @@
                             </ul>
                         </div>
                     </div>
+                    {% if game.isMiniGame() %}
+                        <div class="alert alert-info mb-0 mt-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Mini Game:</strong> This game regenerates energy points and does not offer traditional rewards or XP.
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 
-            {# Associated Rewards Section #}
+            {# Associated Rewards Section - Only for Full Games #}
+            {% if not game.isMiniGame() %}
             <div class="card mb-4">
                 <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
@@ -136,6 +161,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
 
             <div class="d-flex gap-2">
                 <a href="{{ path('admin_game_index') }}" class="btn btn-lg btn-secondary">
@@ -178,3 +204,10 @@
         </div>
     </div>
 {% endblock %}
+
+<style>
+    .bg-purple {
+        background-color: #6f42c1 !important;
+        color: white !important;
+    }
+</style>

@@ -3,6 +3,7 @@ namespace App\Controller\Front\Game;
 
 use App\Entity\Gamification\Game;
 use App\Repository\Gamification\GameRepository as GamificationGameRepository;
+use App\Repository\Gamification\GameRatingRepository;
 use App\Service\game\GameService;
 use App\Service\game\TokenService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,6 +22,7 @@ class GameController extends AbstractController
         private GameService $gameService,
         private TokenService $tokenService,
         private GamificationGameRepository $gameRepository,
+        private GameRatingRepository $ratingRepository,
         private PaginatorInterface $paginator,
         private EntityManagerInterface $entityManager
     ) {
@@ -76,15 +78,21 @@ class GameController extends AbstractController
             6 // 6 games per page
         );
 
+        // Get rating stats for all games in current page
+        $gameIds = array_map(fn($game) => $game->getId(), iterator_to_array($pagination));
+        $gameRatings = $this->ratingRepository->getAverageRatingsForGames($gameIds);
+
         // If Ajax request, return only the games partial
         if ($isAjax) {
             return $this->render('front/game/_games_list.html.twig', [
                 'games' => $pagination,
+                'gameRatings' => $gameRatings,
             ]);
         }
 
         return $this->render('front/game/index.html.twig', [
             'games' => $pagination,
+            'gameRatings' => $gameRatings,
             'search' => $search,
             'type' => $type,
             'difficulty' => $difficulty,
@@ -107,10 +115,22 @@ class GameController extends AbstractController
             $student = $this->getUser()->getStudentProfile();
         }
 
+        // Get rating stats
+        $ratingStats = $this->ratingRepository->getGameRatingStats($game);
+        $userRating = null;
+        
+        if ($this->getUser()) {
+            $rating = $this->ratingRepository->getUserRating($game, $this->getUser());
+            $userRating = $rating ? $rating->getRating() : 0;
+        }
+
         return $this->render('front/game/show.html.twig', [
             'game' => $game,
             'student' => $student,
-            'rewards' => $game->getRewards(), // Add this line
+            'rewards' => $game->getRewards(),
+            'averageRating' => $ratingStats['average'],
+            'totalRatings' => $ratingStats['count'],
+            'userRating' => $userRating,
         ]);
     }
 
