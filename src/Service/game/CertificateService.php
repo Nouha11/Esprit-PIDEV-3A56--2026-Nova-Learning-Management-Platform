@@ -11,7 +11,7 @@ use Twig\Environment;
 class CertificateService
 {
     public function __construct(
-        private Pdf $pdf,
+        // private Pdf $pdf,
         private Environment $twig
     ) {
     }
@@ -28,6 +28,11 @@ class CertificateService
             'earnedDate' => $earnedDate,
         ]);
 
+        // TODO: Re-enable PDF generation when Knp\Snappy\Pdf is properly installed
+        // For now, return HTML response
+        return new Response($html);
+
+        /* Original PDF generation code - commented out until Knp\Snappy\Pdf is available
         // Generate PDF from HTML
         $pdfContent = $this->pdf->getOutputFromHtml($html, [
             'page-size' => 'A4',
@@ -55,6 +60,7 @@ class CertificateService
         $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         return $response;
+        */
     }
 
     /**

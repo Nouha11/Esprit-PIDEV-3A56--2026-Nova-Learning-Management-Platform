@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .button:hover {
+            background: #5568d3;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎓 Welcome to NOVA!</h1>
+    </div>
+    
+    <div class="content">
+        <h2>Hello {{ user.username }}!</h2>
+        
+        <p>Thank you for registering with NOVA - your intelligent study coaching platform!</p>
+        
+        <p>To complete your registration and start your learning journey, please verify your email address by clicking the button below:</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ verificationUrl }}" class="button">Verify My Email</a>
+        </div>
+        
+        <p>Or copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #667eea;">{{ verificationUrl }}</p>
+        
+        <div class="warning">
+            <strong>⏰ Important:</strong> This verification link will expire on {{ expiresAt|date('F j, Y \\a\\t g:i A') }}.
+        </div>
+        
+        <p>Once verified, you'll be able to:</p>
+        <ul>
+            <li>✅ Access interactive learning games</li>
+            <li>✅ Earn XP and unlock achievements</li>
+            <li>✅ Track your progress</li>
+            <li>✅ Compete on leaderboards</li>
+            <li>✅ Join our community forum</li>
+        </ul>
+        
+        <p>If you didn't create an account with NOVA, please ignore this email.</p>
+        
+        <p>Best regards,<br>
+        <strong>The NOVA Team</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>© {{ 'now'|date('Y') }} NOVA - Intelligent Study Coaching Platform</p>
+        <p>This is an automated email. Please do not reply to this message.</p>
+    </div>
+</body>
+</html>
