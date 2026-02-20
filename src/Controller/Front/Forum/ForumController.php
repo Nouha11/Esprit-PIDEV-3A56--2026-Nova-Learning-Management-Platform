@@ -11,6 +11,7 @@ use App\Entity\users\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Service\Forum\CensorshipService;
+use App\Service\Forum\AiSummaryService; // <-- Added the AI Service here!
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -347,5 +348,18 @@ class ForumController extends AbstractController
 
         $this->addFlash('success', 'Thank you. The post has been reported to moderators.');
         return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+    }
+
+    // --- NEW: AI SUMMARY ROUTE --- //
+    #[Route('/forum/post/{id}/summary', name: 'app_forum_summary', methods: ['POST'])]
+    public function summarize(Post $post, AiSummaryService $aiSummaryService): JsonResponse
+    {
+        // Call our new Gemini service!
+        $summary = $aiSummaryService->generateSummary($post);
+
+        // Return the text as JSON so our JavaScript can put it on the screen
+        return $this->json([
+            'summary' => $summary
+        ]);
     }
 }
