@@ -16,6 +16,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use App\Service\EmailVerificationService;
+use App\Service\PasswordResetService;
 
 class SecurityController extends AbstractController
 {
@@ -336,5 +337,111 @@ class SecurityController extends AbstractController
             : 'A new verification email has been sent.');
         
         return $this->redirectToRoute('app_login');
+    }
+
+    #[Route('/forgot-password', name: 'app_forgot_password', methods: ['GET', 'POST'])]
+    public function forgotPassword(
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+        PasswordResetService $passwordResetService
+    ): Response
+    {
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        if ($request->isMethod('POST')) {
+            $locale = $request->getSession()->get('_locale', 'en');
+            $email = $request->request->get('email');
+
+            $user = $userRepository->findOneBy(['email' => $email]);
+
+            if ($user) {
+                // Send password reset email
+                $passwordResetService->sendPasswordResetEmail($user, $locale);
+                $entityManager->flush();
+            }
+
+            // Always show success message (security best practice)
+            $this->addFlash('success', $locale === 'fr' 
+                ? 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.' 
+                : 'If an account exists with this email, a reset link has been sent.');
+            
+            return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('security/forgot_password.html.twig');
+    }
+
+    #[Route('/reset-password/{token}', name: 'app_reset_password', methods: ['GET', 'POST'])]
+    public function resetPassword(
+        string $token,
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response
+    {
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        $locale = $request->getSession()->get('_locale', 'en');
+
+        // Find user by reset token
+        $user = $userRepository->findOneBy(['resetPasswordToken' => $token]);
+
+        if (!$user) {
+            $this->addFlash('error', $locale === 'fr' 
+                ? 'Lien de réinitialisation invalide.' 
+                : 'Invalid reset link.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Check if token has expired
+        $now = new \DateTime();
+        if ($user->getResetPasswordTokenExpiresAt() < $now) {
+            $this->addFlash('error', $locale === 'fr' 
+                ? 'Le lien de réinitialisation a expiré. Veuillez demander un nouveau lien.' 
+                : 'Reset link has expired. Please request a new one.');
+            return $this->redirectToRoute('app_forgot_password');
+        }
+
+        if ($request->isMethod('POST')) {
+            $password = $request->request->get('password');
+            $confirmPassword = $request->request->get('confirmPassword');
+
+            // Validate passwords
+            if (empty($password) || strlen($password) < 8) {
+                $this->addFlash('error', $locale === 'fr' 
+                    ? 'Le mot de passe doit contenir au moins 8 caractères.' 
+                    : 'Password must be at least 8 characters.');
+                return $this->render('security/reset_password.html.twig', ['token' => $token]);
+            }
+
+            if ($password !== $confirmPassword) {
+                $this->addFlash('error', $locale === 'fr' 
+                    ? 'Les mots de passe ne correspondent pas.' 
+                    : 'Passwords do not match.');
+                return $this->render('security/reset_password.html.twig', ['token' => $token]);
+            }
+
+            // Update password
+            $hashedPassword = $passwordHasher->hashPassword($user, $password);
+            $user->setPassword($hashedPassword);
+            $user->setResetPasswordToken(null);
+            $user->setResetPasswordTokenExpiresAt(null);
+            
+            $entityManager->flush();
+
+            $this->addFlash('success', $locale === 'fr' 
+                ? 'Votre mot de passe a été réinitialisé avec succès ! Vous pouvez maintenant vous connecter.' 
+                : 'Your password has been reset successfully! You can now log in.');
+            
+            return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('security/reset_password.html.twig', ['token' => $token]);
     }
 }
