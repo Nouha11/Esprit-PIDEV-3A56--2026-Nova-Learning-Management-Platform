@@ -34,6 +34,16 @@
                             {{ game.description|length > 100 ? game.description|slice(0, 100) ~ '...' : game.description }}
                         </p>
                         
+                        {# Rating Display #}
+                        <div class="mb-2">
+                            {% set gameRating = gameRatings[game.id]|default({'average': 0, 'count': 0}) %}
+                            {% include 'front/game/_star_rating.html.twig' with {
+                                'rating': gameRating.average,
+                                'count': gameRating.count,
+                                'size': 'sm'
+                            } %}
+                        </div>
+                        
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <div class="small text-muted">
                                 <i class="bi bi-trophy-fill text-warning"></i> {{ game.rewardXP }} XP
