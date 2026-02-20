@@ -51,10 +51,34 @@ class GameFormType extends AbstractType
                 'attr' => ['class' => 'form-control']
             ])
 
+            ->add('category', ChoiceType::class, [
+                'label' => 'Game Category',
+                'choices' => [
+                    'Full Game (with rewards)' => 'FULL_GAME',
+                    'Mini Game (energy regeneration only)' => 'MINI_GAME',
+                ],
+                'attr' => [
+                    'class' => 'form-control',
+                    'data-game-category' => 'true'
+                ],
+                'help' => 'Full games offer rewards and XP. Mini games only regenerate energy points.',
+            ])
+
             ->add('tokenCost', IntegerType::class, [
                 'label' => 'Token Cost (0 for free)',
                 'attr' => ['class' => 'form-control', 'min' => 0],
                 'empty_data' => '0',
+            ])
+
+            ->add('energyPoints', IntegerType::class, [
+                'label' => 'Energy Points (for mini games)',
+                'attr' => [
+                    'class' => 'form-control',
+                    'min' => 0,
+                    'data-energy-field' => 'true'
+                ],
+                'required' => false,
+                'help' => 'Amount of energy points this mini game regenerates. Only applicable for mini games.',
             ])
 
             ->add('rewardTokens', IntegerType::class, [
