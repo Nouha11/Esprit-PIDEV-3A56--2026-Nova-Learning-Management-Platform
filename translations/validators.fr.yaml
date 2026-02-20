@@ -44,3 +44,5 @@
 'Tutor availability updated successfully.': 'Disponibilité du tuteur mise à jour avec succès.'
 'Please login to complete your purchase.': 'Veuillez vous connecter pour finaliser votre achat.'
 'Payment successful via {methodName}! The book has been added to your library.': 'Paiement réussi via {methodName} ! Le livre a été ajouté à votre bibliothèque.'
+'Student account created successfully! Please check your email to verify your account.': 'Compte étudiant créé avec succès ! Veuillez vérifier votre email pour confirmer votre compte.'
+'Tutor account created successfully! Please check your email to verify your account.': 'Compte tuteur créé avec succès ! Veuillez vérifier votre email pour confirmer votre compte.'

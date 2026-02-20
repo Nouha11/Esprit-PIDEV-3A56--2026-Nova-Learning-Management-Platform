@@ -53,6 +53,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Type(type: 'bool', message: 'Active status must be true or false')]
     private ?bool $isActive = null;
 
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private ?bool $isVerified = false;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $verificationToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $verificationTokenExpiresAt = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -251,5 +260,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function hasFavoriteGame(\App\Entity\Gamification\Game $game): bool
     {
         return $this->favoriteGames->contains($game);
+    }
+
+    public function isVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+        return $this;
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+    public function setVerificationToken(?string $verificationToken): static
+    {
+        $this->verificationToken = $verificationToken;
+        return $this;
+    }
+
+    public function getVerificationTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->verificationTokenExpiresAt;
+    }
+
+    public function setVerificationTokenExpiresAt(?\DateTimeInterface $verificationTokenExpiresAt): static
+    {
+        $this->verificationTokenExpiresAt = $verificationTokenExpiresAt;
+        return $this;
     }
 }
