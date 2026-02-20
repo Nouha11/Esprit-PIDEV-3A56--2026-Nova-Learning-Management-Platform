@@ -179,12 +179,21 @@ class AdminStatisticsController extends AbstractController
                 ->getQuery()
                 ->getSingleScalarResult() ?? 0;
 
+            // Total ratings
+            $connection = $this->em->getConnection();
+            $totalRatings = $connection->executeQuery('SELECT COUNT(*) FROM game_rating')->fetchOne();
+
+            // Average rating
+            $avgRating = $connection->executeQuery('SELECT AVG(rating) FROM game_rating')->fetchOne();
+
             return new JsonResponse([
                 'totalStudents' => $totalStudents,
                 'totalGames' => $totalGames,
                 'totalRewards' => $totalRewards,
                 'totalXP' => (int) $totalXP,
                 'totalTokens' => (int) $totalTokens,
+                'totalRatings' => (int) $totalRatings,
+                'avgRating' => $avgRating ? round((float) $avgRating, 1) : 0,
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([
@@ -193,6 +202,8 @@ class AdminStatisticsController extends AbstractController
                 'totalRewards' => 0,
                 'totalXP' => 0,
                 'totalTokens' => 0,
+                'totalRatings' => 0,
+                'avgRating' => 0,
                 'error' => $e->getMessage()
             ]);
         }
@@ -240,6 +251,104 @@ class AdminStatisticsController extends AbstractController
             return new JsonResponse([
                 ['Game', 'Favorites'],
                 ['Error: ' . $e->getMessage(), 0]
+            ]);
+        }
+    }
+
+    /**
+     * Get top rated games (JSON endpoint)
+     */
+    #[Route('/api/top-rated-games', name: 'admin_statistics_top_rated_games', methods: ['GET'])]
+    public function getTopRatedGames(): JsonResponse
+    {
+        try {
+            $connection = $this->em->getConnection();
+            $sql = "
+                SELECT g.name, 
+                       ROUND(AVG(gr.rating), 1) as avg_rating,
+                       COUNT(gr.id) as rating_count
+                FROM game g
+                INNER JOIN game_rating gr ON g.id = gr.game_id
+                WHERE g.is_active = 1
+                GROUP BY g.id, g.name
+                HAVING rating_count >= 1
+                ORDER BY avg_rating DESC, rating_count DESC
+                LIMIT 10
+            ";
+            
+            $result = $connection->executeQuery($sql)->fetchAllAssociative();
+
+            $data = [
+                ['Game', 'Average Rating']
+            ];
+
+            if (empty($result)) {
+                $data[] = ['No Ratings Yet', 0];
+            } else {
+                foreach ($result as $row) {
+                    $data[] = [
+                        $row['name'] . ' (' . $row['rating_count'] . ' ratings)',
+                        (float) $row['avg_rating']
+                    ];
+                }
+            }
+
+            return new JsonResponse($data);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                ['Game', 'Average Rating'],
+                ['Error: ' . $e->getMessage(), 0]
+            ]);
+        }
+    }
+
+    /**
+     * Get rating distribution (JSON endpoint)
+     */
+    #[Route('/api/rating-distribution', name: 'admin_statistics_rating_distribution', methods: ['GET'])]
+    public function getRatingDistribution(): JsonResponse
+    {
+        try {
+            $connection = $this->em->getConnection();
+            $sql = "
+                SELECT rating, COUNT(*) as count
+                FROM game_rating
+                GROUP BY rating
+                ORDER BY rating ASC
+            ";
+            
+            $result = $connection->executeQuery($sql)->fetchAllAssociative();
+
+            $data = [
+                ['Rating', 'Count']
+            ];
+
+            if (empty($result)) {
+                // Show empty distribution
+                for ($i = 1; $i <= 5; $i++) {
+                    $data[] = [$i . ' Star' . ($i > 1 ? 's' : ''), 0];
+                }
+            } else {
+                // Create array with all ratings (1-5)
+                $distribution = array_fill(1, 5, 0);
+                
+                foreach ($result as $row) {
+                    $distribution[(int)$row['rating']] = (int)$row['count'];
+                }
+                
+                foreach ($distribution as $rating => $count) {
+                    $data[] = [
+                        $rating . ' Star' . ($rating > 1 ? 's' : ''),
+                        $count
+                    ];
+                }
+            }
+
+            return new JsonResponse($data);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                ['Rating', 'Count'],
+                ['Error', 0]
             ]);
         }
     }
