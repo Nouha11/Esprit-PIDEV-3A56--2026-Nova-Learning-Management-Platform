@@ -4,6 +4,8 @@ namespace App\Entity\StudySession;
 
 use App\Entity\users\User;
 use App\Repository\StudySession\StudySessionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StudySessionRepository::class)]
@@ -23,7 +25,7 @@ class StudySession
     private ?Planning $planning = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $startedAt = null;
+    private ?\DateTimeImmutable $startedAt;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $endedAt = null;
@@ -45,6 +47,38 @@ class StudySession
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $completedAt = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $mood = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $energyLevel = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $breakDuration = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $breakCount = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $pomodoroCount = null;
+
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'studySessions')]
+    #[ORM\JoinTable(name: 'study_session_tag')]
+    private Collection $tags;
+
+    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'studySession', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $notes;
+
+    #[ORM\OneToMany(targetEntity: Resource::class, mappedBy: 'studySession', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $resources;
+
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+        $this->notes = new ArrayCollection();
+        $this->resources = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -174,6 +208,148 @@ class StudySession
     public function setCompletedAt(?\DateTimeImmutable $completedAt): static
     {
         $this->completedAt = $completedAt;
+
+        return $this;
+    }
+
+    public function getMood(): ?string
+    {
+        return $this->mood;
+    }
+
+    public function setMood(?string $mood): static
+    {
+        $this->mood = $mood;
+
+        return $this;
+    }
+
+    public function getEnergyLevel(): ?string
+    {
+        return $this->energyLevel;
+    }
+
+    public function setEnergyLevel(?string $energyLevel): static
+    {
+        $this->energyLevel = $energyLevel;
+
+        return $this;
+    }
+
+    public function getBreakDuration(): ?int
+    {
+        return $this->breakDuration;
+    }
+
+    public function setBreakDuration(?int $breakDuration): static
+    {
+        $this->breakDuration = $breakDuration;
+
+        return $this;
+    }
+
+    public function getBreakCount(): ?int
+    {
+        return $this->breakCount;
+    }
+
+    public function setBreakCount(?int $breakCount): static
+    {
+        $this->breakCount = $breakCount;
+
+        return $this;
+    }
+
+    public function getPomodoroCount(): ?int
+    {
+        return $this->pomodoroCount;
+    }
+
+    public function setPomodoroCount(?int $pomodoroCount): static
+    {
+        $this->pomodoroCount = $pomodoroCount;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): static
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): static
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Note>
+     */
+    public function getNotes(): Collection
+    {
+        return $this->notes;
+    }
+
+    public function addNote(Note $note): static
+    {
+        if (!$this->notes->contains($note)) {
+            $this->notes->add($note);
+            $note->setStudySession($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNote(Note $note): static
+    {
+        if ($this->notes->removeElement($note)) {
+            if ($note->getStudySession() === $this) {
+                $note->setStudySession(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Resource>
+     */
+    public function getResources(): Collection
+    {
+        return $this->resources;
+    }
+
+    public function addResource(Resource $resource): static
+    {
+        if (!$this->resources->contains($resource)) {
+            $this->resources->add($resource);
+            $resource->setStudySession($this);
+        }
+
+        return $this;
+    }
+
+    public function removeResource(Resource $resource): static
+    {
+        if ($this->resources->removeElement($resource)) {
+            if ($resource->getStudySession() === $this) {
+                $resource->setStudySession(null);
+            }
+        }
 
         return $this;
     }

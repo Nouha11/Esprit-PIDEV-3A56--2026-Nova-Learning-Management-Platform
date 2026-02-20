@@ -1,0 +1,150 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}{{ note.id ? 'Edit Note' : 'Create Note' }}{% endblock %}
+
+{% block front_content %}
+<div class="row mt-4">
+    <div class="col-lg-8 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>{{ note.id ? 'Edit Note' : 'Create Note' }}</h1>
+            <a href="{{ path('study_session_show', {id: study_session.id}) }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Session
+            </a>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <!-- Session Info Card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {% if study_session.planning and study_session.planning.course %}
+                        {{ study_session.planning.course.courseName }}
+                    {% else %}
+                        Study Session
+                    {% endif %}
+                </h5>
+                <p class="card-text text-muted mb-0">
+                    <i class="bi bi-calendar-event"></i> 
+                    {{ study_session.startedAt ? study_session.startedAt|date('F d, Y H:i') : 'N/A' }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Note Form Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Note Details</h4>
+            </div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                
+                <div class="mb-3">
+                    {{ form_label(form.content, 'Note Content', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.content, {
+                        'attr': {
+                            'class': 'form-control',
+                            'rows': 10,
+                            'placeholder': 'Enter your notes here...',
+                            'maxlength': 10000,
+                            'id': 'note-content'
+                        }
+                    }) }}
+                    {{ form_errors(form.content) }}
+                    
+                    <div class="form-text d-flex justify-content-between align-items-center mt-2">
+                        <span>
+                            <i class="bi bi-info-circle"></i> Maximum 10,000 characters
+                        </span>
+                        <span id="char-count" class="badge bg-secondary">0 / 10,000</span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ path('study_session_show', {id: study_session.id}) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> {{ note.id ? 'Update Note' : 'Create Note' }}
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        {% if note.id %}
+        <!-- Note Metadata Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Note Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <h6 class="text-muted mb-1">Created At</h6>
+                        <p class="mb-0">
+                            <i class="bi bi-calendar-plus"></i> 
+                            {{ note.createdAt|date('F d, Y H:i') }}
+                        </p>
+                    </div>
+                    {% if note.updatedAt and note.updatedAt != note.createdAt %}
+                    <div class="col-md-6 mb-2">
+                        <h6 class="text-muted mb-1">Last Updated</h6>
+                        <p class="mb-0">
+                            <i class="bi bi-pencil"></i> 
+                            {{ note.updatedAt|date('F d, Y H:i') }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('note-content');
+            const charCount = document.getElementById('char-count');
+            const maxLength = 10000;
+
+            function updateCharCount() {
+                const currentLength = textarea.value.length;
+                charCount.textContent = currentLength + ' / ' + maxLength;
+                
+                // Update badge color based on character count
+                charCount.classList.remove('bg-secondary', 'bg-warning', 'bg-danger');
+                if (currentLength > maxLength * 0.9) {
+                    charCount.classList.add('bg-danger');
+                } else if (currentLength > maxLength * 0.75) {
+                    charCount.classList.add('bg-warning');
+                } else {
+                    charCount.classList.add('bg-secondary');
+                }
+            }
+
+            // Update character count on input
+            textarea.addEventListener('input', updateCharCount);
+            
+            // Initialize character count
+            updateCharCount();
+        });
+    </script>
+{% endblock %}
+{% endblock %}
