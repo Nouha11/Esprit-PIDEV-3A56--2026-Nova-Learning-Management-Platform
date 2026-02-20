@@ -205,9 +205,12 @@
     </div>
 {% endblock %}
 
-<style>
-    .bg-purple {
-        background-color: #6f42c1 !important;
-        color: white !important;
-    }
-</style>
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .bg-purple {
+            background-color: #6f42c1 !important;
+            color: white !important;
+        }
+    </style>
+{% endblock %}
