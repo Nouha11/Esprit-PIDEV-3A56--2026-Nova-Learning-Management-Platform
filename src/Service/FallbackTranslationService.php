@@ -359,6 +359,31 @@ class FallbackTranslationService
         'Resend Verification Email' => 'Renvoyer l\'Email de Vérification',
         'Enter your email address and we\'ll send you a new verification link.' => 'Entrez votre adresse email et nous vous enverrons un nouveau lien de vérification.',
         'Send Verification Email' => 'Envoyer l\'Email de Vérification',
+        
+        // Password Reset
+        'Forgot Password?' => 'Mot de passe oublié ?',
+        'Reset Password' => 'Réinitialiser le mot de passe',
+        'Reset Your Password' => 'Réinitialisez votre mot de passe',
+        'New Password' => 'Nouveau mot de passe',
+        'Send Reset Link' => 'Envoyer le lien de réinitialisation',
+        'No worries! Enter your email and we\'ll send you a reset link.' => 'Pas de soucis ! Entrez votre email et nous vous enverrons un lien de réinitialisation.',
+        'Enter your new password below.' => 'Entrez votre nouveau mot de passe ci-dessous.',
+        'Remember your password?' => 'Vous vous souvenez de votre mot de passe ?',
+        'Back to Login' => 'Retour à la connexion',
+        'Your password must be 8 characters at least' => 'Votre mot de passe doit contenir au moins 8 caractères',
+        'Welcome to our largest community' => 'Bienvenue dans notre plus grande communauté',
+        'Let\'s learn something new today!' => 'Apprenons quelque chose de nouveau aujourd\'hui !',
+        '4k+ Students joined us, now it\'s your turn.' => '4k+ étudiants nous ont rejoints, c\'est maintenant votre tour.',
+        
+        // OAuth
+        'Login with Google' => 'Se connecter avec Google',
+        'Login with LinkedIn' => 'Se connecter avec LinkedIn',
+        'Sign up with Google' => 'S\'inscrire avec Google',
+        'Sign up with LinkedIn' => 'S\'inscrire avec LinkedIn',
+        'Account created successfully via Google!' => 'Compte créé avec succès via Google !',
+        'Successfully logged in via Google!' => 'Connexion réussie via Google !',
+        'Account created successfully via LinkedIn!' => 'Compte créé avec succès via LinkedIn !',
+        'Successfully logged in via LinkedIn!' => 'Connexion réussie via LinkedIn !',
     ];
 
     public function translate(string $text): string
