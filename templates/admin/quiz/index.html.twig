@@ -10,9 +10,14 @@
             <h1 class="h3 fw-bold mb-1">Quiz Manager</h1>
             <p class="text-muted">Manage your assessments and questions.</p>
         </div>
-        <a href="{{ path('app_quiz_new', {'prefix': 'admin'}) }}" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-1"></i> Create New Quiz
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}" class="btn btn-outline-danger">
+                <i class="bi bi-flag me-1"></i> Reports
+            </a>
+            <a href="{{ path('app_quiz_new', {'prefix': 'admin'}) }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Create New Quiz
+            </a>
+        </div>
     </div>
 
     <div class="row g-4">
