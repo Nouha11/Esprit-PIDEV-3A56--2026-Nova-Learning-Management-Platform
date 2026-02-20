@@ -2,6 +2,7 @@
 
 namespace App\Entity\users;
 
+use App\Entity\Forum\Report;
 use App\Entity\StudySession\StudySession;
 use App\Entity\Forum\Comment;
 use App\Entity\Forum\Post;
@@ -106,6 +107,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinTable(name: 'user_favorite_games')]
     private Collection $favoriteGames;
 
+    /**
+     * @var Collection<int, Report>
+     */
+    #[ORM\OneToMany(targetEntity: Report::class, mappedBy: 'reporter')]
+    private Collection $reports;
+
     public function __construct()
     {
         $this->studySessions = new ArrayCollection();
@@ -117,6 +124,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->courses = new ArrayCollection();
         $this->favoriteGames = new ArrayCollection();
         $this->xp = 0;
+        $this->reports = new ArrayCollection();
     }
 
     // ... (Getters/Setters unchanged) ...
@@ -260,38 +268,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function hasFavoriteGame(\App\Entity\Gamification\Game $game): bool
     {
         return $this->favoriteGames->contains($game);
-    }
-
-    public function isVerified(): ?bool
-    {
-        return $this->isVerified;
-    }
-
-    public function setIsVerified(bool $isVerified): static
-    {
-        $this->isVerified = $isVerified;
-        return $this;
-    }
-
-    public function getVerificationToken(): ?string
-    {
-        return $this->verificationToken;
-    }
-
-    public function setVerificationToken(?string $verificationToken): static
-    {
-        $this->verificationToken = $verificationToken;
-        return $this;
-    }
-
-    public function getVerificationTokenExpiresAt(): ?\DateTimeInterface
-    {
-        return $this->verificationTokenExpiresAt;
-    }
-
-    public function setVerificationTokenExpiresAt(?\DateTimeInterface $verificationTokenExpiresAt): static
-    {
-        $this->verificationTokenExpiresAt = $verificationTokenExpiresAt;
-        return $this;
     }
 }
