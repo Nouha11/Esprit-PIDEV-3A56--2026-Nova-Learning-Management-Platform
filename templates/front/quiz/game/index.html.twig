@@ -34,6 +34,10 @@
                         <a href="{{ path('app_quiz_play', {'id': quiz.id}) }}" class="btn btn-primary w-100 mt-4 rounded-pill">
                             {{ t.t('Play Now') }} <i class="bi bi-play-fill"></i>
                         </a>
+                        
+                        <a href="{{ path('app_quiz_report', {'id': quiz.id}) }}" class="btn btn-link btn-sm text-muted mt-2">
+                            <i class="bi bi-flag"></i> {{ t.t('Report') }}
+                        </a>
                     </div>
                 </div>
             </div>

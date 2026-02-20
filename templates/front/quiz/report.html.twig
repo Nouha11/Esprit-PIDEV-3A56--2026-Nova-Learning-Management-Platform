@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
+
+{% block title %}{{ t.t('Report Quiz') }}{% endblock %}
+
+{% block body %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            
+            <div class="mb-4">
+                <a href="{{ path('app_front_quiz_index') }}" class="text-muted text-decoration-none">
+                    <i class="bi bi-arrow-left me-1"></i> {{ t.t('Back to Quizzes') }}
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-light border-bottom px-4 py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-flag me-2 text-danger"></i>{{ t.t('Report Quiz') }}
+                    </h5>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <strong>{{ t.t('Reporting:') }}</strong> {{ quiz.title }}
+                    </div>
+
+                    <p class="text-muted small mb-4">
+                        {{ t.t('Help us maintain quality content. Please let us know what\'s wrong with this quiz.') }}
+                    </p>
+
+                    {{ form_start(form) }}
+                        
+                        <div class="mb-4">
+                            {{ form_label(form.reason, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.reason, {'attr': {'class': 'form-select'}}) }}
+                            <div class="form-text text-danger">{{ form_errors(form.reason) }}</div>
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form_label(form.description, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+                            <div class="form-text text-danger">{{ form_errors(form.description) }}</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg rounded-pill">
+                                <i class="bi bi-flag-fill me-2"></i>{{ t.t('Submit Report') }}
+                            </button>
+                            <a href="{{ path('app_front_quiz_index') }}" class="btn btn-link text-muted">
+                                {{ t.t('Cancel') }}
+                            </a>
+                        </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
