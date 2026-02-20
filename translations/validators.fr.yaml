@@ -46,3 +46,12 @@
 'Payment successful via {methodName}! The book has been added to your library.': 'Paiement réussi via {methodName} ! Le livre a été ajouté à votre bibliothèque.'
 'Student account created successfully! Please check your email to verify your account.': 'Compte étudiant créé avec succès ! Veuillez vérifier votre email pour confirmer votre compte.'
 'Tutor account created successfully! Please check your email to verify your account.': 'Compte tuteur créé avec succès ! Veuillez vérifier votre email pour confirmer votre compte.'
+
+# Password Reset Messages
+'If an account exists with this email, a reset link has been sent.': 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.'
+'Invalid reset link.': 'Lien de réinitialisation invalide.'
+'Reset link has expired. Please request a new one.': 'Le lien de réinitialisation a expiré. Veuillez demander un nouveau lien.'
+'Password must be at least 8 characters.': 'Le mot de passe doit contenir au moins 8 caractères.'
+'Passwords do not match.': 'Les mots de passe ne correspondent pas.'
+'Your password has been reset successfully! You can now log in.': 'Votre mot de passe a été réinitialisé avec succès ! Vous pouvez maintenant vous connecter.'
+'No account found with this email.': 'Aucun compte trouvé avec cet email.'
