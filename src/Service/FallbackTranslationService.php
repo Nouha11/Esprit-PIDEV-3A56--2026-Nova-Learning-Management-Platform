@@ -354,6 +354,11 @@ class FallbackTranslationService
         'Qs' => 'Q',
         'Play Now' => 'Jouer Maintenant',
         'No quizzes available right now. Check back later!' => 'Aucun quiz disponible pour le moment. Revenez plus tard !',
+        
+        // Email Verification
+        'Resend Verification Email' => 'Renvoyer l\'Email de Vérification',
+        'Enter your email address and we\'ll send you a new verification link.' => 'Entrez votre adresse email et nous vous enverrons un nouveau lien de vérification.',
+        'Send Verification Email' => 'Envoyer l\'Email de Vérification',
     ];
 
     public function translate(string $text): string

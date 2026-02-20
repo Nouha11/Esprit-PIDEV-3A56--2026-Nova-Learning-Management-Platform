@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_locale() }}">
 <head>
-    <title>{% block title %}NOVA - Intelligent Study Coaching Platform{% endblock %}</title>
+    <title>{% block title %}{{ t.t('NOVA - Intelligent Study Coaching Platform') }}{% endblock %}</title>
 
     <!-- Meta Tags -->
     <meta charset="utf-8">
@@ -203,6 +203,8 @@
 </head>
 
 <body>
+    {% import 'macros/translation.html.twig' as t %}
+    
     <!-- Main Content -->
     <div class="container-fluid px-0">
         <section class="hero-section">
@@ -223,25 +225,25 @@
                                     <!-- Logged in user - Show dashboard links based on role -->
                                     <div class="row align-items-center fade-in-up">
                                         <div class="col-lg-8 welcome-text">
-                                            <h3>Welcome back to NOVA!</h3>
-                                            <p class="mb-3 mb-lg-0">Continue your learning journey and achieve your academic goals!</p>
+                                            <h3>{{ t.t('Welcome back to NOVA!') }}</h3>
+                                            <p class="mb-3 mb-lg-0">{{ t.t('Continue your learning journey and achieve your academic goals!') }}</p>
                                         </div>
                                         <div class="col-lg-4 text-lg-end">
                                             {% if app.user and 'ROLE_STUDENT' in app.user.roles %}
                                                 <a href="{{ path('app_student_dashboard') }}" class="btn btn-warning btn-lg mb-0 shadow">
-                                                    <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                                                    <i class="bi bi-speedometer2 me-2"></i>{{ t.t('Go to Dashboard') }}
                                                 </a>
                                             {% elseif app.user and 'ROLE_TUTOR' in app.user.roles %}
                                                 <a href="{{ path('admin_game_index') }}" class="btn btn-warning btn-lg mb-0 shadow">
-                                                    <i class="bi bi-speedometer2 me-2"></i>Tutor Dashboard
+                                                    <i class="bi bi-speedometer2 me-2"></i>{{ t.t('Tutor Dashboard') }}
                                                 </a>
                                             {% elseif app.user and 'ROLE_ADMIN' in app.user.roles %}
                                                 <a href="{{ path('app_admin_dashboard') }}" class="btn btn-warning btn-lg mb-0 shadow">
-                                                    <i class="bi bi-shield-lock me-2"></i>Admin Panel
+                                                    <i class="bi bi-shield-lock me-2"></i>{{ t.t('Admin Panel') }}
                                                 </a>
                                             {% else %}
                                                 <a href="{{ path('front_game_index') }}" class="btn btn-warning btn-lg mb-0 shadow">
-                                                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                                    <i class="bi bi-speedometer2 me-2"></i>{{ t.t('Dashboard') }}
                                                 </a>
                                             {% endif %}
                                         </div>
@@ -250,8 +252,8 @@
                                     <!-- Not logged in - Show sign in/register options -->
                                     <div class="row align-items-center text-center mb-5 fade-in-up">
                                         <div class="col-lg-12">
-                                            <h1 class="display-4 fw-bold mb-3">Welcome to NOVA</h1>
-                                            <p class="lead mb-4">Join thousands of students already using NOVA to achieve their academic goals!</p>
+                                            <h1 class="display-4 fw-bold mb-3">{{ t.t('Ready to start your learning journey?') }}</h1>
+                                            <p class="lead mb-4">{{ t.t('Join thousands of students already using NOVA to achieve their academic goals!') }}</p>
                                         </div>
                                     </div>
 
@@ -264,34 +266,34 @@
                                                     <div class="icon-lg bg-primary bg-opacity-10 rounded-circle mb-4">
                                                         <i class="bi bi-person-check text-primary fs-1"></i>
                                                     </div>
-                                                    <h4 class="card-title mb-3">I'm a Student</h4>
+                                                    <h4 class="card-title mb-3">{{ t.t('I\'m a Student') }}</h4>
                                                     <p class="card-text text-muted mb-4">
-                                                        Access interactive games, earn XP, track your progress, and compete on leaderboards
+                                                        {{ t.t('Access interactive games, earn XP, track your progress, and compete on leaderboards') }}
                                                     </p>
                                                     <ul class="list-unstyled text-start mb-4">
                                                         <li class="mb-2">
                                                             <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                            <small>Play educational games</small>
+                                                            <small>{{ t.t('Play educational games') }}</small>
                                                         </li>
                                                         <li class="mb-2">
                                                             <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                            <small>Earn badges & rewards</small>
+                                                            <small>{{ t.t('Earn badges & rewards') }}</small>
                                                         </li>
                                                         <li class="mb-2">
                                                             <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                            <small>Track your learning progress</small>
+                                                            <small>{{ t.t('Track your learning progress') }}</small>
                                                         </li>
                                                         <li class="mb-2">
                                                             <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                            <small>Compete on leaderboards</small>
+                                                            <small>{{ t.t('Compete on leaderboards') }}</small>
                                                         </li>
                                                     </ul>
                                                     <div class="d-grid gap-2">
                                                         <a href="{{ path('app_signup_student') }}?role=student" class="btn btn-primary btn-lg shadow">
-                                                            <i class="bi bi-person-plus me-2"></i>Sign Up as Student
+                                                            <i class="bi bi-person-plus me-2"></i>{{ t.t('Sign Up as Student') }}
                                                         </a>
                                                         <a href="{{ path('app_login') }}" class="btn btn-outline-primary">
-                                                            Already have an account? Sign In
+                                                            {{ t.t('Already have an account? Sign In') }}
                                                         </a>
                                                     </div>
                                                 </div>
@@ -305,34 +307,34 @@
                                                     <div class="icon-lg bg-warning bg-opacity-10 rounded-circle mb-4">
                                                         <i class="bi bi-person-workspace text-warning fs-1"></i>
                                                     </div>
-                                                    <h4 class="card-title mb-3">I'm a Tutor</h4>
+                                                    <h4 class="card-title mb-3">{{ t.t('I\'m a Tutor') }}</h4>
                                                     <p class="card-text text-muted mb-4">
-                                                        Create and manage games, rewards, monitor student progress, and help students excel
+                                                        {{ t.t('Create and manage games, rewards, monitor student progress, and help students excel') }}
                                                     </p>
                                                     <ul class="list-unstyled text-start mb-4">
                                                         <li class="mb-2">
                                                             <i class="bi bi-check-circle-fill text-warning me-2"></i>
-                                                            <small>Create custom games</small>
+                                                            <small>{{ t.t('Create custom games') }}</small>
                                                         </li>
                                                         <li class="mb-2">
                                                             <i class="bi bi-check-circle-fill text-warning me-2"></i>
-                                                            <small>Manage student rewards</small>
+                                                            <small>{{ t.t('Manage student rewards') }}</small>
                                                         </li>
                                                         <li class="mb-2">
                                                             <i class="bi bi-check-circle-fill text-warning me-2"></i>
-                                                            <small>Track student analytics</small>
+                                                            <small>{{ t.t('Track student analytics') }}</small>
                                                         </li>
                                                         <li class="mb-2">
                                                             <i class="bi bi-check-circle-fill text-warning me-2"></i>
-                                                            <small>Engage with learners</small>
+                                                            <small>{{ t.t('Engage with learners') }}</small>
                                                         </li>
                                                     </ul>
                                                     <div class="d-grid gap-2">
                                                         <a href="{{ path('app_signup_tutor') }}?role=tutor" class="btn btn-warning btn-lg shadow">
-                                                            <i class="bi bi-person-plus me-2"></i>Sign Up as Tutor
+                                                            <i class="bi bi-person-plus me-2"></i>{{ t.t('Sign Up as Tutor') }}
                                                         </a>
                                                         <a href="{{ path('app_login') }}" class="btn btn-outline-warning">
-                                                            Already have an account? Sign In
+                                                            {{ t.t('Already have an account? Sign In') }}
                                                         </a>
                                                     </div>
                                                 </div>
