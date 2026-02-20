@@ -394,16 +394,7 @@
     {% for label, messages in app.flashes %}
         {% for message in messages %}
             <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show shadow-sm" role="alert">
-                {# Choose icon based on message type #}
-                {% if label == 'success' %}
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                {% elseif label == 'error' or label == 'danger' %}
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                {% else %}
-                    <i class="bi bi-info-circle-fill me-2"></i>
-                {% endif %}
-                
-                {{ message }}
+                {{ message|raw }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endfor %}
@@ -814,6 +805,19 @@
     <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
 
     <script src="{{ asset('assets/js/functions.js') }}"></script>
+    
+    <script>
+        // Auto-dismiss flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000); // 5 seconds
+            });
+        });
+    </script>
     {% endblock %}
 </body>
 </html>

@@ -9,7 +9,7 @@
         {% for label, messages in app.flashes %}
             {% for message in messages %}
                 <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
-                    {{ message }}
+                    {{ message|raw }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
@@ -360,6 +360,82 @@
         </div>
     </div>
 </div>
+
+<!-- Confirm Play Modal -->
+<div class="modal fade" id="confirmPlayModal" tabindex="-1" aria-labelledby="confirmPlayModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="confirmPlayModalLabel">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    Confirm Game Play
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-4">
+                    <i class="bi bi-controller text-primary" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="mb-3">Ready to Play?</h4>
+                <p class="lead mb-4">This game will cost you tokens to play.</p>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <small class="text-muted d-block">Current Balance</small>
+                                <h3 class="mb-0 text-success" id="confirm-current-balance">0</h3>
+                                <small class="text-muted">tokens</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <small class="text-muted d-block">Game Cost</small>
+                                <h3 class="mb-0 text-warning" id="confirm-game-cost">0</h3>
+                                <small class="text-muted">tokens</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-arrow-right-circle me-2"></i>
+                    After playing, you'll have <strong id="confirm-remaining-balance">0</strong> tokens remaining.
+                </div>
+                
+                <div class="card bg-success bg-opacity-10 border-success mb-3">
+                    <div class="card-body">
+                        <h6 class="text-success mb-2">
+                            <i class="bi bi-trophy-fill me-2"></i>
+                            Potential Rewards
+                        </h6>
+                        <p class="mb-0">
+                            <strong id="confirm-reward-tokens">0</strong> tokens + 
+                            <strong id="confirm-reward-xp">0</strong> XP
+                        </p>
+                    </div>
+                </div>
+                
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Complete the game to earn rewards!
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="confirm-play-btn">
+                    <i class="bi bi-play-fill me-1"></i>
+                    Yes, Play Now!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
@@ -367,12 +443,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const playBtn = document.getElementById('play-game-btn');
+            let currentGameId = null;
             
             if (playBtn) {
                 playBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     
                     const gameId = this.dataset.gameId;
+                    currentGameId = gameId;
                     const gameCost = parseInt(this.dataset.gameCost);
                     const studentTokens = parseInt(this.dataset.studentTokens);
                     
@@ -392,8 +470,12 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.canAfford) {
-                            // Sufficient tokens - redirect to play
-                            window.location.href = '{{ path('front_game_play', {id: '__ID__'}) }}'.replace('__ID__', gameId);
+                            // Sufficient tokens - show confirmation modal
+                            showConfirmPlayModal(data, gameId);
+                            
+                            // Reset button
+                            playBtn.disabled = false;
+                            playBtn.innerHTML = originalHtml;
                         } else {
                             // Insufficient tokens - show modal
                             showInsufficientTokensModal(data);
@@ -413,7 +495,34 @@
                     });
                 });
             }
+            
+            // Confirm play button in modal
+            const confirmPlayBtn = document.getElementById('confirm-play-btn');
+            if (confirmPlayBtn) {
+                confirmPlayBtn.addEventListener('click', function() {
+                    if (currentGameId) {
+                        window.location.href = '{{ path('front_game_play', {id: '__ID__'}) }}'.replace('__ID__', currentGameId);
+                    }
+                });
+            }
         });
+        
+        function showConfirmPlayModal(data, gameId) {
+            // Update modal content
+            document.getElementById('confirm-current-balance').textContent = data.currentBalance;
+            document.getElementById('confirm-game-cost').textContent = data.gameCost;
+            document.getElementById('confirm-remaining-balance').textContent = data.currentBalance - data.gameCost;
+            
+            // Get reward info from page
+            const rewardTokens = {{ game.rewardTokens }};
+            const rewardXP = {{ game.rewardXP }};
+            document.getElementById('confirm-reward-tokens').textContent = rewardTokens;
+            document.getElementById('confirm-reward-xp').textContent = rewardXP;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('confirmPlayModal'));
+            modal.show();
+        }
         
         function showInsufficientTokensModal(data) {
             // Update modal content
