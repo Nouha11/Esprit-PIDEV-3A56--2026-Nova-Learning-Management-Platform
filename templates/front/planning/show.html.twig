@@ -36,7 +36,7 @@
                                             <img src="{{ asset('assets/images/courses/4by3/08.jpg') }}" class="rounded" width="100" alt="">
                                             <div class="ms-3">
                                                 <h5 class="mb-1">
-                                                    <a href="{{ path('course_show', {id: planning.course.id}) }}">{{ planning.course.name }}</a>
+                                                    <a href="{{ path('course_show', {id: planning.course.id}) }}">{{ planning.course.courseName }}</a>
                                                 </h5>
                                                 <p class="mb-0 text-muted">{{ planning.course.description|slice(0, 150) }}...</p>
                                             </div>

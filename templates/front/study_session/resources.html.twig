@@ -1,0 +1,143 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}PDF Resources{% endblock %}
+
+{% block front_content %}
+<div class="row mt-4">
+    <div class="col-md-10 offset-md-1">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">PDF Resources</h3>
+                <a href="{{ path('resource_upload', {'studySessionId': study_session.id}) }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-upload"></i> Upload New PDF
+                </a>
+            </div>
+            <div class="card-body">
+                <!-- Display flash messages -->
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+
+                <!-- Study Session Info -->
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Study Session:</strong> {{ study_session.planning.course.name }}
+                    <br>
+                    <strong>Date:</strong> {{ study_session.startedAt|date('F j, Y g:i A') }}
+                </div>
+
+                <!-- Resources List -->
+                {% if resources|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th><i class="bi bi-file-earmark-pdf"></i> Filename</th>
+                                    <th><i class="bi bi-hdd"></i> File Size</th>
+                                    <th><i class="bi bi-calendar"></i> Upload Date</th>
+                                    <th class="text-end"><i class="bi bi-gear"></i> Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for resource in resources %}
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-file-earmark-pdf text-danger"></i>
+                                            {{ resource.filename }}
+                                        </td>
+                                        <td>
+                                            {% set sizeInMB = (resource.fileSize / 1024 / 1024)|round(2) %}
+                                            {% if sizeInMB >= 1 %}
+                                                {{ sizeInMB }} MB
+                                            {% else %}
+                                                {{ (resource.fileSize / 1024)|round(2) }} KB
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ resource.uploadedAt|date('M j, Y g:i A') }}
+                                        </td>
+                                        <td class="text-end">
+                                            <!-- Download Button -->
+                                            <a href="{{ path('resource_download', {
+                                                'studySessionId': study_session.id,
+                                                'id': resource.id
+                                            }) }}" 
+                                               class="btn btn-sm btn-success" 
+                                               title="Download PDF">
+                                                <i class="bi bi-download"></i> Download
+                                            </a>
+                                            
+                                            <!-- Delete Button -->
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal{{ resource.id }}"
+                                                    title="Delete PDF">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+
+                                            <!-- Delete Confirmation Modal -->
+                                            <div class="modal fade" id="deleteModal{{ resource.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ resource.id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteModalLabel{{ resource.id }}">Confirm Delete</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to delete <strong>{{ resource.filename }}</strong>?
+                                                            <br><br>
+                                                            <span class="text-danger">This action cannot be undone.</span>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form method="post" action="{{ path('resource_delete', {
+                                                                'studySessionId': study_session.id,
+                                                                'id': resource.id
+                                                            }) }}" style="display: inline;">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete_resource_' ~ resource.id) }}">
+                                                                <button type="submit" class="btn btn-danger">
+                                                                    <i class="bi bi-trash"></i> Delete
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning text-center">
+                        <i class="bi bi-inbox"></i>
+                        <p class="mb-2">No PDF resources uploaded yet.</p>
+                        <a href="{{ path('resource_upload', {'studySessionId': study_session.id}) }}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-upload"></i> Upload Your First PDF
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- Back Button -->
+                <div class="mt-4">
+                    <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Study Sessions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

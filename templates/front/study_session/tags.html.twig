@@ -1,0 +1,86 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}Tags{% endblock %}
+
+{% block front_content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Tags</h1>
+            <a href="{{ path('tag_create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create New Tag
+            </a>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <div class="card">
+            <div class="card-body">
+                {% if tags is empty %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> No tags found. Create your first tag to organize your study sessions.
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Tag Name</th>
+                                    <th class="text-center">Usage Count</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tag in tags %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">{{ tag.name }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-secondary">{{ tag.usage_count }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <a href="{{ path('tag_filter', {id: tag.id}) }}" 
+                                               class="btn btn-sm btn-info" 
+                                               title="Filter sessions by this tag">
+                                                <i class="bi bi-filter"></i> Filter
+                                            </a>
+                                            <form method="post" 
+                                                  action="{{ path('tag_delete', {id: tag.id}) }}" 
+                                                  style="display: inline;"
+                                                  onsubmit="return confirm('Are you sure you want to delete this tag? Study sessions will be preserved.');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete_tag_' ~ tag.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete tag">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Study Sessions
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

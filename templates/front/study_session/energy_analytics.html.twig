@@ -1,0 +1,100 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}Energy Analytics{% endblock %}
+
+{% block front_content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h1 class="mb-4">Energy Analytics</h1>
+        
+        {% if insufficient_data %}
+            <!-- Insufficient Data Message -->
+            <div class="alert alert-info">
+                <h5 class="alert-heading">
+                    <i class="bi bi-info-circle"></i> Insufficient Data
+                </h5>
+                <p class="mb-0">
+                    You need at least 5 study sessions with energy level data to view energy patterns and recommendations.
+                    You currently have {{ session_count }} session{{ session_count != 1 ? 's' : '' }} with energy data.
+                </p>
+                <hr>
+                <p class="mb-0">
+                    <small>
+                        Start tracking your energy levels during study sessions to unlock personalized insights about your optimal study times.
+                    </small>
+                </p>
+            </div>
+            
+            <div class="mt-4">
+                <a href="{{ path('study_session_index') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> Back to Study Sessions
+                </a>
+            </div>
+        {% else %}
+            <!-- Energy Patterns Chart -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Energy Patterns by Time of Day</h5>
+                            <p class="text-muted">
+                                <small>Based on {{ session_count }} study session{{ session_count != 1 ? 's' : '' }} with energy data</small>
+                            </p>
+                            <canvas id="energyPatternsChart" style="max-height: 400px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations Link -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-lightbulb"></i> Optimal Study Time Recommendations
+                            </h5>
+                            <p class="card-text">
+                                Based on your energy patterns, we can suggest the best times for you to study.
+                            </p>
+                            <a href="{{ path('energy_recommendations') }}" class="btn btn-primary">
+                                View Recommendations
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Study Sessions Link -->
+            <div class="row">
+                <div class="col-12">
+                    <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Study Sessions
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    {% if not insufficient_data %}
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        
+        <!-- Pass energy patterns data to JavaScript -->
+        <script>
+            // Initialize energy data object for the charts module
+            window.energyData = {
+                patterns: {{ energy_patterns|json_encode|raw }}
+            };
+        </script>
+        
+        <!-- Energy Charts Module -->
+        <script src="{{ asset('js/energy-charts.js') }}"></script>
+    {% endif %}
+{% endblock %}
