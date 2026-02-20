@@ -52,11 +52,18 @@ class Post
     #[ORM\JoinTable(name: 'post_upvoters')]  
     private Collection $upvoters;
 
+    /**
+     * @var Collection<int, Report>
+     */
+    #[ORM\OneToMany(targetEntity: Report::class, mappedBy: 'post')]
+    private Collection $reports;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->upvoters = new ArrayCollection(); // Initialize the new collection
         $this->upvotes = 0;
+        $this->reports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -187,5 +194,35 @@ class Post
     public function isUpvotedBy(User $user): bool
     {
         return $this->upvoters->contains($user);
+    }
+
+    /**
+     * @return Collection<int, Report>
+     */
+    public function getReports(): Collection
+    {
+        return $this->reports;
+    }
+
+    public function addReport(Report $report): static
+    {
+        if (!$this->reports->contains($report)) {
+            $this->reports->add($report);
+            $report->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReport(Report $report): static
+    {
+        if ($this->reports->removeElement($report)) {
+            // set the owning side to null (unless already changed)
+            if ($report->getPost() === $this) {
+                $report->setPost(null);
+            }
+        }
+
+        return $this;
     }
 }
