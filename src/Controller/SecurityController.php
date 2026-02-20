@@ -15,6 +15,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use App\Service\EmailVerificationService;
 
 class SecurityController extends AbstractController
 {
@@ -62,7 +63,8 @@ class SecurityController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         ValidatorInterface $validator,
         UserRepository $userRepository,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        EmailVerificationService $emailService
     ): Response
     {
         if ($this->getUser()) {
@@ -106,6 +108,7 @@ class SecurityController extends AbstractController
             
             $user->setRole('ROLE_STUDENT');
             $user->setIsActive(true);
+            $user->setIsVerified(false); // Email not verified yet
             
             // Create StudentProfile
             $student = new StudentProfile();
@@ -133,7 +136,10 @@ class SecurityController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $this->addFlash('success', $translator->trans('Student account created successfully! Please login.', [], 'validators', $locale));
+                // Send verification email in the user's selected language
+                $emailService->sendVerificationEmail($user, $locale);
+
+                $this->addFlash('success', $translator->trans('Student account created successfully! Please check your email to verify your account.', [], 'validators', $locale));
                 return $this->redirectToRoute('app_login');
             } catch (\Exception $e) {
                 $this->addFlash('error', $translator->trans('An error occurred while creating your account. Please try again.', [], 'validators', $locale));
@@ -150,7 +156,8 @@ class SecurityController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         ValidatorInterface $validator,
         UserRepository $userRepository,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        EmailVerificationService $emailService
     ): Response
     {
         if ($this->getUser()) {
@@ -194,6 +201,7 @@ class SecurityController extends AbstractController
             
             $user->setRole('ROLE_TUTOR');
             $user->setIsActive(true);
+            $user->setIsVerified(false); // Email not verified yet
             
             // Create TutorProfile
             $tutor = new TutorProfile();
@@ -228,7 +236,10 @@ class SecurityController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $this->addFlash('success', $translator->trans('Tutor account created successfully! Please login.', [], 'validators', $locale));
+                // Send verification email in the user's selected language
+                $emailService->sendVerificationEmail($user, $locale);
+
+                $this->addFlash('success', $translator->trans('Tutor account created successfully! Please check your email to verify your account.', [], 'validators', $locale));
                 return $this->redirectToRoute('app_login');
             } catch (\Exception $e) {
                 $this->addFlash('error', $translator->trans('An error occurred while creating your account. Please try again.', [], 'validators', $locale));
@@ -243,5 +254,87 @@ class SecurityController extends AbstractController
     {
         // Redirect to homepage after login
         return $this->redirectToRoute('app_home');
+    }
+
+    #[Route('/verify-email/{token}', name: 'app_verify_email')]
+    public function verifyEmail(
+        string $token,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+        Request $request
+    ): Response
+    {
+        // Get current locale for translated messages
+        $locale = $request->getSession()->get('_locale', 'en');
+
+        // Find user by verification token
+        $user = $userRepository->findOneBy(['verificationToken' => $token]);
+
+        if (!$user) {
+            $this->addFlash('error', $locale === 'fr' 
+                ? 'Lien de vérification invalide.' 
+                : 'Invalid verification link.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Check if token has expired
+        $now = new \DateTime();
+        if ($user->getVerificationTokenExpiresAt() < $now) {
+            $this->addFlash('error', $locale === 'fr' 
+                ? 'Le lien de vérification a expiré. Veuillez demander un nouveau lien.' 
+                : 'Verification link has expired. Please request a new one.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Verify the user
+        $user->setIsVerified(true);
+        $user->setVerificationToken(null);
+        $user->setVerificationTokenExpiresAt(null);
+        
+        $entityManager->flush();
+
+        $this->addFlash('success', $locale === 'fr' 
+            ? 'Votre email a été vérifié avec succès ! Vous pouvez maintenant vous connecter.' 
+            : 'Your email has been verified successfully! You can now log in.');
+        
+        return $this->redirectToRoute('app_login');
+    }
+
+    #[Route('/resend-verification', name: 'app_resend_verification', methods: ['POST'])]
+    public function resendVerification(
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+        EmailVerificationService $emailService
+    ): Response
+    {
+        $locale = $request->getSession()->get('_locale', 'en');
+        $email = $request->request->get('email');
+
+        $user = $userRepository->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            $this->addFlash('error', $locale === 'fr' 
+                ? 'Aucun compte trouvé avec cet email.' 
+                : 'No account found with this email.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($user->isVerified()) {
+            $this->addFlash('info', $locale === 'fr' 
+                ? 'Votre compte est déjà vérifié.' 
+                : 'Your account is already verified.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Send new verification email
+        $emailService->sendVerificationEmail($user, $locale);
+        $entityManager->flush();
+
+        $this->addFlash('success', $locale === 'fr' 
+            ? 'Un nouvel email de vérification a été envoyé.' 
+            : 'A new verification email has been sent.');
+        
+        return $this->redirectToRoute('app_login');
     }
 }

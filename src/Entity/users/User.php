@@ -54,6 +54,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Type(type: 'bool', message: 'Active status must be true or false')]
     private ?bool $isActive = null;
 
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private ?bool $isVerified = false;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $verificationToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $verificationTokenExpiresAt = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -259,35 +268,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function hasFavoriteGame(\App\Entity\Gamification\Game $game): bool
     {
         return $this->favoriteGames->contains($game);
-    }
-
-    /**
-     * @return Collection<int, Report>
-     */
-    public function getReports(): Collection
-    {
-        return $this->reports;
-    }
-
-    public function addReport(Report $report): static
-    {
-        if (!$this->reports->contains($report)) {
-            $this->reports->add($report);
-            $report->setReporter($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReport(Report $report): static
-    {
-        if ($this->reports->removeElement($report)) {
-            // set the owning side to null (unless already changed)
-            if ($report->getReporter() === $this) {
-                $report->setReporter(null);
-            }
-        }
-
-        return $this;
     }
 }

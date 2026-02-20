@@ -221,6 +221,13 @@
 							<div class="mt-4 text-center">
 								<span>Don't have an account? <a href="{{ path('app_signup') }}">Signup here</a></span>
 							</div>
+
+							<!-- Resend Verification Email -->
+							<div class="mt-3 text-center">
+								<button type="button" class="btn btn-link text-secondary" data-bs-toggle="modal" data-bs-target="#resendVerificationModal">
+									<small>Didn't receive verification email? Click here</small>
+								</button>
+							</div>
 						</div>
 					</div> <!-- Row END -->
 				</div>
@@ -229,6 +236,31 @@
 	</section>
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Resend Verification Modal -->
+<div class="modal fade" id="resendVerificationModal" tabindex="-1" aria-labelledby="resendVerificationModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="resendVerificationModalLabel">{{ t.t('Resend Verification Email') }}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<form method="post" action="{{ path('app_resend_verification') }}">
+				<div class="modal-body">
+					<p>{{ t.t('Enter your email address and we\'ll send you a new verification link.') }}</p>
+					<div class="mb-3">
+						<label for="resendEmail" class="form-label">{{ t.t('Email Address') }}</label>
+						<input type="email" class="form-control" id="resendEmail" name="email" required>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t.t('Cancel') }}</button>
+					<button type="submit" class="btn btn-primary">{{ t.t('Send Verification Email') }}</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 
 <!-- Back to top -->
 <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
