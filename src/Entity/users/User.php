@@ -2,6 +2,7 @@
 
 namespace App\Entity\users;
 
+use App\Entity\Forum\Report;
 use App\Entity\StudySession\StudySession;
 use App\Entity\Forum\Comment;
 use App\Entity\Forum\Post;
@@ -97,6 +98,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinTable(name: 'user_favorite_games')]
     private Collection $favoriteGames;
 
+    /**
+     * @var Collection<int, Report>
+     */
+    #[ORM\OneToMany(targetEntity: Report::class, mappedBy: 'reporter')]
+    private Collection $reports;
+
     public function __construct()
     {
         $this->studySessions = new ArrayCollection();
@@ -108,6 +115,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->courses = new ArrayCollection();
         $this->favoriteGames = new ArrayCollection();
         $this->xp = 0;
+        $this->reports = new ArrayCollection();
     }
 
     // ... (Getters/Setters unchanged) ...
@@ -251,5 +259,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function hasFavoriteGame(\App\Entity\Gamification\Game $game): bool
     {
         return $this->favoriteGames->contains($game);
+    }
+
+    /**
+     * @return Collection<int, Report>
+     */
+    public function getReports(): Collection
+    {
+        return $this->reports;
+    }
+
+    public function addReport(Report $report): static
+    {
+        if (!$this->reports->contains($report)) {
+            $this->reports->add($report);
+            $report->setReporter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReport(Report $report): static
+    {
+        if ($this->reports->removeElement($report)) {
+            // set the owning side to null (unless already changed)
+            if ($report->getReporter() === $this) {
+                $report->setReporter(null);
+            }
+        }
+
+        return $this;
     }
 }
