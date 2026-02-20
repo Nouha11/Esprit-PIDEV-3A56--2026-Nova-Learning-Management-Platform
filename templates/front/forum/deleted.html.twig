@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Discussion Unavailable{% endblock %}
+
+{% block body %}
+<main>
+    <section class="pt-0">
+        <div class="container-fluid px-0">
+            <div class="bg-blue h-100px h-md-200px rounded-0" style="background:url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size:cover;">
+            </div>
+        </div>
+        <div class="container mt-n4">
+            <div class="row justify-content-center">
+                <div class="col-xl-8 col-lg-10 mt-5 pt-5 text-center">
+                    
+                    {# Giant Warning Icon #}
+                    <div class="display-1 text-danger opacity-75 mb-4">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    
+                    {# The Message #}
+                    <h1 class="h2 mb-3">Discussion Not Found</h1>
+                    <p class="lead text-secondary mb-5">
+                        Oops! This discussion is no longer available. It may have been deleted by the author, or removed by our moderation team for violating community guidelines.
+                    </p>
+                    
+                    {# Call to Action #}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{{ path('app_forum') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Forum
+                        </a>
+                        <a href="{{ path('app_forum') }}#addPostForm" class="btn btn-outline-secondary btn-lg">
+                            Start a New Topic
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
