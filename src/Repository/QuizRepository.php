@@ -17,14 +17,14 @@ class QuizRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find quizzes with filtering and sorting
+     * Find quizzes with filtering and sorting (returns QueryBuilder for pagination)
      * 
      * @param array $filters
      * @param string $sortBy
      * @param string $sortOrder
-     * @return Quiz[]
+     * @return \Doctrine\ORM\QueryBuilder
      */
-    public function findWithFiltersAndSort(array $filters = [], string $sortBy = 'title', string $sortOrder = 'ASC'): array
+    public function findWithFiltersAndSort(array $filters = [], string $sortBy = 'title', string $sortOrder = 'ASC')
     {
         $qb = $this->createQueryBuilder('q')
             ->leftJoin('q.questions', 'questions')
@@ -76,7 +76,7 @@ class QuizRepository extends ServiceEntityRepository
             $qb->orderBy('q.' . $sortBy, $sortOrder);
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Entity\Quiz;
 use App\Form\Admin\Quiz\QuizType;
 use App\Repository\QuizRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class QuizController extends AbstractController
 {
     #[Route(name: 'app_quiz_index', methods: ['GET'])]
-    public function index(QuizRepository $quizRepository, Request $request, string $prefix): Response
+    public function index(QuizRepository $quizRepository, PaginatorInterface $paginator, Request $request, string $prefix): Response
     {
         $templatePrefix = $prefix === 'admin' ? 'admin/' : '';
         
@@ -35,14 +36,21 @@ final class QuizController extends AbstractController
             $filters['maxQuestions'] = (int)$maxQuestions;
         }
         
-        // Get quizzes with filters and sorting
-        $quizzes = $quizRepository->findWithFiltersAndSort($filters, $sortBy, $sortOrder);
+        // Get query builder with filters and sorting
+        $queryBuilder = $quizRepository->findWithFiltersAndSort($filters, $sortBy, $sortOrder);
+        
+        // Paginate the results
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            12 // items per page
+        );
         
         // Get statistics for the UI
         $statistics = $quizRepository->getQuizStatistics();
         
         return $this->render($templatePrefix . 'quiz/index.html.twig', [
-            'quizzes' => $quizzes,
+            'pagination' => $pagination,
             'statistics' => $statistics,
             'currentFilters' => $filters,
             'currentSort' => ['by' => $sortBy, 'order' => $sortOrder]

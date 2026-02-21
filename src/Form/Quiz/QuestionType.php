@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType; // required for the dropdown
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class QuestionType extends AbstractType
 {
@@ -55,6 +56,16 @@ class QuestionType extends AbstractType
                 'required' => true,
                 'placeholder' => 'Select difficulty...',
                 'invalid_message' => 'Please select a valid difficulty',
+            ])
+            ->add('imageFile', VichImageType::class, [
+                'label' => 'Question Image (Optional)',
+                'required' => false,
+                'allow_delete' => true,
+                'delete_label' => 'Remove image',
+                'download_uri' => false,
+                'image_uri' => true,
+                'asset_helper' => true,
+                'help' => 'Upload an image to make the question more engaging (max 2MB)',
             ])
             ->add('choices', CollectionType::class, [
                 'entry_type' => AnswerType::class,

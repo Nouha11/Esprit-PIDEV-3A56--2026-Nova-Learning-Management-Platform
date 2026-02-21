@@ -6,6 +6,7 @@ use App\Entity\Quiz;
 use App\Repository\QuizRepository;
 use App\Repository\Quiz\QuestionRepository;
 use App\Repository\Quiz\ChoiceRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +19,7 @@ final class QuizGameController extends AbstractController
     // 1. THE ARCADE PAGE (List of Quizzes)
     // ---------------------------------------------------
     #[Route('/', name: 'app_front_quiz_index', methods: ['GET'])]
-    public function index(QuizRepository $quizRepository, Request $request): Response
+    public function index(QuizRepository $quizRepository, PaginatorInterface $paginator, Request $request): Response
     {
         // Get filter data from query parameters
         $filters = [];
@@ -36,11 +37,18 @@ final class QuizGameController extends AbstractController
             $filters['maxQuestions'] = (int)$maxQuestions;
         }
         
-        // Get quizzes with filters and sorting
-        $quizzes = $quizRepository->findWithFiltersAndSort($filters, $sortBy, $sortOrder);
+        // Get query builder with filters and sorting
+        $queryBuilder = $quizRepository->findWithFiltersAndSort($filters, $sortBy, $sortOrder);
+        
+        // Paginate the results
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            9 // items per page (3x3 grid)
+        );
         
         return $this->render('front/quiz/game/index.html.twig', [            
-            'quizzes' => $quizzes,
+            'pagination' => $pagination,
             'currentFilters' => $filters,
             'currentSort' => ['by' => $sortBy, 'order' => $sortOrder]
         ]);

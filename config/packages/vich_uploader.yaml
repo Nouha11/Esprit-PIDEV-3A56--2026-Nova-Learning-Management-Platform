@@ -17,3 +17,11 @@ vich_uploader:
             inject_on_load: false
             delete_on_update: true
             delete_on_remove: true
+        
+        question_images:
+            uri_prefix: /uploads/questions
+            upload_destination: '%kernel.project_dir%/public/uploads/questions'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: false
+            delete_on_update: true
+            delete_on_remove: true
