@@ -60,12 +60,19 @@ class ForumController extends AbstractController
 
         // --- FILTERING LOGIC ---
         $searchQuery = $request->query->get('q');
-        $filter = $request->query->get('filter'); // Get 'popular' or 'unanswered' from URL
+        $filter = $request->query->get('filter'); // Get 'popular', 'unanswered', or 'bookmarks'
+
+        /** @var User $user */
+        $user = $this->getUser();
 
         if ($searchQuery) {
             $query = $postRepository->adminSearch($searchQuery);
+        } elseif ($filter === 'bookmarks' && $user) {
+            // --- NEW: Handle the Bookmarks Filter ---
+            // If the user clicked "My Bookmarks", fetch their saved posts collection
+            $query = $user->getBookmarkedPosts(); 
         } else {
-            // If no search, check for filters
+            // If no search and not bookmarks, use the existing filters (popular/unanswered)
             $query = $postRepository->findByFilter($filter);
         }
 
@@ -82,6 +89,7 @@ class ForumController extends AbstractController
             'currentFilter' => $filter, // Pass filter to Twig for "Active" class
         ]);
     }
+
 
     #[Route('/forum/{id}', name: 'app_forum_show')]
     public function show(
@@ -362,4 +370,35 @@ class ForumController extends AbstractController
             'summary' => $summary
         ]);
     }
+
+#[Route('/forum/post/{id}/bookmark', name: 'app_forum_post_bookmark', methods: ['POST'])]
+    public function toggleBookmark(Post $post, EntityManagerInterface $entityManager): JsonResponse
+    {
+        /** @var \App\Entity\users\User $user */
+        $user = $this->getUser();
+
+        // 1. Security Check: Are they logged in?
+        if (!$user) {
+            return $this->json(['error' => 'You must be logged in to bookmark posts.'], 403);
+        }
+
+        // 2. Toggle Logic: If it's already saved, remove it. If not, save it.
+        if ($user->hasBookmarkedPost($post)) {
+            $user->removeBookmarkedPost($post);
+            $isBookmarked = false;
+        } else {
+            $user->addBookmarkedPost($post);
+            $isBookmarked = true;
+        }
+
+        // 3. Save to the database
+        $entityManager->flush();
+
+        // 4. Send the result back to the browser instantly
+        return $this->json([
+            'isBookmarked' => $isBookmarked,
+            'message' => $isBookmarked ? 'Post saved to your reading list!' : 'Post removed from your reading list.'
+        ]);
+    }
+
 }

@@ -111,6 +111,14 @@
                                     <span class="btn-text">{{ is_upvoted ? 'Upvoted' : 'Upvote' }}</span>
                                 </button>
                                 
+                                {# --- NEW: BOOKMARK BUTTON --- #}
+                                {% set is_bookmarked = app.user and app.user.hasBookmarkedPost(post) %}
+                                <button class="btn btn-sm mb-0 bookmark-btn {{ is_bookmarked ? 'btn-warning text-dark' : 'btn-light' }}" 
+                                        data-id="{{ post.id }}">
+                                    <i class="bi {{ is_bookmarked ? 'bi-bookmark-fill' : 'bi-bookmark' }} me-1"></i> 
+                                    <span class="btn-text">{{ is_bookmarked ? 'Saved' : 'Save' }}</span>
+                                </button>
+                                
                                 {# REPLY BUTTON #}
                                 {% if not post.isLocked %}
                                     <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-reply-fill me-1"></i> Reply</a>
@@ -404,6 +412,47 @@
             });
         }
 
+        // 1.5. BOOKMARK LOGIC (NEW)
+        const bookmarkBtn = document.querySelector('.bookmark-btn');
+        if (bookmarkBtn) {
+            bookmarkBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const postId = this.dataset.id;
+                const textSpan = this.querySelector('.btn-text');
+                const icon = this.querySelector('i');
+
+                fetch(`/forum/post/${postId}/bookmark`, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => {
+                    if (response.status === 403) {
+                        alert('You must be logged in to save posts!');
+                        throw new Error('Not logged in');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data) {
+                        if (data.isBookmarked) {
+                            this.classList.remove('btn-light');
+                            this.classList.add('btn-warning', 'text-dark');
+                            icon.classList.remove('bi-bookmark');
+                            icon.classList.add('bi-bookmark-fill');
+                            textSpan.textContent = 'Saved';
+                        } else {
+                            this.classList.remove('btn-warning', 'text-dark');
+                            this.classList.add('btn-light');
+                            icon.classList.remove('bi-bookmark-fill');
+                            icon.classList.add('bi-bookmark');
+                            textSpan.textContent = 'Save';
+                        }
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+            });
+        }
+
         // 2. MARK AS SOLUTION LOGIC
         const solutionBtns = document.querySelectorAll('.solution-btn');
         solutionBtns.forEach(btn => {
@@ -501,7 +550,7 @@
             });
         });
 
-        // 4. AI SUMMARY LOGIC (NEW)
+        // 4. AI SUMMARY LOGIC
         const btnSummarize = document.getElementById('btn-summarize');
         const summaryContent = document.getElementById('ai-summary-content');
 

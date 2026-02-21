@@ -124,6 +124,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     #[ORM\ManyToMany(targetEntity: \App\Entity\Gamification\Game::class, inversedBy: 'favoritedBy')]
     #[ORM\JoinTable(name: 'user_favorite_games')]
     private Collection $favoriteGames;
+    
+    // Many-to-many: User can bookmark/save many posts
+    #[ORM\ManyToMany(targetEntity: Post::class)]
+    #[ORM\JoinTable(name: 'user_bookmarked_posts')]
+    private Collection $bookmarkedPosts;
 
     /**
      * @var Collection<int, Report>
@@ -149,6 +154,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         $this->favoriteGames = new ArrayCollection();
         $this->xp = 0;
         $this->reports = new ArrayCollection();
+        $this->bookmarkedPosts = new ArrayCollection();
     }
 
     // ... (Getters/Setters unchanged) ...
@@ -452,5 +458,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     {
         $this->totpSecret = $totpSecret;
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getBookmarkedPosts(): Collection
+    {
+        return $this->bookmarkedPosts;
+    }
+
+    public function addBookmarkedPost(Post $post): static
+    {
+        if (!$this->bookmarkedPosts->contains($post)) {
+            $this->bookmarkedPosts->add($post);
+        }
+        return $this;
+    }
+
+    public function removeBookmarkedPost(Post $post): static
+    {
+        $this->bookmarkedPosts->removeElement($post);
+        return $this;
+    }
+
+    public function hasBookmarkedPost(Post $post): bool
+    {
+        return $this->bookmarkedPosts->contains($post);
     }
 }

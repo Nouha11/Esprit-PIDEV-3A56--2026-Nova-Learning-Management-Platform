@@ -82,6 +82,13 @@
                                     <a class="list-group-item {{ currentFilter == 'unanswered' ? 'active' : '' }}" href="{{ path('app_forum', {'filter': 'unanswered'}) }}">
                                         <i class="bi bi-question-circle fa-fw me-2"></i>{{ t.t('Unanswered') }}
                                     </a>
+
+                                    {# --- NEW: MY BOOKMARKS --- #}
+                                    {% if app.user %}
+                                        <a class="list-group-item {{ currentFilter == 'bookmarks' ? 'active' : '' }}" href="{{ path('app_forum', {'filter': 'bookmarks'}) }}">
+                                            <i class="bi bi-bookmark-star fa-fw me-2"></i>{{ t.t('My Bookmarks') }}
+                                        </a>
+                                    {% endif %}
                                 </div>
                                 {# ----------------------------- #}
 
