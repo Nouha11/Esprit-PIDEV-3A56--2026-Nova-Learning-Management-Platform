@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            margin: 0;
+            padding: 0;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .header { 
+            background: #dc3545; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 5px 5px 0 0; 
+            text-align: center;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            border: 1px solid #dee2e6; 
+        }
+        .info-box { 
+            background: white; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-left: 4px solid #dc3545; 
+            border-radius: 3px;
+        }
+        .info-box p {
+            margin: 8px 0;
+        }
+        .button { 
+            display: inline-block; 
+            padding: 12px 24px; 
+            background: #dc3545; 
+            color: white !important; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .button:hover {
+            background: #c82333;
+        }
+        .footer { 
+            text-align: center; 
+            padding: 20px; 
+            color: #6c757d; 
+            font-size: 12px; 
+        }
+        .label { 
+            font-weight: bold; 
+            color: #495057; 
+        }
+        .reason-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #dc3545;
+            color: white;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🚨 New Quiz Report</h2>
+        </div>
+        
+        <div class="content">
+            <p>Hello <strong>{{ adminName }}</strong>,</p>
+            
+            <p>A new quiz has been reported and requires your attention.</p>
+            
+            <div class="info-box">
+                <p><span class="label">Quiz:</span> {{ quiz.title }}</p>
+                <p><span class="label">Reported By:</span> {{ reporter.username }}</p>
+                <p><span class="label">Reason:</span> <span class="reason-badge">{{ report.reason }}</span></p>
+                <p><span class="label">Date:</span> {{ report.createdAt|date('F d, Y \\a\\t g:i A') }}</p>
+            </div>
+            
+            {% if report.description %}
+                <div class="info-box">
+                    <p><span class="label">Additional Details:</span></p>
+                    <p>{{ report.description|nl2br }}</p>
+                </div>
+            {% endif %}
+            
+            <div style="text-align: center;">
+                <a href="{{ reportUrl }}" class="button">Review Report Now</a>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 14px; color: #6c757d;">
+                Please review this report and take appropriate action (resolve, dismiss, or delete the quiz).
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated notification from your Quiz Management System.</p>
+            <p>Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

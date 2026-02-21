@@ -5,6 +5,7 @@ namespace App\Controller\Front\Quiz;
 use App\Entity\Quiz;
 use App\Entity\Quiz\QuizReport;
 use App\Form\Quiz\QuizReportType;
+use App\Service\QuizReportNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,8 @@ class QuizReportController extends AbstractController
     public function report(
         Quiz $quiz,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        QuizReportNotificationService $notificationService
     ): Response {
         $report = new QuizReport();
         $report->setQuiz($quiz);
@@ -32,6 +34,9 @@ class QuizReportController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($report);
             $entityManager->flush();
+
+            // Send notification to admins
+            $notificationService->notifyAdminsOfNewReport($report);
 
             $this->addFlash('success', 'Thank you for your report. Our team will review it shortly.');
             return $this->redirectToRoute('app_front_quiz_index');
