@@ -1,0 +1,85 @@
+{% if milestones is empty %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        No level milestones created yet. Create your first milestone to reward students for leveling up!
+    </div>
+{% else %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Level</th>
+                    <th>Name</th>
+                    <th>Token Reward</th>
+                    <th>Students Earned</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for milestone in milestones %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-primary fs-6">
+                                Level {{ milestone.requiredLevel }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ milestone.name }}</strong>
+                            {% if milestone.description %}
+                                <br><small class="text-muted">{{ milestone.description|slice(0, 50) }}{% if milestone.description|length > 50 %}...{% endif %}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <i class="bi bi-coin text-warning me-1"></i>
+                            <strong>{{ milestone.value }}</strong> tokens
+                        </td>
+                        <td>
+                            <span class="badge bg-info">
+                                {{ milestone.students|length }} students
+                            </span>
+                        </td>
+                        <td>
+                            {% if milestone.isActive %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ path('admin_level_milestone_show', {id: milestone.id}) }}" 
+                                   class="btn btn-outline-info" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ path('admin_level_milestone_edit', {id: milestone.id}) }}" 
+                                   class="btn btn-outline-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" 
+                                      action="{{ path('admin_level_milestone_toggle_status', {id: milestone.id}) }}" 
+                                      style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ milestone.id) }}">
+                                    <button type="submit" 
+                                            class="btn btn-sm btn-outline-{{ milestone.isActive ? 'secondary' : 'success' }}" 
+                                            title="{{ milestone.isActive ? 'Deactivate' : 'Activate' }}">
+                                        <i class="bi bi-{{ milestone.isActive ? 'toggle-off' : 'toggle-on' }}"></i>
+                                    </button>
+                                </form>
+                                <form method="post" 
+                                      action="{{ path('admin_level_milestone_delete', {id: milestone.id}) }}" 
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete {{ milestone.name|escape('js') }}? This action cannot be undone.');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ milestone.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

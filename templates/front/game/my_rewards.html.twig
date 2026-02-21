@@ -19,10 +19,17 @@
         <div class="col-md-4 mb-3">
             <div class="card border-primary">
                 <div class="card-body text-center">
-                    <i class="bi bi-star-fill text-warning fs-1"></i>
+                    {% set levelData = calculate_level(student.totalXP) %}
+                    <i class="{{ get_level_icon(student.level) }} text-warning fs-1"></i>
                     <h5 class="card-title mt-2">Total XP</h5>
                     <p class="card-text display-6">{{ student.totalXP }}</p>
-                    <small class="text-muted">Level {{ student.level }}</small>
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                        <span class="badge bg-secondary">Level {{ student.level }}</span>
+                        <span class="badge bg-{{ get_level_badge_color(student.level) }} rank-badge-rewards">
+                            <i class="{{ get_level_icon(student.level) }} me-1"></i>
+                            {{ levelData.name }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,17 +48,18 @@
                 <div class="card-body text-center">
                     <i class="bi bi-graph-up-arrow text-primary fs-1"></i>
                     <h5 class="card-title mt-2">Progress</h5>
+                    {% set levelInfo = calculate_level(student.totalXP) %}
                     <div class="progress mt-3" style="height: 25px;">
                         <div class="progress-bar bg-success" role="progressbar" 
-                             style="width: {{ student.progressToNextLevel }}%;" 
-                             aria-valuenow="{{ student.progressToNextLevel }}" 
+                             style="width: {{ levelInfo.progress }}%;" 
+                             aria-valuenow="{{ levelInfo.progress }}" 
                              aria-valuemin="0" 
                              aria-valuemax="100">
-                            {{ student.progressToNextLevel }}%
+                            {{ levelInfo.progress }}%
                         </div>
                     </div>
                     <small class="text-muted mt-2 d-block">
-                        {{ student.XPForNextLevel }} XP to next level
+                        {{ levelInfo.xpNeededForNextLevel }} XP to next level
                     </small>
                 </div>
             </div>
@@ -96,7 +104,7 @@
                         <div class="card-body">
                             <div class="text-center mb-3">
                                 {% if reward.icon %}
-                                    <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="reward-icon mb-2">
+                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="reward-icon mb-2">
                                 {% else %}
                                     <div class="reward-icon-placeholder achievement-icon-bg mb-2">
                                         <i class="bi bi-trophy-fill"></i>
@@ -139,6 +147,76 @@
                             <small class="text-muted">
                                 <i class="bi bi-calendar-check me-1"></i>
                                 Earned recently
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Level Milestones Section -->
+    {% set milestones = student.earnedRewards|filter(r => r.type == 'LEVEL_MILESTONE') %}
+    {% if milestones|length > 0 %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="section-header mb-4">
+                    <h3 class="section-title">
+                        <i class="bi bi-award-fill text-danger me-2"></i>
+                        Level Milestones
+                        <span class="badge bg-danger ms-2">{{ milestones|length }}</span>
+                    </h3>
+                    <p class="text-muted">Special rewards for reaching key levels</p>
+                </div>
+            </div>
+            {% for reward in milestones|sort((a, b) => a.requiredLevel <=> b.requiredLevel) %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 milestone-card">
+                        <div class="milestone-crown">
+                            <i class="bi bi-award-fill"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                {% if reward.icon %}
+                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="milestone-icon mb-2">
+                                {% else %}
+                                    <div class="milestone-icon-placeholder mb-2">
+                                        <i class="bi bi-award-fill"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="text-center mb-3">
+                                <span class="badge bg-danger milestone-level-badge">
+                                    Level {{ reward.requiredLevel }}
+                                </span>
+                            </div>
+
+                            <h5 class="card-title text-center mb-2 milestone-title">{{ reward.name }}</h5>
+                            
+                            {% if reward.description %}
+                                <p class="card-text text-muted small text-center mb-3">
+                                    {{ reward.description|length > 100 ? reward.description|slice(0, 100) ~ '...' : reward.description }}
+                                </p>
+                            {% endif %}
+
+                            <div class="text-center mb-3">
+                                <span class="badge bg-warning text-dark milestone-value">
+                                    <i class="bi bi-coin me-1"></i>
+                                    {{ reward.value }} Tokens Awarded
+                                </span>
+                            </div>
+
+                            <a href="{{ path('front_reward_show', {id: reward.id}) }}" 
+                               class="btn btn-outline-danger btn-sm w-100">
+                                <i class="bi bi-eye me-1"></i>
+                                View Details
+                            </a>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <small class="text-muted text-center d-block">
+                                <i class="bi bi-trophy me-1"></i>
+                                Milestone Achieved
                             </small>
                         </div>
                     </div>
@@ -314,6 +392,45 @@
 </div>
 
 <style>
+    /* Rank Badge Styling */
+    .rank-badge-rewards {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+        animation: rankGlow 2s ease-in-out infinite;
+        border: 2px solid rgba(255,255,255,0.3);
+    }
+    
+    @keyframes rankGlow {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.25);
+        }
+    }
+    
+    [data-bs-theme="dark"] .rank-badge-rewards {
+        box-shadow: 0 3px 6px rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.2);
+    }
+    
+    [data-bs-theme="dark"] @keyframes rankGlow {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 3px 6px rgba(255,255,255,0.1);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 5px 10px rgba(255,255,255,0.2);
+        }
+    }
+    
     .card {
         transition: transform 0.3s, box-shadow 0.3s;
         border-radius: 15px;
@@ -577,6 +694,111 @@
         font-size: 1.1rem;
         padding: 8px 12px;
         font-weight: 700;
+    }
+
+    /* Milestone Cards */
+    .milestone-card {
+        border: 3px solid #dc3545;
+        background: linear-gradient(135deg, #ffffff 0%, #fff0f0 100%);
+        position: relative;
+        overflow: visible;
+    }
+    
+    [data-bs-theme="dark"] .milestone-card {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a1616 100%);
+        border-color: #ff6b6b;
+    }
+
+    .milestone-card:hover {
+        border-color: #c82333;
+        box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+        transform: translateY(-10px);
+    }
+    
+    [data-bs-theme="dark"] .milestone-card:hover {
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+    }
+
+    .milestone-crown {
+        position: absolute;
+        top: -8px;
+        right: 20px;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        width: 55px;
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        clip-path: polygon(0 0, 100% 0, 100% 75%, 75% 85%, 50% 100%, 25% 85%, 0 75%);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.5);
+        z-index: 10;
+        animation: crownFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes crownFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    .milestone-title {
+        color: #dc3545;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    [data-bs-theme="dark"] .milestone-title {
+        color: #ff6b6b;
+    }
+
+    .milestone-icon {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        filter: drop-shadow(0 5px 10px rgba(220, 53, 69, 0.3));
+        animation: milestoneRotate 4s ease-in-out infinite;
+    }
+    
+    [data-bs-theme="dark"] .milestone-icon {
+        filter: drop-shadow(0 5px 10px rgba(255, 107, 107, 0.4));
+    }
+
+    @keyframes milestoneRotate {
+        0%, 100% { transform: rotate(-5deg); }
+        50% { transform: rotate(5deg); }
+    }
+
+    .milestone-icon-placeholder {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto;
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        animation: milestoneRotate 4s ease-in-out infinite;
+    }
+    
+    [data-bs-theme="dark"] .milestone-icon-placeholder {
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.5);
+    }
+
+    .milestone-level-badge {
+        font-size: 1.2rem;
+        padding: 10px 20px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .milestone-value {
+        font-size: 1rem;
+        padding: 8px 16px;
+        font-weight: 600;
     }
     
     /* Text color adjustments for dark mode */

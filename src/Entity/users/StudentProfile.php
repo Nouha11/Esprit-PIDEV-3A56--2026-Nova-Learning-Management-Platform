@@ -262,24 +262,23 @@ class StudentProfile
 
     private function updateLevel(): void
     {
-        // Simple level calculation: 100 XP per level
-        $newLevel = floor($this->totalXP / 100) + 1;
-        $this->level = (int)$newLevel;
+        // Level is now calculated by LevelCalculatorService
+        // This method is kept for backward compatibility but doesn't do the calculation
+        // The actual level should be set by the service after XP changes
     }
 
     public function getXPForNextLevel(): int
     {
-        return ($this->level * 100) - $this->totalXP;
+        // This should be calculated by LevelCalculatorService
+        // Kept for backward compatibility
+        return 0;
     }
 
     public function getProgressToNextLevel(): float
     {
-        $currentLevelXP = ($this->level - 1) * 100;
-        $nextLevelXP = $this->level * 100;
-        $progressXP = $this->totalXP - $currentLevelXP;
-        $requiredXP = $nextLevelXP - $currentLevelXP;
-        
-        return round(($progressXP / $requiredXP) * 100, 2);
+        // This should be calculated by LevelCalculatorService
+        // Kept for backward compatibility
+        return 0.0;
     }
 
     public function getId(): ?int
