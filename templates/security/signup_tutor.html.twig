@@ -149,6 +149,13 @@
 								</div>
 							{% endfor %}
 							
+							{% for message in app.flashes('info') %}
+								<div class="alert alert-info alert-dismissible fade show" role="alert">
+									{{ message }}
+									<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+								</div>
+							{% endfor %}
+							
 							{% for message in app.flashes('success') %}
 								<div class="alert alert-success alert-dismissible fade show" role="alert">
 									{{ message }}
@@ -166,14 +173,18 @@
 										<label for="username" class="form-label">Username *</label>
 										<div class="input-group input-group-lg">
 											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person-fill"></i></span>
-											<input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="username" name="username"  minlength="3" placeholder="Username">
+											<input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="username" name="username" minlength="3" maxlength="100" pattern="[a-zA-Z0-9_]+" placeholder="Username" required value="{{ formData.username|default('') }}">
 										</div>
+										<div id="usernameHelp" class="form-text">
+											<i class="bi bi-info-circle"></i> 3-100 characters. Letters, numbers, and underscores only.
+										</div>
+										<div id="usernameAvailability" class="mt-1"></div>
 									</div>
 									<div class="col-md-6">
 										<label for="email" class="form-label">Email *</label>
 										<div class="input-group input-group-lg">
 											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-envelope-fill"></i></span>
-											<input type="email" class="form-control border-0 bg-light rounded-end ps-1" id="email" name="email"  placeholder="E-mail">
+											<input type="email" class="form-control border-0 bg-light rounded-end ps-1" id="email" name="email"  placeholder="E-mail" value="{{ formData.email|default('') }}">
 										</div>
 									</div>
 								</div>
@@ -209,14 +220,14 @@
 										<label for="firstName" class="form-label">First Name *</label>
 										<div class="input-group input-group-lg">
 											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person"></i></span>
-											<input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="firstName" name="firstName"  minlength="2" placeholder="First Name">
+											<input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="firstName" name="firstName"  minlength="2" placeholder="First Name" value="{{ formData.firstName|default('') }}">
 										</div>
 									</div>
 									<div class="col-md-6">
 										<label for="lastName" class="form-label">Last Name *</label>
 										<div class="input-group input-group-lg">
 											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person"></i></span>
-											<input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="lastName" name="lastName"  minlength="2" placeholder="Last Name">
+											<input type="text" class="form-control border-0 bg-light rounded-end ps-1" id="lastName" name="lastName"  minlength="2" placeholder="Last Name" value="{{ formData.lastName|default('') }}">
 										</div>
 									</div>
 								</div>
@@ -225,7 +236,7 @@
 									<label for="expertise" class="form-label">Expertise *</label>
 									<div class="input-group input-group-lg">
 										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3 align-items-start pt-3"><i class="bi bi-award"></i></span>
-										<textarea class="form-control border-0 bg-light rounded-end ps-1" id="expertise" name="expertise" rows="3"  minlength="10" placeholder="Enter your areas of expertise separated by commas (e.g., Mathematics, Physics, Chemistry)"></textarea>
+										<textarea class="form-control border-0 bg-light rounded-end ps-1" id="expertise" name="expertise" rows="3"  minlength="10" placeholder="Enter your areas of expertise separated by commas (e.g., Mathematics, Physics, Chemistry)">{{ formData.expertise|default('') }}</textarea>
 									</div>
 									<div class="form-text">Enter skills separated by commas. Minimum 10 characters</div>
 								</div>
@@ -234,7 +245,7 @@
 									<label for="qualifications" class="form-label">Qualifications</label>
 									<div class="input-group input-group-lg">
 										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3 align-items-start pt-3"><i class="bi bi-file-earmark-text"></i></span>
-										<textarea class="form-control border-0 bg-light rounded-end ps-1" id="qualifications" name="qualifications" rows="3" placeholder="List your degrees, certifications, etc."></textarea>
+										<textarea class="form-control border-0 bg-light rounded-end ps-1" id="qualifications" name="qualifications" rows="3" placeholder="List your degrees, certifications, etc.">{{ formData.qualifications|default('') }}</textarea>
 									</div>
 								</div>
 
@@ -243,14 +254,14 @@
 										<label for="yearsOfExperience" class="form-label">Years of Experience *</label>
 										<div class="input-group input-group-lg">
 											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-calendar-check"></i></span>
-											<input type="number" class="form-control border-0 bg-light rounded-end ps-1" id="yearsOfExperience" name="yearsOfExperience"  min="0" max="50" value="0" placeholder="Years">
+											<input type="number" class="form-control border-0 bg-light rounded-end ps-1" id="yearsOfExperience" name="yearsOfExperience"  min="0" max="50" value="{{ formData.yearsOfExperience|default('0') }}" placeholder="Years">
 										</div>
 									</div>
 									<div class="col-md-6">
 										<label for="hourlyRate" class="form-label">Hourly Rate (Dt)</label>
 										<div class="input-group input-group-lg">
 											<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-currency-dollar"></i></span>
-											<input type="number" class="form-control border-0 bg-light rounded-end ps-1" id="hourlyRate" name="hourlyRate" min="0" max="1000" step="0.01" placeholder="e.g., 25.00">
+											<input type="number" class="form-control border-0 bg-light rounded-end ps-1" id="hourlyRate" name="hourlyRate" min="0" max="1000" step="0.01" placeholder="e.g., 25.00" value="{{ formData.hourlyRate|default('') }}">
 										</div>
 									</div>
 								</div>
@@ -316,6 +327,83 @@ document.querySelector('form').addEventListener('submit', function(e) {
         return;
     }
 });
+
+// Username suggestions (real-time, but doesn't block submission)
+const usernameInput = document.getElementById('username');
+const availabilityDiv = document.getElementById('usernameAvailability');
+let checkTimeout;
+
+usernameInput.addEventListener('input', function() {
+    clearTimeout(checkTimeout);
+    const username = this.value.trim();
+    
+    if (username.length < 3) {
+        availabilityDiv.innerHTML = '';
+        return;
+    }
+    
+    // Debounce the check
+    checkTimeout = setTimeout(() => {
+        checkUsernameAvailability(username);
+    }, 500);
+});
+
+function checkUsernameAvailability(username) {
+    availabilityDiv.innerHTML = '<small class="text-muted"><i class="bi bi-hourglass-split"></i> Checking...</small>';
+    
+    fetch('/settings/username/check', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'username=' + encodeURIComponent(username)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.available) {
+            availabilityDiv.innerHTML = '<small class="text-success"><i class="bi bi-check-circle-fill"></i> Username is available!</small>';
+        } else {
+            availabilityDiv.innerHTML = '<small class="text-warning"><i class="bi bi-info-circle-fill"></i> ' + data.message + '</small>';
+            
+            // Get suggestions
+            getSuggestions(username);
+        }
+    })
+    .catch(error => {
+        availabilityDiv.innerHTML = '';
+    });
+}
+
+function getSuggestions(username) {
+    fetch('/settings/username/suggestions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'username=' + encodeURIComponent(username)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.suggestions && data.suggestions.length > 0) {
+            let html = '<small class="text-muted d-block mt-1"><i class="bi bi-lightbulb"></i> Try: ';
+            data.suggestions.slice(0, 3).forEach((suggestion, index) => {
+                if (index > 0) html += ', ';
+                html += '<a href="#" class="suggestion-link" data-username="' + suggestion + '">' + suggestion + '</a>';
+            });
+            html += '</small>';
+            availabilityDiv.innerHTML += html;
+            
+            // Add click handlers
+            document.querySelectorAll('.suggestion-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    usernameInput.value = this.dataset.username;
+                    checkUsernameAvailability(this.dataset.username);
+                });
+            });
+        }
+    });
+}
 </script>
 
 </body>

@@ -19,12 +19,14 @@ use App\Service\EmailVerificationService;
 use App\Service\PasswordResetService;
 use App\Service\CaptchaService;
 use App\Service\PasswordPolicyService;
+use App\Service\UsernameChangeService;
 
 class SecurityController extends AbstractController
 {
     public function __construct(
         private CaptchaService $captchaService,
-        private PasswordPolicyService $passwordPolicyService
+        private PasswordPolicyService $passwordPolicyService,
+        private UsernameChangeService $usernameChangeService
     ) {}
 
     #[Route('/login', name: 'app_login')]
@@ -108,10 +110,22 @@ class SecurityController extends AbstractController
             $username = $request->request->get('username');
             $email = $request->request->get('email');
 
-            // Check if username already exists
-            $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
-            if ($existingUserByUsername) {
-                $this->addFlash('error', $translator->trans('This username is already taken', [], 'validators', $locale));
+            // Validate username using UsernameChangeService
+            $usernameValidation = $this->usernameChangeService->validateUsername($username, null);
+            if (!$usernameValidation['valid']) {
+                foreach ($usernameValidation['errors'] as $error) {
+                    $this->addFlash('error', $translator->trans($error, [], 'validators', $locale));
+                }
+                
+                // Get suggestions if username is taken
+                if (in_array('This username is already taken', $usernameValidation['errors'])) {
+                    $suggestions = $this->usernameChangeService->suggestAlternatives($username);
+                    if (!empty($suggestions)) {
+                        $suggestionText = $translator->trans('Try these alternatives', [], 'validators', $locale) . ': ' . implode(', ', array_slice($suggestions, 0, 3));
+                        $this->addFlash('info', $suggestionText);
+                    }
+                }
+                
                 $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_student.html.twig', [
                     'formData' => $request->request->all(),
@@ -242,10 +256,22 @@ class SecurityController extends AbstractController
             $username = $request->request->get('username');
             $email = $request->request->get('email');
 
-            // Check if username already exists
-            $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
-            if ($existingUserByUsername) {
-                $this->addFlash('error', $translator->trans('This username is already taken', [], 'validators', $locale));
+            // Validate username using UsernameChangeService
+            $usernameValidation = $this->usernameChangeService->validateUsername($username, null);
+            if (!$usernameValidation['valid']) {
+                foreach ($usernameValidation['errors'] as $error) {
+                    $this->addFlash('error', $translator->trans($error, [], 'validators', $locale));
+                }
+                
+                // Get suggestions if username is taken
+                if (in_array('This username is already taken', $usernameValidation['errors'])) {
+                    $suggestions = $this->usernameChangeService->suggestAlternatives($username);
+                    if (!empty($suggestions)) {
+                        $suggestionText = $translator->trans('Try these alternatives', [], 'validators', $locale) . ': ' . implode(', ', array_slice($suggestions, 0, 3));
+                        $this->addFlash('info', $suggestionText);
+                    }
+                }
+                
                 $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_tutor.html.twig', [
                     'formData' => $request->request->all(),
