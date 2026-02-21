@@ -10,6 +10,97 @@
         <p class="lead text-muted">{{ t.t('Test your skills, earn XP, and climb the leaderboard!') }}</p>
     </div>
 
+    <!-- Filters Section -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-light border-bottom px-4 py-3">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-funnel me-2"></i>{{ t.t('Find Your Perfect Quiz') }}
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="GET" action="{{ path('app_front_quiz_index') }}" class="quiz-filter-form">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="{{ t.t('Search quizzes...') }}"
+                               value="{{ app.request.query.get('search', '') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" 
+                               name="minQuestions" 
+                               class="form-control" 
+                               placeholder="Min"
+                               min="0"
+                               value="{{ app.request.query.get('minQuestions', '') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" 
+                               name="maxQuestions" 
+                               class="form-control" 
+                               placeholder="Max"
+                               min="0"
+                               value="{{ app.request.query.get('maxQuestions', '') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-1"></i> {{ t.t('Search') }}
+                        </button>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-md-3">
+                        <select name="sortBy" class="form-select">
+                            <option value="title" {{ app.request.query.get('sortBy') == 'title' ? 'selected' : '' }}>Title</option>
+                            <option value="id" {{ app.request.query.get('sortBy') == 'id' ? 'selected' : '' }}>ID</option>
+                            <option value="questionCount" {{ app.request.query.get('sortBy') == 'questionCount' ? 'selected' : '' }}>Question Count</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="sortOrder" class="form-select">
+                            <option value="ASC" {{ app.request.query.get('sortOrder') == 'ASC' ? 'selected' : '' }}>Ascending</option>
+                            <option value="DESC" {{ app.request.query.get('sortOrder') == 'DESC' ? 'selected' : '' }}>Descending</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        {% if currentFilters is not empty or app.request.query.count > 0 %}
+                            <a href="{{ path('app_front_quiz_index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i> {{ t.t('Clear Filters') }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Filters Display -->
+    {% if currentFilters is not empty %}
+        <div class="mb-3">
+            <small class="text-muted">{{ t.t('Active filters:') }}</small>
+            {% if currentFilters.search is defined and currentFilters.search %}
+                <span class="badge bg-primary ms-1">{{ t.t('Search:') }} "{{ currentFilters.search }}"</span>
+            {% endif %}
+            {% if currentFilters.minQuestions is defined and currentFilters.minQuestions %}
+                <span class="badge bg-info ms-1">{{ t.t('Min:') }} {{ currentFilters.minQuestions }} {{ t.t('questions') }}</span>
+            {% endif %}
+            {% if currentFilters.maxQuestions is defined and currentFilters.maxQuestions %}
+                <span class="badge bg-info ms-1">{{ t.t('Max:') }} {{ currentFilters.maxQuestions }} {{ t.t('questions') }}</span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Debug info (remove in production) -->
+    {% if app.environment == 'dev' %}
+        <div class="alert alert-info small">
+            <strong>Debug:</strong> 
+            Filters: {{ currentFilters|json_encode }} | 
+            Sort: {{ currentSort.by }} {{ currentSort.order }} | 
+            Total Results: {{ quizzes|length }}
+        </div>
+    {% endif %}
+
     <div class="row">
         {% for quiz in quizzes %}
             <div class="col-md-4 mb-4">
@@ -44,7 +135,14 @@
         {% else %}
             <div class="col-12 text-center py-5">
                 <i class="bi bi-emoji-frown display-1 text-muted"></i>
-                <p class="mt-3 text-muted">{{ t.t('No quizzes available right now. Check back later!') }}</p>
+                {% if currentFilters is not empty %}
+                    <p class="mt-3 text-muted">{{ t.t('No quizzes match your filters. Try adjusting your search criteria.') }}</p>
+                    <a href="{{ path('app_front_quiz_index') }}" class="btn btn-outline-primary">
+                        {{ t.t('Show All Quizzes') }}
+                    </a>
+                {% else %}
+                    <p class="mt-3 text-muted">{{ t.t('No quizzes available right now. Check back later!') }}</p>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
@@ -54,4 +152,18 @@
     .hover-effect { transition: transform 0.2s; }
     .hover-effect:hover { transform: translateY(-5px); }
 </style>
+
+<script>
+// Auto-submit form on select changes for better UX
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.quiz-filter-form');
+    const selects = form.querySelectorAll('select');
+    
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            form.submit();
+        });
+    });
+});
+</script>
 {% endblock %}

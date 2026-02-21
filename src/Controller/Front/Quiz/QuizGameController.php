@@ -18,10 +18,31 @@ final class QuizGameController extends AbstractController
     // 1. THE ARCADE PAGE (List of Quizzes)
     // ---------------------------------------------------
     #[Route('/', name: 'app_front_quiz_index', methods: ['GET'])]
-    public function index(QuizRepository $quizRepository): Response
+    public function index(QuizRepository $quizRepository, Request $request): Response
     {
+        // Get filter data from query parameters
+        $filters = [];
+        $sortBy = $request->query->get('sortBy', 'title');
+        $sortOrder = $request->query->get('sortOrder', 'ASC');
+        
+        // Build filters array
+        if ($search = $request->query->get('search')) {
+            $filters['search'] = $search;
+        }
+        if ($minQuestions = $request->query->get('minQuestions')) {
+            $filters['minQuestions'] = (int)$minQuestions;
+        }
+        if ($maxQuestions = $request->query->get('maxQuestions')) {
+            $filters['maxQuestions'] = (int)$maxQuestions;
+        }
+        
+        // Get quizzes with filters and sorting
+        $quizzes = $quizRepository->findWithFiltersAndSort($filters, $sortBy, $sortOrder);
+        
         return $this->render('front/quiz/game/index.html.twig', [            
-            'quizzes' => $quizRepository->findAll(),
+            'quizzes' => $quizzes,
+            'currentFilters' => $filters,
+            'currentSort' => ['by' => $sortBy, 'order' => $sortOrder]
         ]);
     }
 

@@ -3,7 +3,7 @@
 namespace App\Controller\Admin\Quiz;
 
 use App\Entity\Quiz;
-use App\Form\QuizType;
+use App\Form\Admin\Quiz\QuizType;
 use App\Repository\QuizRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,12 +15,37 @@ use Symfony\Component\Routing\Attribute\Route;
 final class QuizController extends AbstractController
 {
     #[Route(name: 'app_quiz_index', methods: ['GET'])]
-    public function index(QuizRepository $quizRepository, string $prefix): Response
+    public function index(QuizRepository $quizRepository, Request $request, string $prefix): Response
     {
         $templatePrefix = $prefix === 'admin' ? 'admin/' : '';
         
+        // Get filter data from query parameters
+        $filters = [];
+        $sortBy = $request->query->get('sortBy', 'title');
+        $sortOrder = $request->query->get('sortOrder', 'ASC');
+        
+        // Build filters array
+        if ($search = $request->query->get('search')) {
+            $filters['search'] = $search;
+        }
+        if ($minQuestions = $request->query->get('minQuestions')) {
+            $filters['minQuestions'] = (int)$minQuestions;
+        }
+        if ($maxQuestions = $request->query->get('maxQuestions')) {
+            $filters['maxQuestions'] = (int)$maxQuestions;
+        }
+        
+        // Get quizzes with filters and sorting
+        $quizzes = $quizRepository->findWithFiltersAndSort($filters, $sortBy, $sortOrder);
+        
+        // Get statistics for the UI
+        $statistics = $quizRepository->getQuizStatistics();
+        
         return $this->render($templatePrefix . 'quiz/index.html.twig', [
-            'quizzes' => $quizRepository->findAll(),
+            'quizzes' => $quizzes,
+            'statistics' => $statistics,
+            'currentFilters' => $filters,
+            'currentSort' => ['by' => $sortBy, 'order' => $sortOrder]
         ]);
     }
 
