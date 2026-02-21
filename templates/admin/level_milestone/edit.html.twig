@@ -1,0 +1,58 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Level Milestone{% endblock %}
+
+{% block admin_content %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-pencil me-2"></i>Edit Level Milestone</h3>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {
+                    'attr': {
+                        'novalidate': 'novalidate'
+                    }
+                }) }}
+                    <div class="mb-3">
+                        {{ form_row(form.name) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_row(form.description) }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.requiredLevel) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.value) }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form_row(form.icon) }}
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form_widget(form.isActive) }}
+                            {{ form_label(form.isActive) }}
+                        </div>
+                        <small class="form-text text-muted">{{ form_help(form.isActive) }}</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_level_milestone_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>Update Milestone
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

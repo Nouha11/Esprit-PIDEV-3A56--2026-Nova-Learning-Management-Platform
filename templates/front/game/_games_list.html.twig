@@ -45,10 +45,24 @@
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="small text-muted">
-                                <i class="bi bi-trophy-fill text-warning"></i> {{ game.rewardXP }} XP
-                                <i class="bi bi-coin text-warning ms-2"></i> {{ game.rewardTokens }}
-                            </div>
+                            {% if game.category == 'MINI_GAME' %}
+                                {# Mini games - show energy instead of base rewards #}
+                                {% if game.energyPoints > 0 %}
+                                    <div class="small">
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-lightning-charge-fill"></i> +{{ game.energyPoints }} Energy
+                                        </span>
+                                    </div>
+                                {% else %}
+                                    <div></div>
+                                {% endif %}
+                            {% else %}
+                                {# Full games - show tokens and XP #}
+                                <div class="small text-muted">
+                                    <i class="bi bi-trophy-fill text-warning"></i> {{ game.rewardXP }} XP
+                                    <i class="bi bi-coin text-warning ms-2"></i> {{ game.rewardTokens }}
+                                </div>
+                            {% endif %}
                             <a href="{{ path('front_game_show', {id: game.id}) }}" class="btn btn-sm btn-primary">
                                 View Details
                             </a>
