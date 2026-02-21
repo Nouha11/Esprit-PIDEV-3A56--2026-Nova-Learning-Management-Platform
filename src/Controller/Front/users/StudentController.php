@@ -5,6 +5,7 @@ namespace App\Controller\Front\users;
 use App\Entity\users\StudentProfile;
 use App\Repository\StudentProfileRepository;
 use App\Service\ProfileCompletionService;
+use App\Service\LoginHistoryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +18,8 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 final class StudentController extends AbstractController
 {
     public function __construct(
-        private ProfileCompletionService $profileCompletionService
+        private ProfileCompletionService $profileCompletionService,
+        private LoginHistoryService $loginHistoryService
     ) {}
 
     #[Route('/profile', name: 'app_student_profile', methods: ['GET'])]
@@ -141,10 +143,14 @@ final class StudentController extends AbstractController
 
         $student = $user->getStudentProfile();
         $completion = $this->profileCompletionService->calculateStudentCompletion($student);
+        
+        // Get recent login history
+        $recentLogins = $this->loginHistoryService->getRecentLogins($user, 5);
 
         return $this->render('front/users/student/dashboard.html.twig', [
             'student' => $student,
             'completion' => $completion,
+            'recentLogins' => $recentLogins,
         ]);
     }
 

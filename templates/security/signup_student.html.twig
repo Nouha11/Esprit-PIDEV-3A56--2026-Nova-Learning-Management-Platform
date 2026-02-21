@@ -164,20 +164,22 @@
                                     </div>
                                     
                                     <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="password" class="form-label">Password *</label>
-                                            <div class="input-group input-group-lg">
-                                                <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
-                                                <input type="password" class="form-control border-0 bg-light rounded-end ps-1" id="password" name="password"  minlength="8" placeholder="Password">
-                                            </div>
-                                            <div class="form-text">Your password must be 8 characters at least</div>
+                                        <div class="col-12">
+                                            {% include 'components/password_strength_meter.html.twig' with {
+                                                'inputId': 'password',
+                                                'showRequirements': true,
+                                                'showGenerator': true
+                                            } %}
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="confirmPassword" class="form-label">Confirm Password *</label>
-                                            <div class="input-group input-group-lg">
-                                                <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
-                                                <input type="password" class="form-control border-0 bg-light rounded-end ps-1" id="confirmPassword" name="confirmPassword"  placeholder="Confirm Password">
-                                            </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="confirmPassword" class="form-label">Confirm Password *</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('confirmPassword')">
+                                                <i class="bi bi-eye" id="confirmPassword-toggle-icon"></i>
+                                            </button>
                                         </div>
                                     </div>
                                     
@@ -286,9 +288,19 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
+            // Check if passwords match
             if (password !== confirmPassword) {
                 e.preventDefault();
                 alert('Passwords do not match!');
+                return;
+            }
+            
+            // Check password strength
+            const result = calculatePasswordStrength(password);
+            if (result.score < 3) {
+                e.preventDefault();
+                alert('Password is too weak. Please use a stronger password (minimum: Fair strength).');
+                return;
             }
         });
     </script>
