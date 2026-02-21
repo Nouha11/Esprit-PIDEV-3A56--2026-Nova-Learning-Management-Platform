@@ -19,7 +19,7 @@ final class AdminController extends AbstractController
     {
         $users = $userRepository->findAll();
         
-        return $this->render('admin/users/admin/index.html.twig', [
+        return $this->render('admin/users/index.html.twig', [
             'users' => $users,
         ]);
     }
@@ -79,7 +79,7 @@ final class AdminController extends AbstractController
             return $this->redirectToRoute('app_admin_users_list');
         }
 
-        return $this->render('admin/users/admin/edit.html.twig', [
+        return $this->render('admin/users/edit.html.twig', [
             'user' => $user,
         ]);
     }
@@ -103,6 +103,87 @@ final class AdminController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'User status updated successfully.');
+        return $this->redirectToRoute('app_admin_users_list');
+    }
+
+    #[Route('/{id}/ban', name: 'app_admin_users_ban', methods: ['POST'])]
+    public function banUser(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        $reason = $request->request->get('ban_reason', 'No reason provided');
+        
+        $user->setIsBanned(true);
+        $user->setBanReason($reason);
+        $user->setBannedAt(new \DateTime());
+        $user->setIsActive(false); // Also deactivate the account
+        
+        $entityManager->flush();
+
+        $this->addFlash('success', 'User has been banned successfully.');
+        return $this->redirectToRoute('app_admin_users_list');
+    }
+
+    #[Route('/{id}/unban', name: 'app_admin_users_unban', methods: ['POST'])]
+    public function unbanUser(User $user, EntityManagerInterface $entityManager): Response
+    {
+        $user->setIsBanned(false);
+        $user->setBanReason(null);
+        $user->setBannedAt(null);
+        $user->setIsActive(true); // Reactivate the account
+        
+        $entityManager->flush();
+
+        $this->addFlash('success', 'User has been unbanned successfully.');
+        return $this->redirectToRoute('app_admin_users_list');
+    }
+
+    #[Route('/bulk-action', name: 'app_admin_users_bulk_action', methods: ['POST'])]
+    public function bulkAction(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    {
+        $action = $request->request->get('bulk_action');
+        $userIds = $request->request->all('user_ids');
+
+        if (empty($userIds)) {
+            $this->addFlash('error', 'No users selected.');
+            return $this->redirectToRoute('app_admin_users_list');
+        }
+
+        $users = $userRepository->findBy(['id' => $userIds]);
+        $count = 0;
+
+        foreach ($users as $user) {
+            switch ($action) {
+                case 'activate':
+                    $user->setIsActive(true);
+                    $count++;
+                    break;
+                case 'deactivate':
+                    $user->setIsActive(false);
+                    $count++;
+                    break;
+                case 'ban':
+                    $user->setIsBanned(true);
+                    $user->setBanReason('Bulk ban action');
+                    $user->setBannedAt(new \DateTime());
+                    $user->setIsActive(false);
+                    $count++;
+                    break;
+                case 'unban':
+                    $user->setIsBanned(false);
+                    $user->setBanReason(null);
+                    $user->setBannedAt(null);
+                    $user->setIsActive(true);
+                    $count++;
+                    break;
+                case 'delete':
+                    $entityManager->remove($user);
+                    $count++;
+                    break;
+            }
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', "Bulk action completed successfully. {$count} user(s) affected.");
         return $this->redirectToRoute('app_admin_users_list');
     }
 }

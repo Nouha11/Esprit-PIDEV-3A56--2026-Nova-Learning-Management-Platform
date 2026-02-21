@@ -139,6 +139,9 @@ class SecurityController extends AbstractController
 
                 // Send verification email in the user's selected language
                 $emailService->sendVerificationEmail($user, $locale);
+                
+                // Flush again to save the verification token
+                $entityManager->flush();
 
                 $this->addFlash('success', $translator->trans('Student account created successfully! Please check your email to verify your account.', [], 'validators', $locale));
                 return $this->redirectToRoute('app_login');
@@ -239,6 +242,9 @@ class SecurityController extends AbstractController
 
                 // Send verification email in the user's selected language
                 $emailService->sendVerificationEmail($user, $locale);
+                
+                // Flush again to save the verification token
+                $entityManager->flush();
 
                 $this->addFlash('success', $translator->trans('Tutor account created successfully! Please check your email to verify your account.', [], 'validators', $locale));
                 return $this->redirectToRoute('app_login');

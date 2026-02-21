@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Setup Two-Factor Authentication{% endblock %}
+
+{% block body %}
+<section class="pt-5 pb-0">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <!-- Card START -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary bg-opacity-10 border-bottom">
+                        <h3 class="card-header-title mb-0">
+                            <i class="bi bi-shield-lock me-2"></i>Setup Two-Factor Authentication
+                        </h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Flash Messages -->
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Enhance your account security!</strong> Two-factor authentication adds an extra layer of protection to your account.
+                        </div>
+
+                        <h5 class="mb-3">Step 1: Scan QR Code</h5>
+                        <p class="mb-3">Use an authenticator app like Google Authenticator, Microsoft Authenticator, or Authy to scan this QR code:</p>
+                        
+                        <div class="text-center mb-4">
+                            <img src="{{ qrCodeDataUri }}" alt="QR Code" class="img-fluid border rounded p-3" style="max-width: 300px;">
+                        </div>
+
+                        <h5 class="mb-3">Step 2: Manual Entry (Optional)</h5>
+                        <p class="mb-2">If you can't scan the QR code, enter this secret key manually:</p>
+                        <div class="alert alert-secondary">
+                            <code class="fs-5">{{ secret }}</code>
+                            <button type="button" class="btn btn-sm btn-outline-primary float-end" onclick="copySecret()">
+                                <i class="bi bi-clipboard"></i> Copy
+                            </button>
+                        </div>
+
+                        <h5 class="mb-3">Step 3: Verify</h5>
+                        <p class="mb-3">Enter the 6-digit code from your authenticator app to complete setup:</p>
+
+                        <form method="post">
+                            <div class="mb-3">
+                                <label for="code" class="form-label">Verification Code</label>
+                                <input type="text" class="form-control form-control-lg text-center" id="code" name="code" 
+                                       placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autofocus
+                                       style="letter-spacing: 0.5em; font-size: 1.5rem;">
+                                <small class="text-muted">Enter the 6-digit code from your authenticator app</small>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>Verify and Enable 2FA
+                                </button>
+                                <a href="{{ path('app_2fa_manage') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- Card END -->
+
+                <!-- Info Card -->
+                <div class="card mt-4 border-0 bg-light">
+                    <div class="card-body">
+                        <h6 class="mb-3"><i class="bi bi-lightbulb text-warning me-2"></i>Recommended Authenticator Apps:</h6>
+                        <ul class="mb-0">
+                            <li>Google Authenticator (iOS & Android)</li>
+                            <li>Microsoft Authenticator (iOS & Android)</li>
+                            <li>Authy (iOS, Android & Desktop)</li>
+                            <li>1Password (Premium feature)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function copySecret() {
+    const secret = '{{ secret }}';
+    navigator.clipboard.writeText(secret).then(() => {
+        alert('Secret key copied to clipboard!');
+    });
+}
+
+// Auto-format code input
+document.getElementById('code').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+</script>
+{% endblock %}

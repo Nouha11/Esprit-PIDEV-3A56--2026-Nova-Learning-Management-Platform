@@ -248,7 +248,7 @@
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="card shadow-sm">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white border-bottom">
                         <h6 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h6>
                     </div>
@@ -264,6 +264,42 @@
                                 <i class="fas fa-book me-2"></i>Browse Courses
                             </a>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="card shadow-sm border-primary">
+                    <div class="card-header bg-primary bg-opacity-10 border-bottom">
+                        <h6 class="mb-0">
+                            <i class="bi bi-shield-lock text-primary me-2"></i>Account Security
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if app.user.totpEnabled %}
+                            <div class="alert alert-success mb-3">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                <small><strong>2FA Enabled</strong><br>Your account is protected</small>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning mb-3">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <small><strong>2FA Not Enabled</strong><br>Enhance your security</small>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-grid">
+                            <a href="{{ path('app_2fa_manage') }}" class="btn btn-{{ app.user.totpEnabled ? 'outline-primary' : 'primary' }}">
+                                <i class="bi bi-shield-{{ app.user.totpEnabled ? 'check' : 'plus' }} me-2"></i>
+                                {{ app.user.totpEnabled ? 'Manage 2FA' : 'Enable 2FA' }}
+                            </a>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Two-factor authentication adds an extra layer of security to your account.
+                        </small>
                     </div>
                 </div>
             </div>

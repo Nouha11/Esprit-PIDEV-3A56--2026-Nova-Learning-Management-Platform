@@ -160,6 +160,47 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-xl-12 col-lg-12">
+        <div class="card shadow mb-4 border-left-primary">
+            <div class="card-header py-3 bg-primary bg-opacity-10">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-shield-lock me-2"></i>Account Security
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        {% if app.user.totpEnabled %}
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-success fs-2 me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Two-Factor Authentication is Enabled</h5>
+                                    <p class="text-muted mb-0">Your admin account is protected with an additional layer of security.</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-exclamation-triangle-fill text-warning fs-2 me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Two-Factor Authentication is Not Enabled</h5>
+                                    <p class="text-muted mb-0">Protect your admin account by enabling 2FA. This adds an extra layer of security to prevent unauthorized access.</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{{ path('app_2fa_manage') }}" class="btn btn-{{ app.user.totpEnabled ? 'outline-primary' : 'primary' }} btn-lg">
+                            <i class="bi bi-shield-{{ app.user.totpEnabled ? 'check' : 'plus' }} me-2"></i>
+                            {{ app.user.totpEnabled ? 'Manage 2FA' : 'Enable 2FA Now' }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row mb-4">
     <div class="col-12">
         <h4 class="mb-3 text-gray-800">

@@ -1,0 +1,12 @@
+# See the configuration reference at https://symfony.com/bundles/SchebTwoFactorBundle/6.x/configuration.html
+scheb_two_factor:
+    security_tokens:
+        - Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken
+        - Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken
+    
+    totp:
+        enabled: true
+        server_name: 'NOVA Platform'
+        issuer: 'NOVA'
+        leeway: 1
+        template: 'security/2fa/form.html.twig'

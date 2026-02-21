@@ -35,6 +35,9 @@
                                 <a class="list-group-item" href="{{ path('app_tutor_profile_edit') }}">
                                     <i class="bi bi-pencil-square fa-fw me-2"></i>Edit Profile
                                 </a>
+                                <a class="list-group-item" href="{{ path('app_2fa_manage') }}">
+                                    <i class="bi bi-shield-lock fa-fw me-2"></i>Security (2FA)
+                                </a>
                                 <a class="list-group-item text-danger bg-danger-soft-hover" href="{{ path('app_logout') }}">
                                     <i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out
                                 </a>
@@ -129,6 +132,44 @@
                             <div class="col-sm-6 col-lg-4">
                                 <a href="{{ path('app_tutor_availability') }}" class="btn btn-outline-success w-100 h-100 d-flex align-items-center justify-content-center py-3">
                                     <i class="bi bi-clock me-2"></i>Manage Availability
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Card -->
+                <div class="card mb-4 border-primary">
+                    <div class="card-header bg-primary bg-opacity-10 border-bottom">
+                        <h5 class="mb-0">
+                            <i class="bi bi-shield-lock text-primary me-2"></i>Account Security
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                {% if app.user.totpEnabled %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-check-circle-fill text-success fs-2 me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1">Two-Factor Authentication is Enabled</h6>
+                                            <p class="text-muted mb-0 small">Your account is protected with an additional layer of security.</p>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-exclamation-triangle-fill text-warning fs-2 me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1">Two-Factor Authentication is Not Enabled</h6>
+                                            <p class="text-muted mb-0 small">Protect your account by enabling 2FA for enhanced security.</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a href="{{ path('app_2fa_manage') }}" class="btn btn-{{ app.user.totpEnabled ? 'outline-primary' : 'primary' }}">
+                                    <i class="bi bi-shield-{{ app.user.totpEnabled ? 'check' : 'plus' }} me-2"></i>
+                                    {{ app.user.totpEnabled ? 'Manage 2FA' : 'Enable 2FA' }}
                                 </a>
                             </div>
                         </div>

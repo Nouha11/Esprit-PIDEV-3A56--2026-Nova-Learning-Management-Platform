@@ -5,6 +5,12 @@ security:
         App\Entity\users\User:
             algorithm: bcrypt
     
+    # Role hierarchy - all roles inherit ROLE_USER
+    role_hierarchy:
+        ROLE_STUDENT: ROLE_USER
+        ROLE_TUTOR: ROLE_USER
+        ROLE_ADMIN: [ROLE_USER, ROLE_STUDENT, ROLE_TUTOR]
+    
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         app_user_provider:

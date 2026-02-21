@@ -56,6 +56,8 @@ class OAuthController extends AbstractController
             
             $locale = $request->getSession()->get('_locale', 'en');
             
+            $isNewUser = false;
+            
             if (!$user) {
                 // Create new user
                 $user = new User();
@@ -77,9 +79,11 @@ class OAuthController extends AbstractController
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
                 
+                $isNewUser = true;
+                
                 $this->addFlash('success', $locale === 'fr' 
-                    ? 'Compte créé avec succès via Google !' 
-                    : 'Account created successfully via Google!');
+                    ? 'Compte créé avec succès via Google ! Veuillez compléter votre profil.' 
+                    : 'Account created successfully via Google! Please complete your profile.');
             } else {
                 $this->addFlash('success', $locale === 'fr' 
                     ? 'Connexion réussie via Google !' 
@@ -96,6 +100,11 @@ class OAuthController extends AbstractController
             
             // Save session
             $request->getSession()->set('_security_main', serialize($token));
+            
+            // Redirect new users to edit profile page
+            if ($isNewUser) {
+                return $this->redirectToRoute('app_student_profile_edit');
+            }
             
             return $this->redirectToRoute('app_home');
             
@@ -138,6 +147,8 @@ class OAuthController extends AbstractController
             
             $locale = $request->getSession()->get('_locale', 'en');
             
+            $isNewUser = false;
+            
             if (!$user) {
                 // Create new user
                 $user = new User();
@@ -159,9 +170,11 @@ class OAuthController extends AbstractController
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
                 
+                $isNewUser = true;
+                
                 $this->addFlash('success', $locale === 'fr' 
-                    ? 'Compte créé avec succès via LinkedIn !' 
-                    : 'Account created successfully via LinkedIn!');
+                    ? 'Compte créé avec succès via LinkedIn ! Veuillez compléter votre profil.' 
+                    : 'Account created successfully via LinkedIn! Please complete your profile.');
             } else {
                 $this->addFlash('success', $locale === 'fr' 
                     ? 'Connexion réussie via LinkedIn !' 
@@ -178,6 +191,11 @@ class OAuthController extends AbstractController
             
             // Save session
             $request->getSession()->set('_security_main', serialize($token));
+            
+            // Redirect new users to edit profile page
+            if ($isNewUser) {
+                return $this->redirectToRoute('app_student_profile_edit');
+            }
             
             return $this->redirectToRoute('app_home');
             

@@ -55,6 +55,9 @@
 
                                 <div class="mt-4">
                                     <a href="{{ path('app_student_profile_edit') }}" class="btn btn-primary">{{ t.t('Edit Profile') }}</a>
+                                    <a href="{{ path('app_2fa_manage') }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-shield-lock me-2"></i>{{ app.user.totpEnabled ? t.t('Manage 2FA') : t.t('Enable 2FA') }}
+                                    </a>
                                     <a href="{{ path('app_student_dashboard') }}" class="btn btn-outline-secondary">{{ t.t('Back to Dashboard') }}</a>
                                 </div>
                             </div>

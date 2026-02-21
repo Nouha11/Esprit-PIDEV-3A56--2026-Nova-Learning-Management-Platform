@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Two-Factor Authentication{% endblock %}
+
+{% block body %}
+<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Left -->
+            <div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
+                <div class="p-3 p-lg-5">
+                    <!-- Title -->
+                    <div class="text-center">
+                        <h2 class="fw-bold">Two-Factor Authentication</h2>
+                        <p class="mb-0 h6 fw-light">Enter the 6-digit code from your authenticator app</p>
+                    </div>
+                    <!-- SVG Image -->
+                    <img src="{{ asset('assets/images/element/02.svg') }}" class="mt-5" alt="">
+                    <!-- Info -->
+                    <div class="d-sm-flex mt-5 align-items-center justify-content-center">
+                        <ul class="avatar-group mb-2 mb-sm-0">
+                            <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar"></li>
+                            <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/02.jpg') }}" alt="avatar"></li>
+                            <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar"></li>
+                            <li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/04.jpg') }}" alt="avatar"></li>
+                        </ul>
+                        <!-- Content -->
+                        <p class="mb-0 h6 fw-light ms-0 ms-sm-3">4k+ Students secured their accounts</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right -->
+            <div class="col-12 col-lg-6 m-auto">
+                <div class="row my-5">
+                    <div class="col-sm-10 col-xl-8 m-auto">
+                        <!-- Title -->
+                        <img src="{{ asset('assets/images/element/03.svg') }}" class="h-40px mb-2" alt="">
+                        <h2>Verify Your Identity</h2>
+                        <p class="lead mb-4">Enter the verification code from your authenticator app to continue.</p>
+
+                        <!-- Flash Messages -->
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+
+                        <!-- Form START -->
+                        <form method="post" action="{{ path('2fa_login_check') }}">
+                            <!-- Code input -->
+                            <div class="mb-4">
+                                <label for="_auth_code" class="form-label">Authentication Code</label>
+                                <input type="text" class="form-control form-control-lg text-center" id="_auth_code" name="_auth_code" 
+                                       placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autofocus
+                                       style="letter-spacing: 0.5em; font-size: 2rem;">
+                                <small class="text-muted">Enter the 6-digit code from your authenticator app</small>
+                            </div>
+
+                            <!-- Remember device -->
+                            <div class="mb-4 d-flex justify-content-between mb-4">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="_trusted" name="_trusted">
+                                    <label class="form-check-label" for="_trusted">Trust this device for 30 days</label>
+                                </div>
+                            </div>
+
+                            <!-- Button -->
+                            <div class="align-items-center mt-0">
+                                <div class="d-grid">
+                                    <button class="btn btn-primary mb-0" type="submit">
+                                        <i class="bi bi-shield-check me-2"></i>Verify Code
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- Form END -->
+
+                        <!-- Help -->
+                        <div class="mt-4 text-center">
+                            <p class="mb-0">Having trouble? <a href="{{ path('app_logout') }}" class="text-primary-hover">Sign out</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Auto-format code input
+document.getElementById('_auth_code').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+</script>
+{% endblock %}

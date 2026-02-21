@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage Two-Factor Authentication{% endblock %}
+
+{% block body %}
+<section class="pt-5 pb-0">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <!-- Card START -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary bg-opacity-10 border-bottom">
+                        <h3 class="card-header-title mb-0">
+                            <i class="bi bi-shield-lock me-2"></i>Two-Factor Authentication
+                        </h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Flash Messages -->
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+
+                        {% if user.totpEnabled %}
+                            <!-- 2FA Enabled -->
+                            <div class="alert alert-success d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Two-Factor Authentication is Enabled</h5>
+                                    <p class="mb-0">Your account is protected with an additional layer of security.</p>
+                                </div>
+                            </div>
+
+                            <div class="card border mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-info-circle text-primary me-2"></i>How it works
+                                    </h5>
+                                    <p class="card-text">When you sign in, you'll need to enter both your password and a 6-digit code from your authenticator app.</p>
+                                </div>
+                            </div>
+
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger bg-opacity-10">
+                                    <h5 class="card-title text-danger mb-0">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>Disable Two-Factor Authentication
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Disabling 2FA will make your account less secure. You'll only need your password to sign in.</p>
+                                    
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#disableModal">
+                                        <i class="bi bi-shield-x me-2"></i>Disable 2FA
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Disable Modal -->
+                            <div class="modal fade" id="disableModal" tabindex="-1" aria-labelledby="disableModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="disableModalLabel">Disable Two-Factor Authentication</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="post" action="{{ path('app_2fa_disable') }}">
+                                            <div class="modal-body">
+                                                <div class="alert alert-warning">
+                                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                                    <strong>Warning:</strong> This will reduce your account security.
+                                                </div>
+                                                <p>To confirm, please enter your current 6-digit authentication code:</p>
+                                                <div class="mb-3">
+                                                    <label for="disableCode" class="form-label">Verification Code</label>
+                                                    <input type="text" class="form-control form-control-lg text-center" id="disableCode" name="code" 
+                                                           placeholder="000000" maxlength="6" pattern="[0-9]{6}" required
+                                                           style="letter-spacing: 0.5em; font-size: 1.5rem;">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-danger">Disable 2FA</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% else %}
+                            <!-- 2FA Disabled -->
+                            <div class="alert alert-warning d-flex align-items-center">
+                                <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Two-Factor Authentication is Disabled</h5>
+                                    <p class="mb-0">Enable 2FA to add an extra layer of security to your account.</p>
+                                </div>
+                            </div>
+
+                            <div class="card border mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-shield-check text-success me-2"></i>Why enable 2FA?
+                                    </h5>
+                                    <ul class="mb-0">
+                                        <li>Protects your account even if your password is compromised</li>
+                                        <li>Prevents unauthorized access to your personal information</li>
+                                        <li>Industry-standard security practice</li>
+                                        <li>Quick and easy to set up</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <a href="{{ path('app_2fa_setup') }}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-shield-plus me-2"></i>Enable Two-Factor Authentication
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-4 text-center">
+                            <a href="{{ path('app_student_profile_edit') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card END -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Auto-format code input
+const codeInput = document.getElementById('disableCode');
+if (codeInput) {
+    codeInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+}
+</script>
+{% endblock %}

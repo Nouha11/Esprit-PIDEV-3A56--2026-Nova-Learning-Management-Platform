@@ -384,6 +384,8 @@ class FallbackTranslationService
         'Successfully logged in via Google!' => 'Connexion réussie via Google !',
         'Account created successfully via LinkedIn!' => 'Compte créé avec succès via LinkedIn !',
         'Successfully logged in via LinkedIn!' => 'Connexion réussie via LinkedIn !',
+        'Account created successfully via Google! Please complete your profile.' => 'Compte créé avec succès via Google ! Veuillez compléter votre profil.',
+        'Account created successfully via LinkedIn! Please complete your profile.' => 'Compte créé avec succès via LinkedIn ! Veuillez compléter votre profil.',
     ];
 
     public function translate(string $text): string
