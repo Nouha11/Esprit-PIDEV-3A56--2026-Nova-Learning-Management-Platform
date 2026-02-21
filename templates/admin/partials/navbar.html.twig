@@ -57,87 +57,56 @@
                     <!-- Notification dropdown START -->
                     <li class="nav-item ms-2 ms-md-3 dropdown">
                         <!-- Notification button -->
-                        <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                        <a class="btn btn-light btn-round mb-0 position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                             <i class="bi bi-bell fa-fw"></i>
+                            {% set pendingCount = pending_reports_count() %}
+                            {% if pendingCount > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ pendingCount }}
+                                    <span class="visually-hidden">pending reports</span>
+                                </span>
+                            {% endif %}
                         </a>
-                        <!-- Notification dote -->
-                        <span class="notif-badge animation-blink"></span>
 
                         <!-- Notification dropdown menu START -->
                         <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
                             <div class="card bg-transparent">
                                 <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
-                                    <h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
-                                    <a class="small" href="#">Clear all</a>
+                                    <h6 class="m-0">Quiz Reports 
+                                        {% if pendingCount > 0 %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger ms-2">{{ pendingCount }} new</span>
+                                        {% endif %}
+                                    </h6>
+                                    <a class="small" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">View all</a>
                                 </div>
                                 <div class="card-body p-0">
-                                    <ul class="list-group list-unstyled list-group-flush">
-                                        <!-- Notif item -->
-                                        <li>
-                                            <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-                                                <div class="me-3">
-                                                    <div class="avatar avatar-md">
-                                                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/08.jpg') }}" alt="avatar">
+                                    {% if pendingCount > 0 %}
+                                        <ul class="list-group list-unstyled list-group-flush">
+                                            <li>
+                                                <a href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}" class="list-group-item-action border-0 border-bottom d-flex p-3">
+                                                    <div class="me-3">
+                                                        <div class="avatar avatar-md bg-danger bg-opacity-10">
+                                                            <i class="bi bi-flag-fill text-danger fs-5"></i>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div>
-                                                    <p class="text-body small m-0">Congratulate <b>Joan Wallace</b> for graduating from <b>Microverse university</b></p>
-                                                    <u class="small">Say congrats</u>
-                                                </div>
-                                            </a>
-                                        </li>
-
-                                        <!-- Notif item -->
-                                        <li>
-                                            <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-                                                <div class="me-3">
-                                                    <div class="avatar avatar-md">
-                                                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/02.jpg') }}" alt="avatar">
+                                                    <div>
+                                                        <h6 class="mb-1">{{ pendingCount }} Quiz Report{{ pendingCount > 1 ? 's' : '' }} Pending</h6>
+                                                        <p class="small text-body m-0">Review and take action on reported quizzes</p>
+                                                        <u class="small">Review now</u>
                                                     </div>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1">Larry Lawson Added a new course</h6>
-                                                    <p class="small text-body m-0">What's new! Find out about new features</p>
-                                                    <u class="small">View detail</u>
-                                                </div>
-                                            </a>
-                                        </li>
-
-                                        <!-- Notif item -->
-                                        <li>
-                                            <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-                                                <div class="me-3">
-                                                    <div class="avatar avatar-md">
-                                                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/05.jpg') }}" alt="avatar">
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1">New request to apply for Instructor</h6>
-                                                    <u class="small">View detail</u>
-                                                </div>
-                                            </a>
-                                        </li>
-
-                                        <!-- Notif item -->
-                                        <li>
-                                            <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-                                                <div class="me-3">
-                                                    <div class="avatar avatar-md">
-                                                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar">
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1">Update v2.3 completed successfully</h6>
-                                                    <p class="small text-body m-0">What's new! Find out about new features</p>
-                                                    <small class="text-body">5 min ago</small>
-                                                </div>
-                                            </a>
-                                        </li>
-                                    </ul>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    {% else %}
+                                        <div class="text-center py-5 text-muted">
+                                            <i class="bi bi-check-circle display-4"></i>
+                                            <p class="mt-3">No pending reports</p>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <!-- Button -->
                                 <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
-                                    <a href="#" class="stretched-link">See all incoming activity</a>
+                                    <a href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}" class="stretched-link">View all reports</a>
                                 </div>
                             </div>
                         </div>

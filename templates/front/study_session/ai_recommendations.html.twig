@@ -1,0 +1,541 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}AI Study Recommendations{% endblock %}
+
+{% block front_content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>AI Study Recommendations</h1>
+            <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Study Sessions
+            </a>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <!-- Error Message -->
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> {{ error }}
+            </div>
+        {% endif %}
+
+        <!-- Personalized Study Recommendations -->
+        {% if recommendations is not empty %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-lightbulb"></i> Personalized Study Recommendations
+                    </h4>
+                    <span class="badge bg-primary">{{ recommendations|length }} recommendation(s)</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Based on your recent study sessions, here are some AI-powered recommendations to optimize your learning:
+                    </p>
+                    
+                    {% for recommendation in recommendations %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <!-- Icon based on recommendation type -->
+                                    <div class="me-3">
+                                        {% if recommendation.type == 'duration' %}
+                                            <i class="bi bi-clock-history fs-3 text-primary"></i>
+                                        {% elseif recommendation.type == 'timing' %}
+                                            <i class="bi bi-calendar-check fs-3 text-success"></i>
+                                        {% elseif recommendation.type == 'break' %}
+                                            <i class="bi bi-cup-hot fs-3 text-warning"></i>
+                                        {% elseif recommendation.type == 'focus' %}
+                                            <i class="bi bi-bullseye fs-3 text-info"></i>
+                                        {% else %}
+                                            <i class="bi bi-star fs-3 text-secondary"></i>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="flex-grow-1">
+                                        <!-- Recommendation Type Badge -->
+                                        <span class="badge 
+                                            {% if recommendation.type == 'duration' %}bg-primary
+                                            {% elseif recommendation.type == 'timing' %}bg-success
+                                            {% elseif recommendation.type == 'break' %}bg-warning
+                                            {% elseif recommendation.type == 'focus' %}bg-info
+                                            {% else %}bg-secondary{% endif %} mb-2">
+                                            {{ recommendation.type|capitalize }}
+                                        </span>
+                                        
+                                        <!-- Recommendation Message -->
+                                        <p class="mb-2">{{ recommendation.message }}</p>
+                                        
+                                        <!-- Additional Data (if available) -->
+                                        {% if recommendation.data is not empty %}
+                                            <div class="mt-2">
+                                                <small class="text-muted">
+                                                    {% for key, value in recommendation.data %}
+                                                        <strong>{{ key|replace({'_': ' '})|title }}:</strong> {{ value }}
+                                                        {% if not loop.last %} | {% endif %}
+                                                    {% endfor %}
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Note Summarization Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-file-text"></i> Note Summarization
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Paste your study notes below to generate an AI-powered summary of key concepts:
+                </p>
+                
+                <form id="summarizeForm">
+                    <div class="mb-3">
+                        <label for="noteContent" class="form-label">Note Content</label>
+                        <textarea class="form-control" 
+                                  id="noteContent" 
+                                  name="content" 
+                                  rows="6" 
+                                  placeholder="Paste your study notes here (minimum 50 characters)..."
+                                  required></textarea>
+                        <small class="text-muted">
+                            <span id="charCount">0</span> characters
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="summarizeBtn">
+                        <i class="bi bi-magic"></i> Generate Summary
+                    </button>
+                </form>
+                
+                <!-- Summary Result -->
+                <div id="summaryResult" class="mt-4" style="display: none;">
+                    <div class="alert alert-success">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-check-circle"></i> Summary Generated
+                        </h5>
+                        <hr>
+                        <div id="summaryContent"></div>
+                    </div>
+                </div>
+                
+                <!-- Summary Error -->
+                <div id="summaryError" class="mt-4" style="display: none;">
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> <span id="summaryErrorMessage"></span>
+                    </div>
+                </div>
+                
+                <!-- Loading Spinner -->
+                <div id="summaryLoading" class="mt-4 text-center" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Generating summary...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Generation Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-question-circle"></i> Quiz Generation
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Generate quiz questions from your study materials to test your knowledge:
+                </p>
+                
+                <form id="quizForm">
+                    <div class="mb-3">
+                        <label for="quizContent" class="form-label">Study Content</label>
+                        <textarea class="form-control" 
+                                  id="quizContent" 
+                                  name="content" 
+                                  rows="6" 
+                                  placeholder="Paste your study content here (minimum 100 characters)..."
+                                  required></textarea>
+                        <small class="text-muted">
+                            <span id="quizCharCount">0</span> characters
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="questionCount" class="form-label">Number of Questions</label>
+                        <select class="form-select" id="questionCount" name="question_count">
+                            <option value="5" selected>5 questions</option>
+                            <option value="6">6 questions</option>
+                            <option value="7">7 questions</option>
+                            <option value="8">8 questions</option>
+                            <option value="9">9 questions</option>
+                            <option value="10">10 questions</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="quizBtn">
+                        <i class="bi bi-magic"></i> Generate Quiz
+                    </button>
+                </form>
+                
+                <!-- Quiz Result -->
+                <div id="quizResult" class="mt-4" style="display: none;">
+                    <div class="alert alert-success">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-check-circle"></i> Quiz Generated
+                        </h5>
+                        <p class="mb-0">Answer the questions below to test your knowledge:</p>
+                    </div>
+                    
+                    <div id="quizQuestions"></div>
+                    
+                    <button type="button" class="btn btn-success mt-3" id="submitQuizBtn">
+                        <i class="bi bi-check-circle"></i> Submit Answers
+                    </button>
+                    
+                    <button type="button" class="btn btn-secondary mt-3" id="resetQuizBtn">
+                        <i class="bi bi-arrow-clockwise"></i> Generate New Quiz
+                    </button>
+                </div>
+                
+                <!-- Quiz Results Display -->
+                <div id="quizResults" class="mt-4" style="display: none;">
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-trophy"></i> Quiz Results
+                        </h5>
+                        <hr>
+                        <p class="mb-0">
+                            <strong>Score:</strong> <span id="quizScore"></span>
+                        </p>
+                    </div>
+                    
+                    <div id="quizAnswerReview"></div>
+                </div>
+                
+                <!-- Quiz Error -->
+                <div id="quizError" class="mt-4" style="display: none;">
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> <span id="quizErrorMessage"></span>
+                    </div>
+                </div>
+                
+                <!-- Loading Spinner -->
+                <div id="quizLoading" class="mt-4 text-center" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Generating quiz questions...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Text -->
+        {% if recommendations is empty and error is null %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-info-circle"></i> How It Works
+                    </h5>
+                    <ul class="mb-0">
+                        <li><strong>Study Recommendations:</strong> Complete some study sessions to receive personalized AI-powered recommendations based on your study patterns, mood, and energy levels.</li>
+                        <li><strong>Note Summarization:</strong> Paste your study notes to get a concise summary highlighting key concepts and important information.</li>
+                        <li><strong>Quiz Generation:</strong> Generate quiz questions from your study materials to test your knowledge retention and understanding.</li>
+                        <li><strong>AI-Powered:</strong> All features use advanced AI to provide intelligent, context-aware suggestions and content.</li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Character counter for note summarization
+    const noteContent = document.getElementById('noteContent');
+    const charCount = document.getElementById('charCount');
+    
+    if (noteContent && charCount) {
+        noteContent.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+    }
+    
+    // Character counter for quiz generation
+    const quizContent = document.getElementById('quizContent');
+    const quizCharCount = document.getElementById('quizCharCount');
+    
+    if (quizContent && quizCharCount) {
+        quizContent.addEventListener('input', function() {
+            quizCharCount.textContent = this.value.length;
+        });
+    }
+    
+    // Note Summarization Form Handler
+    const summarizeForm = document.getElementById('summarizeForm');
+    if (summarizeForm) {
+        summarizeForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const content = noteContent.value.trim();
+            
+            if (content.length < 50) {
+                showSummaryError('Please provide at least 50 characters of content.');
+                return;
+            }
+            
+            // Hide previous results
+            document.getElementById('summaryResult').style.display = 'none';
+            document.getElementById('summaryError').style.display = 'none';
+            document.getElementById('summaryLoading').style.display = 'block';
+            
+            try {
+                const response = await fetch('{{ path('integration_ai_summarize') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'content': content
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('summaryLoading').style.display = 'none';
+                
+                if (data.success) {
+                    document.getElementById('summaryContent').textContent = data.summary;
+                    document.getElementById('summaryResult').style.display = 'block';
+                } else {
+                    showSummaryError(data.error || 'Failed to generate summary.');
+                }
+            } catch (error) {
+                document.getElementById('summaryLoading').style.display = 'none';
+                showSummaryError('An error occurred while generating the summary. Please try again.');
+            }
+        });
+    }
+    
+    // Quiz Generation Form Handler
+    const quizForm = document.getElementById('quizForm');
+    let currentQuizData = null;
+    
+    if (quizForm) {
+        quizForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const content = quizContent.value.trim();
+            const questionCount = document.getElementById('questionCount').value;
+            
+            if (content.length < 100) {
+                showQuizError('Please provide at least 100 characters of content.');
+                return;
+            }
+            
+            // Hide previous results
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizResults').style.display = 'none';
+            document.getElementById('quizError').style.display = 'none';
+            document.getElementById('quizLoading').style.display = 'block';
+            
+            try {
+                const response = await fetch('{{ path('integration_ai_quiz') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'content': content,
+                        'question_count': questionCount
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('quizLoading').style.display = 'none';
+                
+                if (data.success) {
+                    currentQuizData = data.questions;
+                    displayQuiz(data.questions);
+                    document.getElementById('quizResult').style.display = 'block';
+                } else {
+                    showQuizError(data.error || 'Failed to generate quiz.');
+                }
+            } catch (error) {
+                document.getElementById('quizLoading').style.display = 'none';
+                showQuizError('An error occurred while generating the quiz. Please try again.');
+            }
+        });
+    }
+    
+    // Submit Quiz Button Handler
+    const submitQuizBtn = document.getElementById('submitQuizBtn');
+    if (submitQuizBtn) {
+        submitQuizBtn.addEventListener('click', function() {
+            if (currentQuizData) {
+                validateQuizAnswers(currentQuizData);
+            }
+        });
+    }
+    
+    // Reset Quiz Button Handler
+    const resetQuizBtn = document.getElementById('resetQuizBtn');
+    if (resetQuizBtn) {
+        resetQuizBtn.addEventListener('click', function() {
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizResults').style.display = 'none';
+            document.getElementById('quizContent').value = '';
+            quizCharCount.textContent = '0';
+            currentQuizData = null;
+        });
+    }
+    
+    // Helper Functions
+    function showSummaryError(message) {
+        document.getElementById('summaryErrorMessage').textContent = message;
+        document.getElementById('summaryError').style.display = 'block';
+    }
+    
+    function showQuizError(message) {
+        document.getElementById('quizErrorMessage').textContent = message;
+        document.getElementById('quizError').style.display = 'block';
+    }
+    
+    function displayQuiz(questions) {
+        const container = document.getElementById('quizQuestions');
+        container.innerHTML = '';
+        
+        questions.forEach((question, index) => {
+            const questionCard = document.createElement('div');
+            questionCard.className = 'card mb-3';
+            questionCard.innerHTML = `
+                <div class="card-body">
+                    <h6 class="card-title">Question ${index + 1}</h6>
+                    <p class="card-text">${escapeHtml(question.question)}</p>
+                    ${question.type === 'multiple_choice' ? 
+                        generateMultipleChoiceOptions(question.options, index) : 
+                        generateShortAnswerInput(index)
+                    }
+                </div>
+            `;
+            container.appendChild(questionCard);
+        });
+    }
+    
+    function generateMultipleChoiceOptions(options, questionIndex) {
+        return options.map((option, optionIndex) => `
+            <div class="form-check">
+                <input class="form-check-input" 
+                       type="radio" 
+                       name="question_${questionIndex}" 
+                       id="q${questionIndex}_opt${optionIndex}" 
+                       value="${escapeHtml(option)}">
+                <label class="form-check-label" for="q${questionIndex}_opt${optionIndex}">
+                    ${escapeHtml(option)}
+                </label>
+            </div>
+        `).join('');
+    }
+    
+    function generateShortAnswerInput(questionIndex) {
+        return `
+            <input type="text" 
+                   class="form-control" 
+                   name="question_${questionIndex}" 
+                   placeholder="Enter your answer...">
+        `;
+    }
+    
+    function validateQuizAnswers(questions) {
+        let correctCount = 0;
+        const reviewContainer = document.getElementById('quizAnswerReview');
+        reviewContainer.innerHTML = '';
+        
+        questions.forEach((question, index) => {
+            const userAnswer = getUserAnswer(index, question.type);
+            const isCorrect = checkAnswer(userAnswer, question.correctAnswer);
+            
+            if (isCorrect) {
+                correctCount++;
+            }
+            
+            const reviewCard = document.createElement('div');
+            reviewCard.className = `card mb-3 border-${isCorrect ? 'success' : 'danger'}`;
+            reviewCard.innerHTML = `
+                <div class="card-body">
+                    <h6 class="card-title">
+                        Question ${index + 1} 
+                        <span class="badge bg-${isCorrect ? 'success' : 'danger'}">
+                            ${isCorrect ? 'Correct' : 'Incorrect'}
+                        </span>
+                    </h6>
+                    <p class="card-text"><strong>Question:</strong> ${escapeHtml(question.question)}</p>
+                    <p class="card-text"><strong>Your Answer:</strong> ${escapeHtml(userAnswer || 'No answer provided')}</p>
+                    <p class="card-text"><strong>Correct Answer:</strong> ${escapeHtml(question.correctAnswer)}</p>
+                    ${question.explanation ? `<p class="card-text text-muted"><small><strong>Explanation:</strong> ${escapeHtml(question.explanation)}</small></p>` : ''}
+                </div>
+            `;
+            reviewContainer.appendChild(reviewCard);
+        });
+        
+        const score = `${correctCount} / ${questions.length} (${Math.round((correctCount / questions.length) * 100)}%)`;
+        document.getElementById('quizScore').textContent = score;
+        document.getElementById('quizResults').style.display = 'block';
+        
+        // Scroll to results
+        document.getElementById('quizResults').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function getUserAnswer(questionIndex, questionType) {
+        if (questionType === 'multiple_choice') {
+            const selected = document.querySelector(`input[name="question_${questionIndex}"]:checked`);
+            return selected ? selected.value : null;
+        } else {
+            const input = document.querySelector(`input[name="question_${questionIndex}"]`);
+            return input ? input.value.trim() : null;
+        }
+    }
+    
+    function checkAnswer(userAnswer, correctAnswer) {
+        if (!userAnswer) return false;
+        
+        // Normalize answers for comparison (case-insensitive, trim whitespace)
+        const normalizedUser = userAnswer.toLowerCase().trim();
+        const normalizedCorrect = correctAnswer.toLowerCase().trim();
+        
+        return normalizedUser === normalizedCorrect;
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+});
+</script>
+{% endblock %}

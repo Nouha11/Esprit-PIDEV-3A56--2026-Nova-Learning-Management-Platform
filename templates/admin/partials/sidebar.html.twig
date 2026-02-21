@@ -31,8 +31,22 @@
                 </li>
 
                 <li class="nav-item"> 
-                    <a class="nav-link" href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">
-                        <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                    <a class="nav-link d-flex justify-content-between align-items-center" href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">
+                        <span>
+                            <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                        </span>
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link d-flex justify-content-between align-items-center{% if app.request.attributes.get('_route') starts with 'app_quiz_reports' %} active{% endif %}" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">
+                        <span>
+                            <i class="fas fa-flag fa-fw me-2"></i>Quiz Reports
+                        </span>
+                        {% set pendingCount = pending_reports_count() %}
+                        {% if pendingCount > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-2 pulse-badge">{{ pendingCount }}</span>
+                        {% endif %}
                     </a>
                 </li>
 

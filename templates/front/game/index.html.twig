@@ -15,7 +15,115 @@
                 </div>
             </div>
 
+            <!-- Mini Games Section (Energy Regeneration) -->
+            {% if miniGames|length > 0 %}
+                <div class="card shadow-lg border-0 mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h2 class="text-white mb-2">
+                                    <i class="bi bi-lightning-charge-fill me-2"></i>
+                                    Energy Regeneration Mini Games
+                                </h2>
+                                <p class="text-white-50 mb-0">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Quick games to boost your energy and keep playing!
+                                </p>
+                            </div>
+                            <div class="text-white">
+                                <i class="bi bi-battery-charging fs-1"></i>
+                            </div>
+                        </div>
+
+                        <!-- Mini Games Grid -->
+                        <div class="row g-3">
+                            {% for miniGame in miniGames %}
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card h-100 border-0 shadow-sm mini-game-card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h5 class="card-title mb-0 fw-bold">{{ miniGame.name }}</h5>
+                                                {% if app.user %}
+                                                    <button class="btn btn-sm btn-outline-danger favorite-btn" 
+                                                            data-game-id="{{ miniGame.id }}"
+                                                            data-favorited="{{ app.user.hasFavoriteGame(miniGame) ? 'true' : 'false' }}"
+                                                            title="{{ app.user.hasFavoriteGame(miniGame) ? 'Remove from favorites' : 'Add to favorites' }}">
+                                                        <i class="bi bi-heart{{ app.user.hasFavoriteGame(miniGame) ? '-fill' : '' }}"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Energy Badge -->
+                                            <div class="mb-3">
+                                                <span class="badge bg-success fs-6 px-3 py-2">
+                                                    <i class="bi bi-lightning-charge-fill me-1"></i>
+                                                    +{{ miniGame.energyPoints }} Energy
+                                                </span>
+                                                {% if miniGame.tokenCost == 0 %}
+                                                    <span class="badge bg-info ms-1">FREE</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark ms-1">{{ miniGame.tokenCost }} 🪙</span>
+                                                {% endif %}
+                                            </div>
+
+                                            <p class="card-text text-muted small mb-3">
+                                                {{ miniGame.description|length > 80 ? miniGame.description|slice(0, 80) ~ '...' : miniGame.description }}
+                                            </p>
+
+                                            {# Rating Display #}
+                                            <div class="mb-3">
+                                                {% set gameRating = miniGameRatings[miniGame.id]|default({'average': 0, 'count': 0}) %}
+                                                {% include 'front/game/_star_rating.html.twig' with {
+                                                    'rating': gameRating.average,
+                                                    'count': gameRating.count,
+                                                    'size': 'sm'
+                                                } %}
+                                            </div>
+
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                {% if miniGame.rewardTokens > 0 or miniGame.rewardXP > 0 %}
+                                                    <div class="small text-muted">
+                                                        {% if miniGame.rewardXP > 0 %}
+                                                            <i class="bi bi-trophy-fill text-warning"></i> {{ miniGame.rewardXP }} XP
+                                                        {% endif %}
+                                                        {% if miniGame.rewardTokens > 0 %}
+                                                            <i class="bi bi-coin text-warning{% if miniGame.rewardXP > 0 %} ms-2{% endif %}"></i> {{ miniGame.rewardTokens }}
+                                                        {% endif %}
+                                                    </div>
+                                                {% else %}
+                                                    <div></div>
+                                                {% endif %}
+                                                <a href="{{ path('front_game_show', {id: miniGame.id}) }}" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-play-fill me-1"></i>Play Now
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Mini Games Pagination -->
+                        {% if miniGames.getTotalItemCount > 3 %}
+                            <div class="mt-4">
+                                <div class="d-flex justify-content-center">
+                                    {{ knp_pagination_render(miniGames, 'pagination/custom_pagination.html.twig') }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
             <!-- Ajax Filters -->
+            <div class="mb-3">
+                <h3 class="fs-3">
+                    <i class="bi bi-controller me-2"></i>
+                    All Games
+                </h3>
+                <p class="text-muted">Browse and filter through our complete game collection</p>
+            </div>
+
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <div class="row g-3">
@@ -116,6 +224,83 @@
     .form-check-input:checked {
         background-color: #28a745;
         border-color: #28a745;
+    }
+
+    /* Mini Game Cards */
+    .mini-game-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .mini-game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+        border-color: #28a745;
+    }
+
+    /* Dark mode adjustments */
+    [data-bs-theme="dark"] .mini-game-card {
+        background-color: rgba(255,255,255,0.05);
+    }
+
+    [data-bs-theme="dark"] .mini-game-card:hover {
+        background-color: rgba(255,255,255,0.08);
+        box-shadow: 0 10px 25px rgba(255,255,255,0.1) !important;
+    }
+
+    [data-bs-theme="dark"] .hover-lift:hover {
+        box-shadow: 0 8px 20px rgba(255,255,255,0.1) !important;
+    }
+
+    /* Energy section gradient for dark mode */
+    [data-bs-theme="dark"] .card[style*="linear-gradient"] {
+        opacity: 0.95;
+    }
+
+    /* Pulsing animation for energy badge */
+    @keyframes pulse-energy {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+        }
+    }
+
+    .badge.bg-success {
+        animation: pulse-energy 2s infinite;
+    }
+
+    /* Mini games pagination styling */
+    .card[style*="linear-gradient"] .pagination {
+        margin-bottom: 0;
+    }
+
+    .card[style*="linear-gradient"] .pagination .page-link {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    .card[style*="linear-gradient"] .pagination .page-link:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+    }
+
+    .card[style*="linear-gradient"] .pagination .page-item.active .page-link {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-color: rgba(255, 255, 255, 1);
+        color: #667eea;
+        font-weight: bold;
+    }
+
+    .card[style*="linear-gradient"] .pagination .page-item.disabled .page-link {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.5);
     }
 </style>
 {% endblock %}

@@ -9,7 +9,7 @@
         {% for label, messages in app.flashes %}
             {% for message in messages %}
                 <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
-                    {{ message }}
+                    {{ message|raw }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
@@ -31,7 +31,13 @@
                         <ul>
                             <li><strong>Cost to Play:</strong> {{ game.tokenCost }} tokens</li>
                             <li><strong>Your Tokens:</strong> {{ app.user.studentProfile ? app.user.studentProfile.totalTokens : 0 }} tokens</li>
-                            <li><strong>Base Reward:</strong> {{ game.rewardTokens }} tokens + {{ game.rewardXP }} XP</li>
+                            {% if game.category != 'MINI_GAME' %}
+                                <li><strong>Base Reward:</strong> {{ game.rewardTokens }} tokens + {{ game.rewardXP }} XP</li>
+                            {% else %}
+                                {% if game.energyPoints > 0 %}
+                                    <li><strong>Energy Regeneration:</strong> +{{ game.energyPoints }} Energy Points</li>
+                                {% endif %}
+                            {% endif %}
                             <li><strong>Type:</strong> {{ game.type }}</li>
                             <li><strong>Difficulty:</strong> {{ game.difficulty }}</li>
                         </ul>
@@ -360,6 +366,366 @@
         </div>
     </div>
 </div>
+
+<!-- Confirm Play Modal -->
+<div class="modal fade" id="confirmPlayModal" tabindex="-1" aria-labelledby="confirmPlayModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="confirmPlayModalLabel">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    Confirm Game Play
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-4">
+                    <i class="bi bi-controller text-primary" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="mb-3">Ready to Play?</h4>
+                <p class="lead mb-4">This game will cost you tokens to play.</p>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <small class="text-muted d-block">Current Balance</small>
+                                <h3 class="mb-0 text-success" id="confirm-current-balance">0</h3>
+                                <small class="text-muted">tokens</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <small class="text-muted d-block">Game Cost</small>
+                                <h3 class="mb-0 text-warning" id="confirm-game-cost">0</h3>
+                                <small class="text-muted">tokens</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-arrow-right-circle me-2"></i>
+                    After playing, you'll have <strong id="confirm-remaining-balance">0</strong> tokens remaining.
+                </div>
+                
+                <div class="card bg-success bg-opacity-10 border-success mb-3">
+                    <div class="card-body">
+                        <h6 class="text-success mb-2">
+                            <i class="bi bi-trophy-fill me-2"></i>
+                            Potential Rewards
+                        </h6>
+                        <p class="mb-0">
+                            <strong id="confirm-reward-tokens">0</strong> tokens + 
+                            <strong id="confirm-reward-xp">0</strong> XP
+                        </p>
+                    </div>
+                </div>
+                
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Complete the game to earn rewards!
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="confirm-play-btn">
+                    <i class="bi bi-play-fill me-1"></i>
+                    Yes, Play Now!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Level Milestone Celebration Modal -->
+<div class="modal fade" id="milestoneCelebrationModal" tabindex="-1" aria-labelledby="milestoneCelebrationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient-celebration text-white border-0">
+                <h5 class="modal-title w-100 text-center" id="milestoneCelebrationModalLabel">
+                    <i class="bi bi-award-fill me-2 celebration-icon"></i>
+                    <span class="celebration-title">Level Milestone Unlocked!</span>
+                </h5>
+            </div>
+            <div class="modal-body text-center py-5 celebration-body">
+                <div class="celebration-animation mb-4">
+                    <div class="milestone-icon-container">
+                        <img id="milestone-icon" src="" alt="Milestone" class="milestone-icon d-none">
+                        <i class="bi bi-award-fill milestone-icon-fallback" style="font-size: 6rem; color: #ffd700;"></i>
+                    </div>
+                    <div class="confetti-container">
+                        <div class="confetti"></div>
+                        <div class="confetti"></div>
+                        <div class="confetti"></div>
+                        <div class="confetti"></div>
+                        <div class="confetti"></div>
+                        <div class="confetti"></div>
+                        <div class="confetti"></div>
+                        <div class="confetti"></div>
+                        <div class="confetti"></div>
+                        <div class="confetti"></div>
+                    </div>
+                </div>
+                
+                <h2 class="mb-3 celebration-name" id="milestone-name">Achievement Unlocked!</h2>
+                <p class="lead mb-4 text-muted" id="milestone-description">You've reached a new milestone!</p>
+                
+                <div class="row g-3 mb-4 justify-content-center">
+                    <div class="col-6 col-md-4">
+                        <div class="card bg-danger bg-opacity-10 border-danger">
+                            <div class="card-body py-3">
+                                <small class="text-muted d-block">Level Reached</small>
+                                <h2 class="mb-0 text-danger" id="milestone-level">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="card bg-success bg-opacity-10 border-success">
+                            <div class="card-body py-3">
+                                <small class="text-muted d-block">Bonus Tokens</small>
+                                <h2 class="mb-0 text-success">
+                                    <i class="bi bi-coin me-1"></i>
+                                    <span id="milestone-tokens">0</span>
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>Congratulations!</strong> Keep playing to unlock more milestones!
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-lg btn-primary px-5" data-bs-dismiss="modal">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Awesome!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Celebration Modal Styles */
+    .bg-gradient-celebration {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background-size: 200% 200%;
+        animation: gradientShift 3s ease infinite;
+    }
+    
+    /* Ensure navbar stays on top */
+    header.navbar-light.navbar-sticky,
+    .navbar,
+    .navbar-collapse,
+    .dropdown-menu {
+        z-index: 9999 !important;
+    }
+    
+    /* Ensure modals don't interfere with navbar */
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+    
+    .modal {
+        z-index: 1050 !important;
+    }
+    
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .celebration-icon {
+        animation: bounce 1s ease infinite;
+        display: inline-block;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .celebration-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .celebration-body {
+        background: linear-gradient(180deg, rgba(102, 126, 234, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+    }
+    
+    [data-bs-theme="dark"] .celebration-body {
+        background: linear-gradient(180deg, rgba(102, 126, 234, 0.15) 0%, rgba(0, 0, 0, 0) 100%);
+    }
+    
+    .milestone-icon-container {
+        position: relative;
+        display: inline-block;
+        animation: scaleIn 0.5s ease-out;
+    }
+    
+    @keyframes scaleIn {
+        0% { transform: scale(0); opacity: 0; }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .milestone-icon {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+    }
+    
+    [data-bs-theme="dark"] .milestone-icon {
+        filter: drop-shadow(0 10px 20px rgba(255,255,255,0.2));
+    }
+    
+    .milestone-icon-fallback {
+        filter: drop-shadow(0 10px 20px rgba(255, 215, 0, 0.5));
+        animation: pulse 2s ease infinite;
+    }
+    
+    [data-bs-theme="dark"] .milestone-icon-fallback {
+        filter: drop-shadow(0 10px 30px rgba(255, 215, 0, 0.7));
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .celebration-name {
+        font-weight: bold;
+        color: #667eea;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        animation: fadeInUp 0.6s ease-out 0.3s both;
+    }
+    
+    [data-bs-theme="dark"] .celebration-name {
+        color: #a8b5ff;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    
+    @keyframes fadeInUp {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    .confetti-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: #ffd700;
+        top: -10px;
+        animation: confettiFall 3s linear infinite;
+        border-radius: 2px;
+    }
+    
+    .confetti:nth-child(1) { left: 10%; animation-delay: 0s; background: #ff6b6b; }
+    .confetti:nth-child(2) { left: 20%; animation-delay: 0.2s; background: #4ecdc4; }
+    .confetti:nth-child(3) { left: 30%; animation-delay: 0.4s; background: #ffd700; }
+    .confetti:nth-child(4) { left: 40%; animation-delay: 0.6s; background: #95e1d3; }
+    .confetti:nth-child(5) { left: 50%; animation-delay: 0.8s; background: #f38181; }
+    .confetti:nth-child(6) { left: 60%; animation-delay: 1s; background: #aa96da; }
+    .confetti:nth-child(7) { left: 70%; animation-delay: 1.2s; background: #fcbad3; }
+    .confetti:nth-child(8) { left: 80%; animation-delay: 1.4s; background: #ffffd2; }
+    .confetti:nth-child(9) { left: 90%; animation-delay: 1.6s; background: #a8e6cf; }
+    .confetti:nth-child(10) { left: 95%; animation-delay: 1.8s; background: #ff8b94; }
+    
+    @keyframes confettiFall {
+        0% { 
+            top: -10px; 
+            transform: translateX(0) rotateZ(0deg); 
+            opacity: 1;
+        }
+        100% { 
+            top: 100%; 
+            transform: translateX(100px) rotateZ(360deg); 
+            opacity: 0;
+        }
+    }
+    
+    /* Milestone Modal - Dark Mode Adjustments */
+    [data-bs-theme="dark"] #milestoneCelebrationModal .modal-content {
+        background-color: #1a1a1a;
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .card {
+        background-color: rgba(255,255,255,0.08);
+        border-color: rgba(255,255,255,0.15);
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .bg-danger {
+        background-color: rgba(220, 53, 69, 0.25) !important;
+        border-color: rgba(220, 53, 69, 0.5) !important;
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .bg-success {
+        background-color: rgba(25, 135, 84, 0.25) !important;
+        border-color: rgba(25, 135, 84, 0.5) !important;
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .text-danger {
+        color: #ff6b6b !important;
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .text-success {
+        color: #51cf66 !important;
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .text-muted {
+        color: rgba(255,255,255,0.65) !important;
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .alert-success {
+        background-color: rgba(25, 135, 84, 0.2);
+        border-color: rgba(25, 135, 84, 0.4);
+        color: #51cf66;
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .lead {
+        color: rgba(255,255,255,0.85);
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .modal-footer {
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    /* Button styling in dark mode */
+    [data-bs-theme="dark"] #milestoneCelebrationModal .btn-primary {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: #fff;
+    }
+    
+    [data-bs-theme="dark"] #milestoneCelebrationModal .btn-primary:hover {
+        background-color: #5568d3;
+        border-color: #5568d3;
+    }
+</style>
 {% endblock %}
 
 {% block javascripts %}
@@ -367,53 +733,147 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const playBtn = document.getElementById('play-game-btn');
+            let currentGameId = null;
+            let isChecking = false; // Flag to prevent multiple simultaneous requests
+            
+            // Check for milestone unlock on page load
+            {% if app.session.get('milestone_unlocked') %}
+                const milestones = {{ app.session.get('milestone_unlocked')|json_encode|raw }};
+                if (milestones && milestones.length > 0) {
+                    // Show celebration modal for first milestone (can be extended for multiple)
+                    showMilestoneCelebration(milestones[0]);
+                }
+                // Clear the session data
+                {% do app.session.remove('milestone_unlocked') %}
+            {% endif %}
             
             if (playBtn) {
                 playBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     
+                    // Prevent multiple simultaneous requests
+                    if (isChecking) {
+                        console.log('Already checking tokens, please wait...');
+                        return;
+                    }
+                    
                     const gameId = this.dataset.gameId;
+                    currentGameId = gameId;
                     const gameCost = parseInt(this.dataset.gameCost);
                     const studentTokens = parseInt(this.dataset.studentTokens);
                     
                     // Show loading state
                     const originalHtml = this.innerHTML;
                     this.disabled = true;
+                    isChecking = true;
                     this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Checking...';
                     
                     // Check tokens via Ajax
-                    fetch('{{ path('front_game_check_tokens', {id: '__ID__'}) }}'.replace('__ID__', gameId), {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success && data.canAfford) {
-                            // Sufficient tokens - redirect to play
-                            window.location.href = '{{ path('front_game_play', {id: '__ID__'}) }}'.replace('__ID__', gameId);
-                        } else {
-                            // Insufficient tokens - show modal
-                            showInsufficientTokensModal(data);
-                            
-                            // Reset button
-                            playBtn.disabled = false;
-                            playBtn.innerHTML = originalHtml;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error checking tokens:', error);
-                        alert('An error occurred. Please try again.');
-                        
-                        // Reset button
-                        playBtn.disabled = false;
-                        playBtn.innerHTML = originalHtml;
-                    });
+                    checkTokens(gameId, originalHtml, playBtn);
+                });
+            }
+            
+            // Function to check tokens
+            function checkTokens(gameId, originalHtml, playBtn) {
+                fetch('{{ path('front_game_check_tokens', {id: '__ID__'}) }}'.replace('__ID__', gameId), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server returned ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.canAfford) {
+                        // Sufficient tokens - show confirmation modal
+                        showConfirmPlayModal(data, gameId);
+                    } else if (data.success === false) {
+                        // Insufficient tokens or error - show modal
+                        showInsufficientTokensModal(data);
+                    } else {
+                        throw new Error('Unexpected response format');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking tokens:', error);
+                    alert('An error occurred while checking your tokens. Please refresh the page and try again.');
+                })
+                .finally(() => {
+                    // Reset button state
+                    playBtn.disabled = false;
+                    playBtn.innerHTML = originalHtml;
+                    isChecking = false;
+                });
+            }
+            
+            // Confirm play button in modal
+            const confirmPlayBtn = document.getElementById('confirm-play-btn');
+            if (confirmPlayBtn) {
+                confirmPlayBtn.addEventListener('click', function() {
+                    if (currentGameId) {
+                        window.location.href = '{{ path('front_game_play', {id: '__ID__'}) }}'.replace('__ID__', currentGameId);
+                    }
                 });
             }
         });
+        
+        function showMilestoneCelebration(milestone) {
+            // Update modal content
+            document.getElementById('milestone-name').textContent = milestone.name;
+            document.getElementById('milestone-description').textContent = milestone.description || 'You\'ve reached a new milestone!';
+            document.getElementById('milestone-level').textContent = milestone.level;
+            document.getElementById('milestone-tokens').textContent = milestone.tokens;
+            
+            // Handle icon
+            const iconImg = document.getElementById('milestone-icon');
+            const iconFallback = document.querySelector('.milestone-icon-fallback');
+            
+            if (milestone.icon) {
+                iconImg.src = '{{ asset('uploads/rewards/') }}' + milestone.icon;
+                iconImg.classList.remove('d-none');
+                iconFallback.classList.add('d-none');
+            } else {
+                iconImg.classList.add('d-none');
+                iconFallback.classList.remove('d-none');
+            }
+            
+            // Show modal with delay for dramatic effect
+            setTimeout(function() {
+                const modal = new bootstrap.Modal(document.getElementById('milestoneCelebrationModal'));
+                modal.show();
+                
+                // Play celebration sound if available
+                try {
+                    const audio = new Audio('{{ asset('sounds/celebration.mp3') }}');
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                } catch(e) {
+                    console.log('Audio not available');
+                }
+            }, 500);
+        }
+        
+        function showConfirmPlayModal(data, gameId) {
+            // Update modal content
+            document.getElementById('confirm-current-balance').textContent = data.currentBalance;
+            document.getElementById('confirm-game-cost').textContent = data.gameCost;
+            document.getElementById('confirm-remaining-balance').textContent = data.currentBalance - data.gameCost;
+            
+            // Get reward info from page
+            const rewardTokens = {{ game.rewardTokens }};
+            const rewardXP = {{ game.rewardXP }};
+            document.getElementById('confirm-reward-tokens').textContent = rewardTokens;
+            document.getElementById('confirm-reward-xp').textContent = rewardXP;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('confirmPlayModal'));
+            modal.show();
+        }
         
         function showInsufficientTokensModal(data) {
             // Update modal content

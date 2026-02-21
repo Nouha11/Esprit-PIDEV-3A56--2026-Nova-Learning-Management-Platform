@@ -36,10 +36,30 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function findByUsernameOrEmail(string $identifier): ?User
     {
         return $this->createQueryBuilder('u')
+            ->leftJoin('u.studentProfile', 's')
+            ->addSelect('s')
+            ->leftJoin('u.tutorProfile', 't')
+            ->addSelect('t')
             ->where('u.username = :identifier OR u.email = :identifier')
             ->setParameter('identifier', $identifier)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /**
+     * Find all users with a specific role
+     * 
+     * @return User[]
+     */
+    public function findByRole(string $role): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.role = :role')
+            ->andWhere('u.isActive = :active')
+            ->setParameter('role', $role)
+            ->setParameter('active', true)
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**
