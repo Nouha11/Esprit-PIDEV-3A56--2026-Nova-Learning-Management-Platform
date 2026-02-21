@@ -1,0 +1,183 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Game Templates{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="bi bi-magic me-2"></i>Game Template Generator</h1>
+            <p class="text-muted mb-0">Create playable games instantly from pre-built templates</p>
+        </div>
+        <a href="{{ path('admin_game_index') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Games
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Full Games Section -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-trophy me-2"></i>Full Games (with Rewards)</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        {% for key, template in templates.full_games %}
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card h-100 template-card" data-category="full_games" data-key="{{ key }}">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h5 class="card-title">{{ template.name }}</h5>
+                                            <span class="badge bg-{{ template.type == 'PUZZLE' ? 'info' : (template.type == 'MEMORY' ? 'warning' : (template.type == 'TRIVIA' ? 'success' : 'danger')) }}">
+                                                {{ template.type }}
+                                            </span>
+                                        </div>
+                                        <p class="card-text text-muted small">{{ template.description }}</p>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label small">Difficulty:</label>
+                                            <select class="form-select form-select-sm difficulty-select">
+                                                <option value="EASY">Easy ({{ template.difficulty_settings.EASY.tokens }}T / {{ template.difficulty_settings.EASY.xp }}XP)</option>
+                                                <option value="MEDIUM" selected>Medium ({{ template.difficulty_settings.MEDIUM.tokens }}T / {{ template.difficulty_settings.MEDIUM.xp }}XP)</option>
+                                                <option value="HARD">Hard ({{ template.difficulty_settings.HARD.tokens }}T / {{ template.difficulty_settings.HARD.xp }}XP)</option>
+                                            </select>
+                                        </div>
+
+                                        <button class="btn btn-primary btn-sm w-100 create-game-btn">
+                                            <i class="bi bi-plus-circle me-1"></i>Create Game
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini Games Section -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Mini Games (Energy Regeneration)</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        {% for key, template in templates.mini_games %}
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card h-100 template-card" data-category="mini_games" data-key="{{ key }}">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h5 class="card-title">{{ template.name }}</h5>
+                                            <span class="badge bg-success">
+                                                +{{ template.energy_points }} Energy
+                                            </span>
+                                        </div>
+                                        <p class="card-text text-muted small">{{ template.description }}</p>
+                                        
+                                        <button class="btn btn-success btn-sm w-100 create-game-btn">
+                                            <i class="bi bi-plus-circle me-1"></i>Create Mini Game
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Name Modal -->
+<div class="modal fade" id="customNameModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Customize Game Name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createGameForm" method="POST" action="{{ path('admin_game_create_from_template') }}">
+                <div class="modal-body">
+                    <input type="hidden" name="category" id="gameCategory">
+                    <input type="hidden" name="key" id="gameKey">
+                    <input type="hidden" name="difficulty" id="gameDifficulty">
+                    
+                    <div class="mb-3">
+                        <label for="customName" class="form-label">Game Name</label>
+                        <input type="text" class="form-control" id="customName" name="custom_name" required>
+                        <small class="text-muted">Leave as is or customize the name</small>
+                    </div>
+
+                    <div class="alert alert-info small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        The game will be created and you can further customize it in the edit page.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>Create Game
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = new bootstrap.Modal(document.getElementById('customNameModal'));
+            
+            document.querySelectorAll('.create-game-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const card = this.closest('.template-card');
+                    const category = card.dataset.category;
+                    const key = card.dataset.key;
+                    const difficulty = card.querySelector('.difficulty-select')?.value || 'EASY';
+                    const templateName = card.querySelector('.card-title').textContent.trim();
+
+                    // Set form values
+                    document.getElementById('gameCategory').value = category;
+                    document.getElementById('gameKey').value = key;
+                    document.getElementById('gameDifficulty').value = difficulty;
+                    document.getElementById('customName').value = templateName;
+
+                    // Show modal
+                    modal.show();
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .template-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-bs-theme="dark"] .template-card {
+            background-color: var(--bs-dark);
+            border-color: var(--bs-gray-700);
+        }
+
+        [data-bs-theme="dark"] .template-card:hover {
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+    </style>
+{% endblock %}

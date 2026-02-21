@@ -88,10 +88,12 @@ class RewardFormType extends AbstractType
             'expanded' => true,
             'required' => false,
             'by_reference' => false,
-            'label' => 'Associated Games',
-            'help' => 'Check the games that should offer this reward',
+            'label' => 'Associated Games (Full Games Only)',
+            'help' => 'Check the full games that should offer this reward. Mini games only regenerate energy and cannot offer rewards.',
             'query_builder' => function($repository) {
                 return $repository->createQueryBuilder('g')
+                    ->where('g.category = :category')
+                    ->setParameter('category', 'FULL_GAME')
                     ->orderBy('g.name', 'ASC');
             },
         ])

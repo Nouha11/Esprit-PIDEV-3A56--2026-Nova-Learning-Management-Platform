@@ -98,7 +98,7 @@ class GameFormType extends AbstractType
                 'required' => false,
             ])
 
-            // Add rewards relationship field
+            // Add rewards relationship field (excluding level milestones)
             ->add('rewards', EntityType::class, [
                 'class' => Reward::class,
                 'choice_label' => function(Reward $reward) {
@@ -112,11 +112,13 @@ class GameFormType extends AbstractType
                 'expanded' => true, // Creates checkboxes instead of a select
                 'required' => false,
                 'label' => 'Special Rewards',
-                'help' => 'Select rewards that players can earn by completing this game',
+                'help' => 'Select rewards that players can earn by completing this game (Level milestones are awarded automatically and cannot be assigned to specific games)',
                 'query_builder' => function(\Doctrine\ORM\EntityRepository $er) {
                     return $er->createQueryBuilder('r')
                         ->where('r.isActive = :active')
+                        ->andWhere('r.type != :levelMilestone')
                         ->setParameter('active', true)
+                        ->setParameter('levelMilestone', 'LEVEL_MILESTONE')
                         ->orderBy('r.type', 'ASC')
                         ->addOrderBy('r.name', 'ASC');
                 },

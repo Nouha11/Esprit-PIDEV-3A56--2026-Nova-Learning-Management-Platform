@@ -108,6 +108,7 @@
     </div>
 
     <div class="col-md-4">
+        {% set nonMilestoneRewards = game.rewards|filter(r => r.type != 'LEVEL_MILESTONE') %}
         <div class="card sticky-top" style="top: 20px;">
             <div class="card-header bg-info text-white">
                 <h6 class="mb-0">
@@ -127,9 +128,9 @@
                         Mini games regenerate energy and don't offer traditional rewards.
                     </div>
                 {% else %}
-                    {% if game.rewards is not empty %}
+                    {% if nonMilestoneRewards is not empty %}
                         <ul class="list-unstyled mb-0">
-                            {% for reward in game.rewards %}
+                            {% for reward in nonMilestoneRewards %}
                                 <li class="mb-2">
                                     <span class="badge 
                                         {% if reward.type == 'BADGE' %}bg-primary

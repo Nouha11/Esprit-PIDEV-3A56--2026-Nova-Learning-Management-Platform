@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Admin\Game;
 
 use App\Entity\Gamification\Reward;
 use App\Form\Admin\gamification\LevelMilestoneType;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/admin/level-milestones')]
+#[Route('/admin/games/level-milestones')]
 #[IsGranted('ROLE_ADMIN')]
 class LevelMilestoneController extends AbstractController
 {
@@ -110,7 +110,9 @@ class LevelMilestoneController extends AbstractController
         }
 
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+        // Simple sanitization without intl extension
+        $safeFilename = preg_replace('/[^A-Za-z0-9_\-]/', '_', $originalFilename);
+        $safeFilename = strtolower($safeFilename);
         $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
         $file->move($uploadsDirectory, $newFilename);

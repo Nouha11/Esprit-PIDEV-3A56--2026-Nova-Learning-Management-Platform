@@ -865,8 +865,8 @@
             document.getElementById('confirm-remaining-balance').textContent = data.currentBalance - data.gameCost;
             
             // Get reward info from page
-            const rewardTokens = {{ game.rewardTokens }};
-            const rewardXP = {{ game.rewardXP }};
+            const rewardTokens = {{ game.rewardTokens|default(0) }};
+            const rewardXP = {{ game.rewardXP|default(0) }};
             document.getElementById('confirm-reward-tokens').textContent = rewardTokens;
             document.getElementById('confirm-reward-xp').textContent = rewardXP;
             

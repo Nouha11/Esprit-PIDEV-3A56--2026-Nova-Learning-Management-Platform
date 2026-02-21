@@ -105,9 +105,14 @@
     <div class="col-md-4">
         <div class="card bg-light sticky-top" style="top: 20px;">
             <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-info-circle me-1"></i>Help</h6>
+                <h6 class="mb-0"><i class="bi bi-info-circle me-1"></i>Quick Guide</h6>
             </div>
-            <div class="card-body">
+            <div class="card-body" id="helpContent">
+                <div class="alert alert-info small mb-3">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <strong>Tip:</strong> Use the Game Templates feature for instant game creation with pre-configured settings!
+                </div>
+
                 <h6>Game Types:</h6>
                 <ul class="small">
                     <li><strong>PUZZLE:</strong> Logic and problem-solving games</li>
@@ -119,21 +124,36 @@
                 <h6 class="mt-3">Game Categories:</h6>
                 <ul class="small">
                     <li><strong>Full Game:</strong> Offers rewards, XP, and tokens</li>
-                    <li><strong>Mini Game:</strong> Only regenerates energy points (for future energy system)</li>
+                    <li><strong>Mini Game:</strong> Only regenerates energy points</li>
                 </ul>
 
                 <h6 class="mt-3">Difficulty Levels:</h6>
                 <ul class="small">
-                    <li><strong>EASY:</strong> Beginner-friendly</li>
-                    <li><strong>MEDIUM:</strong> Moderate challenge</li>
-                    <li><strong>HARD:</strong> Expert level</li>
+                    <li><strong>EASY:</strong> Beginner-friendly (10T / 20XP)</li>
+                    <li><strong>MEDIUM:</strong> Moderate challenge (20T / 40XP)</li>
+                    <li><strong>HARD:</strong> Expert level (30T / 60XP)</li>
                 </ul>
 
-                <h6 class="mt-3">Rewards:</h6>
-                <p class="small mb-0">
-                    <strong>Full Games:</strong> Set base token and XP rewards, plus optional special rewards.<br>
-                    <strong>Mini Games:</strong> Set energy points to regenerate (no other rewards).
-                </p>
+                <div id="categoryHelp" class="mt-3" style="display: none;">
+                    <div class="alert alert-success small mb-0">
+                        <div id="fullGameHelp">
+                            <strong><i class="bi bi-trophy me-1"></i>Full Game Selected</strong>
+                            <p class="mb-1 mt-2">Set base token and XP rewards based on difficulty.</p>
+                            <p class="mb-0">Optionally add special rewards (badges, achievements, bonuses).</p>
+                        </div>
+                        <div id="miniGameHelp" style="display: none;">
+                            <strong><i class="bi bi-lightning-charge me-1"></i>Mini Game Selected</strong>
+                            <p class="mb-1 mt-2">Set energy points to regenerate (typically 3-5 points).</p>
+                            <p class="mb-0">Mini games are free to play and help students take breaks.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <a href="{{ path('admin_game_templates') }}" class="btn btn-sm btn-success w-100">
+                        <i class="bi bi-magic me-1"></i>Use Game Templates
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -145,8 +165,93 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const categorySelect = document.querySelector('[data-game-category="true"]');
+            const typeSelect = document.querySelector('select[name="game_form[type]"]');
+            const nameInput = document.querySelector('input[name="game_form[name]"]');
+            const descriptionInput = document.querySelector('textarea[name="game_form[description]"]');
             const energyField = document.getElementById('energy-points-field');
             const fullGameRewards = document.getElementById('full-game-rewards');
+            const energyInput = document.querySelector('input[name="game_form[energyPoints]"]');
+            const tokenCostInput = document.querySelector('input[name="game_form[tokenCost]"]');
+            const rewardTokensInput = document.querySelector('input[name="game_form[rewardTokens]"]');
+            const rewardXPInput = document.querySelector('input[name="game_form[rewardXP]"]');
+
+            // Placeholder suggestions based on game type and category
+            const placeholders = {
+                FULL_GAME: {
+                    PUZZLE: {
+                        name: 'e.g., Word Scramble Challenge, Logic Puzzle Master',
+                        description: 'e.g., Unscramble words within the time limit to test your vocabulary skills',
+                        tokens: '10-30',
+                        xp: '20-60'
+                    },
+                    MEMORY: {
+                        name: 'e.g., Memory Match Pro, Card Flip Challenge',
+                        description: 'e.g., Match pairs of cards in the shortest time possible',
+                        tokens: '10-30',
+                        xp: '20-60'
+                    },
+                    TRIVIA: {
+                        name: 'e.g., Quick Quiz Master, Knowledge Test',
+                        description: 'e.g., Answer multiple choice questions correctly to earn rewards',
+                        tokens: '10-30',
+                        xp: '20-60'
+                    },
+                    ARCADE: {
+                        name: 'e.g., Reaction Clicker, Speed Challenge',
+                        description: 'e.g., Click targets as fast as possible before they disappear',
+                        tokens: '10-30',
+                        xp: '20-60'
+                    }
+                },
+                MINI_GAME: {
+                    PUZZLE: {
+                        name: 'e.g., Quick Brain Teaser, Mini Puzzle Break',
+                        description: 'e.g., A quick puzzle to refresh your mind and restore energy',
+                        energy: '3-5'
+                    },
+                    MEMORY: {
+                        name: 'e.g., Memory Refresh, Quick Match',
+                        description: 'e.g., A short memory game to boost your focus and energy',
+                        energy: '3-5'
+                    },
+                    TRIVIA: {
+                        name: 'e.g., Quick Facts, Mini Quiz Break',
+                        description: 'e.g., Answer a few quick questions to recharge',
+                        energy: '3-5'
+                    },
+                    ARCADE: {
+                        name: 'e.g., Breathing Exercise, Quick Stretch, Eye Rest',
+                        description: 'e.g., Take a moment to relax and restore your energy',
+                        energy: '3-5'
+                    }
+                }
+            };
+
+            function updatePlaceholders() {
+                const category = categorySelect.value;
+                const type = typeSelect.value;
+                
+                if (category && type && placeholders[category] && placeholders[category][type]) {
+                    const config = placeholders[category][type];
+                    
+                    // Update name placeholder
+                    nameInput.setAttribute('placeholder', config.name);
+                    
+                    // Update description placeholder
+                    descriptionInput.setAttribute('placeholder', config.description);
+                    
+                    if (category === 'MINI_GAME') {
+                        // Update energy points placeholder
+                        energyInput.setAttribute('placeholder', config.energy + ' points');
+                        tokenCostInput.setAttribute('placeholder', '0 (mini games are free)');
+                    } else {
+                        // Update reward placeholders
+                        rewardTokensInput.setAttribute('placeholder', config.tokens + ' tokens');
+                        rewardXPInput.setAttribute('placeholder', config.xp + ' XP');
+                        tokenCostInput.setAttribute('placeholder', '0 (free) or set a cost');
+                    }
+                }
+            }
 
             function toggleFields() {
                 const category = categorySelect.value;
@@ -155,11 +260,23 @@
                     // Show energy points, hide rewards
                     energyField.style.display = 'block';
                     fullGameRewards.style.display = 'none';
+                    
+                    // Update help content
+                    document.getElementById('categoryHelp').style.display = 'block';
+                    document.getElementById('fullGameHelp').style.display = 'none';
+                    document.getElementById('miniGameHelp').style.display = 'block';
                 } else {
                     // Hide energy points, show rewards
                     energyField.style.display = 'none';
                     fullGameRewards.style.display = 'block';
+                    
+                    // Update help content
+                    document.getElementById('categoryHelp').style.display = 'block';
+                    document.getElementById('fullGameHelp').style.display = 'block';
+                    document.getElementById('miniGameHelp').style.display = 'none';
                 }
+                
+                updatePlaceholders();
             }
 
             // Initial state
@@ -167,6 +284,7 @@
 
             // Listen for changes
             categorySelect.addEventListener('change', toggleFields);
+            typeSelect.addEventListener('change', updatePlaceholders);
         });
     </script>
 {% endblock %}

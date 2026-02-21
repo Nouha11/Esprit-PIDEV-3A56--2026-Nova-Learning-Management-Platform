@@ -60,9 +60,10 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if reward.games|length > 0 %}
-                                <span class="badge bg-success" title="{{ reward.games|length }} game(s) offer this reward">
-                                    <i class="bi bi-controller me-1"></i>{{ reward.games|length }}
+                            {% set fullGamesCount = reward.games|filter(g => g.category == 'FULL_GAME')|length %}
+                            {% if fullGamesCount > 0 %}
+                                <span class="badge bg-success" title="{{ fullGamesCount }} game(s) offer this reward">
+                                    <i class="bi bi-controller me-1"></i>{{ fullGamesCount }}
                                 </span>
                                 <button class="btn btn-sm btn-outline-info" 
                                         type="button" 
@@ -119,13 +120,14 @@
                             </div>
                         </td>
                     </tr>
-                    {% if reward.games|length > 0 %}
+                    {% set fullGamesForReward = reward.games|filter(g => g.category == 'FULL_GAME') %}
+                    {% if fullGamesForReward|length > 0 %}
                     <tr class="collapse" id="games-{{ reward.id }}">
                         <td colspan="9" class="bg-light">
                             <div class="p-3">
                                 <h6 class="mb-2"><i class="bi bi-controller me-2"></i>Games offering this reward:</h6>
                                 <div class="d-flex flex-wrap gap-2">
-                                    {% for game in reward.games %}
+                                    {% for game in fullGamesForReward %}
                                         <a href="{{ path('admin_game_show', {id: game.id}) }}" 
                                            class="btn btn-sm btn-outline-primary">
                                             {{ game.name }}

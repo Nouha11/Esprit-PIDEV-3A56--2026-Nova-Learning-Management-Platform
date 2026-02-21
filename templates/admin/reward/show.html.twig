@@ -94,16 +94,17 @@
                 </div>
             </div>
 
-            {# Associated Games Section #}
+            {# Associated Games Section - Only Full Games #}
+            {% set fullGames = reward.games|filter(g => g.category == 'FULL_GAME') %}
             <div class="card mb-4">
                 <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="bi bi-controller me-2"></i>Games Offering This Reward
                     </h5>
-                    <span class="badge bg-light text-dark">{{ reward.games|length }} game(s)</span>
+                    <span class="badge bg-light text-dark">{{ fullGames|length }} game(s)</span>
                 </div>
                 <div class="card-body">
-                    {% if reward.games is not empty %}
+                    {% if fullGames is not empty %}
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
@@ -119,7 +120,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for game in reward.games %}
+                                    {% for game in fullGames %}
                                         <tr>
                                             <td>{{ game.id }}</td>
                                             <td><strong>{{ game.name }}</strong></td>
@@ -157,7 +158,7 @@
                     {% else %}
                         <div class="alert alert-info mb-0">
                             <i class="bi bi-info-circle me-2"></i>
-                            This reward is not currently offered by any game. To associate it with games, edit the game and add this reward.
+                            This reward is not currently offered by any full game. To associate it with games, edit the game and add this reward. Note: Mini games cannot offer rewards.
                         </div>
                     {% endif %}
                 </div>
@@ -292,6 +293,7 @@
                 </div>
             </div>
 
+            {% set fullGamesForStats = reward.games|filter(g => g.category == 'FULL_GAME') %}
             <div class="card mt-3">
                 <div class="card-header bg-info text-white">
                     <h6 class="mb-0">Quick Stats</h6>
@@ -299,11 +301,11 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <small class="text-muted d-block">Associated Games</small>
-                        <h4>{{ reward.games|length }}</h4>
+                        <h4>{{ fullGamesForStats|length }}</h4>
                     </div>
                     <div class="mb-3">
                         <small class="text-muted d-block">Active Games</small>
-                        <h4>{{ reward.games|filter(g => g.isActive)|length }}</h4>
+                        <h4>{{ fullGamesForStats|filter(g => g.isActive)|length }}</h4>
                     </div>
                     <div>
                         <small class="text-muted d-block">Students Earned</small>

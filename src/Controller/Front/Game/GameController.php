@@ -285,10 +285,77 @@ class GameController extends AbstractController
             $session->set('game_' . $game->getId() . '_balance_before', $balanceBeforePlay);
         }
 
+        // Extract game engine from description
+        $gameEngine = 'default';
+        $gameSettings = [];
+        
+        if (preg_match('/\[Engine: ([^\]]+)\]/', $game->getDescription(), $matches)) {
+            $gameEngine = $matches[1];
+        }
+
+        // Build game settings based on game type and difficulty
+        if ($game->getCategory() === 'FULL_GAME') {
+            $gameSettings = $this->buildGameSettings($game);
+        } else {
+            // Mini game settings
+            $gameSettings = [
+                'cycles' => 3,
+                'duration' => 60,
+            ];
+        }
+
         return $this->render('front/game/play.html.twig', [
             'game' => $game,
             'student' => $student,
+            'gameEngine' => $gameEngine,
+            'gameSettings' => $gameSettings,
         ]);
+    }
+
+    /**
+     * Build game settings based on game configuration
+     */
+    private function buildGameSettings(Game $game): array
+    {
+        $settings = [];
+        
+        // Default settings based on difficulty
+        $difficultyMultiplier = match($game->getDifficulty()) {
+            'EASY' => 1.0,
+            'MEDIUM' => 1.3,
+            'HARD' => 1.6,
+            default => 1.0,
+        };
+
+        // Type-specific settings
+        switch ($game->getType()) {
+            case 'PUZZLE':
+                $settings = [
+                    'time' => (int)(60 / $difficultyMultiplier),
+                    'words' => (int)(5 * $difficultyMultiplier),
+                ];
+                break;
+            case 'MEMORY':
+                $settings = [
+                    'pairs' => (int)(6 * $difficultyMultiplier),
+                    'time' => (int)(90 * $difficultyMultiplier),
+                ];
+                break;
+            case 'TRIVIA':
+                $settings = [
+                    'questions' => (int)(5 * $difficultyMultiplier),
+                    'time_per_q' => (int)(15 / $difficultyMultiplier),
+                ];
+                break;
+            case 'ARCADE':
+                $settings = [
+                    'targets' => (int)(10 * $difficultyMultiplier),
+                    'speed' => (int)(2000 / $difficultyMultiplier),
+                ];
+                break;
+        }
+
+        return $settings;
     }
 
     /**
