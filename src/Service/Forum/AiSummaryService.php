@@ -10,7 +10,6 @@ class AiSummaryService
 {
     public function __construct(
         private HttpClientInterface $client,
-        // This magic attribute automatically grabs the key from your .env file!
         #[Autowire(env: 'GEMINI_API_KEY')] private string $apiKey 
     ) {
     }
@@ -33,13 +32,10 @@ class AiSummaryService
         try {
             $response = $this->client->request(
                 'POST',
-                // 👇 WE UPGRADED THE MODEL TO gemini-2.5-flash HERE 👇
                 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $this->apiKey,
                 [
-                    // --- THE XAMPP FIX: Ignore SSL verification locally ---
                     'verify_peer' => false,
                     'verify_host' => false,
-                    // ------------------------------------------------------
                     'json' => [
                         'contents' => [
                             [
@@ -52,13 +48,20 @@ class AiSummaryService
                 ]
             );
 
+            // --- NEW: Read Google's actual error message instead of hiding it! ---
+            if ($response->getStatusCode() !== 200) {
+                // Passing 'false' prevents Symfony from crashing, allowing us to read the JSON error
+                $errorData = $response->toArray(false); 
+                $googleMessage = $errorData['error']['message'] ?? 'Unknown Google Error';
+                return 'Google API Refused: ' . $googleMessage;
+            }
+
             // 4. Decode the JSON response and return just the text
             $data = $response->toArray();
             return $data['candidates'][0]['content']['parts'][0]['text'] ?? 'No summary could be generated.';
             
         } catch (\Exception $e) {
-            // INSTEAD OF NAPPING, SHOW THE ACTUAL ERROR:
-            return 'AI Error: ' . $e->getMessage();
+            return 'System Error: ' . $e->getMessage();
         }
     }
 }
