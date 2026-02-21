@@ -1,0 +1,17 @@
+<div class="d-flex justify-content-end mb-3">
+    <a href="{{ path('admin_level_milestone_new') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Create Level Milestone
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Level milestones are automatically awarded to students when they reach specific levels. 
+            Students receive tokens as rewards for reaching these milestones.
+        </p>
+
+        {% include 'admin/level_milestone/_milestones_table.html.twig' %}
+    </div>
+</div>

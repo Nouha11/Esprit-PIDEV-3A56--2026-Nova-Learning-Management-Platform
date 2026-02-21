@@ -25,7 +25,8 @@ class RewardController extends AbstractController
         private RewardService $rewardService,
         private CertificateService $certificateService,
         private PaginatorInterface $paginator,
-        private RewardRepository $rewardRepository
+        private RewardRepository $rewardRepository,
+        private \App\Service\game\LevelCalculatorService $levelCalculator
     ) {
     }
 
