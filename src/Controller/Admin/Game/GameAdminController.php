@@ -6,11 +6,13 @@ use App\Entity\Gamification\Game;
 use App\Form\Admin\GameFormType;
 use App\Repository\Gamification\GameRepository;
 use App\Service\game\GameService;
+use App\Service\game\GameTemplateService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -21,7 +23,8 @@ class GameAdminController extends AbstractController
     public function __construct(
         private GameService $gameService,
         private GameRepository $gameRepository,
-        private PaginatorInterface $paginator
+        private PaginatorInterface $paginator,
+        private GameTemplateService $templateService
     ) {
     }
 
@@ -113,7 +116,7 @@ class GameAdminController extends AbstractController
     /**
     * Show game details
     */
-    #[Route('/{id}', name: 'admin_game_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'admin_game_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Game $game): Response
     {
         return $this->render('admin/game/show.html.twig', [
@@ -125,7 +128,7 @@ class GameAdminController extends AbstractController
     /**
     * Edit game
     */
-    #[Route('/{id}/edit', name: 'admin_game_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'admin_game_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function edit(Request $request, Game $game): Response
     {
         $form = $this->createForm(GameFormType::class, $game);
@@ -144,7 +147,7 @@ class GameAdminController extends AbstractController
     /**
      * Toggle game active status (Ajax)
      */
-    #[Route('/{id}/toggle-active', name: 'admin_game_toggle_active', methods: ['POST'])]
+    #[Route('/{id}/toggle-active', name: 'admin_game_toggle_active', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function toggleActive(Request $request, Game $game, EntityManagerInterface $entityManager): Response
     {
         // Verify CSRF token
@@ -183,7 +186,7 @@ class GameAdminController extends AbstractController
     /**
      * Delete game
      */
-    #[Route('/{id}/delete', name: 'admin_game_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'admin_game_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(Request $request, Game $game, EntityManagerInterface $entityManager): Response 
     {
         if ($this->isCsrfTokenValid('delete'.$game->getId(), $request->request->get('_token'))) {
@@ -200,5 +203,92 @@ class GameAdminController extends AbstractController
         }
         
         return $this->redirectToRoute('admin_game_index');
+    }
+
+    /**
+     * Show game template generator
+     */
+    #[Route('/templates', name: 'admin_game_templates', methods: ['GET'])]
+    public function templates(): Response
+    {
+        $templates = $this->templateService->getTemplates();
+        
+        return $this->render('admin/game/templates.html.twig', [
+            'templates' => $templates,
+        ]);
+    }
+
+    /**
+     * Get template configuration (Ajax)
+     */
+    #[Route('/templates/config', name: 'admin_game_template_config', methods: ['POST'])]
+    public function getTemplateConfig(Request $request): JsonResponse
+    {
+        $category = $request->request->get('category');
+        $key = $request->request->get('key');
+        $difficulty = $request->request->get('difficulty', 'MEDIUM');
+
+        $config = $this->templateService->getTemplateConfig($category, $key, $difficulty);
+
+        if (empty($config)) {
+            return $this->json(['error' => 'Template not found'], 404);
+        }
+
+        return $this->json($config);
+    }
+
+    /**
+     * Create game from template
+     */
+    #[Route('/templates/create', name: 'admin_game_create_from_template', methods: ['POST'])]
+    public function createFromTemplate(Request $request, EntityManagerInterface $em): Response
+    {
+        $category = $request->request->get('category');
+        $key = $request->request->get('key');
+        $difficulty = $request->request->get('difficulty', 'MEDIUM');
+        $customName = $request->request->get('custom_name');
+
+        $config = $this->templateService->getTemplateConfig($category, $key, $difficulty);
+
+        if (empty($config)) {
+            $this->addFlash('error', 'Template not found');
+            return $this->redirectToRoute('admin_game_templates');
+        }
+
+        // Create game entity
+        $game = new Game();
+        $game->setName($customName ?: $config['name']);
+        $game->setDescription($config['description']);
+        $game->setType($config['type']);
+        $game->setCategory($config['category']);
+        $game->setTokenCost($config['tokenCost']);
+        $game->setIsActive(true);
+
+        if ($config['category'] === 'FULL_GAME') {
+            $game->setDifficulty($config['difficulty']);
+            $game->setRewardTokens($config['rewardTokens']);
+            $game->setRewardXP($config['rewardXP']);
+        } else {
+            $game->setDifficulty('EASY');
+            $game->setEnergyPoints($config['energyPoints']);
+            $game->setRewardTokens(0);
+            $game->setRewardXP(0);
+        }
+
+        // Store engine and settings as JSON in description or create a new field
+        $gameData = [
+            'engine' => $config['engine'],
+            'settings' => $config['settings'] ?? [],
+        ];
+        
+        // You might want to add a 'gameData' JSON field to the Game entity
+        // For now, we'll append it to description
+        $game->setDescription($config['description'] . ' [Engine: ' . $config['engine'] . ']');
+
+        $em->persist($game);
+        $em->flush();
+
+        $this->addFlash('success', 'Game created successfully from template!');
+        return $this->redirectToRoute('admin_game_edit', ['id' => $game->getId()]);
     }
 }

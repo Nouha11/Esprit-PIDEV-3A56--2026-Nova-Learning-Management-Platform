@@ -1,0 +1,159 @@
+/* Game Engines Styles */
+
+/* Memory Match Game */
+.memory-card {
+    aspect-ratio: 1;
+    cursor: pointer;
+    perspective: 1000px;
+    transition: transform 0.2s;
+}
+
+.memory-card:hover {
+    transform: scale(1.05);
+}
+
+.memory-card .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.memory-card.flipped .card-inner,
+.memory-card.matched .card-inner {
+    transform: rotateY(180deg);
+}
+
+.memory-card .card-front,
+.memory-card .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+}
+
+.memory-card .card-front {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: bold;
+}
+
+.memory-card .card-back {
+    background: white;
+    transform: rotateY(180deg);
+}
+
+.memory-card.matched .card-back {
+    background: #d4edda;
+    border-color: #28a745;
+}
+
+/* Dark theme for memory cards */
+.memory-card.dark-theme .card-back {
+    background: #2d3748;
+    color: white;
+    border-color: #4a5568;
+}
+
+.memory-card.dark-theme.matched .card-back {
+    background: #2f855a;
+    border-color: #38a169;
+}
+
+/* Word Scramble Game */
+.scrambled-word {
+    letter-spacing: 0.5rem;
+    font-weight: bold;
+    color: #667eea;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="dark"] .scrambled-word {
+    color: #a78bfa;
+    text-shadow: 2px 2px 4px rgba(255,255,255,0.1);
+}
+
+/* Breathing Exercise */
+.breathing-circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin: 0 auto;
+    animation: breathe 8s ease-in-out infinite;
+    box-shadow: 0 0 40px rgba(102, 126, 234, 0.5);
+}
+
+@keyframes breathe {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+}
+
+[data-bs-theme="dark"] .breathing-circle {
+    box-shadow: 0 0 40px rgba(167, 139, 250, 0.5);
+}
+
+/* Reaction Clicker */
+.reaction-target {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    cursor: pointer;
+    transition: transform 0.1s;
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+}
+
+.reaction-target:hover {
+    transform: scale(1.1);
+}
+
+.reaction-target:active {
+    transform: scale(0.9);
+}
+
+/* Game animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.game-content {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .memory-card .card-front,
+    .memory-card .card-back {
+        font-size: 1.5rem;
+    }
+    
+    .scrambled-word {
+        font-size: 2rem !important;
+        letter-spacing: 0.3rem;
+    }
+    
+    .breathing-circle {
+        width: 150px;
+        height: 150px;
+    }
+}

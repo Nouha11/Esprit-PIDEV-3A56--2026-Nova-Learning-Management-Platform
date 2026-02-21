@@ -2,29 +2,134 @@
 
 {% block title %}Play {{ game.name }}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/css/game-engines.css') }}">
+{% endblock %}
+
 {% block body %}
-    <div class="row">
-        <div class="col-md-12 text-center">
-            <h1>{{ game.name }}</h1>
-            <p class="lead">{{ game.description }}</p>
-            
-            <div class="alert alert-info">
-                <strong>Rewards:</strong> Complete this game to earn {{ game.rewardTokens }} tokens and {{ game.rewardXP }} XP!
-            </div>
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <!-- Game Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2><i class="bi bi-controller me-2"></i>{{ game.name }}</h2>
+                        <p class="text-muted mb-0">{{ game.description }}</p>
+                    </div>
+                    <a href="{{ path('front_game_show', {id: game.id}) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i>Exit
+                    </a>
+                </div>
 
-            <!-- Game Interface Placeholder -->
-            <div class="card p-5 my-4" style="min-height: 400px; background-color: #f8f9fa;">
-                <h3>Game Interface</h3>
-                <p>This is where the actual game will be rendered</p>
-                <p>(Memory cards, Puzzle pieces, Trivia questions, etc.)</p>
+                {% if not game.isMiniGame() %}
+                    <!-- Rewards Info -->
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-trophy me-2"></i>
+                        <strong>Rewards:</strong> Complete this game to earn {{ game.rewardTokens }} tokens and {{ game.rewardXP }} XP!
+                    </div>
+                {% else %}
+                    <!-- Energy Info -->
+                    <div class="alert alert-success mb-4">
+                        <i class="bi bi-lightning-charge me-2"></i>
+                        <strong>Energy Boost:</strong> Complete this mini-game to restore {{ game.energyPoints }} energy points!
+                    </div>
+                {% endif %}
 
-                <!-- Temporary completion button -->
-                <form method="post" action="{{ path('front_game_complete', {id: game.id}) }}">
-                    <button type="submit" class="btn btn-success btn-lg mt-4">Complete Game (Temporary)</button>
-                </form>
+                <!-- Game Container -->
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <div id="gameContainer" 
+                             data-engine="{{ gameEngine }}"
+                             data-settings="{{ gameSettings|json_encode|e('html_attr') }}"
+                             data-game-id="{{ game.id }}">
+                            <!-- Game will be rendered here by JavaScript -->
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading game...</span>
+                                </div>
+                                <p class="mt-3 text-muted">Loading game engine...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions Card -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>How to Play</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if gameEngine == 'word_scramble' %}
+                            <p>Unscramble the words by typing the correct spelling. You have limited time!</p>
+                        {% elseif gameEngine == 'memory_match' %}
+                            <p>Click on cards to flip them. Match all pairs before time runs out!</p>
+                        {% elseif gameEngine == 'breathing' %}
+                            <p>Follow the breathing circle. Breathe in when it expands, hold, then breathe out when it contracts.</p>
+                        {% elseif gameEngine == 'quick_quiz' %}
+                            <p>Answer the multiple choice questions correctly within the time limit.</p>
+                        {% elseif gameEngine == 'reaction_clicker' %}
+                            <p>Click on the targets as quickly as possible before they disappear!</p>
+                        {% else %}
+                            <p>Follow the on-screen instructions to complete the game.</p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            
-            <a href="{{ path('front_game_show', {id: game.id}) }}" class="btn btn-secondary">Exit Game</a>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    <!-- Load appropriate game engine -->
+    {% if gameEngine == 'word_scramble' %}
+        <script src="{{ asset('js/game-engines/word-scramble.js') }}"></script>
+    {% elseif gameEngine == 'memory_match' %}
+        <script src="{{ asset('js/game-engines/memory-match.js') }}"></script>
+    {% elseif gameEngine == 'breathing' %}
+        <script src="{{ asset('js/game-engines/breathing.js') }}"></script>
+    {% elseif gameEngine == 'quick_quiz' %}
+        <script src="{{ asset('js/game-engines/quick-quiz.js') }}"></script>
+    {% elseif gameEngine == 'reaction_clicker' %}
+        <script src="{{ asset('js/game-engines/reaction-clicker.js') }}"></script>
+    {% elseif gameEngine == 'stretch' %}
+        <script src="{{ asset('js/game-engines/stretch.js') }}"></script>
+    {% elseif gameEngine == 'eye_rest' %}
+        <script src="{{ asset('js/game-engines/eye-rest.js') }}"></script>
+    {% elseif gameEngine == 'hydration' %}
+        <script src="{{ asset('js/game-engines/hydration.js') }}"></script>
+    {% endif %}
+
+    <script>
+        // Global function to handle game completion
+        window.completeGame = function(passed, score, maxScore) {
+            if (passed) {
+                // Submit completion to server
+                fetch('{{ path('front_game_complete', {id: game.id}) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        score: score,
+                        maxScore: maxScore,
+                        passed: passed
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect to game show page with success message
+                        window.location.href = '{{ path('front_game_show', {id: game.id}) }}?completed=1';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error completing game:', error);
+                });
+            }
+        };
+    </script>
 {% endblock %}

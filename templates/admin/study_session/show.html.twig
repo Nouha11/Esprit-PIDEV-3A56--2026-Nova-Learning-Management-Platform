@@ -4,10 +4,56 @@
 
 {% block admin_content %}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Study Session Details</h1>
-        <a href="{{ path('admin_study_session_index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to List
-        </a>
+        <h1 class="h3 mb-0 text-gray-800">Study Session Details #{{ study_session.id }}</h1>
+        <div>
+            <a href="{{ path('study_session_show', {id: study_session.id}) }}" class="btn btn-info me-2" target="_blank">
+                <i class="fas fa-external-link-alt"></i> View as Student
+            </a>
+            <a href="{{ path('admin_study_session_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <a href="{{ path('note_create', {studySessionId: study_session.id}) }}" class="btn btn-outline-primary btn-block">
+                        <i class="fas fa-sticky-note"></i> Add Note
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ path('resource_upload', {studySessionId: study_session.id}) }}" class="btn btn-outline-success btn-block">
+                        <i class="fas fa-file-upload"></i> Upload Resource
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ path('pomodoro_timer', {id: study_session.id}) }}" class="btn btn-outline-warning btn-block">
+                        <i class="fas fa-clock"></i> Pomodoro Timer
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ path('calendar_index') }}" class="btn btn-outline-info btn-block">
+                        <i class="fas fa-calendar-alt"></i> View Calendar
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ path('analytics_dashboard') }}" class="btn btn-outline-danger btn-block">
+                        <i class="fas fa-chart-line"></i> Analytics
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ path('integration_ai_recommendations') }}" class="btn btn-outline-secondary btn-block">
+                        <i class="fas fa-robot"></i> AI Tools
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row">
@@ -43,8 +89,77 @@
                             <td>{{ study_session.endedAt ? study_session.endedAt|date('Y-m-d H:i:s') : 'N/A' }}</td>
                         </tr>
                         <tr>
+                            <th>Completed At:</th>
+                            <td>
+                                {% if study_session.completedAt %}
+                                    <span class="badge bg-success">✓ {{ study_session.completedAt|date('Y-m-d H:i:s') }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Not Completed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Duration:</th>
                             <td>{{ study_session.duration }} minutes</td>
+                        </tr>
+                        <tr>
+                            <th>Actual Duration:</th>
+                            <td>{{ study_session.actualDuration ?? 'N/A' }} minutes</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Mood & Energy -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Mood & Energy Tracking</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="200">Mood:</th>
+                            <td>
+                                {% if study_session.mood %}
+                                    {% if study_session.mood == 'positive' %}
+                                        <span class="badge bg-success">😊 Positive</span>
+                                    {% elseif study_session.mood == 'neutral' %}
+                                        <span class="badge bg-secondary">😐 Neutral</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">😞 Negative</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Not recorded</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Energy Level:</th>
+                            <td>
+                                {% if study_session.energyLevel %}
+                                    {% if study_session.energyLevel == 'high' %}
+                                        <span class="badge bg-success">⚡ High</span>
+                                    {% elseif study_session.energyLevel == 'medium' %}
+                                        <span class="badge bg-warning">⚡ Medium</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">⚡ Low</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Not recorded</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Break Duration:</th>
+                            <td>{{ study_session.breakDuration ?? 0 }} minutes</td>
+                        </tr>
+                        <tr>
+                            <th>Break Count:</th>
+                            <td>{{ study_session.breakCount ?? 0 }}</td>
+                        </tr>
+                        <tr>
+                            <th>Pomodoro Count:</th>
+                            <td>{{ study_session.pomodoroCount ?? 0 }} 🍅</td>
                         </tr>
                     </table>
                 </div>
@@ -110,6 +225,92 @@
                             <p class="text-muted">Energy</p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Tags</h6>
+                    <a href="{{ path('tag_index') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-tags"></i> Manage Tags
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if study_session.tags|length > 0 %}
+                        {% for tag in study_session.tags %}
+                            <span class="badge bg-info me-1 mb-1">{{ tag.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">No tags assigned</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Section -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Notes ({{ study_session.notes|length }})</h6>
+                    <a href="{{ path('note_create', {studySessionId: study_session.id}) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Add Note
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if study_session.notes|length > 0 %}
+                        {% for note in study_session.notes %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <p class="mb-1">{{ note.content }}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock"></i> {{ note.createdAt|date('Y-m-d H:i') }}
+                                    {% if note.updatedAt > note.createdAt %}
+                                        (Updated: {{ note.updatedAt|date('Y-m-d H:i') }})
+                                    {% endif %}
+                                </small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">No notes yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources Section -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Resources ({{ study_session.resources|length }})</h6>
+                    <a href="{{ path('resource_upload', {studySessionId: study_session.id}) }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-upload"></i> Upload Resource
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if study_session.resources|length > 0 %}
+                        <div class="list-group">
+                            {% for resource in study_session.resources %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-file-pdf text-danger"></i>
+                                        <strong>{{ resource.filename }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ (resource.fileSize / 1024)|round(2) }} KB | 
+                                            {{ resource.uploadedAt|date('Y-m-d H:i') }}
+                                        </small>
+                                    </div>
+                                    <a href="{{ path('resource_download', {studySessionId: study_session.id, id: resource.id}) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No resources uploaded</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -9,9 +9,14 @@
             <h1><i class="bi bi-graph-up me-2"></i>GAMES Statistics Dashboard</h1>
             <p class="text-muted mb-0">Real-time gamification analytics</p>
         </div>
-        <button class="btn btn-primary" onclick="refreshAllCharts()">
-            <i class="bi bi-arrow-clockwise me-2"></i>Refresh Data
-        </button>
+        <div>
+            <a href="{{ path('admin_statistics_games_dashboard_page') }}" class="btn btn-success me-2">
+                <i class="bi bi-funnel me-2"></i>Interactive Dashboard
+            </a>
+            <button class="btn btn-primary" onclick="refreshAllCharts()">
+                <i class="bi bi-arrow-clockwise me-2"></i>Refresh Data
+            </button>
+        </div>
     </div>
 
     <!-- Summary Cards -->

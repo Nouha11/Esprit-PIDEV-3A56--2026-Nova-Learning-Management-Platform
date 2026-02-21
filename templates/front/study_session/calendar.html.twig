@@ -149,17 +149,25 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="module">
-        import { initializeCalendar } from '/js/calendar.js';
+        import { Calendar } from 'fullcalendar';
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize calendar with configuration
-            const calendar = initializeCalendar({
-                eventsUrl: '{{ path('calendar_events') }}',
-                updateUrl: '{{ path('calendar_update_datetime') }}',
-                createUrl: '{{ path('study_session_new') }}',
-                showUrl: '{{ path('study_session_show', {'id': '__ID__'}) }}',
-                editUrl: '{{ path('study_session_edit', {'id': '__ID__'}) }}'
+        document.addEventListener('DOMContentLoaded', function () {
+            const calendarEl = document.getElementById('calendar');
+
+            const calendar = new Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                editable: true,
+                selectable: true,
+
+                events: '{{ path('calendar_events') }}', // your Planning events
+
+                eventClick(info) {
+                    const planningId = info.event.extendedProps.planningId;
+                    window.location.href = `/planning/${planningId}`;
+                }
             });
+
+            calendar.render();
         });
     </script>
 {% endblock %}

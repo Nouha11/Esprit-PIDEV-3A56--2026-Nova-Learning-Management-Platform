@@ -12,38 +12,59 @@ use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 
 /**
- * AI-powered recommendation service using OpenAI API
+ * AI-powered recommendation service using OpenAI API with Gemini fallback
  * 
  * Provides:
  * - Study recommendations based on session data
  * - Note summarization
  * - Quiz generation from content
+ * 
+ * Supports both OpenAI and Google Gemini APIs with automatic fallback
  */
 class AIRecommendationService
 {
     private const API_NAME = 'ai';
     private const CACHE_TTL = 3600; // 1 hour
-    private const API_BASE_URL = 'https://api.openai.com/v1';
-    private const MODEL = 'gpt-3.5-turbo'; // Using GPT-3.5 for cost efficiency
+    private const OPENAI_BASE_URL = 'https://api.openai.com/v1';
+    private const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
+    private const OPENAI_MODEL = 'gpt-3.5-turbo';
+    private const GEMINI_MODEL = 'gemini-pro';
     
     private HttpClientInterface $httpClient;
     private LoggerInterface $logger;
     private ApiErrorHandler $errorHandler;
     private CacheInterface $cache;
-    private string $apiKey;
+    private string $openaiApiKey;
+    private string $geminiApiKey;
 
     public function __construct(
         HttpClientInterface $httpClient,
         LoggerInterface $logger,
         ApiErrorHandler $errorHandler,
         CacheInterface $cache,
-        string $openaiApiKey
+        string $openaiApiKey,
+        string $geminiApiKey
     ) {
         $this->httpClient = $httpClient;
         $this->logger = $logger;
         $this->errorHandler = $errorHandler;
         $this->cache = $cache;
-        $this->apiKey = $openaiApiKey;
+        $this->openaiApiKey = $openaiApiKey;
+        $this->geminiApiKey = $geminiApiKey;
+        
+        // Log API key status (without exposing the keys)
+        $hasOpenAI = !empty($this->openaiApiKey) && $this->openaiApiKey !== 'your_openai_api_key_here';
+        $hasGemini = !empty($this->geminiApiKey) && $this->geminiApiKey !== 'your_gemini_api_key_here';
+        
+        if (!$hasOpenAI && !$hasGemini) {
+            $this->logger->warning('AIRecommendationService: No AI API keys configured');
+        } elseif (!$hasOpenAI) {
+            $this->logger->info('AIRecommendationService: Using Gemini API only');
+        } elseif (!$hasGemini) {
+            $this->logger->info('AIRecommendationService: Using OpenAI API only');
+        } else {
+            $this->logger->info('AIRecommendationService: Both OpenAI and Gemini APIs available');
+        }
     }
 
     /**
@@ -55,6 +76,12 @@ class AIRecommendationService
      */
     public function generateStudyRecommendations(User $user, array $recentSessions): array
     {
+        // Check if any API key is configured
+        if (!$this->hasValidApiKey()) {
+            $this->logger->warning('AIRecommendationService: No valid API keys configured, returning generic recommendations');
+            return $this->getGenericRecommendations();
+        }
+
         // Check circuit breaker
         if ($this->errorHandler->isCircuitOpen(self::API_NAME)) {
             $this->logger->warning('AIRecommendationService: Circuit breaker is open, returning cached/generic recommendations');
@@ -74,8 +101,8 @@ class AIRecommendationService
                 // Build prompt for AI
                 $prompt = $this->buildRecommendationsPrompt($sessionData);
                 
-                // Call OpenAI API
-                $response = $this->callOpenAI($prompt);
+                // Call AI API (tries OpenAI first, then Gemini)
+                $response = $this->callAI($prompt);
                 
                 if ($response === null) {
                     // API call failed, return generic recommendations
@@ -106,15 +133,21 @@ class AIRecommendationService
      */
     public function summarizeNotes(string $noteContent): string
     {
+        // Check if any API key is configured
+        if (!$this->hasValidApiKey()) {
+            $this->logger->warning('AIRecommendationService: No valid API keys configured');
+            return 'AI service is not configured. Please set up your OpenAI or Gemini API key in the .env file.';
+        }
+
         // Check if notes are empty or too short
         if (empty(trim($noteContent)) || strlen($noteContent) < 50) {
-            return 'Note content is too short to summarize.';
+            return 'Note content is too short to summarize. Please provide at least 50 characters.';
         }
 
         // Check circuit breaker
         if ($this->errorHandler->isCircuitOpen(self::API_NAME)) {
             $this->logger->warning('AIRecommendationService: Circuit breaker is open, cannot summarize notes');
-            return 'AI service is temporarily unavailable. Please try again later.';
+            return 'AI service is temporarily unavailable due to repeated failures. Please try again in a few minutes.';
         }
 
         // Generate cache key
@@ -127,11 +160,11 @@ class AIRecommendationService
                 // Build prompt for summarization
                 $prompt = $this->buildSummarizationPrompt($noteContent);
                 
-                // Call OpenAI API
-                $response = $this->callOpenAI($prompt);
+                // Call AI API (tries OpenAI first, then Gemini)
+                $response = $this->callAI($prompt);
                 
                 if ($response === null) {
-                    return 'Failed to generate summary. Please try again later.';
+                    return 'Failed to generate summary. The API may be unavailable or your API key may be invalid. Please check your configuration.';
                 }
                 
                 $this->errorHandler->recordSuccess(self::API_NAME);
@@ -140,9 +173,10 @@ class AIRecommendationService
             });
         } catch (\Exception $e) {
             $this->logger->error('AIRecommendationService: Failed to summarize notes', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
-            return 'Failed to generate summary. Please try again later.';
+            return 'Failed to generate summary: ' . $e->getMessage();
         }
     }
 
@@ -155,6 +189,12 @@ class AIRecommendationService
      */
     public function generateQuiz(string $content, int $questionCount = 5): array
     {
+        // Check if any API key is configured
+        if (!$this->hasValidApiKey()) {
+            $this->logger->warning('AIRecommendationService: No valid API keys configured');
+            return [];
+        }
+
         // Validate question count (5-10)
         $questionCount = max(5, min(10, $questionCount));
 
@@ -180,8 +220,8 @@ class AIRecommendationService
                 // Build prompt for quiz generation
                 $prompt = $this->buildQuizPrompt($content, $questionCount);
                 
-                // Call OpenAI API
-                $response = $this->callOpenAI($prompt);
+                // Call AI API (tries OpenAI first, then Gemini)
+                $response = $this->callAI($prompt);
                 
                 if ($response === null) {
                     return [];
@@ -203,6 +243,64 @@ class AIRecommendationService
     }
 
     /**
+     * Call AI API with a prompt (tries OpenAI first, then Gemini as fallback)
+     *
+     * @param string $prompt The prompt to send
+     * @return string|null The AI response or null on failure
+     */
+    private function callAI(string $prompt): ?string
+    {
+        // Try OpenAI first if available
+        if ($this->hasOpenAI()) {
+            $this->logger->info('AIRecommendationService: Trying OpenAI API');
+            $response = $this->callOpenAI($prompt);
+            if ($response !== null) {
+                return $response;
+            }
+            $this->logger->warning('AIRecommendationService: OpenAI failed, trying Gemini fallback');
+        }
+        
+        // Try Gemini as fallback if available
+        if ($this->hasGemini()) {
+            $this->logger->info('AIRecommendationService: Trying Gemini API');
+            return $this->callGemini($prompt);
+        }
+        
+        $this->logger->error('AIRecommendationService: All AI APIs failed or unavailable');
+        return null;
+    }
+
+    /**
+     * Check if any valid API key is configured
+     *
+     * @return bool
+     */
+    private function hasValidApiKey(): bool
+    {
+        return $this->hasOpenAI() || $this->hasGemini();
+    }
+
+    /**
+     * Check if OpenAI API key is configured
+     *
+     * @return bool
+     */
+    private function hasOpenAI(): bool
+    {
+        return !empty($this->openaiApiKey) && $this->openaiApiKey !== 'your_openai_api_key_here';
+    }
+
+    /**
+     * Check if Gemini API key is configured
+     *
+     * @return bool
+     */
+    private function hasGemini(): bool
+    {
+        return !empty($this->geminiApiKey) && $this->geminiApiKey !== 'your_gemini_api_key_here';
+    }
+
+    /**
      * Call OpenAI API with a prompt
      *
      * @param string $prompt The prompt to send
@@ -213,14 +311,14 @@ class AIRecommendationService
         try {
             $this->logger->info('AIRecommendationService: Calling OpenAI API');
 
-            $response = $this->httpClient->request('POST', self::API_BASE_URL . '/chat/completions', [
+            $response = $this->httpClient->request('POST', self::OPENAI_BASE_URL . '/chat/completions', [
                 'timeout' => $this->errorHandler->getTimeout(),
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Authorization' => 'Bearer ' . $this->openaiApiKey,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => self::MODEL,
+                    'model' => self::OPENAI_MODEL,
                     'messages' => [
                         [
                             'role' => 'system',
@@ -239,7 +337,7 @@ class AIRecommendationService
             $statusCode = $response->getStatusCode();
 
             if ($statusCode !== 200) {
-                $this->logger->error('AIRecommendationService: Non-200 status code', [
+                $this->logger->error('AIRecommendationService: OpenAI non-200 status code', [
                     'statusCode' => $statusCode
                 ]);
                 $this->errorHandler->recordFailure(self::API_NAME);
@@ -249,28 +347,122 @@ class AIRecommendationService
             $data = $response->toArray();
 
             if (!isset($data['choices'][0]['message']['content'])) {
-                $this->logger->error('AIRecommendationService: Invalid response structure');
+                $this->logger->error('AIRecommendationService: OpenAI invalid response structure');
                 $this->errorHandler->recordFailure(self::API_NAME);
                 return null;
             }
 
             $content = trim($data['choices'][0]['message']['content']);
 
-            $this->logger->info('AIRecommendationService: API call successful');
+            $this->logger->info('AIRecommendationService: OpenAI API call successful');
 
             return $content;
 
         } catch (TransportExceptionInterface $e) {
-            $errorInfo = $this->errorHandler->handleException($e, self::API_NAME, ['action' => 'callOpenAI']);
+            $this->logger->error('AIRecommendationService: OpenAI transport error', [
+                'error' => $e->getMessage()
+            ]);
+            $this->errorHandler->handleException($e, self::API_NAME, ['action' => 'callOpenAI']);
             return null;
 
         } catch (ClientExceptionInterface | ServerExceptionInterface $e) {
-            $errorInfo = $this->errorHandler->handleException($e, self::API_NAME, ['action' => 'callOpenAI']);
+            $this->logger->error('AIRecommendationService: OpenAI HTTP error', [
+                'error' => $e->getMessage(),
+                'response' => method_exists($e, 'getResponse') ? $e->getResponse()->getContent(false) : 'N/A'
+            ]);
+            $this->errorHandler->handleException($e, self::API_NAME, ['action' => 'callOpenAI']);
             return null;
 
         } catch (\Exception $e) {
-            $this->logger->error('AIRecommendationService: Unexpected error', [
+            $this->logger->error('AIRecommendationService: OpenAI unexpected error', [
                 'error' => $e->getMessage()
+            ]);
+            $this->errorHandler->recordFailure(self::API_NAME);
+            return null;
+        }
+    }
+
+    /**
+     * Call Gemini API with a prompt
+     *
+     * @param string $prompt The prompt to send
+     * @return string|null The AI response or null on failure
+     */
+    private function callGemini(string $prompt): ?string
+    {
+        try {
+            $this->logger->info('AIRecommendationService: Calling Gemini API');
+
+            $response = $this->httpClient->request('POST', self::GEMINI_BASE_URL . '/models/' . self::GEMINI_MODEL . ':generateContent', [
+                'timeout' => $this->errorHandler->getTimeout(),
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'query' => [
+                    'key' => $this->geminiApiKey
+                ],
+                'json' => [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                    'text' => 'You are a helpful study assistant that provides concise, actionable advice. ' . $prompt
+                                ]
+                            ]
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.7,
+                        'maxOutputTokens' => 500,
+                    ]
+                ]
+            ]);
+
+            $statusCode = $response->getStatusCode();
+
+            if ($statusCode !== 200) {
+                $this->logger->error('AIRecommendationService: Gemini non-200 status code', [
+                    'statusCode' => $statusCode
+                ]);
+                $this->errorHandler->recordFailure(self::API_NAME);
+                return null;
+            }
+
+            $data = $response->toArray();
+
+            if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                $this->logger->error('AIRecommendationService: Gemini invalid response structure', [
+                    'response' => json_encode($data)
+                ]);
+                $this->errorHandler->recordFailure(self::API_NAME);
+                return null;
+            }
+
+            $content = trim($data['candidates'][0]['content']['parts'][0]['text']);
+
+            $this->logger->info('AIRecommendationService: Gemini API call successful');
+
+            return $content;
+
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->error('AIRecommendationService: Gemini transport error', [
+                'error' => $e->getMessage()
+            ]);
+            $this->errorHandler->handleException($e, self::API_NAME, ['action' => 'callGemini']);
+            return null;
+
+        } catch (ClientExceptionInterface | ServerExceptionInterface $e) {
+            $this->logger->error('AIRecommendationService: Gemini HTTP error', [
+                'error' => $e->getMessage(),
+                'response' => method_exists($e, 'getResponse') ? $e->getResponse()->getContent(false) : 'N/A'
+            ]);
+            $this->errorHandler->handleException($e, self::API_NAME, ['action' => 'callGemini']);
+            return null;
+
+        } catch (\Exception $e) {
+            $this->logger->error('AIRecommendationService: Gemini unexpected error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             $this->errorHandler->recordFailure(self::API_NAME);
             return null;

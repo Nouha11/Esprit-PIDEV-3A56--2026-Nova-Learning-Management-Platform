@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Admin\Game;
 
 use App\Repository\Gamification\GameRepository;
 use App\Repository\Gamification\RewardRepository;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/admin/statistics')]
+#[Route('/admin/games/statistics')]
 #[IsGranted('ROLE_ADMIN')]
 class AdminStatisticsController extends AbstractController
 {
@@ -31,6 +31,15 @@ class AdminStatisticsController extends AbstractController
     public function dashboard(): Response
     {
         return $this->render('admin/statistics/dashboard.html.twig');
+    }
+
+    /**
+     * Display interactive games dashboard with filters
+     */
+    #[Route('/games-dashboard', name: 'admin_statistics_games_dashboard_page', methods: ['GET'])]
+    public function gamesDashboard(): Response
+    {
+        return $this->render('admin/statistics/games_dashboard.html.twig');
     }
 
     /**
@@ -265,8 +274,8 @@ class AdminStatisticsController extends AbstractController
             $connection = $this->em->getConnection();
             $sql = "
                 SELECT g.name, 
-                       ROUND(AVG(gr.rating), 1) as avg_rating,
-                       COUNT(gr.id) as rating_count
+                        ROUND(AVG(gr.rating), 1) as avg_rating,
+                        COUNT(gr.id) as rating_count
                 FROM game g
                 INNER JOIN game_rating gr ON g.id = gr.game_id
                 WHERE g.is_active = 1
@@ -349,6 +358,69 @@ class AdminStatisticsController extends AbstractController
             return new JsonResponse([
                 ['Rating', 'Count'],
                 ['Error', 0]
+            ]);
+        }
+    }
+
+    /**
+     * Get games data for dashboard with filters (JSON endpoint)
+     */
+    #[Route('/api/games-dashboard-data', name: 'admin_statistics_games_dashboard', methods: ['GET'])]
+    public function getGamesDashboardData(): JsonResponse
+    {
+        try {
+            $games = $this->gameRepository->createQueryBuilder('g')
+                ->select('g.id', 'g.name', 'g.type', 'g.difficulty', 'g.category', 'g.tokenCost', 'g.rewardTokens', 'g.rewardXP')
+                ->where('g.isActive = :active')
+                ->setParameter('active', true)
+                ->getQuery()
+                ->getResult();
+
+            // Get favorites count for each game
+            $connection = $this->em->getConnection();
+            $favoritesData = [];
+            $ratingsData = [];
+            
+            foreach ($games as $game) {
+                // Get favorites count
+                $favSql = "SELECT COUNT(*) as count FROM user_favorite_games WHERE game_id = :gameId";
+                $favCount = $connection->executeQuery($favSql, ['gameId' => $game['id']])->fetchOne();
+                $favoritesData[$game['id']] = (int)$favCount;
+                
+                // Get average rating
+                $ratingSql = "SELECT AVG(rating) as avg_rating, COUNT(*) as count FROM game_rating WHERE game_id = :gameId";
+                $ratingResult = $connection->executeQuery($ratingSql, ['gameId' => $game['id']])->fetchAssociative();
+                $ratingsData[$game['id']] = [
+                    'avg' => $ratingResult['avg_rating'] ? round((float)$ratingResult['avg_rating'], 2) : 0,
+                    'count' => (int)$ratingResult['count']
+                ];
+            }
+
+            // Format data for Google Charts DataTable
+            $data = [
+                ['Game Name', 'Type', 'Difficulty', 'Category', 'Cost', 'Reward Tokens', 'Reward XP', 'Favorites', 'Avg Rating', 'Rating Count']
+            ];
+
+            foreach ($games as $game) {
+                $data[] = [
+                    $game['name'],
+                    $game['type'],
+                    $game['difficulty'],
+                    $game['category'],
+                    (int)$game['tokenCost'],
+                    (int)$game['rewardTokens'],
+                    (int)$game['rewardXP'],
+                    $favoritesData[$game['id']],
+                    $ratingsData[$game['id']]['avg'],
+                    $ratingsData[$game['id']]['count']
+                ];
+            }
+
+            return new JsonResponse($data);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                ['Game Name', 'Type', 'Difficulty', 'Category', 'Cost', 'Reward Tokens', 'Reward XP', 'Favorites', 'Avg Rating', 'Rating Count'],
+                ['Error loading data', 'N/A', 'N/A', 'N/A', 0, 0, 0, 0, 0, 0]
             ]);
         }
     }

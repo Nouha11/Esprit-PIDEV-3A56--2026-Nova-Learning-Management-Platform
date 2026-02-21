@@ -1,0 +1,788 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Games Dashboard with Filters{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="bi bi-funnel me-2"></i>Interactive Games Dashboard</h1>
+            <p class="text-muted mb-0">Filter and analyze games data with interactive controls</p>
+        </div>
+        <div>
+            <a href="{{ path('admin_statistics_dashboard') }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-2"></i>Back to Stats
+            </a>
+            <button class="btn btn-primary" onclick="refreshDashboard()">
+                <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-sliders me-2"></i>Filter Controls
+                    </h5>
+                    <button class="btn btn-sm btn-outline-danger" onclick="clearAllFilters()" id="clearFiltersBtn">
+                        <i class="bi bi-x-circle me-1"></i>Clear Filters
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-controller me-1"></i>Game Type
+                            </label>
+                            <div id="type_filter_div" class="filter-container"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-speedometer me-1"></i>Difficulty
+                            </label>
+                            <div id="difficulty_filter_div" class="filter-container"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-grid me-1"></i>Category
+                            </label>
+                            <div id="category_filter_div" class="filter-container"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex flex-column h-100 justify-content-center">
+                                <div class="alert alert-info mb-0">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <small><strong>Tip:</strong> Select multiple options to filter data</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="row g-4">
+        <!-- Rewards Chart -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-coin text-warning me-2"></i>Token Rewards Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="rewards_chart_div" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- XP Chart -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-star-fill text-info me-2"></i>XP Rewards Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="xp_chart_div" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorites Chart -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-heart-fill text-danger me-2"></i>Favorites Count
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="favorites_chart_div" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ratings Chart -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-star-half text-warning me-2"></i>Average Ratings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="ratings_chart_div" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table me-2"></i>Filtered Games Data
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="table_div"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load Google Charts -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+    // Load Google Charts with controls package
+    google.charts.load('current', {'packages':['corechart', 'controls', 'table']});
+    google.charts.setOnLoadCallback(initDashboard);
+
+    let dashboard;
+    let dataTable;
+
+    // Detect current theme
+    function isDarkMode() {
+        return document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    }
+
+    // Get theme-aware colors
+    function getChartColors() {
+        const dark = isDarkMode();
+        return {
+            backgroundColor: dark ? '#1a1d20' : '#ffffff',
+            textColor: dark ? '#e9ecef' : '#212529',
+            gridColor: dark ? '#495057' : '#e9ecef',
+            primaryColor: '#667eea',
+            colors: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#ffc107', '#dc3545']
+        };
+    }
+
+    function initDashboard() {
+        loadDashboardData();
+
+        // Listen for theme changes
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'data-bs-theme') {
+                    if (dashboard && dataTable) {
+                        dashboard.draw(dataTable);
+                    }
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-bs-theme']
+        });
+    }
+
+    function loadDashboardData() {
+        fetch('{{ path('admin_statistics_games_dashboard') }}')
+            .then(response => response.json())
+            .then(data => {
+                drawDashboard(data);
+            })
+            .catch(error => {
+                console.error('Error loading dashboard data:', error);
+                document.querySelector('.container-fluid').innerHTML += 
+                    '<div class="alert alert-danger">Error loading dashboard data. Please refresh the page.</div>';
+            });
+    }
+
+    function drawDashboard(data) {
+        const colors = getChartColors();
+        
+        // Create DataTable
+        dataTable = google.visualization.arrayToDataTable(data);
+
+        // Create Dashboard
+        dashboard = new google.visualization.Dashboard(
+            document.getElementById('dashboard_container')
+        );
+
+        // Create Category Filters
+        var typeFilter = new google.visualization.ControlWrapper({
+            'controlType': 'CategoryFilter',
+            'containerId': 'type_filter_div',
+            'options': {
+                'filterColumnLabel': 'Type',
+                'ui': {
+                    'labelStacking': 'vertical',
+                    'allowTyping': false,
+                    'allowMultiple': true,
+                    'allowNone': true,
+                    'caption': 'All Types',
+                    'sortValues': true
+                }
+            }
+        });
+
+        var difficultyFilter = new google.visualization.ControlWrapper({
+            'controlType': 'CategoryFilter',
+            'containerId': 'difficulty_filter_div',
+            'options': {
+                'filterColumnLabel': 'Difficulty',
+                'ui': {
+                    'labelStacking': 'vertical',
+                    'allowTyping': false,
+                    'allowMultiple': true,
+                    'allowNone': true,
+                    'caption': 'All Difficulties',
+                    'sortValues': true
+                }
+            }
+        });
+
+        var categoryFilter = new google.visualization.ControlWrapper({
+            'controlType': 'CategoryFilter',
+            'containerId': 'category_filter_div',
+            'options': {
+                'filterColumnLabel': 'Category',
+                'ui': {
+                    'labelStacking': 'vertical',
+                    'allowTyping': false,
+                    'allowMultiple': true,
+                    'allowNone': true,
+                    'caption': 'All Categories',
+                    'sortValues': true
+                }
+            }
+        });
+
+        // Create Charts
+        var rewardsChart = new google.visualization.ChartWrapper({
+            'chartType': 'ColumnChart',
+            'containerId': 'rewards_chart_div',
+            'options': {
+                'title': 'Token Rewards by Game',
+                'colors': [colors.colors[0]],
+                'legend': { position: 'none' },
+                'backgroundColor': colors.backgroundColor,
+                'titleTextStyle': { color: colors.textColor },
+                'hAxis': {
+                    'title': 'Game Name',
+                    'textStyle': { color: colors.textColor },
+                    'titleTextStyle': { color: colors.textColor },
+                    'slantedText': true,
+                    'slantedTextAngle': 45
+                },
+                'vAxis': {
+                    'title': 'Reward Tokens',
+                    'textStyle': { color: colors.textColor },
+                    'titleTextStyle': { color: colors.textColor },
+                    'gridlines': { color: colors.gridColor }
+                }
+            },
+            'view': {'columns': [0, 5]} // Game Name, Reward Tokens
+        });
+
+        var xpChart = new google.visualization.ChartWrapper({
+            'chartType': 'ColumnChart',
+            'containerId': 'xp_chart_div',
+            'options': {
+                'title': 'XP Rewards by Game',
+                'colors': [colors.colors[1]],
+                'legend': { position: 'none' },
+                'backgroundColor': colors.backgroundColor,
+                'titleTextStyle': { color: colors.textColor },
+                'hAxis': {
+                    'title': 'Game Name',
+                    'textStyle': { color: colors.textColor },
+                    'titleTextStyle': { color: colors.textColor },
+                    'slantedText': true,
+                    'slantedTextAngle': 45
+                },
+                'vAxis': {
+                    'title': 'Reward XP',
+                    'textStyle': { color: colors.textColor },
+                    'titleTextStyle': { color: colors.textColor },
+                    'gridlines': { color: colors.gridColor }
+                }
+            },
+            'view': {'columns': [0, 6]} // Game Name, Reward XP
+        });
+
+        var favoritesChart = new google.visualization.ChartWrapper({
+            'chartType': 'BarChart',
+            'containerId': 'favorites_chart_div',
+            'options': {
+                'title': 'Favorites Count by Game',
+                'colors': ['#dc3545'],
+                'legend': { position: 'none' },
+                'backgroundColor': colors.backgroundColor,
+                'titleTextStyle': { color: colors.textColor },
+                'hAxis': {
+                    'title': 'Favorites Count',
+                    'textStyle': { color: colors.textColor },
+                    'titleTextStyle': { color: colors.textColor },
+                    'gridlines': { color: colors.gridColor }
+                },
+                'vAxis': {
+                    'title': 'Game Name',
+                    'textStyle': { color: colors.textColor },
+                    'titleTextStyle': { color: colors.textColor }
+                }
+            },
+            'view': {'columns': [0, 7]} // Game Name, Favorites
+        });
+
+        var ratingsChart = new google.visualization.ChartWrapper({
+            'chartType': 'BarChart',
+            'containerId': 'ratings_chart_div',
+            'options': {
+                'title': 'Average Rating by Game',
+                'colors': ['#ffc107'],
+                'legend': { position: 'none' },
+                'backgroundColor': colors.backgroundColor,
+                'titleTextStyle': { color: colors.textColor },
+                'hAxis': {
+                    'title': 'Average Rating',
+                    'textStyle': { color: colors.textColor },
+                    'titleTextStyle': { color: colors.textColor },
+                    'gridlines': { color: colors.gridColor },
+                    'minValue': 0,
+                    'maxValue': 5
+                },
+                'vAxis': {
+                    'title': 'Game Name',
+                    'textStyle': { color: colors.textColor },
+                    'titleTextStyle': { color: colors.textColor }
+                }
+            },
+            'view': {'columns': [0, 8]} // Game Name, Avg Rating
+        });
+
+        // Create Table
+        var table = new google.visualization.ChartWrapper({
+            'chartType': 'Table',
+            'containerId': 'table_div',
+            'options': {
+                'showRowNumber': true,
+                'width': '100%',
+                'height': '100%',
+                'page': 'enable',
+                'pageSize': 10,
+                'sortColumn': 0,
+                'sortAscending': true,
+                'cssClassNames': {
+                    'headerRow': 'table-header',
+                    'tableRow': 'table-row',
+                    'oddTableRow': 'table-row-odd',
+                    'selectedTableRow': 'table-row-selected',
+                    'hoverTableRow': 'table-row-hover',
+                    'headerCell': 'table-header-cell',
+                    'tableCell': 'table-cell'
+                }
+            }
+        });
+
+        // Bind controls to charts
+        dashboard.bind([typeFilter, difficultyFilter, categoryFilter], [rewardsChart, xpChart, favoritesChart, ratingsChart, table]);
+
+        // Draw dashboard
+        dashboard.draw(dataTable);
+    }
+
+    function refreshDashboard() {
+        const btn = event.target.closest('button');
+        const icon = btn.querySelector('i');
+        
+        icon.classList.add('spin-animation');
+        btn.disabled = true;
+
+        loadDashboardData();
+
+        setTimeout(() => {
+            icon.classList.remove('spin-animation');
+            btn.disabled = false;
+        }, 1000);
+    }
+
+    function clearAllFilters() {
+        // Reload the dashboard data which will reset all filters
+        loadDashboardData();
+        
+        // Show feedback
+        const btn = document.getElementById('clearFiltersBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Cleared!';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 1500);
+    }
+
+    // Responsive - redraw on window resize
+    window.addEventListener('resize', function() {
+        if (dashboard && dataTable) {
+            dashboard.draw(dataTable);
+        }
+    });
+</script>
+
+<style>
+    .card {
+        transition: box-shadow 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.125);
+    }
+
+    [data-bs-theme="dark"] .card {
+        background-color: rgba(255,255,255,0.03);
+        border-color: rgba(255,255,255,0.1);
+    }
+    .card:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    [data-bs-theme="dark"] .card:hover {
+        box-shadow: 0 4px 15px rgba(255,255,255,0.05);
+    }
+
+    [data-bs-theme="dark"] .card-header {
+        background-color: rgba(255,255,255,0.05) !important;
+        border-bottom-color: rgba(255,255,255,0.1);
+    }
+
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,0.125);
+    }
+
+    [data-bs-theme="dark"] .alert-info {
+        background-color: rgba(23, 162, 184, 0.2);
+        border-color: rgba(23, 162, 184, 0.3);
+        color: #20c9e3;
+    }
+
+    [data-bs-theme="dark"] h1,
+    [data-bs-theme="dark"] h5 {
+        color: #e9ecef;
+    }
+
+    [data-bs-theme="dark"] .text-muted {
+        color: rgba(255,255,255,0.6) !important;
+    }
+
+    .spin-animation {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Google Charts Table Styling */
+    .google-visualization-table-table {
+        width: 100% !important;
+        border-collapse: collapse;
+    }
+
+    .google-visualization-table-table th,
+    .google-visualization-table-table td {
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+    }
+
+    [data-bs-theme="dark"] .google-visualization-table-table {
+        background-color: rgba(255,255,255,0.03);
+        color: #e9ecef;
+    }
+
+    [data-bs-theme="dark"] .google-visualization-table-table th,
+    [data-bs-theme="dark"] .google-visualization-table-table td {
+        border-color: rgba(255,255,255,0.1);
+    }
+
+    [data-bs-theme="dark"] .google-visualization-table-th {
+        background-color: rgba(255,255,255,0.05) !important;
+        color: #e9ecef !important;
+        border-color: rgba(255,255,255,0.1) !important;
+        font-weight: 600;
+    }
+
+    [data-bs-theme="dark"] .google-visualization-table-td {
+        color: #e9ecef !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+
+    [data-bs-theme="dark"] .google-visualization-table-tr-odd {
+        background-color: rgba(255,255,255,0.02);
+    }
+
+    [data-bs-theme="dark"] .google-visualization-table-tr-sel,
+    [data-bs-theme="dark"] .google-visualization-table-tr-over {
+        background-color: rgba(102, 126, 234, 0.2) !important;
+    }
+
+    /* Light mode table styling */
+    .google-visualization-table-th {
+        background-color: #f8f9fa !important;
+        font-weight: 600;
+    }
+
+    .google-visualization-table-tr-odd {
+        background-color: #f8f9fa;
+    }
+
+    .google-visualization-table-tr-sel,
+    .google-visualization-table-tr-over {
+        background-color: rgba(102, 126, 234, 0.1) !important;
+    }
+
+    /* Category Filter Styling */
+    .filter-container {
+        min-height: 150px;
+        max-height: 250px;
+    }
+
+    .google-visualization-controls-categoryfilter {
+        padding: 12px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        background-color: #fff;
+        max-height: 250px;
+        overflow-y: auto;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: border-color 0.3s ease;
+    }
+
+    .google-visualization-controls-categoryfilter:hover {
+        border-color: #667eea;
+    }
+
+    [data-bs-theme="dark"] .google-visualization-controls-categoryfilter {
+        background-color: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.2);
+        color: #e9ecef;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    [data-bs-theme="dark"] .google-visualization-controls-categoryfilter:hover {
+        border-color: #667eea;
+    }
+
+    .google-visualization-controls-categoryfilter label {
+        display: block;
+        padding: 8px 4px;
+        cursor: pointer;
+        color: #212529;
+        font-size: 14px;
+        transition: background-color 0.2s ease;
+        border-radius: 4px;
+        margin-bottom: 2px;
+    }
+
+    .google-visualization-controls-categoryfilter label:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+    }
+
+    [data-bs-theme="dark"] .google-visualization-controls-categoryfilter label {
+        color: #e9ecef !important;
+    }
+
+    [data-bs-theme="dark"] .google-visualization-controls-categoryfilter label:hover {
+        background-color: rgba(102, 126, 234, 0.2);
+    }
+
+    .google-visualization-controls-categoryfilter input[type="checkbox"] {
+        margin-right: 10px;
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+    }
+
+    [data-bs-theme="dark"] .google-visualization-controls-categoryfilter input[type="checkbox"] {
+        filter: invert(1) hue-rotate(180deg);
+    }
+
+    /* Filter container scrollbar */
+    .google-visualization-controls-categoryfilter::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .google-visualization-controls-categoryfilter::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+        border-radius: 4px;
+    }
+
+    .google-visualization-controls-categoryfilter::-webkit-scrollbar-thumb {
+        background: rgba(102, 126, 234, 0.5);
+        border-radius: 4px;
+    }
+
+    [data-bs-theme="dark"] .google-visualization-controls-categoryfilter::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.1);
+    }
+
+    [data-bs-theme="dark"] .google-visualization-controls-categoryfilter::-webkit-scrollbar-thumb {
+        background: rgba(102, 126, 234, 0.7);
+    }
+
+    .form-label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    [data-bs-theme="dark"] .form-label {
+        color: #e9ecef;
+    }
+
+    /* Button styling */
+    .btn-primary {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .btn-primary:hover {
+        background-color: #5568d3;
+        border-color: #5568d3;
+    }
+
+    [data-bs-theme="dark"] .btn-primary {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: #fff;
+    }
+
+    [data-bs-theme="dark"] .btn-primary:hover {
+        background-color: #7c8ef0;
+        border-color: #7c8ef0;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    .btn-outline-secondary {
+        color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: #fff;
+    }
+
+    [data-bs-theme="dark"] .btn-outline-secondary {
+        color: #adb5bd;
+        border-color: #6c757d;
+    }
+
+    [data-bs-theme="dark"] .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: #fff;
+    }
+
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: #fff;
+    }
+
+    [data-bs-theme="dark"] .btn-outline-danger {
+        color: #ff6b6b;
+        border-color: #dc3545;
+    }
+
+    [data-bs-theme="dark"] .btn-outline-danger:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: #fff;
+    }
+
+    /* Chart container improvements */
+    #rewards_chart_div,
+    #xp_chart_div,
+    #favorites_chart_div,
+    #ratings_chart_div,
+    #table_div {
+        min-height: 400px;
+        position: relative;
+    }
+
+    /* Loading state */
+    .chart-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 400px;
+        color: #6c757d;
+    }
+
+    [data-bs-theme="dark"] .chart-loading {
+        color: #adb5bd;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .google-visualization-controls-categoryfilter {
+            max-height: 200px;
+        }
+
+        #rewards_chart_div,
+        #xp_chart_div,
+        #favorites_chart_div,
+        #ratings_chart_div {
+            height: 300px !important;
+            min-height: 300px;
+        }
+    }
+
+    /* Icon colors */
+    [data-bs-theme="dark"] .bi-coin {
+        color: #ffc107 !important;
+    }
+
+    [data-bs-theme="dark"] .bi-star-fill {
+        color: #17a2b8 !important;
+    }
+
+    [data-bs-theme="dark"] .bi-heart-fill {
+        color: #dc3545 !important;
+    }
+
+    [data-bs-theme="dark"] .bi-star-half {
+        color: #ffc107 !important;
+    }
+
+    [data-bs-theme="dark"] .bi-table {
+        color: #667eea !important;
+    }
+
+    [data-bs-theme="dark"] .bi-sliders {
+        color: #667eea !important;
+    }
+
+    [data-bs-theme="dark"] .bi-funnel {
+        color: #667eea !important;
+    }
+</style>
+{% endblock %}

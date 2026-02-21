@@ -317,6 +317,49 @@
                         </div>
                     {% endif %}
                     
+                    <!-- Study Session Tools -->
+                    {% if is_granted('ROLE_STUDENT') %}
+                        <div class="card shadow mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bi bi-tools me-2"></i>Study Session Tools</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a href="{{ path('study_session_index') }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-list-ul me-2"></i>My Study Sessions
+                                    </a>
+                                    <a href="{{ path('calendar_index') }}" class="btn btn-outline-info btn-sm">
+                                        <i class="bi bi-calendar3 me-2"></i>Calendar View
+                                    </a>
+                                    <a href="{{ path('analytics_dashboard') }}" class="btn btn-outline-success btn-sm">
+                                        <i class="bi bi-graph-up me-2"></i>Analytics Dashboard
+                                    </a>
+                                    <a href="{{ path('tag_index') }}" class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-tags me-2"></i>Manage Tags
+                                    </a>
+                                    <a href="{{ path('energy_analytics') }}" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-lightning me-2"></i>Energy Patterns
+                                    </a>
+                                </div>
+                                
+                                <hr class="my-3">
+                                
+                                <h6 class="mb-2"><i class="bi bi-robot me-2"></i>AI Tools</h6>
+                                <div class="d-grid gap-2">
+                                    <a href="{{ path('integration_ai_recommendations') }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-lightbulb me-2"></i>AI Recommendations
+                                    </a>
+                                    <a href="{{ path('integration_youtube_search') }}" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-youtube me-2"></i>YouTube Search
+                                    </a>
+                                    <a href="{{ path('integration_wikipedia_search') }}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-wikipedia me-2"></i>Wikipedia Search
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
                     <!-- Course Stats -->
                     <div class="card shadow">
                         <div class="card-header bg-light">
