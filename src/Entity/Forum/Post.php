@@ -9,8 +9,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
+#[Vich\Uploadable] // --- NEW: Tells Vich this entity handles uploads ---
 class Post
 {
     #[ORM\Id]
@@ -57,6 +61,22 @@ class Post
      */
     #[ORM\OneToMany(targetEntity: Report::class, mappedBy: 'post')]
     private Collection $reports;
+
+    // ==========================================
+    // --- NEW: Image and Link Properties ---
+    // ==========================================
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageName = null;
+
+    #[Vich\UploadableField(mapping: 'post_images', fileNameProperty: 'imageName')]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $link = null;
+    // ==========================================
 
     public function __construct()
     {
@@ -164,7 +184,7 @@ class Post
         return $this;
     }
 
-    // --- NEW: Methods to manage upvoters ---
+    // --- Methods to manage upvoters ---
 
     /**
      * @return Collection<int, User>
@@ -223,6 +243,58 @@ class Post
             }
         }
 
+        return $this;
+    }
+
+    // ==========================================
+    // --- NEW: Image and Link Methods ---
+    // ==========================================
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageName(?string $imageName): static
+    {
+        $this->imageName = $imageName;
+        return $this;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function getLink(): ?string
+    {
+        return $this->link;
+    }
+
+    public function setLink(?string $link): static
+    {
+        $this->link = $link;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 }

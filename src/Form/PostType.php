@@ -2,6 +2,8 @@
 
 namespace App\Form;
 
+use Vich\UploaderBundle\Form\Type\VichImageType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use App\Entity\Forum\Post;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -20,7 +22,24 @@ class PostType extends AbstractType
             ->add('content', null, [
                 'empty_data' => '',
             ])
-        // other fields to set auto with controller
+            // --- NEW: Link Field ---
+            ->add('link', UrlType::class, [
+                'required' => false, // Users don't HAVE to provide a link
+                'label' => 'Attach a Link (Optional)',
+                'attr' => [
+                    'placeholder' => 'https://example.com...',
+                ],
+            ])
+            // --- NEW: Image Upload Field ---
+            ->add('imageFile', VichImageType::class, [
+                'required' => false, // Users don't HAVE to upload an image
+                'allow_delete' => true,
+                'delete_label' => 'Remove Image',
+                'download_uri' => false,
+                'image_uri' => true,
+                'label' => 'Upload an Image (Optional)',
+                'asset_helper' => true,
+            ])
         ;
     }
 

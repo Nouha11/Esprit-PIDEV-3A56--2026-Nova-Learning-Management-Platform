@@ -70,9 +70,39 @@
                         </div>
 
                         <div class="card-body p-4">
-                            <p class="mb-4 text-body">{{ post.content }}</p>
+                            {# --- ORIGINAL CONTENT --- #}
+                            <p class="mb-4 text-body" style="white-space: pre-wrap;">{{ post.content }}</p>
 
-                            <div class="d-flex gap-2 align-items-center">
+                            {# --- NEW: IMAGE RENDERER --- #}
+                            {% if post.imageName %}
+                                <div class="mb-4 text-center bg-light p-3 rounded-3 shadow-sm">
+                                    {# vich_uploader_asset automatically finds the /uploads/posts/ path! #}
+                                    <img src="{{ vich_uploader_asset(post, 'imageFile') }}" 
+                                         alt="Attachment for {{ post.title }}" 
+                                         class="img-fluid rounded" 
+                                         style="max-height: 500px; object-fit: contain;">
+                                </div>
+                            {% endif %}
+
+                            {# --- NEW: LINK RENDERER --- #}
+                            {% if post.link %}
+                                <div class="mb-4 p-3 bg-primary bg-opacity-10 rounded-3 border border-primary border-opacity-25">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-link-45deg fs-3 text-primary me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1 text-primary">Attached Link</h6>
+                                            <a href="{{ post.link }}" target="_blank" rel="noopener noreferrer" class="text-body text-break text-decoration-underline">
+                                                {{ post.link }}
+                                            </a>
+                                        </div>
+                                        <a href="{{ post.link }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary ms-auto mb-0">
+                                            Visit <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div class="d-flex gap-2 align-items-center mt-4 border-top pt-3">
                                 {# POST UPVOTE BUTTON #}
                                 {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
                                 <button class="btn btn-sm mb-0 upvote-btn {{ is_upvoted ? 'btn-primary' : 'btn-light' }}" 
@@ -121,7 +151,7 @@
                         </div>
                     </div>
 
-                    {# --- NEW: AI SUMMARY BOX --- #}
+                    {# --- AI SUMMARY BOX --- #}
                     <div class="card bg-light border-0 shadow-sm mt-4 mb-4">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -187,7 +217,7 @@
                                             </div>
                                         </div>
 
-                                        <p class="mt-2 mb-2 text-body">{{ comment.content }}</p>
+                                        <p class="mt-2 mb-2 text-body" style="white-space: pre-wrap;">{{ comment.content }}</p>
 
                                         {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
                                             <div class="d-flex justify-content-end">
