@@ -6,12 +6,9 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1>Manage Rewards & Badges</h1>
-            <p class="text-muted mb-0">Create and manage all game rewards</p>
+            <h1>Manage Rewards & Achievements</h1>
+            <p class="text-muted mb-0">Create and manage game rewards and level milestones</p>
         </div>
-        <a href="{{ path('admin_reward_new') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-2"></i>Create New Reward
-        </a>
     </div>
 
     {% for message in app.flashes('success') %}
@@ -21,116 +18,109 @@
         </div>
     {% endfor %}
 
-    <!-- Ajax Filters -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <!-- Search Input -->
-                <div class="col-md-4">
-                    <label for="search-input" class="form-label">
-                        <i class="bi bi-search"></i> Search Rewards
-                    </label>
-                    <input type="text" 
-                           class="form-control" 
-                           id="search-input" 
-                           placeholder="Search by name or description..."
-                           value="{{ search }}">
-                </div>
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="rewardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {{ app.request.get('tab') == 'milestones' ? '' : 'active' }}" id="game-rewards-tab" data-bs-toggle="tab" data-bs-target="#game-rewards" type="button" role="tab">
+                <i class="bi bi-trophy me-2"></i>Game Rewards
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {{ app.request.get('tab') == 'milestones' ? 'active' : '' }}" id="level-milestones-tab" data-bs-toggle="tab" data-bs-target="#level-milestones" type="button" role="tab">
+                <i class="bi bi-award me-2"></i>Level Milestones
+            </button>
+        </li>
+    </ul>
 
-                <!-- Type Filter -->
-                <div class="col-md-3">
-                    <label for="type-filter" class="form-label">
-                        <i class="bi bi-trophy"></i> Reward Type
-                    </label>
-                    <select class="form-select" id="type-filter">
-                        <option value="">All Types</option>
-                        <option value="BADGE" {{ type == 'BADGE' ? 'selected' : '' }}>Badge</option>
-                        <option value="ACHIEVEMENT" {{ type == 'ACHIEVEMENT' ? 'selected' : '' }}>Achievement</option>
-                        <option value="BONUS_XP" {{ type == 'BONUS_XP' ? 'selected' : '' }}>Bonus XP</option>
-                        <option value="BONUS_TOKENS" {{ type == 'BONUS_TOKENS' ? 'selected' : '' }}>Bonus Tokens</option>
-                    </select>
-                </div>
-
-                <!-- Status Filter -->
-                <div class="col-md-3">
-                    <label for="status-filter" class="form-label">
-                        <i class="bi bi-toggle-on"></i> Status
-                    </label>
-                    <select class="form-select" id="status-filter">
-                        <option value="">All Status</option>
-                        <option value="active" {{ status == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ status == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                    </select>
-                </div>
-
-                <!-- Clear Button -->
-                <div class="col-md-2">
-                    <label class="form-label d-block">&nbsp;</label>
-                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
-                        <i class="bi bi-x-circle"></i> Clear
-                    </button>
-                </div>
-            </div>
-
-            <!-- Filter Status -->
-            <div class="row mt-3">
-                <div class="col-12">
-                    <span class="text-muted">
-                        <i class="bi bi-funnel"></i> <span id="results-count">{{ rewards.getTotalItemCount }}</span> reward(s) found
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Indicator -->
-    <div id="loading-indicator" class="text-center py-4 d-none">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-2 text-muted">Loading rewards...</p>
-    </div>
-
-    <div class="card">
-        <div class="card-body" id="rewards-table-container">
-            {% include 'admin/reward/_rewards_table.html.twig' %}
-        </div>
-    </div>
-
-    <!-- Quick Add Default Badges Section -->
-    <div class="card mt-4">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">
-                <i class="bi bi-lightning-fill text-warning me-2"></i>Quick Setup: Default Milestone Badges
-            </h5>
-        </div>
-        <div class="card-body">
-            <p class="text-muted">Create these recommended milestone badges to automatically reward students:</p>
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="border rounded p-3 text-center">
-                        <h6>🏆 First Victory</h6>
-                        <small class="text-muted">Awarded for winning first game</small>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="border rounded p-3 text-center">
-                        <h6>👑 Game Master</h6>
-                        <small class="text-muted">Awarded for 10 wins on same game</small>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="border rounded p-3 text-center">
-                        <h6>⭐ Perfect Score</h6>
-                        <small class="text-muted">100% win rate after 10+ games</small>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-3">
-                <a href="{{ path('admin_reward_new') }}" class="btn btn-sm btn-primary">
-                    <i class="bi bi-plus-circle me-1"></i>Create These Badges
+    <div class="tab-content" id="rewardTabsContent">
+        <!-- Game Rewards Tab -->
+        <div class="tab-pane fade {{ app.request.get('tab') == 'milestones' ? '' : 'show active' }}" id="game-rewards" role="tabpanel">
+            <div class="d-flex justify-content-end mb-3">
+                <a href="{{ path('admin_reward_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Reward
                 </a>
             </div>
+
+            <!-- Ajax Filters -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Search Input -->
+                        <div class="col-md-4">
+                            <label for="search-input" class="form-label">
+                                <i class="bi bi-search"></i> Search Rewards
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="search-input" 
+                                   placeholder="Search by name or description..."
+                                   value="{{ search }}">
+                        </div>
+
+                        <!-- Type Filter -->
+                        <div class="col-md-3">
+                            <label for="type-filter" class="form-label">
+                                <i class="bi bi-trophy"></i> Reward Type
+                            </label>
+                            <select class="form-select" id="type-filter">
+                                <option value="">All Types</option>
+                                <option value="BADGE" {{ type == 'BADGE' ? 'selected' : '' }}>Badge</option>
+                                <option value="ACHIEVEMENT" {{ type == 'ACHIEVEMENT' ? 'selected' : '' }}>Achievement</option>
+                                <option value="BONUS_XP" {{ type == 'BONUS_XP' ? 'selected' : '' }}>Bonus XP</option>
+                                <option value="BONUS_TOKENS" {{ type == 'BONUS_TOKENS' ? 'selected' : '' }}>Bonus Tokens</option>
+                            </select>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="col-md-3">
+                            <label for="status-filter" class="form-label">
+                                <i class="bi bi-toggle-on"></i> Status
+                            </label>
+                            <select class="form-select" id="status-filter">
+                                <option value="">All Status</option>
+                                <option value="active" {{ status == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Clear Button -->
+                        <div class="col-md-2">
+                            <label class="form-label d-block">&nbsp;</label>
+                            <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                                <i class="bi bi-x-circle"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <span class="text-muted">
+                                <i class="bi bi-funnel"></i> <span id="results-count">{{ rewards.getTotalItemCount }}</span> reward(s) found
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="text-center py-4 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading rewards...</p>
+            </div>
+
+            <div class="card">
+                <div class="card-body" id="rewards-table-container">
+                    {% include 'admin/reward/_rewards_table.html.twig' %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Milestones Tab -->
+        <div class="tab-pane fade {{ app.request.get('tab') == 'milestones' ? 'show active' : '' }}" id="level-milestones" role="tabpanel">
+            {% include 'admin/level_milestone/_milestones_content.html.twig' %}
         </div>
     </div>
 </div>

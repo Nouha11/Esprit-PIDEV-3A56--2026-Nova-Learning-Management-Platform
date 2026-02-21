@@ -36,7 +36,9 @@ class RewardAdminController extends AbstractController
         $status = $request->query->get('status', '');
 
         // Build query with filters
-        $queryBuilder = $this->rewardRepository->createQueryBuilder('r');
+        $queryBuilder = $this->rewardRepository->createQueryBuilder('r')
+            ->where('r.type != :levelMilestone')
+            ->setParameter('levelMilestone', 'LEVEL_MILESTONE');
 
         // Search filter
         if ($search) {
@@ -65,6 +67,14 @@ class RewardAdminController extends AbstractController
             10 // 10 rewards per page
         );
 
+        // Get level milestones
+        $milestones = $this->rewardRepository->createQueryBuilder('r')
+            ->where('r.type = :type')
+            ->setParameter('type', 'LEVEL_MILESTONE')
+            ->orderBy('r.requiredLevel', 'ASC')
+            ->getQuery()
+            ->getResult();
+
         // Ajax request - return partial
         if ($request->isXmlHttpRequest()) {
             return $this->render('admin/reward/_rewards_table.html.twig', [
@@ -75,6 +85,7 @@ class RewardAdminController extends AbstractController
         // Full page render
         return $this->render('admin/reward/index.html.twig', [
             'rewards' => $pagination,
+            'milestones' => $milestones,
             'search' => $search,
             'type' => $type,
             'status' => $status,
@@ -146,6 +157,21 @@ class RewardAdminController extends AbstractController
 
 
     /**
+     * Toggle reward active status
+     */
+    #[Route('/{id}/toggle-status', name: 'admin_reward_toggle_status', methods: ['POST'])]
+    public function toggleStatus(Reward $reward, EntityManagerInterface $entityManager): Response
+    {
+        $reward->setIsActive(!$reward->isActive());
+        $entityManager->flush();
+        
+        $status = $reward->isActive() ? 'activated' : 'deactivated';
+        $this->addFlash('success', sprintf('Reward "%s" has been %s successfully!', $reward->getName(), $status));
+        
+        return $this->redirectToRoute('admin_reward_index');
+    }
+
+    /**
      * Delete reward
      */
     #[Route('/{id}/delete', name: 'admin_reward_delete', methods: ['POST'])]
@@ -168,11 +194,22 @@ class RewardAdminController extends AbstractController
     }
 
     #[Route('/{id}', name: 'admin_reward_show', methods: ['GET'])]
-    public function show(Reward $reward): Response
+    public function show(Reward $reward, Request $request): Response
     {
+        // Paginate students who earned this reward
+        $studentsQuery = $reward->getStudents();
+        
+        $studentsPagination = $this->paginator->paginate(
+            $studentsQuery,
+            $request->query->getInt('student_page', 1),
+            10, // 10 students per page
+            ['pageParameterName' => 'student_page']
+        );
+        
         return $this->render('admin/reward/show.html.twig', [
             'reward' => $reward,
             'games' => $reward->getGames(), // Games offering this reward
+            'students' => $studentsPagination,
         ]);
     }
 

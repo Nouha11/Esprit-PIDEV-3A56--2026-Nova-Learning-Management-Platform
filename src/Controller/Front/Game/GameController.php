@@ -5,7 +5,9 @@ use App\Entity\Gamification\Game;
 use App\Repository\Gamification\GameRepository as GamificationGameRepository;
 use App\Repository\Gamification\GameRatingRepository;
 use App\Service\game\GameService;
+use App\Service\game\LevelCalculatorService;
 use App\Service\game\TokenService;
+use App\Service\gamification\LevelRewardService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,6 +23,8 @@ class GameController extends AbstractController
     public function __construct(
         private GameService $gameService,
         private TokenService $tokenService,
+        private LevelRewardService $levelRewardService,
+        private LevelCalculatorService $levelCalculatorService,
         private GamificationGameRepository $gameRepository,
         private GameRatingRepository $ratingRepository,
         private PaginatorInterface $paginator,
@@ -40,9 +44,31 @@ class GameController extends AbstractController
         $freeOnly = $request->query->get('free_only', false);
         $isAjax = $request->isXmlHttpRequest();
 
+        // Get mini games with pagination
+        $miniGamesQuery = $this->gameRepository->createQueryBuilder('g')
+            ->where('g.isActive = :active')
+            ->andWhere('g.category = :category')
+            ->setParameter('active', true)
+            ->setParameter('category', 'MINI_GAME')
+            ->orderBy('g.energyPoints', 'DESC');
+        
+        $miniGamesPagination = $this->paginator->paginate(
+            $miniGamesQuery,
+            $request->query->getInt('mini_page', 1),
+            3, // 3 mini games per page
+            ['pageParameterName' => 'mini_page']
+        );
+        
+        // Get mini game IDs for ratings
+        $miniGameIds = array_map(fn($game) => $game->getId(), iterator_to_array($miniGamesPagination));
+        $miniGameRatings = !empty($miniGameIds) ? $this->ratingRepository->getAverageRatingsForGames($miniGameIds) : [];
+
+        // Main games query (full games only)
         $queryBuilder = $this->gameRepository->createQueryBuilder('g')
             ->where('g.isActive = :active')
-            ->setParameter('active', true);
+            ->andWhere('g.category = :category')
+            ->setParameter('active', true)
+            ->setParameter('category', 'FULL_GAME');
 
         // Apply search filter
         if (!empty($search)) {
@@ -93,6 +119,8 @@ class GameController extends AbstractController
         return $this->render('front/game/index.html.twig', [
             'games' => $pagination,
             'gameRatings' => $gameRatings,
+            'miniGames' => $miniGamesPagination,
+            'miniGameRatings' => $miniGameRatings,
             'search' => $search,
             'type' => $type,
             'difficulty' => $difficulty,
@@ -173,27 +201,42 @@ class GameController extends AbstractController
     #[IsGranted('ROLE_STUDENT')]
     public function checkTokens(Game $game): JsonResponse
     {
-        $user = $this->getUser();
-        $student = $user->getStudentProfile();
+        try {
+            $user = $this->getUser();
+            
+            if (!$user) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+            
+            $student = $user->getStudentProfile();
 
-        if (!$student) {
+            if (!$student) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Student profile not found. Please contact support.'
+                ], 404);
+            }
+
+            $validation = $this->tokenService->validateTransaction($student, $game);
+
+            return $this->json([
+                'success' => $validation['valid'],
+                'canAfford' => $validation['valid'],
+                'message' => $validation['message'],
+                'missing' => $validation['missing'],
+                'currentBalance' => $student->getTotalTokens(),
+                'gameCost' => $game->getTokenCost(),
+                'gameIsFree' => $this->tokenService->isFreeGame($game),
+            ]);
+        } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
-                'message' => 'Student profile not found'
-            ], 404);
+                'message' => 'An error occurred while checking tokens. Please try again.'
+            ], 500);
         }
-
-        $validation = $this->tokenService->validateTransaction($student, $game);
-
-        return $this->json([
-            'success' => $validation['valid'],
-            'canAfford' => $validation['valid'],
-            'message' => $validation['message'],
-            'missing' => $validation['missing'],
-            'currentBalance' => $student->getTotalTokens(),
-            'gameCost' => $game->getTokenCost(),
-            'gameIsFree' => $this->tokenService->isFreeGame($game),
-        ]);
     }
 
     /**
@@ -279,6 +322,10 @@ class GameController extends AbstractController
         $tokensBefore = $student->getTotalTokens();
         $xpBefore = $student->getTotalXP();
         
+        // Calculate previous level before XP update
+        $previousLevelInfo = $this->levelCalculatorService->calculateLevel($xpBefore);
+        $previousLevel = $previousLevelInfo['level'];
+        
         // Get reward values
         $rewardTokens = $game->getRewardTokens();
         $rewardXP = $game->getRewardXP();
@@ -287,6 +334,11 @@ class GameController extends AbstractController
         $student->setTotalTokens($tokensBefore + $rewardTokens);
         $student->setTotalXP($xpBefore + $rewardXP);
         
+        // Calculate and update level based on new XP
+        $newLevelInfo = $this->levelCalculatorService->calculateLevel($xpBefore + $rewardXP);
+        $newLevel = $newLevelInfo['level'];
+        $student->setLevel($newLevel);
+        
         // Ensure entity is managed
         if (!$this->entityManager->contains($student)) {
             $student = $this->entityManager->merge($student);
@@ -294,6 +346,12 @@ class GameController extends AbstractController
         
         // Flush to database
         $this->entityManager->flush();
+        
+        // Check for level-based rewards after XP update (only if level increased)
+        $levelRewards = [];
+        if ($newLevel > $previousLevel) {
+            $levelRewards = $this->levelRewardService->checkAndAwardLevelRewards($student, $previousLevel);
+        }
         
         // Refresh to verify
         $this->entityManager->refresh($student);
@@ -337,6 +395,11 @@ class GameController extends AbstractController
         }
 
         $this->addFlash('success', $message);
+
+        // Store level milestone data in session for celebration modal
+        if (!empty($levelRewards)) {
+            $session->set('milestone_unlocked', $levelRewards);
+        }
 
         return $this->redirectToRoute('front_game_show', ['id' => $game->getId()]);
     }
@@ -435,11 +498,33 @@ class GameController extends AbstractController
             throw $this->createNotFoundException('Invalid game type');
         }
 
+        // Get mini games with pagination
+        $miniGamesQuery = $this->gameRepository->createQueryBuilder('g')
+            ->where('g.isActive = :active')
+            ->andWhere('g.category = :category')
+            ->setParameter('active', true)
+            ->setParameter('category', 'MINI_GAME')
+            ->orderBy('g.energyPoints', 'DESC');
+        
+        $miniGamesPagination = $this->paginator->paginate(
+            $miniGamesQuery,
+            $request->query->getInt('mini_page', 1),
+            3, // 3 mini games per page
+            ['pageParameterName' => 'mini_page']
+        );
+        
+        // Get mini game IDs for ratings
+        $miniGameIds = array_map(fn($game) => $game->getId(), iterator_to_array($miniGamesPagination));
+        $miniGameRatings = !empty($miniGameIds) ? $this->ratingRepository->getAverageRatingsForGames($miniGameIds) : [];
+
+        // Main games query filtered by type
         $queryBuilder = $this->gameRepository->createQueryBuilder('g')
             ->where('g.isActive = :active')
             ->andWhere('g.type = :type')
+            ->andWhere('g.category = :category')
             ->setParameter('active', true)
             ->setParameter('type', $type)
+            ->setParameter('category', 'FULL_GAME')
             ->orderBy('g.createdAt', 'DESC');
 
         $pagination = $this->paginator->paginate(
@@ -448,9 +533,20 @@ class GameController extends AbstractController
             6 // 6 games per page
         );
 
+        // Get rating stats for all games in current page
+        $gameIds = array_map(fn($game) => $game->getId(), iterator_to_array($pagination));
+        $gameRatings = $this->ratingRepository->getAverageRatingsForGames($gameIds);
+
         return $this->render('front/game/index.html.twig', [
             'games' => $pagination,
+            'gameRatings' => $gameRatings,
+            'miniGames' => $miniGamesPagination,
+            'miniGameRatings' => $miniGameRatings,
             'filter_type' => $type,
+            'search' => '',
+            'type' => $type,
+            'difficulty' => '',
+            'freeOnly' => false,
         ]);
     }
 }
