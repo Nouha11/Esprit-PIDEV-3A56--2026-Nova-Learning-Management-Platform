@@ -5,9 +5,136 @@
 {% block admin_content %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">Study Sessions Management</h1>
-        <a href="{{ path('admin_study_session_analytics') }}" class="btn btn-primary">
-            <i class="fas fa-chart-bar"></i> View Analytics
-        </a>
+        <div>
+            <a href="{{ path('admin_study_session_analytics') }}" class="btn btn-primary me-2">
+                <i class="fas fa-chart-bar"></i> View Analytics
+            </a>
+            <a href="{{ path('analytics_dashboard') }}" class="btn btn-success">
+                <i class="fas fa-chart-line"></i> Full Analytics
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Sessions</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ study_sessions|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Completed</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% set completed = 0 %}
+                                {% for session in study_sessions %}
+                                    {% if session.completedAt %}
+                                        {% set completed = completed + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ completed }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">With Notes</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% set with_notes = 0 %}
+                                {% for session in study_sessions %}
+                                    {% if session.notes|length > 0 %}
+                                        {% set with_notes = with_notes + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ with_notes }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-sticky-note fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">With Resources</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% set with_resources = 0 %}
+                                {% for session in study_sessions %}
+                                    {% if session.resources|length > 0 %}
+                                        {% set with_resources = with_resources + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ with_resources }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-pdf fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Quick Access</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <a href="{{ path('calendar_index') }}" class="btn btn-outline-primary btn-block">
+                        <i class="fas fa-calendar-alt"></i> Calendar View
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="{{ path('tag_index') }}" class="btn btn-outline-info btn-block">
+                        <i class="fas fa-tags"></i> Manage Tags
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="{{ path('energy_analytics') }}" class="btn btn-outline-warning btn-block">
+                        <i class="fas fa-bolt"></i> Energy Patterns
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="{{ path('integration_ai_recommendations') }}" class="btn btn-outline-success btn-block">
+                        <i class="fas fa-robot"></i> AI Tools
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Filters -->
@@ -18,17 +145,35 @@
         <div class="card-body">
             <form method="get" action="{{ path('admin_study_session_index') }}">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label>User ID</label>
                         <input type="number" name="userId" class="form-control" value="{{ current_user_id ?? '' }}" placeholder="Enter user ID">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label>Burnout Risk</label>
                         <select name="burnoutRisk" class="form-control">
                             <option value="">All Levels</option>
                             <option value="LOW" {% if current_burnout_risk == 'LOW' %}selected{% endif %}>Low</option>
                             <option value="MODERATE" {% if current_burnout_risk == 'MODERATE' %}selected{% endif %}>Moderate</option>
                             <option value="HIGH" {% if current_burnout_risk == 'HIGH' %}selected{% endif %}>High</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Mood</label>
+                        <select name="mood" class="form-control">
+                            <option value="">All Moods</option>
+                            <option value="positive" {% if current_mood == 'positive' %}selected{% endif %}>Positive</option>
+                            <option value="neutral" {% if current_mood == 'neutral' %}selected{% endif %}>Neutral</option>
+                            <option value="negative" {% if current_mood == 'negative' %}selected{% endif %}>Negative</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Energy Level</label>
+                        <select name="energyLevel" class="form-control">
+                            <option value="">All Levels</option>
+                            <option value="high" {% if current_energy_level == 'high' %}selected{% endif %}>High</option>
+                            <option value="medium" {% if current_energy_level == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="low" {% if current_energy_level == 'low' %}selected{% endif %}>Low</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -39,11 +184,15 @@
                         <label>Date To</label>
                         <input type="date" name="dateTo" class="form-control" value="{{ date_to ? date_to|date('Y-m-d') : '' }}">
                     </div>
-                    <div class="col-md-2">
-                        <label>&nbsp;</label>
-                        <button type="submit" class="btn btn-primary form-control">
-                            <i class="fas fa-filter"></i> Filter
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Apply Filters
                         </button>
+                        <a href="{{ path('admin_study_session_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </a>
                     </div>
                 </div>
             </form>
@@ -66,8 +215,10 @@
                             <th>Started At</th>
                             <th>Duration (min)</th>
                             <th>XP Earned</th>
-                            <th>Energy Used</th>
+                            <th>Mood</th>
+                            <th>Energy</th>
                             <th>Burnout Risk</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -80,7 +231,32 @@
                                 <td>{{ session.startedAt|date('Y-m-d H:i') }}</td>
                                 <td>{{ session.duration }}</td>
                                 <td>{{ session.xpEarned ?? 0 }}</td>
-                                <td>{{ session.energyUsed ?? 0 }}</td>
+                                <td>
+                                    {% if session.mood %}
+                                        {% if session.mood == 'positive' %}
+                                            <span class="badge bg-success">😊 Positive</span>
+                                        {% elseif session.mood == 'neutral' %}
+                                            <span class="badge bg-secondary">😐 Neutral</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">😞 Negative</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if session.energyLevel %}
+                                        {% if session.energyLevel == 'high' %}
+                                            <span class="badge bg-success">⚡ High</span>
+                                        {% elseif session.energyLevel == 'medium' %}
+                                            <span class="badge bg-warning">⚡ Medium</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">⚡ Low</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if session.burnoutRisk == 'HIGH' %}
                                         <span class="badge bg-danger">High</span>
@@ -91,14 +267,21 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ path('admin_study_session_show', {id: session.id}) }}" class="btn btn-sm btn-info" title="View">
+                                    {% if session.completedAt %}
+                                        <span class="badge bg-success">✓ Completed</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Planned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ path('admin_study_session_show', {id: session.id}) }}" class="btn btn-sm btn-info" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </td>
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="9" class="text-center">No study sessions found</td>
+                                <td colspan="11" class="text-center">No study sessions found</td>
                             </tr>
                         {% endfor %}
                     </tbody>

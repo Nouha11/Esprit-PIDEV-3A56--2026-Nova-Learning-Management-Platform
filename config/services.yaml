@@ -1,12 +1,22 @@
 parameters:
     admin_notification_email: 'oussamastudy2@gmail.com'
     openai_api_key: '%env(OPENAI_API_KEY)%'
+    gemini_api_key: '%env(GEMINI_API_KEY)%'
+    youtube_api_key: '%env(YOUTUBE_API_KEY)%'
+    upload_directory: '%kernel.project_dir%/public/%env(UPLOAD_DIRECTORY)%'
 
 services:
     _defaults:
-        autowire: true
-        autoconfigure: true
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $uploadDirectory: '%upload_directory%'
+            $youtubeApiKey: '%youtube_api_key%'
+            $openaiApiKey: '%openai_api_key%'
+            $geminiApiKey: '%gemini_api_key%'
 
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
         exclude:
