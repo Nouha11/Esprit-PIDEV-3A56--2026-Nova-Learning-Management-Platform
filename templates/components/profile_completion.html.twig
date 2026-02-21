@@ -1,0 +1,75 @@
+{# Profile Completion Widget #}
+{% set percentage = completion.percentage %}
+{% set isComplete = completion.isComplete %}
+
+<div class="card border shadow-sm mb-4 bg-body">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h6 class="mb-0 text-body">
+                <i class="bi bi-person-check me-2"></i>Profile Completion
+            </h6>
+            <span class="badge {% if isComplete %}bg-success{% elseif percentage >= 75 %}bg-info{% elseif percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}">
+                {{ percentage }}%
+            </span>
+        </div>
+        
+        {# Progress Bar #}
+        <div class="progress mb-3" style="height: 10px;">
+            <div class="progress-bar {% if isComplete %}bg-success{% elseif percentage >= 75 %}bg-info{% elseif percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                 role="progressbar" 
+                 style="width: {{ percentage }}%;" 
+                 aria-valuenow="{{ percentage }}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+            </div>
+        </div>
+        
+        {# Completion Status #}
+        {% if isComplete %}
+            <div class="alert alert-success mb-0 py-2">
+                <i class="bi bi-check-circle me-2"></i>
+                <small>Your profile is complete! Great job!</small>
+            </div>
+        {% else %}
+            <div class="alert alert-warning mb-3 py-2">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <small>Complete your profile to unlock all features</small>
+            </div>
+            
+            {# Missing Fields #}
+            {% if completion.missing is not empty %}
+                <div class="mb-0">
+                    <small class="text-muted d-block mb-2">Missing fields:</small>
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for field in completion.missing %}
+                            <span class="badge bg-secondary bg-opacity-25 text-body border">
+                                <i class="bi bi-dash-circle me-1"></i>{{ field }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        
+        {# Edit Profile Button #}
+        {% if not isComplete %}
+            <div class="mt-3">
+                <a href="{{ editRoute }}" class="btn btn-sm btn-primary w-100">
+                    <i class="bi bi-pencil me-1"></i>Complete Profile
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+    border-radius: 10px;
+}
+</style>

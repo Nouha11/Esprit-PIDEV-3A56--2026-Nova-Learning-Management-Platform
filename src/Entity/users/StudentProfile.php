@@ -9,8 +9,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: StudentProfileRepository::class)]
+#[Vich\Uploadable]
 class StudentProfile
 {
     #[ORM\Id]
@@ -86,6 +89,17 @@ class StudentProfile
         maxMessage: 'Profile picture path cannot be longer than {{ limit }} characters'
     )]
     private ?string $profilePicture = null;
+
+    #[Vich\UploadableField(mapping: 'user_avatars', fileNameProperty: 'profilePicture')]
+    #[Assert\File(
+        maxSize: '2M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+        mimeTypesMessage: 'Please upload a valid image (JPEG, PNG, GIF, or WebP)'
+    )]
+    private ?File $avatarFile = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $interests = null;
@@ -194,6 +208,32 @@ class StudentProfile
     public function setProfilePicture(?string $profilePicture): static
     {
         $this->profilePicture = $profilePicture;
+        return $this;
+    }
+
+    public function setAvatarFile(?File $avatarFile = null): void
+    {
+        $this->avatarFile = $avatarFile;
+
+        if (null !== $avatarFile) {
+            // Update the updatedAt property to force Doctrine to update
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getAvatarFile(): ?File
+    {
+        return $this->avatarFile;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 

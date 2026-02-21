@@ -5,6 +5,7 @@ namespace App\Controller\Front\users;
 use App\Entity\users\TutorProfile;
 use App\Entity\users\User; // Make sure this path matches your User entity
 use App\Repository\TutorProfileRepository;
+use App\Service\ProfileCompletionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_TUTOR')] // Restrict this whole controller to Tutors only
 final class TutorController extends AbstractController
 {
+    public function __construct(
+        private ProfileCompletionService $profileCompletionService
+    ) {}
+
     #[Route('/profile', name: 'app_tutor_profile', methods: ['GET'])]
     public function profile(): Response
     {
@@ -28,9 +33,11 @@ final class TutorController extends AbstractController
         }
 
         $tutor = $user->getTutorProfile();
+        $completion = $this->profileCompletionService->calculateTutorCompletion($tutor);
 
         return $this->render('front/users/tutor/index.html.twig', [
             'tutor' => $tutor,
+            'completion' => $completion,
         ]);
     }
 
@@ -51,9 +58,17 @@ final class TutorController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+        $completion = $this->profileCompletionService->calculateTutorCompletion($tutor);
+
         if ($request->isMethod('POST')) {
             // Get current locale for translations
             $locale = $request->getSession()->get('_locale', 'en');
+            
+            // Handle avatar upload
+            $avatarFile = $request->files->get('avatarFile');
+            if ($avatarFile) {
+                $tutor->setAvatarFile($avatarFile);
+            }
             
             // Validate required fields
             $firstName = trim($request->request->get('firstName'));
@@ -93,6 +108,7 @@ final class TutorController extends AbstractController
                 }
                 return $this->render('front/users/tutor/edit.html.twig', [
                     'tutor' => $tutor,
+                    'completion' => $completion,
                 ]);
             }
             
@@ -122,6 +138,7 @@ final class TutorController extends AbstractController
 
         return $this->render('front/users/tutor/edit.html.twig', [
             'tutor' => $tutor,
+            'completion' => $completion,
         ]);
     }
 
@@ -136,9 +153,11 @@ final class TutorController extends AbstractController
         }
 
         $tutor = $user->getTutorProfile();
+        $completion = $this->profileCompletionService->calculateTutorCompletion($tutor);
 
         return $this->render('front/users/tutor/dashboard.html.twig', [
             'tutor' => $tutor,
+            'completion' => $completion,
         ]);
     }
 

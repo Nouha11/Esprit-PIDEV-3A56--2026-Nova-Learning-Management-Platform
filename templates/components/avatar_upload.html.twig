@@ -1,0 +1,100 @@
+{# Avatar Upload Component #}
+{% set currentAvatar = profile.profilePicture %}
+{% set defaultAvatar = asset('assets/images/avatar/default-avatar.png') %}
+
+<div class="avatar-upload-container mb-4">
+    <label class="form-label text-body">
+        <i class="bi bi-person-circle me-2"></i>Profile Picture
+    </label>
+    
+    <div class="card border shadow-sm bg-body">
+        <div class="card-body text-center">
+            {# Current Avatar Display #}
+            <div class="avatar-preview mb-3">
+                {% if currentAvatar %}
+                    <img src="{{ vich_uploader_asset(profile, 'avatarFile') }}" 
+                         alt="Profile Picture" 
+                         class="rounded-circle img-thumbnail"
+                         id="avatar-preview"
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                    <div class="avatar-placeholder rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto"
+                         id="avatar-preview"
+                         style="width: 150px; height: 150px;">
+                        <i class="bi bi-person-circle text-muted" style="font-size: 80px;"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {# Upload Button #}
+            <div class="mb-2">
+                <label for="avatarFile" class="btn btn-primary btn-sm">
+                    <i class="bi bi-upload me-1"></i>
+                    {% if currentAvatar %}Change Photo{% else %}Upload Photo{% endif %}
+                </label>
+                <input type="file" 
+                       class="d-none" 
+                       id="avatarFile" 
+                       name="avatarFile" 
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       onchange="previewAvatar(this)">
+            </div>
+            
+            <small class="text-muted d-block">
+                <i class="bi bi-info-circle me-1"></i>
+                Max 2MB • JPEG, PNG, GIF, or WebP
+            </small>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewAvatar(input) {
+    const preview = document.getElementById('avatar-preview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Replace placeholder with actual image
+            if (preview.tagName === 'DIV') {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Profile Picture';
+                img.className = 'rounded-circle img-thumbnail';
+                img.style.width = '150px';
+                img.style.height = '150px';
+                img.style.objectFit = 'cover';
+                preview.replaceWith(img);
+                img.id = 'avatar-preview';
+            } else {
+                preview.src = e.target.result;
+            }
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+
+<style>
+.avatar-upload-container .avatar-placeholder {
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.avatar-upload-container .avatar-placeholder:hover {
+    border-color: #0d6efd;
+    background-color: #f8f9fa !important;
+}
+
+.avatar-upload-container .img-thumbnail {
+    border: 3px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.avatar-upload-container .img-thumbnail:hover {
+    border-color: #0d6efd;
+    transform: scale(1.05);
+}
+</style>

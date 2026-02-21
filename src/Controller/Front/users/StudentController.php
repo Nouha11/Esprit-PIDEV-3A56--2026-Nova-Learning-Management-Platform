@@ -4,16 +4,22 @@ namespace App\Controller\Front\users;
 
 use App\Entity\users\StudentProfile;
 use App\Repository\StudentProfileRepository;
+use App\Service\ProfileCompletionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/student')]
 final class StudentController extends AbstractController
 {
+    public function __construct(
+        private ProfileCompletionService $profileCompletionService
+    ) {}
+
     #[Route('/profile', name: 'app_student_profile', methods: ['GET'])]
     public function profile(): Response
     {
@@ -24,9 +30,11 @@ final class StudentController extends AbstractController
         }
 
         $student = $user->getStudentProfile();
+        $completion = $this->profileCompletionService->calculateStudentCompletion($student);
 
         return $this->render('front/users/student/index.html.twig', [
             'student' => $student,
+            'completion' => $completion,
         ]);
     }
 
@@ -46,9 +54,17 @@ final class StudentController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+        $completion = $this->profileCompletionService->calculateStudentCompletion($student);
+
         if ($request->isMethod('POST')) {
             // Get current locale for translations
             $locale = $request->getSession()->get('_locale', 'en');
+            
+            // Handle avatar upload
+            $avatarFile = $request->files->get('avatarFile');
+            if ($avatarFile) {
+                $student->setAvatarFile($avatarFile);
+            }
             
             // Validate required fields
             $firstName = trim($request->request->get('firstName'));
@@ -81,6 +97,7 @@ final class StudentController extends AbstractController
                 }
                 return $this->render('front/users/student/edit.html.twig', [
                     'student' => $student,
+                    'completion' => $completion,
                 ]);
             }
             
@@ -109,6 +126,7 @@ final class StudentController extends AbstractController
 
         return $this->render('front/users/student/edit.html.twig', [
             'student' => $student,
+            'completion' => $completion,
         ]);
     }
 
@@ -122,9 +140,11 @@ final class StudentController extends AbstractController
         }
 
         $student = $user->getStudentProfile();
+        $completion = $this->profileCompletionService->calculateStudentCompletion($student);
 
         return $this->render('front/users/student/dashboard.html.twig', [
             'student' => $student,
+            'completion' => $completion,
         ]);
     }
 
