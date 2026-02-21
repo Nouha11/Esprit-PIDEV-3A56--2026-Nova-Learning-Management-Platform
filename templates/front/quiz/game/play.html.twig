@@ -20,6 +20,15 @@
             {# 2. The Question Card #}
             <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
                 <div class="card-body p-5 text-center bg-light">
+                    {# Display question image if available #}
+                    {% if question.imageName %}
+                        <div class="mb-4">
+                            <img src="{{ asset('uploads/questions/' ~ question.imageName) }}" 
+                                 alt="Question image" 
+                                 class="img-fluid rounded-3 shadow-sm"
+                                 style="max-height: 300px; object-fit: contain;">
+                        </div>
+                    {% endif %}
                     <h2 class="display-6 fw-bold mb-4">{{ question.text }}</h2>
                 </div>
             </div>

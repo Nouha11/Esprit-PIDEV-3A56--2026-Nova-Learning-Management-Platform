@@ -1,6 +1,8 @@
+{# Custom Pagination Template for KnpPaginatorBundle #}
 {% if pageCount > 1 %}
 <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center gap-2">
+    <ul class="pagination justify-content-center">
+        {# Previous button #}
         {% if previous is defined %}
             <li class="page-item">
                 <a class="page-link" href="{{ path(route, query|merge({(pageParameterName): previous})) }}" aria-label="Previous">
@@ -9,20 +11,17 @@
             </li>
         {% else %}
             <li class="page-item disabled">
-                <span class="page-link" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </span>
+                <span class="page-link">&laquo;</span>
             </li>
         {% endif %}
 
+        {# Page numbers #}
         {% if startPage > 1 %}
             <li class="page-item">
                 <a class="page-link" href="{{ path(route, query|merge({(pageParameterName): 1})) }}">1</a>
             </li>
             {% if startPage > 2 %}
-                <li class="page-item disabled">
-                    <span class="page-link">...</span>
-                </li>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
             {% endif %}
         {% endif %}
 
@@ -40,15 +39,14 @@
 
         {% if endPage < pageCount %}
             {% if endPage < pageCount - 1 %}
-                <li class="page-item disabled">
-                    <span class="page-link">...</span>
-                </li>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
             {% endif %}
             <li class="page-item">
                 <a class="page-link" href="{{ path(route, query|merge({(pageParameterName): pageCount})) }}">{{ pageCount }}</a>
             </li>
         {% endif %}
 
+        {# Next button #}
         {% if next is defined %}
             <li class="page-item">
                 <a class="page-link" href="{{ path(route, query|merge({(pageParameterName): next})) }}" aria-label="Next">
@@ -57,96 +55,14 @@
             </li>
         {% else %}
             <li class="page-item disabled">
-                <span class="page-link" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </span>
+                <span class="page-link">&raquo;</span>
             </li>
         {% endif %}
     </ul>
 </nav>
 
-<style>
-    /* Pagination spacing and styling */
-    .pagination {
-        margin: 1.5rem 0;
-    }
-    
-    .pagination .page-item {
-        margin: 0; /* Remove default margin, use gap on parent */
-    }
-    
-    .pagination .page-link {
-        border-radius: 8px;
-        padding: 0.5rem 0.75rem;
-        border: 1px solid #dee2e6;
-        color: #667eea;
-        transition: all 0.3s ease;
-        min-width: 40px;
-        text-align: center;
-    }
-    
-    .pagination .page-link:hover {
-        background-color: #f8f9fa;
-        border-color: #667eea;
-        color: #667eea;
-        transform: translateY(-2px);
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-    }
-    
-    .pagination .page-item.active .page-link {
-        background-color: #667eea;
-        border-color: #667eea;
-        color: white;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
-    
-    .pagination .page-item.disabled .page-link {
-        background-color: transparent;
-        border-color: #dee2e6;
-        color: #6c757d;
-        cursor: not-allowed;
-        opacity: 0.5;
-    }
-    
-    /* Dark mode styles */
-    [data-bs-theme="dark"] .pagination .page-link {
-        background-color: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.2);
-        color: #a8b3ff;
-    }
-    
-    [data-bs-theme="dark"] .pagination .page-link:hover {
-        background-color: rgba(102, 126, 234, 0.2);
-        border-color: #667eea;
-        color: #a8b3ff;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-    }
-    
-    [data-bs-theme="dark"] .pagination .page-item.active .page-link {
-        background-color: #667eea;
-        border-color: #667eea;
-        color: white;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-    }
-    
-    [data-bs-theme="dark"] .pagination .page-item.disabled .page-link {
-        background-color: transparent;
-        border-color: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.3);
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 576px) {
-        .pagination .page-link {
-            padding: 0.375rem 0.5rem;
-            min-width: 35px;
-            font-size: 0.875rem;
-        }
-        
-        .pagination {
-            gap: 0.25rem !important;
-        }
-    }
-</style>
+{# Pagination info #}
+<div class="text-center text-muted small mt-2">
+    Showing {{ firstItemNumber }} to {{ lastItemNumber }} of {{ totalItemCount }} results
+</div>
 {% endif %}

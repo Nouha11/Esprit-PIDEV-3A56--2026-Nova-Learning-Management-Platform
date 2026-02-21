@@ -10,10 +10,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use App\Validator as MyAssert;
 
 #[ORM\Entity(repositoryClass: QuestionRepository::class)]
+#[Vich\Uploadable]
 class Question
 {
     #[ORM\Id]
@@ -58,6 +61,20 @@ class Question
     #[ORM\ManyToOne(targetEntity: \App\Entity\users\User::class, inversedBy: 'questions')]
     #[ORM\JoinColumn(nullable: true)]
     private ?\App\Entity\users\User $user = null;
+
+    #[Vich\UploadableField(mapping: 'question_images', fileNameProperty: 'imageName')]
+    #[Assert\File(
+        maxSize: '2M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+        mimeTypesMessage: 'Please upload a valid image (JPEG, PNG, GIF, or WebP)'
+    )]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $imageName = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct()
     {
@@ -157,5 +174,40 @@ class Question
         $this->user = $user;
 
         return $this;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // Update the updatedAt property to force Doctrine to update
+            $this->updatedAt = new \DateTime();
+        }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageName(?string $imageName): void
+    {
+        $this->imageName = $imageName;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

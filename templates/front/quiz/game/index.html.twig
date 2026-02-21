@@ -92,7 +92,7 @@
     {% endif %}
 
     <div class="row">
-        {% for quiz in quizzes %}
+        {% for quiz in pagination %}
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm border-0 hover-effect">
                     <div class="card-body text-center p-4">
@@ -135,6 +135,11 @@
                 {% endif %}
             </div>
         {% endfor %}
+    </div>
+
+    {# Pagination Controls #}
+    <div class="mt-5">
+        {{ knp_pagination_render(pagination) }}
     </div>
 </div>
 
