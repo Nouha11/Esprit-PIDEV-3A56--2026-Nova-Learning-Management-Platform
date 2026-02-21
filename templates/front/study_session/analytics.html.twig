@@ -1,0 +1,185 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block front_content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h1 class="mb-4">Analytics Dashboard</h1>
+        
+        <!-- Time Range Filter -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Time Range</h5>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('analytics_dashboard', {range: 'week'}) }}" 
+                       class="btn btn-{{ time_range == 'week' ? 'primary' : 'outline-primary' }}">
+                        Week
+                    </a>
+                    <a href="{{ path('analytics_dashboard', {range: 'month'}) }}" 
+                       class="btn btn-{{ time_range == 'month' ? 'primary' : 'outline-primary' }}">
+                        Month
+                    </a>
+                    <a href="{{ path('analytics_dashboard', {range: 'year'}) }}" 
+                       class="btn btn-{{ time_range == 'year' ? 'primary' : 'outline-primary' }}">
+                        Year
+                    </a>
+                </div>
+                <p class="text-muted mt-2 mb-0">
+                    <small>Showing data from {{ start_date|date('M d, Y') }} to {{ end_date|date('M d, Y') }}</small>
+                </p>
+            </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="row mb-4">
+            <!-- Total Study Time Card -->
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-subtitle mb-2 text-muted">Total Study Time</h6>
+                        <h2 class="card-title mb-0">{{ total_study_time }}</h2>
+                        <p class="text-muted mb-0"><small>minutes</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total XP Card -->
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-subtitle mb-2 text-muted">Total XP Earned</h6>
+                        <h2 class="card-title mb-0">{{ total_xp }}</h2>
+                        <p class="text-muted mb-0"><small>experience points</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Streak Card -->
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-subtitle mb-2 text-muted">Current Streak</h6>
+                        <h2 class="card-title mb-0">{{ current_streak }}</h2>
+                        <p class="text-muted mb-0"><small>days</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completion Rate Card -->
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-subtitle mb-2 text-muted">Completion Rate</h6>
+                        <h2 class="card-title mb-0">{{ completion_rate|number_format(1) }}%</h2>
+                        <p class="text-muted mb-0"><small>sessions completed</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Metrics Row -->
+        <div class="row mb-4">
+            <!-- Longest Streak Card -->
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-subtitle mb-2 text-muted">Longest Streak</h6>
+                        <h3 class="card-title mb-0">{{ longest_streak }} days</h3>
+                        <p class="text-muted mb-0"><small>Your best performance</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Average Study Duration Card -->
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-subtitle mb-2 text-muted">Average Study Duration</h6>
+                        <h3 class="card-title mb-0">
+                            {% if session_count > 0 %}
+                                {{ (total_study_time / session_count)|number_format(0) }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h3>
+                        <p class="text-muted mb-0"><small>minutes per session</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row">
+            <!-- Study Time by Course Chart -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Study Time by Course</h5>
+                        {% if has_course_data %}
+                            <canvas id="studyTimeByCourseChart" style="max-height: 300px;"></canvas>
+                        {% else %}
+                            <div class="alert alert-info">
+                                No study session data available for the selected time range.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- XP Over Time Chart -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">XP Earned Over Time</h5>
+                        {% if has_xp_data %}
+                            <canvas id="xpOverTimeChart" style="max-height: 300px;"></canvas>
+                        {% else %}
+                            <div class="alert alert-info">
+                                No XP data available for the selected time range.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Study Sessions Link -->
+        <div class="row">
+            <div class="col-12">
+                <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Study Sessions
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Pass data to JavaScript -->
+    <script>
+        // Initialize analytics data object for the charts module
+        window.analyticsData = {
+            course: {
+                labels: {{ course_labels|raw }},
+                data: {{ course_durations|raw }}
+            },
+            xp: {
+                labels: {{ xp_dates|raw }},
+                data: {{ xp_values|raw }}
+            },
+            hasCourseData: {{ has_course_data ? 'true' : 'false' }},
+            hasXpData: {{ has_xp_data ? 'true' : 'false' }}
+        };
+    </script>
+    
+    <!-- Analytics Charts Module -->
+    <script src="{{ asset('assets/js/analytics-charts.js') }}"></script>
+{% endblock %}

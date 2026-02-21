@@ -1,0 +1,176 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}{{ study_session.id ? 'Edit Study Session' : 'Create Study Session' }}{% endblock %}
+
+{% block front_content %}
+<div class="row mt-4">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">{{ study_session.id ? 'Edit Study Session' : 'Create New Study Session' }}</h3>
+            </div>
+            <div class="card-body">
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+
+                {{ form_start(form) }}
+                    <div class="row">
+                        <!-- Planning/Course Selection -->
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.planning, {
+                                'label': 'Planning/Course',
+                                'attr': {'class': 'form-control'}
+                            }) }}
+                        </div>
+
+                        <!-- Started At -->
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.startedAt, {
+                                'label': 'Started At',
+                                'attr': {'class': 'form-control'}
+                            }) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Duration -->
+                        <div class="col-md-4 mb-3">
+                            {{ form_row(form.duration, {
+                                'label': 'Planned Duration (minutes)',
+                                'attr': {'class': 'form-control', 'min': '1'}
+                            }) }}
+                        </div>
+
+                        <!-- Actual Duration -->
+                        {% if form.actualDuration is defined %}
+                        <div class="col-md-4 mb-3">
+                            {{ form_row(form.actualDuration, {
+                                'label': 'Actual Duration (minutes)',
+                                'attr': {'class': 'form-control', 'min': '0'}
+                            }) }}
+                        </div>
+                        {% endif %}
+
+                        <!-- XP Earned -->
+                        {% if form.xpEarned is defined %}
+                        <div class="col-md-4 mb-3">
+                            {{ form_row(form.xpEarned, {
+                                'label': 'XP Earned',
+                                'attr': {'class': 'form-control', 'min': '0'}
+                            }) }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Mood and Energy Section -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Mood & Energy Tracking</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Mood -->
+                                {% if form.mood is defined %}
+                                <div class="col-md-6 mb-3">
+                                    {{ form_row(form.mood, {
+                                        'label': 'Mood',
+                                        'attr': {'class': 'form-select'},
+                                        'placeholder': 'Select your mood'
+                                    }) }}
+                                </div>
+                                {% endif %}
+
+                                <!-- Energy Level -->
+                                {% if form.energyLevel is defined %}
+                                <div class="col-md-6 mb-3">
+                                    {{ form_row(form.energyLevel, {
+                                        'label': 'Energy Level',
+                                        'attr': {'class': 'form-select'},
+                                        'placeholder': 'Select your energy level'
+                                    }) }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Break Information Section -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Break Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Break Duration -->
+                                {% if form.breakDuration is defined %}
+                                <div class="col-md-4 mb-3">
+                                    {{ form_row(form.breakDuration, {
+                                        'label': 'Break Duration (minutes)',
+                                        'attr': {'class': 'form-control', 'min': '0'}
+                                    }) }}
+                                </div>
+                                {% endif %}
+
+                                <!-- Break Count -->
+                                {% if form.breakCount is defined %}
+                                <div class="col-md-4 mb-3">
+                                    {{ form_row(form.breakCount, {
+                                        'label': 'Number of Breaks',
+                                        'attr': {'class': 'form-control', 'min': '0'}
+                                    }) }}
+                                </div>
+                                {% endif %}
+
+                                <!-- Pomodoro Count -->
+                                {% if form.pomodoroCount is defined %}
+                                <div class="col-md-4 mb-3">
+                                    {{ form_row(form.pomodoroCount, {
+                                        'label': 'Pomodoro Count',
+                                        'attr': {'class': 'form-control', 'min': '0'}
+                                    }) }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tags Section -->
+                    {% if form.tags is defined %}
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Tags</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_row(form.tags, {
+                                'label': 'Select Tags (hold Ctrl/Cmd to select multiple)',
+                                'attr': {'class': 'form-select', 'size': '5'}
+                            }) }}
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i> 
+                                You can manage tags from the <a href="{{ path('tag_index') }}">Tags page</a>
+                            </small>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Hidden fields -->
+                    {{ form_rest(form) }}
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> {{ study_session.id ? 'Update' : 'Create' }} Session
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

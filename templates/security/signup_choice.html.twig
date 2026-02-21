@@ -100,6 +100,11 @@
             z-index: -1;
         }
 
+        /* Dark mode overlay */
+        [data-bs-theme="dark"] body::before {
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.7) 0%, rgba(255, 193, 7, 0.7) 100%);
+        }
+
         /* Hero section enhancements */
         .hero-section {
             padding: 4rem 0;
@@ -114,9 +119,19 @@
             transition: all 0.3s ease;
         }
         
+        [data-bs-theme="dark"] .card {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+        
         .card:hover {
             transform: translateY(-10px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        [data-bs-theme="dark"] .card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
         }
 
         /* Button enhancements */
@@ -151,12 +166,26 @@
             font-size: 1.25rem;
         }
 
+        /* Card text colors for dark mode */
+        [data-bs-theme="dark"] .card-title {
+            color: #fff;
+        }
+        
+        [data-bs-theme="dark"] .card-text {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
         /* Footer styling */
         footer {
             background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.3);
             margin-top: 4rem;
+        }
+        
+        [data-bs-theme="dark"] footer {
+            background: rgba(30, 30, 30, 0.95) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Welcome text for logged in users */
@@ -167,6 +196,21 @@
         
         .welcome-text p {
             color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* HR divider in dark mode */
+        [data-bs-theme="dark"] .position-relative hr {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        [data-bs-theme="dark"] .position-relative .bg-white {
+            background-color: rgba(30, 30, 30, 0.95) !important;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* List items in dark mode */
+        [data-bs-theme="dark"] .list-unstyled small {
+            color: rgba(255, 255, 255, 0.7);
         }
 
         /* Responsive adjustments */

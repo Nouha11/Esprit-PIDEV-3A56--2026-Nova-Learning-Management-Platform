@@ -1,0 +1,137 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}Wikipedia Article Search{% endblock %}
+
+{% block front_content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Wikipedia Article Search</h1>
+            <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Study Sessions
+            </a>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('warning') %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <!-- Search Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Search Wikipedia Articles</h5>
+                <p class="text-muted">Find relevant Wikipedia articles to research topics for your study sessions</p>
+                <form method="get" action="{{ path('integration_wikipedia_search') }}" class="row g-3">
+                    <div class="col-md-10">
+                        <label for="query" class="form-label">Search Term</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="query" 
+                               name="q" 
+                               placeholder="Enter topic or keyword (e.g., 'quantum mechanics', 'world war 2')..." 
+                               value="{{ query ?? '' }}"
+                               required>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> {{ error }}
+            </div>
+        {% endif %}
+
+        <!-- Article Results -->
+        {% if articles is not empty %}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Search Results for "{{ query }}"</h4>
+                    <span class="badge bg-primary">{{ articles|length }} article(s)</span>
+                </div>
+                <div class="card-body">
+                    {% for article in articles %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Article Thumbnail (if available) -->
+                                    {% if article.thumbnailUrl %}
+                                        <div class="col-md-2 text-center">
+                                            <img src="{{ article.thumbnailUrl }}" 
+                                                 class="img-fluid rounded" 
+                                                 alt="{{ article.title }}"
+                                                 style="max-height: 120px; object-fit: cover;">
+                                        </div>
+                                        <div class="col-md-10">
+                                    {% else %}
+                                        <div class="col-12">
+                                    {% endif %}
+                                        <!-- Article Title -->
+                                        <h5 class="card-title">
+                                            <a href="{{ article.url }}" 
+                                               target="_blank" 
+                                               rel="noopener noreferrer"
+                                               class="text-decoration-none">
+                                                {{ article.title }}
+                                                <i class="bi bi-box-arrow-up-right small"></i>
+                                            </a>
+                                        </h5>
+                                        
+                                        <!-- Article Summary -->
+                                        <p class="card-text">{{ article.summary }}</p>
+                                        
+                                        <!-- Read More Button -->
+                                        <a href="{{ article.url }}" 
+                                           target="_blank" 
+                                           rel="noopener noreferrer"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-book"></i> Read Full Article
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elseif query is not empty and error is null %}
+            <div class="alert alert-info" role="alert">
+                <i class="bi bi-info-circle"></i> No articles found for "{{ query }}". Try a different search term or check your spelling.
+            </div>
+        {% endif %}
+
+        <!-- Help Text -->
+        {% if query is empty and error is null %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-lightbulb"></i> Search Tips
+                    </h5>
+                    <ul class="mb-0">
+                        <li>Use specific keywords related to your study topic</li>
+                        <li>Try different variations of your search term</li>
+                        <li>Use proper nouns and technical terms for better results</li>
+                        <li>Articles open in a new tab so you can continue searching</li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -4,11 +4,18 @@ framework:
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
+            # Async transport using Doctrine (Requirements: 23.1)
             async:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                # Retry strategy: 3 retries with exponential backoff (Requirements: 23.4)
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
+                    delay: 1000 # Initial delay in milliseconds
+                    max_delay: 0 # No maximum delay
+                options:
+                    # Auto setup creates the messenger_messages table if it doesn't exist
+                    auto_setup: true
             failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
 
@@ -18,8 +25,8 @@ framework:
             messenger.bus.default: []
 
         routing:
-            # Send emails synchronously (immediately) instead of async
-            # Symfony\Component\Mailer\Messenger\SendEmailMessage: async
+            # Send emails asynchronously for better performance (Requirements: 23.1)
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: async
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
 

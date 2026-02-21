@@ -1,0 +1,213 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}Pomodoro Timer{% endblock %}
+
+{% block front_content %}
+<div class="row mt-4">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Pomodoro Timer</h1>
+            <div>
+                <a href="{{ path('study_session_show', {id: study_session.id}) }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Session
+                </a>
+            </div>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <!-- Session Info Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    {% if study_session.planning and study_session.planning.course %}
+                        {{ study_session.planning.course.courseName }}
+                    {% else %}
+                        Study Session
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h6 class="text-muted">Planned Duration</h6>
+                        <p class="mb-0"><strong>{{ study_session.duration ?? 0 }}</strong> minutes</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-muted">Completed Pomodoros</h6>
+                        <p class="mb-0" id="pomodoro-count-display">
+                            <strong>{{ study_session.pomodoroCount ?? 0 }}</strong>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-muted">XP Earned</h6>
+                        <p class="mb-0"><strong>{{ study_session.xpEarned ?? 0 }}</strong> XP</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pomodoro Timer Card -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <!-- Timer Display -->
+                <div class="timer-display mb-4">
+                    <div id="timer-circle" class="timer-circle">
+                        <div class="timer-text">
+                            <span id="timer-minutes">25</span>:<span id="timer-seconds">00</span>
+                        </div>
+                        <div class="timer-label">
+                            <small id="timer-status" class="text-muted">Ready to start</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timer Controls -->
+                <div class="timer-controls mb-4">
+                    <button id="start-btn" class="btn btn-success btn-lg me-2">
+                        <i class="bi bi-play-fill"></i> Start
+                    </button>
+                    <button id="pause-btn" class="btn btn-warning btn-lg me-2" style="display: none;">
+                        <i class="bi bi-pause-fill"></i> Pause
+                    </button>
+                    <button id="resume-btn" class="btn btn-info btn-lg me-2" style="display: none;">
+                        <i class="bi bi-play-fill"></i> Resume
+                    </button>
+                    <button id="reset-btn" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Break Suggestion -->
+                <div id="break-suggestion" class="alert alert-info" style="display: none;">
+                    <i class="bi bi-cup-hot"></i>
+                    <strong>Time for a break!</strong>
+                    <p class="mb-0" id="break-message">Take a 5-minute break to recharge.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pomodoro Progress Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Pomodoro Progress</h5>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-3" style="height: 30px;">
+                    <div id="pomodoro-progress-bar" 
+                         class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" 
+                         style="width: 0%"
+                         aria-valuenow="0" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        <span id="progress-text">0 / 4 Pomodoros</span>
+                    </div>
+                </div>
+                <div class="pomodoro-indicators text-center">
+                    <span class="pomodoro-indicator" data-index="0">
+                        <i class="bi bi-circle"></i>
+                    </span>
+                    <span class="pomodoro-indicator" data-index="1">
+                        <i class="bi bi-circle"></i>
+                    </span>
+                    <span class="pomodoro-indicator" data-index="2">
+                        <i class="bi bi-circle"></i>
+                    </span>
+                    <span class="pomodoro-indicator" data-index="3">
+                        <i class="bi bi-circle"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audio element for notification sound -->
+<audio id="notification-sound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGS57OihUBELTKXh8bllHAU2jdXvzn0pBSh+zPDajzsKElyx6OyrWBQLSKDf8sFuIwUrgc7y2Ik2CBhkuezooVARC0yl4fG5ZRwFNo3V7859KQUofsz" type="audio/wav">
+</audio>
+
+<style>
+.timer-circle {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.timer-circle.running {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    animation: pulse 2s infinite;
+}
+
+.timer-circle.paused {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.timer-text {
+    font-size: 4rem;
+    font-weight: bold;
+    color: white;
+    font-family: 'Courier New', monospace;
+}
+
+.timer-label {
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 10px;
+}
+
+.pomodoro-indicator {
+    font-size: 2rem;
+    margin: 0 10px;
+    color: #ddd;
+}
+
+.pomodoro-indicator.completed {
+    color: #28a745;
+}
+
+.pomodoro-indicator i {
+    transition: all 0.3s ease;
+}
+
+.pomodoro-indicator.completed i::before {
+    content: "\f287"; /* bi-check-circle-fill */
+}
+</style>
+
+<script>
+// Pass data to JavaScript
+window.pomodoroData = {
+    sessionId: {{ study_session.id }},
+    currentCount: {{ study_session.pomodoroCount ?? 0 }},
+    updateUrl: '{{ path('pomodoro_complete', {id: study_session.id}) }}'
+};
+</script>
+
+<script src="{{ asset('js/pomodoro-timer.js') }}" type="module"></script>
+{% endblock %}

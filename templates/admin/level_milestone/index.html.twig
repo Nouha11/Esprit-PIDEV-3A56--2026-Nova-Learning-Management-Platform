@@ -1,0 +1,118 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Level Milestones{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-trophy me-2"></i>Level Milestones</h1>
+    <a href="{{ path('admin_level_milestone_new') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Create New Milestone
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Level milestones are automatically awarded to students when they reach specific levels. 
+            Students receive tokens as rewards for reaching these milestones.
+        </p>
+
+        {% if milestones is empty %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                No level milestones created yet. Create your first milestone to reward students for leveling up!
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Name</th>
+                            <th>Token Reward</th>
+                            <th>Students Earned</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for milestone in milestones %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-primary fs-6">
+                                        Level {{ milestone.requiredLevel }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong>{{ milestone.name }}</strong>
+                                    {% if milestone.description %}
+                                        <br><small class="text-muted">{{ milestone.description|slice(0, 50) }}...</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <i class="bi bi-coin text-warning me-1"></i>
+                                    <strong>{{ milestone.value }}</strong> tokens
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ milestone.students|length }} students
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if milestone.isActive %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ path('admin_level_milestone_show', {id: milestone.id}) }}" 
+                                           class="btn btn-info" title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ path('admin_level_milestone_edit', {id: milestone.id}) }}" 
+                                           class="btn btn-warning" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal{{ milestone.id }}"
+                                                title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal{{ milestone.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Confirm Delete</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to delete the milestone "{{ milestone.name }}"?
+                                                    This action cannot be undone.
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form method="post" action="{{ path('admin_level_milestone_delete', {id: milestone.id}) }}" style="display: inline;">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ milestone.id) }}">
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
