@@ -20,6 +20,125 @@
         </div>
     </div>
 
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary bg-opacity-10 border-0">
+                <div class="card-body text-center">
+                    <h3 class="text-primary mb-1">{{ statistics.totalQuizzes }}</h3>
+                    <small class="text-muted">Total Quizzes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success bg-opacity-10 border-0">
+                <div class="card-body text-center">
+                    <h3 class="text-success mb-1">{{ statistics.avgQuestions }}</h3>
+                    <small class="text-muted">Avg Questions</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info bg-opacity-10 border-0">
+                <div class="card-body text-center">
+                    <h3 class="text-info mb-1">{{ statistics.minQuestions }}</h3>
+                    <small class="text-muted">Min Questions</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning bg-opacity-10 border-0">
+                <div class="card-body text-center">
+                    <h3 class="text-warning mb-1">{{ statistics.maxQuestions }}</h3>
+                    <small class="text-muted">Max Questions</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Sorting -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-light border-bottom px-4 py-3">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-funnel me-2"></i>Filters & Sorting
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="GET" action="{{ path('app_quiz_index', {'prefix': 'admin'}) }}" class="quiz-filter-form">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Search</label>
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="Search by title or description..."
+                               value="{{ app.request.query.get('search', '') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Min Questions</label>
+                        <input type="number" 
+                               name="minQuestions" 
+                               class="form-control" 
+                               min="0"
+                               value="{{ app.request.query.get('minQuestions', '') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Max Questions</label>
+                        <input type="number" 
+                               name="maxQuestions" 
+                               class="form-control" 
+                               min="0"
+                               value="{{ app.request.query.get('maxQuestions', '') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Sort By</label>
+                        <select name="sortBy" class="form-select">
+                            <option value="title" {{ app.request.query.get('sortBy', 'title') == 'title' ? 'selected' : '' }}>Title</option>
+                            <option value="id" {{ app.request.query.get('sortBy') == 'id' ? 'selected' : '' }}>ID</option>
+                            <option value="questionCount" {{ app.request.query.get('sortBy') == 'questionCount' ? 'selected' : '' }}>Question Count</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Sort Order</label>
+                        <select name="sortOrder" class="form-select">
+                            <option value="ASC" {{ app.request.query.get('sortOrder', 'ASC') == 'ASC' ? 'selected' : '' }}>Ascending</option>
+                            <option value="DESC" {{ app.request.query.get('sortOrder') == 'DESC' ? 'selected' : '' }}>Descending</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Apply Filters
+                    </button>
+                    <a href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Filters Display -->
+    {% if currentFilters is not empty or currentSort.by != 'title' or currentSort.order != 'ASC' %}
+        <div class="mb-3">
+            <small class="text-muted">Active filters:</small>
+            {% if currentFilters.search is defined and currentFilters.search %}
+                <span class="badge bg-primary ms-1">Search: "{{ currentFilters.search }}"</span>
+            {% endif %}
+            {% if currentFilters.minQuestions is defined and currentFilters.minQuestions %}
+                <span class="badge bg-info ms-1">Min: {{ currentFilters.minQuestions }} questions</span>
+            {% endif %}
+            {% if currentFilters.maxQuestions is defined and currentFilters.maxQuestions %}
+                <span class="badge bg-info ms-1">Max: {{ currentFilters.maxQuestions }} questions</span>
+            {% endif %}
+            {% if currentSort.by != 'title' or currentSort.order != 'ASC' %}
+                <span class="badge bg-secondary ms-1">
+                    Sort: {{ currentSort.by|title }} {{ currentSort.order == 'ASC' ? '↑' : '↓' }}
+                </span>
+            {% endif %}
+        </div>
+    {% endif %}
+
     <div class="row g-4">
         {% for quiz in quizzes %}
             <div class="col-md-6 col-lg-4">
@@ -67,9 +186,27 @@
             <div class="col-12 text-center py-5">
                 <div class="text-muted mb-3"><i class="bi bi-folder2-open display-4"></i></div>
                 <h5>No Quizzes Found</h5>
-                <p class="text-muted">Get started by creating your first assessment.</p>
+                {% if currentFilters is not empty %}
+                    <p class="text-muted">Try adjusting your filters or <a href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">clear all filters</a>.</p>
+                {% else %}
+                    <p class="text-muted">Get started by creating your first assessment.</p>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
 </div>
+
+<script>
+// Auto-submit form on select changes for better UX
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.quiz-filter-form');
+    const selects = form.querySelectorAll('select');
+    
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            form.submit();
+        });
+    });
+});
+</script>
 {% endblock %}

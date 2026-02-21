@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Admin\Quiz;
 
 use App\Entity\Quiz;
 use Symfony\Component\Form\AbstractType;
