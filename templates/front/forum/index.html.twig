@@ -59,7 +59,8 @@
         <div class="container">
             <div class="row">
                 
-                <div class="col-xl-3">
+                {# --- SIDEBAR LAYOUT FIXED HERE --- #}
+                <div class="col-lg-3 col-md-4 mb-4">
                     <div class="offcanvas-xl offcanvas-end" tabindex="-1" id="offcanvasSidebar">
                         <div class="offcanvas-header bg-light">
                             <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Forum Menu</h5>
@@ -68,7 +69,7 @@
                         <div class="offcanvas-body p-3 p-xl-0">
                             <div class="bg-dark border rounded-3 pb-0 p-3 w-100">
                                 
-                                {# --- UPDATED SIDEBAR LINKS --- #}
+                                {# --- SIDEBAR LINKS --- #}
                                 <div class="list-group list-group-dark list-group-borderless">
                                     <a class="list-group-item {{ currentFilter is null and searchQuery is empty ? 'active' : '' }}" href="{{ path('app_forum') }}">
                                         <i class="bi bi-ui-checks-grid fa-fw me-2"></i>{{ t.t('All Discussions') }}
@@ -102,14 +103,15 @@
                     </div>
                 </div>
 
-                <div class="col-xl-9">
+                {# --- MAIN CONTENT LAYOUT FIXED HERE --- #}
+                <div class="col-lg-9 col-md-8">
                     <div class="collapse mb-4 {{ form.vars.submitted ? 'show' : '' }}" id="addPostForm">
                         <div class="card border bg-transparent rounded-3 shadow-sm">
                             <div class="card-header bg-light border-bottom">
                                 <h5 class="card-title mb-0">{{ t.t('Create New Discussion') }}</h5>
                             </div>
                             <div class="card-body">
-                                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                                {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }} 
                                     <div class="mb-3">
                                         <label class="form-label">{{ t.t('Subject') }}</label>
                                         {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': t.t('What is this regarding?')}}) }}
@@ -120,6 +122,21 @@
                                         {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '4', 'placeholder': t.t('Describe your question in detail...')}}) }}
                                         <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
                                     </div>
+                                    
+                                    {# --- NEW: Link Field --- #}
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ t.t('Attach a Link (Optional)') }}</label>
+                                        {{ form_widget(form.link, {'attr': {'class': 'form-control'}}) }}
+                                        <div class="form-text text-danger">{{ form_errors(form.link) }}</div>
+                                    </div>
+
+                                    {# --- NEW: Image Upload Field --- #}
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ t.t('Upload an Image (Optional)') }}</label>
+                                        {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+                                        <div class="form-text text-danger">{{ form_errors(form.imageFile) }}</div>
+                                    </div>
+
                                     <div class="text-end">
                                         <button type="submit" class="btn btn-success">{{ t.t('Post Now') }}</button>
                                     </div>
