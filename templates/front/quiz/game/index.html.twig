@@ -91,16 +91,6 @@
         </div>
     {% endif %}
 
-    <!-- Debug info (remove in production) -->
-    {% if app.environment == 'dev' %}
-        <div class="alert alert-info small">
-            <strong>Debug:</strong> 
-            Filters: {{ currentFilters|json_encode }} | 
-            Sort: {{ currentSort.by }} {{ currentSort.order }} | 
-            Total Results: {{ quizzes|length }}
-        </div>
-    {% endif %}
-
     <div class="row">
         {% for quiz in quizzes %}
             <div class="col-md-4 mb-4">
