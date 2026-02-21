@@ -17,11 +17,16 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use App\Service\EmailVerificationService;
 use App\Service\PasswordResetService;
+use App\Service\CaptchaService;
 
 class SecurityController extends AbstractController
 {
+    public function __construct(
+        private CaptchaService $captchaService
+    ) {}
+
     #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(AuthenticationUtils $authenticationUtils, Request $request): Response
     {
         // Redirect if already logged in
         if ($this->getUser()) {
@@ -34,9 +39,15 @@ class SecurityController extends AbstractController
         // Last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
+        // Generate CAPTCHA for GET requests or if there's an error
+        if (!$request->isMethod('POST') || $error) {
+            $captcha = $this->captchaService->generateCaptcha();
+        }
+
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
+            'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
         ]);
     }
 
@@ -72,9 +83,25 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+        // Generate CAPTCHA for GET requests
+        if (!$request->isMethod('POST')) {
+            $this->captchaService->generateCaptcha();
+        }
+
         if ($request->isMethod('POST')) {
             // Get current locale for translations
             $locale = $request->getSession()->get('_locale', 'en');
+            
+            // Verify CAPTCHA first
+            $captchaAnswer = $request->request->get('captcha_answer');
+            if (!$this->captchaService->verifyCaptcha($captchaAnswer)) {
+                $this->addFlash('error', $translator->trans('Invalid CAPTCHA answer. Please try again.', [], 'validators', $locale));
+                $this->captchaService->generateCaptcha(); // Generate new CAPTCHA
+                return $this->render('security/signup_student.html.twig', [
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
+                ]);
+            }
             
             $username = $request->request->get('username');
             $email = $request->request->get('email');
@@ -83,8 +110,10 @@ class SecurityController extends AbstractController
             $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
             if ($existingUserByUsername) {
                 $this->addFlash('error', $translator->trans('This username is already taken', [], 'validators', $locale));
+                $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_student.html.twig', [
-                    'formData' => $request->request->all()
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
                 ]);
             }
 
@@ -92,8 +121,10 @@ class SecurityController extends AbstractController
             $existingUserByEmail = $userRepository->findOneBy(['email' => $email]);
             if ($existingUserByEmail) {
                 $this->addFlash('error', $translator->trans('This email is already registered', [], 'validators', $locale));
+                $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_student.html.twig', [
-                    'formData' => $request->request->all()
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
                 ]);
             }
 
@@ -128,8 +159,10 @@ class SecurityController extends AbstractController
                 foreach ($errors as $error) {
                     $this->addFlash('error', $error->getMessage());
                 }
+                $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_student.html.twig', [
-                    'formData' => $request->request->all()
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
                 ]);
             }
 
@@ -150,7 +183,9 @@ class SecurityController extends AbstractController
             }
         }
 
-        return $this->render('security/signup_student.html.twig');
+        return $this->render('security/signup_student.html.twig', [
+            'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
+        ]);
     }
 
     #[Route('/signup/tutor', name: 'app_signup_tutor', methods: ['GET', 'POST'])]
@@ -168,9 +203,25 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+        // Generate CAPTCHA for GET requests
+        if (!$request->isMethod('POST')) {
+            $this->captchaService->generateCaptcha();
+        }
+
         if ($request->isMethod('POST')) {
             // Get current locale for translations
             $locale = $request->getSession()->get('_locale', 'en');
+            
+            // Verify CAPTCHA first
+            $captchaAnswer = $request->request->get('captcha_answer');
+            if (!$this->captchaService->verifyCaptcha($captchaAnswer)) {
+                $this->addFlash('error', $translator->trans('Invalid CAPTCHA answer. Please try again.', [], 'validators', $locale));
+                $this->captchaService->generateCaptcha(); // Generate new CAPTCHA
+                return $this->render('security/signup_tutor.html.twig', [
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
+                ]);
+            }
             
             $username = $request->request->get('username');
             $email = $request->request->get('email');
@@ -179,8 +230,10 @@ class SecurityController extends AbstractController
             $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
             if ($existingUserByUsername) {
                 $this->addFlash('error', $translator->trans('This username is already taken', [], 'validators', $locale));
+                $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_tutor.html.twig', [
-                    'formData' => $request->request->all()
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
                 ]);
             }
 
@@ -188,8 +241,10 @@ class SecurityController extends AbstractController
             $existingUserByEmail = $userRepository->findOneBy(['email' => $email]);
             if ($existingUserByEmail) {
                 $this->addFlash('error', $translator->trans('This email is already registered', [], 'validators', $locale));
+                $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_tutor.html.twig', [
-                    'formData' => $request->request->all()
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
                 ]);
             }
 
@@ -231,8 +286,10 @@ class SecurityController extends AbstractController
                 foreach ($errors as $error) {
                     $this->addFlash('error', $error->getMessage());
                 }
+                $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_tutor.html.twig', [
-                    'formData' => $request->request->all()
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
                 ]);
             }
 
@@ -253,7 +310,9 @@ class SecurityController extends AbstractController
             }
         }
 
-        return $this->render('security/signup_tutor.html.twig');
+        return $this->render('security/signup_tutor.html.twig', [
+            'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
+        ]);
     }
 
     #[Route('/dashboard', name: 'app_dashboard')]

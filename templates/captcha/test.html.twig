@@ -1,0 +1,145 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}CAPTCHA Test - NOVA{% endblock %}
+
+{% block body %}
+<section class="pt-5 pb-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <h1 class="display-4 mb-3">
+                        <i class="bi bi-shield-check text-primary"></i>
+                        CAPTCHA System Test
+                    </h1>
+                    <p class="lead text-muted">Test the personalized CAPTCHA system for NOVA Platform</p>
+                </div>
+
+                <!-- Flash Messages -->
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <!-- CAPTCHA Type Selector -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-gear me-2"></i>Select CAPTCHA Type
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{{ path('app_captcha_test', {'type': 'question'}) }}" 
+                               class="btn btn-{{ captchaType == 'question' ? 'primary' : 'outline-primary' }}">
+                                <i class="bi bi-question-circle me-2"></i>Question-based CAPTCHA
+                            </a>
+                            <a href="{{ path('app_captcha_test', {'type': 'visual'}) }}" 
+                               class="btn btn-{{ captchaType == 'visual' ? 'primary' : 'outline-primary' }}">
+                                <i class="bi bi-eye me-2"></i>Visual CAPTCHA
+                            </a>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3 mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            {% if captchaType == 'question' %}
+                                <strong>Question-based CAPTCHA:</strong> Educational questions that are easy for humans but difficult for bots. Better user experience.
+                            {% else %}
+                                <strong>Visual CAPTCHA:</strong> Image-based verification with distorted text. Higher security level.
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Form -->
+                <div class="card shadow-lg">
+                    <div class="card-header bg-light border-bottom">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clipboard-check me-2"></i>Test Form
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="post">
+                            <input type="hidden" name="captcha_type" value="{{ captchaType }}">
+                            
+                            <!-- Sample Form Fields -->
+                            <div class="mb-4">
+                                <label for="name" class="form-label">Name (Sample Field)</label>
+                                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Email (Sample Field)</label>
+                                <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- CAPTCHA Component -->
+                            {% include 'components/captcha.html.twig' with {
+                                'captchaType': captchaType,
+                                'captchaQuestion': captchaQuestion
+                            } %}
+
+                            <!-- Submit Button -->
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>Verify CAPTCHA
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Information Cards -->
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 border-success">
+                            <div class="card-body">
+                                <h6 class="card-title text-success">
+                                    <i class="bi bi-check-circle-fill me-2"></i>Features
+                                </h6>
+                                <ul class="mb-0 small">
+                                    <li>Educational theme</li>
+                                    <li>SVG-based (no GD required)</li>
+                                    <li>Session-based security</li>
+                                    <li>Refresh capability</li>
+                                    <li>Mobile responsive</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 border-info">
+                            <div class="card-body">
+                                <h6 class="card-title text-info">
+                                    <i class="bi bi-lightbulb-fill me-2"></i>Use Cases
+                                </h6>
+                                <ul class="mb-0 small">
+                                    <li>Login forms</li>
+                                    <li>Registration pages</li>
+                                    <li>Contact forms</li>
+                                    <li>Password reset</li>
+                                    <li>Comment submissions</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documentation Link -->
+                <div class="text-center mt-4">
+                    <a href="/docs/CAPTCHA_SYSTEM.md" class="btn btn-outline-secondary" target="_blank">
+                        <i class="bi bi-book me-2"></i>View Documentation
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

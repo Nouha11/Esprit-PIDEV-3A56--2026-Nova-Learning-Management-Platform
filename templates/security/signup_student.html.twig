@@ -237,6 +237,12 @@
                                         </div>
                                     </div>
                                     
+                                    <!-- CAPTCHA -->
+                                    {% include 'components/captcha.html.twig' with {
+                                        'captchaType': 'question',
+                                        'captchaQuestion': captchaQuestion
+                                    } %}
+                                    
                                     <!-- Button -->
                                     <div class="align-items-center mt-0">
                                         <div class="d-grid mb-3">
