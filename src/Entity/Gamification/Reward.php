@@ -38,7 +38,7 @@ class Reward
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: "Reward type is required")]
     #[Assert\Choice(
-        choices: ['BADGE', 'ACHIEVEMENT', 'BONUS_XP', 'BONUS_TOKENS'],
+        choices: ['BADGE', 'ACHIEVEMENT', 'BONUS_XP', 'BONUS_TOKENS', 'LEVEL_MILESTONE'],
         message: 'Choose a valid reward type'
     )]
     private ?string $type = null;
@@ -47,6 +47,27 @@ class Reward
     #[Assert\NotNull(message: "Value is required")]
     #[Assert\PositiveOrZero(message: "Value must be 0 or positive")]
     private ?int $value;
+    
+    #[ORM\Column(nullable: true)]
+    #[Assert\When(
+        expression: 'this.getType() === "LEVEL_MILESTONE"',
+        constraints: [
+            new Assert\NotNull(message: "Required level is mandatory for level milestones"),
+            new Assert\Positive(message: "Required level must be greater than 0"),
+            new Assert\Range(
+                min: 1,
+                max: 60,
+                notInRangeMessage: "Required level must be between {{ min }} and {{ max }}"
+            )
+        ]
+    )]
+    #[Assert\When(
+        expression: 'this.getType() !== "LEVEL_MILESTONE"',
+        constraints: [
+            new Assert\PositiveOrZero(message: "Required level must be 0 or positive")
+        ]
+    )]
+    private ?int $requiredLevel = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(
@@ -155,6 +176,17 @@ class Reward
     public function setIsActive(?bool $isActive): static
     {
         $this->isActive = $isActive;
+        return $this;
+    }
+
+    public function getRequiredLevel(): ?int
+    {
+        return $this->requiredLevel;
+    }
+
+    public function setRequiredLevel(?int $requiredLevel): static
+    {
+        $this->requiredLevel = $requiredLevel;
         return $this;
     }
 

@@ -97,11 +97,31 @@
                         </h5>
                         <div class="card border-primary">
                             <div class="card-body text-center">
-                                <img src="{{ qrCode }}" alt="QR Code for {{ reward.name }}" class="img-fluid mb-3" style="max-width: 250px;">
-                                <p class="small text-muted mb-0">
+                                <img src="{{ qrCode }}" alt="QR Code for {{ reward.name }}" class="img-fluid mb-3" style="max-width: 250px;" id="qr-code-image">
+                                <p class="small text-muted mb-3">
                                     <i class="bi bi-info-circle me-1"></i>
                                     Scan this QR code to view this reward
                                 </p>
+                                
+                                <!-- Social Share Buttons -->
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <button class="btn btn-primary btn-sm" onclick="shareToLinkedIn()">
+                                        <i class="bi bi-linkedin me-1"></i>
+                                        Share on LinkedIn
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="shareToFacebook()">
+                                        <i class="bi bi-facebook me-1"></i>
+                                        Share on Facebook
+                                    </button>
+                                    <button class="btn btn-info btn-sm" onclick="shareToTwitter()">
+                                        <i class="bi bi-twitter me-1"></i>
+                                        Share on Twitter
+                                    </button>
+                                    <button class="btn btn-success btn-sm" onclick="downloadQRCode()">
+                                        <i class="bi bi-download me-1"></i>
+                                        Download QR
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -370,4 +390,57 @@
         background-color: rgba(255,255,255,0.05) !important;
     }
 </style>
+
+<script>
+    // Get current page URL and reward details
+    const rewardUrl = window.location.href;
+    const rewardName = "{{ reward.name|e('js') }}";
+    const rewardDescription = "{{ reward.description|default('Check out this amazing reward!')|e('js') }}";
+
+    /**
+     * Share reward to LinkedIn
+     */
+    function shareToLinkedIn() {
+        const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(rewardUrl)}`;
+        window.open(linkedInUrl, '_blank', 'width=600,height=600');
+    }
+
+    /**
+     * Share reward to Facebook
+     */
+    function shareToFacebook() {
+        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(rewardUrl)}`;
+        window.open(facebookUrl, '_blank', 'width=600,height=600');
+    }
+
+    /**
+     * Share reward to Twitter
+     */
+    function shareToTwitter() {
+        const tweetText = `I earned "${rewardName}"! ${rewardDescription}`;
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(rewardUrl)}`;
+        window.open(twitterUrl, '_blank', 'width=600,height=600');
+    }
+
+    /**
+     * Download QR code as PNG image
+     */
+    function downloadQRCode() {
+        const qrImage = document.getElementById('qr-code-image');
+        if (!qrImage) {
+            alert('QR code not found');
+            return;
+        }
+
+        // Create a temporary link element
+        const link = document.createElement('a');
+        link.href = qrImage.src;
+        link.download = `${rewardName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_qr_code.png`;
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
 {% endblock %}

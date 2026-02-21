@@ -169,9 +169,6 @@
                             <a class="nav-link" href="{{ path('front_reward_browse') }}"><i class="bi bi-trophy me-2"></i>{{ t.t('Rewards') }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('front_leaderboard_index') }}"><i class="bi bi-bar-chart me-2"></i>{{ t.t('Leaderboard') }}</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_front_quiz_index') }}"><i class="bi bi-lightning-charge me-2"></i>{{ t.t('Quizzes') }}</a>
                         </li>
                     {% elseif is_granted('ROLE_TUTOR') %}
@@ -467,6 +464,13 @@
                                 <p class="text-muted mt-2">No students yet. Be the first!</p>
                             </div>
                         {% endif %}
+                        
+                        <!-- View Full Leaderboard Button -->
+                        <div class="mt-4 d-grid">
+                            <a href="{{ path('front_leaderboard_index') }}" class="btn btn-primary-soft">
+                                <i class="bi bi-bar-chart me-2"></i>{{ t.t('View Full Leaderboard') }}
+                            </a>
+                        </div>
                     </div>
                     </div>
             </div>
@@ -757,7 +761,6 @@
                             <ul class="nav flex-column">
                                 <li class="nav-item"><a class="nav-link" href="{{ path('front_game_index') }}">Games</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ path('front_reward_browse') }}">Rewards</a></li>
-                                <li class="nav-item"><a class="nav-link" href="{{ path('front_leaderboard_index') }}">Leaderboard</a></li>
                             </ul>
                         </div>
                         <div class="col-6 col-md-4">
@@ -805,19 +808,6 @@
     <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
 
     <script src="{{ asset('assets/js/functions.js') }}"></script>
-    
-    <script>
-        // Auto-dismiss flash messages after 5 seconds
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
-            alerts.forEach(function(alert) {
-                setTimeout(function() {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }, 5000); // 5 seconds
-            });
-        });
-    </script>
     {% endblock %}
 </body>
 </html>

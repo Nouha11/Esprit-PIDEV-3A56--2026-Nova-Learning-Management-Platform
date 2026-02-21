@@ -12,6 +12,8 @@
                     <i class="bi bi-star-fill display-3 text-info"></i>
                 {% elseif reward.type == 'BONUS_TOKENS' %}
                     <i class="bi bi-coin display-3 text-success"></i>
+                {% elseif reward.type == 'LEVEL_MILESTONE' %}
+                    <i class="bi bi-award-fill display-3 text-danger"></i>
                 {% endif %}
             {% endif %}
         </div>
@@ -28,14 +30,23 @@
                     {% elseif reward.type == 'ACHIEVEMENT' %}bg-warning text-dark
                     {% elseif reward.type == 'BONUS_XP' %}bg-info
                     {% elseif reward.type == 'BONUS_TOKENS' %}bg-success
+                    {% elseif reward.type == 'LEVEL_MILESTONE' %}bg-danger
                     {% endif %}">
                     {{ reward.type|replace({'_': ' '}) }}
                 </span>
             </div>
 
-            <!-- Value -->
+            <!-- Value or Required Level -->
             <div class="text-center mb-3">
-                {% if reward.type == 'BONUS_XP' %}
+                {% if reward.type == 'LEVEL_MILESTONE' %}
+                    <span class="text-danger fw-bold">
+                        <i class="bi bi-arrow-up-circle me-1"></i>Level {{ reward.requiredLevel }}
+                    </span>
+                    <br>
+                    <span class="text-success fw-bold">
+                        <i class="bi bi-coin me-1"></i>{{ reward.value }} Tokens
+                    </span>
+                {% elseif reward.type == 'BONUS_XP' %}
                     <span class="text-info fw-bold">Value: {{ reward.value }}</span>
                 {% elseif reward.type == 'BONUS_TOKENS' %}
                     <span class="text-success fw-bold">Value: {{ reward.value }}</span>

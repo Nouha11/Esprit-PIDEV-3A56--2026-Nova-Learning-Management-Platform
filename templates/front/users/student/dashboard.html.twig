@@ -46,7 +46,11 @@
                                         </li>
                                         <li class="list-inline-item me-3 mb-1 mb-sm-0">
                                             <span class="h6">Level {{ student.level }}</span>
-                                            <span class="text-body fw-light">Current Level</span>
+                                            {% set levelData = calculate_level(student.totalXP) %}
+                                            <span class="badge bg-{{ get_level_badge_color(student.level) }} rank-badge">
+                                                <i class="{{ get_level_icon(student.level) }} me-1"></i>
+                                                {{ levelData.name }}
+                                            </span>
                                         </li>
                                     {% else %}
                                         <li class="list-inline-item me-3 mb-1 mb-sm-0">
@@ -155,12 +159,18 @@
                         </div>
                         <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
                             <div class="d-flex justify-content-center align-items-center p-4 bg-success bg-opacity-10 rounded-3">
-                                <span class="display-6 lh-1 text-success mb-0"><i class="fas fa-star fa-fw"></i></span>
+                                {% set levelData = calculate_level(student.totalXP) %}
+                                <span class="display-6 lh-1 text-success mb-0">
+                                    <i class="{{ get_level_icon(student.level) }} fa-fw"></i>
+                                </span>
                                 <div class="ms-4">
-                                    <div class="d-flex">
-                                        <h5 class="mb-0 fw-bold">{{ student.level }}</h5>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h5 class="mb-0 fw-bold me-2">Level {{ student.level }}</h5>
                                     </div>
-                                    <p class="mb-0 h6 fw-light">Current Level</p>
+                                    <span class="badge bg-{{ get_level_badge_color(student.level) }} rank-badge-large">
+                                        <i class="{{ get_level_icon(student.level) }} me-1"></i>
+                                        {{ levelData.name }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -268,4 +278,57 @@
             </div>
             </div></div>  
 </section>
+{% endblock %}
+
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .rank-badge {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        
+        .rank-badge-large {
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+        }
+        
+        [data-bs-theme="dark"] .rank-badge,
+        [data-bs-theme="dark"] .rank-badge-large {
+            box-shadow: 0 3px 6px rgba(255,255,255,0.1);
+        }
+        
+        [data-bs-theme="dark"] @keyframes badgePulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 3px 6px rgba(255,255,255,0.1);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(255,255,255,0.15);
+            }
+        }
+    </style>
 {% endblock %}
