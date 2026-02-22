@@ -5,6 +5,8 @@ namespace App\Controller\Front\Forum;
 use App\Entity\Forum\Comment;
 use App\Form\CommentType;
 use App\Entity\Forum\Post;
+use App\Entity\Forum\Report;
+use App\Entity\Forum\Space;
 use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
 use App\Entity\users\User;
@@ -49,6 +51,7 @@ class ForumController extends AbstractController
             
             $post->setCreatedAt(new \DateTimeImmutable());
             $post->setUpvotes(0);
+            $post->setHotScore(0.0); // Initialize hot score
             $post->setAuthor($user);
             $post->setIsLocked(false);
 
@@ -73,12 +76,9 @@ class ForumController extends AbstractController
         $spaceId = $request->query->get('space'); 
         $sortBy = $request->query->get('sortBy', 'hot'); // Default to 'hot'
 
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
 
-        // ==========================================
-        // --- FIXED: QUERY AND SORTING LOGIC ---
-        // ==========================================
         if ($searchQuery) {
             $query = $postRepository->adminSearch($searchQuery);
         } elseif ($filter === 'bookmarks' && $user) {
@@ -97,29 +97,25 @@ class ForumController extends AbstractController
                 ->where('p.space = :spaceId')
                 ->setParameter('spaceId', $spaceId);
         } elseif (in_array($filter, ['popular', 'unanswered'])) {
-            // Keep your existing custom filters logic
             $query = $postRepository->findByFilter($filter);
         } else {
-            // MAIN FEED: Apply QueryBuilder so sorting buttons work!
             $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p');
         }
 
-        // Apply Sorting (Only if $qb is set, meaning we are on a feed that supports sorting)
         if (isset($qb)) {
             if ($sortBy === 'new') {
                 $qb->orderBy('p.createdAt', 'DESC');
             } elseif ($sortBy === 'top') {
                 $qb->orderBy('p.upvotes', 'DESC');
-          } else {
-                // THE TRUE REDDIT HOTNESS SORT!
+            } else {
+                // THE TRUE REDDIT HOTNESS SORT
                 $qb->orderBy('p.hotScore', 'DESC');
             }
-
             $query = $qb->getQuery();
         }
 
         $posts = $paginator->paginate($query, $request->query->getInt('page', 1), 5);
-        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+        $spaces = $entityManager->getRepository(Space::class)->findAll();
 
         return $this->render('front/forum/index.html.twig', [
             'form' => $form->createView(),
@@ -135,7 +131,7 @@ class ForumController extends AbstractController
     #[Route('/forum/guidelines', name: 'app_forum_guidelines')]
     public function guidelines(EntityManagerInterface $entityManager): Response
     {
-        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+        $spaces = $entityManager->getRepository(Space::class)->findAll();
 
         return $this->render('front/forum/guidelines.html.twig', [
             'spaces' => $spaces,
@@ -148,7 +144,7 @@ class ForumController extends AbstractController
     #[Route('/forum/about', name: 'app_forum_about')]
     public function about(EntityManagerInterface $entityManager): Response
     {
-        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+        $spaces = $entityManager->getRepository(Space::class)->findAll();
 
         return $this->render('front/forum/about.html.twig', [
             'spaces' => $spaces,
@@ -195,7 +191,7 @@ class ForumController extends AbstractController
                 return $this->redirectToRoute('app_login');
             }
 
-            $comment->setContent($censorship->purify($comment->getContent()));
+            $comment->setContent($censorship->purify($comment->getContent() ?? ''));
             $comment->setCreatedAt(new \DateTimeImmutable());
             $comment->setIsSolution(false);
             $comment->setPost($post);
@@ -205,10 +201,10 @@ class ForumController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Comment added successfully!');
-            return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+            return $this->redirectToRoute('app_forum_show', ['id' => $post->getId(), '_fragment' => 'comment-' . $comment->getId()]);
         }
 
-        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+        $spaces = $entityManager->getRepository(Space::class)->findAll();
 
         return $this->render('front/forum/show.html.twig', [
             'post' => $post,
@@ -406,7 +402,7 @@ class ForumController extends AbstractController
     }
 
     #[Route('/post/{id}/report', name: 'app_forum_report', methods: ['POST'])]
-    public function report(\App\Entity\Forum\Post $post, \Symfony\Component\HttpFoundation\Request $request, \Doctrine\ORM\EntityManagerInterface $entityManager): \Symfony\Component\HttpFoundation\Response
+    public function report(Post $post, Request $request, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         
@@ -422,7 +418,7 @@ class ForumController extends AbstractController
 
         $reason = $request->request->get('reason', 'Inappropriate content');
         
-        $report = new \App\Entity\Forum\Report();
+        $report = new Report();
         $report->setPost($post);
         $report->setReporter($user); 
         $report->setReason($reason);
@@ -448,7 +444,7 @@ class ForumController extends AbstractController
     #[Route('/forum/post/{id}/bookmark', name: 'app_forum_post_bookmark', methods: ['POST'])]
     public function toggleBookmark(Post $post, EntityManagerInterface $entityManager): JsonResponse
     {
-        /** @var \App\Entity\users\User $user */
+        /** @var User $user */
         $user = $this->getUser();
 
         if (!$user) {
@@ -473,7 +469,7 @@ class ForumController extends AbstractController
 
     #[Route('/forum/space/{id}', name: 'app_forum_space')]
     public function space(
-        \App\Entity\Forum\Space $space, 
+        Space $space, 
         Request $request, 
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
@@ -497,6 +493,7 @@ class ForumController extends AbstractController
             $post->setContent($censorship->purify($post->getContent()));
             $post->setCreatedAt(new \DateTimeImmutable());
             $post->setUpvotes(0);
+            $post->setHotScore(0.0);
             $post->setAuthor($user);
             $post->setIsLocked(false);
 
@@ -527,13 +524,12 @@ class ForumController extends AbstractController
         } elseif ($sortBy === 'top') {
             $qb->orderBy('p.upvotes', 'DESC');
         } else {
-                // THE TRUE REDDIT HOTNESS SORT!
-                $qb->orderBy('p.hotScore', 'DESC');
-            }
+            $qb->orderBy('p.hotScore', 'DESC');
+        }
 
         $posts = $paginator->paginate($qb->getQuery(), $request->query->getInt('page', 1), 5);
 
-        $allSpaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+        $allSpaces = $entityManager->getRepository(Space::class)->findAll();
 
         return $this->render('front/forum/space.html.twig', [
             'space' => $space,       
@@ -562,6 +558,10 @@ class ForumController extends AbstractController
         }
     }
 
+    // ==========================================
+    // --- NEW METHODS: COMMENT REPLIES & EDIT ---
+    // ==========================================
+
     #[Route('/forum/comment/{id}/reply', name: 'app_forum_comment_reply', methods: ['POST'])]
     public function replyToComment(Comment $parent, Request $request, EntityManagerInterface $entityManager, CensorshipService $censorship): Response
     {
@@ -571,28 +571,33 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $content = $request->request->get('content');
-        if (empty(trim($content))) {
-            $this->addFlash('error', 'Reply cannot be empty.');
-            return $this->redirectToRoute('app_forum_show', ['id' => $parent->getPost()->getId()]);
+        $contentRaw = $request->request->get('content');
+        $content = trim($contentRaw ?? '');
+        $imageFile = $request->files->get('image');
+
+        if (empty($content) && !$imageFile) {
+            $this->addFlash('error', 'Reply cannot be empty. Please write something or attach an image.');
+            return $this->redirectToRoute('app_forum_show', ['id' => $parent->getPost()->getId(), '_fragment' => 'comment-' . $parent->getId()]);
         }
 
         $reply = new Comment();
-        $reply->setContent($censorship->purify($content));
+        $reply->setContent(empty($content) ? '' : $censorship->purify($content));
         $reply->setCreatedAt(new \DateTimeImmutable());
         $reply->setIsSolution(false);
         $reply->setPost($parent->getPost());
         $reply->setAuthor($user);
         $reply->setParent($parent);
 
+        if ($imageFile) {
+            $reply->setImageFile($imageFile);
+        }
+
         $entityManager->persist($reply);
         $entityManager->flush();
 
         $this->addFlash('success', 'Reply added!');
-        return $this->redirectToRoute('app_forum_show', ['id' => $parent->getPost()->getId()]);
+        return $this->redirectToRoute('app_forum_show', ['id' => $parent->getPost()->getId(), '_fragment' => 'comment-' . $reply->getId()]);
     }
-
-    //new function for the comment replying system
 
     #[Route('/forum/comment/{id}/report', name: 'app_forum_comment_report', methods: ['POST'])]
     public function reportComment(Comment $comment, Request $request, EntityManagerInterface $entityManager): Response
@@ -602,7 +607,7 @@ class ForumController extends AbstractController
 
         $reason = $request->request->get('reason', 'Inappropriate content');
         
-        $report = new \App\Entity\Forum\Report();
+        $report = new Report();
         $report->setComment($comment);
         $report->setReporter($user); 
         $report->setReason($reason);
@@ -613,5 +618,68 @@ class ForumController extends AbstractController
 
         $this->addFlash('success', 'Thank you. The comment has been reported to moderators.');
         return $this->redirectToRoute('app_forum_show', ['id' => $comment->getPost()->getId()]);
+    }
+
+    #[Route('/forum/comment/{id}/delete', name: 'app_forum_comment_delete', methods: ['POST'])]
+    public function deleteComment(Comment $comment, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user) return $this->redirectToRoute('app_login');
+
+        $isAuthor = $comment->getAuthor()->getId() === $user->getId();
+        $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
+
+        if (!$isAuthor && !$isAdmin) {
+            $this->addFlash('error', 'You cannot delete this comment.');
+            return $this->redirectToRoute('app_forum_show', ['id' => $comment->getPost()->getId()]);
+        }
+
+        $postId = $comment->getPost()->getId();
+        $entityManager->remove($comment);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Comment deleted successfully.');
+        return $this->redirectToRoute('app_forum_show', ['id' => $postId]);
+    }
+
+    #[Route('/forum/comment/{id}/edit', name: 'app_forum_comment_edit')]
+    public function editComment(Comment $comment, Request $request, EntityManagerInterface $entityManager, CensorshipService $censorship): Response
+    {
+        $user = $this->getUser();
+        if (!$user) return $this->redirectToRoute('app_login');
+
+        $isAuthor = $comment->getAuthor()->getId() === $user->getId();
+        $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
+
+        if (!$isAuthor && !$isAdmin) {
+            $this->addFlash('error', 'You cannot edit this comment.');
+            return $this->redirectToRoute('app_forum_show', ['id' => $comment->getPost()->getId()]);
+        }
+
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $comment->setContent($censorship->purify($comment->getContent() ?? ''));
+            
+            // Handle image upload if a new one is provided
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $comment->setImageFile($imageFile);
+            }
+
+            $entityManager->flush();
+            $this->addFlash('success', 'Comment updated!');
+            return $this->redirectToRoute('app_forum_show', ['id' => $comment->getPost()->getId()]);
+        }
+
+        $spaces = $entityManager->getRepository(Space::class)->findAll();
+
+        return $this->render('front/forum/edit_comment.html.twig', [
+            'form' => $form->createView(),
+            'comment' => $comment,
+            'post' => $comment->getPost(),
+            'spaces' => $spaces
+        ]);
     }
 }

@@ -26,9 +26,18 @@ vich_uploader:
             delete_on_update: true
             delete_on_remove: true
 
-
-            # --- NEW: Mapping for Documents/Files ---
         forum_attachments:
             uri_prefix: /uploads/forum/attachments
             upload_destination: '%kernel.project_dir%/public/uploads/forum/attachments'
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+
+        # ==================================================
+        # --- NEW: Mapping for Comment Images ---
+        # ==================================================
+        comment_images:
+            uri_prefix: /uploads/forum/comments
+            upload_destination: '%kernel.project_dir%/public/uploads/forum/comments'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: false
+            delete_on_update: true
+            delete_on_remove: true

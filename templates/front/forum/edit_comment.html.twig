@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}Edit Comment - NOVA{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root { --nova-bg: #dae0e6; --nova-card-bg: #ffffff; --nova-border: #cccccc; --nova-text-main: #1a1a1b; --nova-text-muted: #787c7e; --nova-vote-bg: #f8f9fa; --nova-hover-bg: rgba(0,0,0,0.05); --nova-input-bg: #f6f7f8; }
+        [data-bs-theme="dark"], body.dark-mode, .dark-mode { --nova-bg: #030303; --nova-card-bg: #1a1a1b; --nova-border: #343536; --nova-text-main: #d7dadc; --nova-text-muted: #818384; --nova-vote-bg: #1a1a1b; --nova-hover-bg: rgba(255,255,255,0.1); --nova-input-bg: #272729; }
+        
+        body { background-color: var(--nova-bg) !important; color: var(--nova-text-main); }
+        .nova-card { background-color: var(--nova-card-bg) !important; border: 1px solid var(--nova-border) !important; border-radius: 6px; }
+        .nova-text-main { color: var(--nova-text-main) !important; }
+        .nova-text-muted { color: var(--nova-text-muted) !important; }
+    </style>
+{% endblock %}
+
+{% block body %}
+<main style="min-height: 100vh; padding-top: 40px; padding-bottom: 40px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <a href="{{ path('app_forum_show', {'id': post.id}) }}" class="btn btn-sm btn-light rounded-pill mb-3 border fw-bold" style="background: var(--nova-card-bg); color: var(--nova-text-main); border-color: var(--nova-border) !important;">
+                    <i class="bi bi-arrow-left"></i> Back to Discussion
+                </a>
+
+                <div class="nova-card shadow-sm p-4">
+                    <h3 class="fw-bold mb-1 nova-text-main">Edit Comment</h3>
+                    <p class="nova-text-muted mb-4 small">Replying to: "{{ post.title }}"</p>
+
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+                        
+                        <div class="mb-4">
+                            {{ form_widget(form.content, {'attr': {'class': 'form-control nova-text-main', 'rows': '6', 'style': 'background: var(--nova-input-bg); border-color: var(--nova-border);'}}) }}
+                            <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
+                        </div>
+
+                        <div class="mb-4 p-3 rounded border" style="background: var(--nova-input-bg); border-color: var(--nova-border) !important;">
+                            <label class="form-label fw-bold mb-2 nova-text-main"><i class="bi bi-image text-primary"></i> Image Attachment</label>
+                            
+                            {% if comment.imageName %}
+                                <div class="mb-3">
+                                    <small class="text-muted d-block mb-1">Current Image:</small>
+                                    <img src="{{ vich_uploader_asset(comment, 'imageFile') }}" style="max-height: 150px; border-radius: 8px;">
+                                </div>
+                            {% endif %}
+                            
+                            {{ form_widget(form.imageFile, {'attr': {'class': 'form-control form-control-sm target-image-input', 'style': 'background: var(--nova-card-bg); border: 1px solid var(--nova-border); color: var(--nova-text-main);'}}) }}
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <a href="{{ path('app_forum_show', {'id': post.id}) }}" class="btn btn-light rounded-pill px-4 fw-bold me-2" style="background: var(--nova-card-bg); border: 1px solid var(--nova-border); color: var(--nova-text-main);">Cancel</a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Save Changes</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

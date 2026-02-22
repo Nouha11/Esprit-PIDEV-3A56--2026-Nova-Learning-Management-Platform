@@ -30,6 +30,22 @@
         .vote-arrow.down.active, .vote-arrow.down:hover { color: #7193ff; }
         .vote-score { font-size: 13px; font-weight: 700; color: var(--nova-text-main); margin: 4px 0; }
 
+        /* POST UI HORIZONTAL PILL */
+        .vote-pill { display: inline-flex; align-items: center; background: var(--nova-input-bg); border: 1px solid var(--nova-border); border-radius: 20px; overflow: hidden; }
+        .vote-pill .vote-arrow { padding: 4px 8px; color: var(--nova-text-muted); text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; transition: 0.2s; }
+        .vote-pill .vote-arrow:hover { background: var(--nova-hover-bg); }
+        .vote-pill .vote-arrow.up.active, .vote-pill .vote-arrow.up:hover { color: #ff4500; }
+        .vote-pill .vote-arrow.down.active, .vote-pill .vote-arrow.down:hover { color: #7193ff; }
+        .vote-pill .vote-score { padding: 0 8px; font-weight: 700; font-size: 13px; color: var(--nova-text-main); }
+
+        /* COMMENT VERTICAL SIDEBAR */
+        .comment-sidebar { background-color: transparent; width: 40px; display: flex; flex-direction: column; align-items: center; padding-top: 4px;}
+        .comment-sidebar .vote-arrow { color: var(--nova-text-muted); font-size: 1.3rem; cursor: pointer; border-radius: 4px; padding: 0px; line-height: 1; transition: all 0.2s; text-decoration: none;}
+        .comment-sidebar .vote-arrow:hover { background-color: var(--nova-hover-bg); }
+        .comment-sidebar .vote-arrow.up.active, .comment-sidebar .vote-arrow.up:hover { color: #ff4500; }
+        .comment-sidebar .vote-arrow.down.active, .comment-sidebar .vote-arrow.down:hover { color: #7193ff; }
+        .comment-sidebar .vote-score { font-size: 12px; font-weight: 700; color: var(--nova-text-main); margin: 4px 0; }
+
         .action-pill { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 4px; color: var(--nova-text-muted); font-size: 13px; font-weight: 600; text-decoration: none; transition: background-color 0.2s; background: transparent; border: none; }
         .action-pill i { font-size: 18px; margin-right: 6px; }
         .action-pill:hover { background-color: var(--nova-hover-bg); color: var(--nova-text-main); }
@@ -53,13 +69,13 @@
                         <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
                     </div>
                 </div>
-                <div class="d-flex flex-column align-items-center comment-vote-box" data-id="{{ comment.id }}">
+                <div class="d-flex flex-column align-items-center comment-vote-box comment-sidebar" data-id="{{ comment.id }}">
                     <a href="#" class="vote-action text-secondary {{ app.user and comment.isUpvotedBy(app.user) ? 'text-success' : '' }}" data-type="up" style="text-decoration: none;"><i class="bi bi-caret-up-fill fs-5"></i></a>
-                    <span class="fw-bold small score-count my-1 nova-text-main">{{ comment.score }}</span>
+                    <span class="fw-bold small vote-score score-count my-1">{{ comment.score }}</span>
                     <a href="#" class="vote-action text-secondary {{ app.user and comment.isDownvotedBy(app.user) ? 'text-danger' : '' }}" data-type="down" style="text-decoration: none;"><i class="bi bi-caret-down-fill fs-5"></i></a>
                 </div>
             </div>
-            <div class="w-100">
+            <div class="w-100 overflow-hidden">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="mb-0 nova-text-main" style="font-size: 14px;">{{ comment.author.username }} {% if comment.author.id == post.author.id %}<span class="badge bg-primary ms-1" style="font-size: 0.6em;">OP</span>{% endif %}</h6>
@@ -69,9 +85,17 @@
                         <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Solution</span>
                     </div>
                 </div>
+                
                 <p class="mt-2 mb-2 nova-text-main" style="white-space: pre-wrap; font-size: 14px;">{{ comment.content }}</p>
                 
-                <div class="d-flex align-items-center mt-2">
+                {# --- RENDER COMMENT IMAGE IF IT EXISTS --- #}
+                {% if comment.imageName %}
+                    <div class="mb-2 rounded overflow-hidden border" style="border-color: var(--nova-border) !important; max-width: 400px; background-color: var(--nova-input-bg);">
+                        <img src="{{ vich_uploader_asset(comment, 'imageFile') }}" class="img-fluid" style="max-height: 300px; width: auto; object-fit: contain;">
+                    </div>
+                {% endif %}
+
+                <div class="d-flex flex-wrap align-items-center mt-2">
                     {% if not post.isLocked %}
                         <button class="comment-action" data-bs-toggle="collapse" data-bs-target="#reply-form-{{ comment.id }}"><i class="bi bi-chat-left-text me-1"></i> Reply</button>
                     {% endif %}
@@ -81,19 +105,38 @@
                             <i class="bi bi-check-lg me-1"></i> <span class="btn-text">{{ comment.isSolution ? 'Unmark' : 'Mark Solution' }}</span>
                         </button>
                     {% endif %}
+
+                    {# --- NEW: EDIT AND DELETE BUTTONS FOR COMMENTS --- #}
+                    {% if app.user and (app.user.id == comment.author.id or is_granted('ROLE_ADMIN')) %}
+                        <a href="{{ path('app_forum_comment_edit', {'id': comment.id}) }}" class="comment-action"><i class="bi bi-pencil me-1"></i> Edit</a>
+                        
+                        <form method="post" action="{{ path('app_forum_comment_delete', {'id': comment.id}) }}" onsubmit="return confirm('Are you sure you want to delete this comment?')" style="display:inline;">
+                            <button type="submit" class="comment-action text-danger opacity-75 hover-opacity-100"><i class="bi bi-trash me-1"></i> Delete</button>
+                        </form>
+                    {% endif %}
                     
                     {% if app.user and app.user != comment.author %}
                         <button class="comment-action ms-auto text-danger opacity-75 hover-opacity-100" data-bs-toggle="modal" data-bs-target="#reportCommentModal-{{ comment.id }}"><i class="bi bi-flag"></i> Report</button>
                     {% endif %}
                 </div>
 
-                {# INLINE REPLY FORM #}
+                {# INLINE REPLY FORM (WITH IMAGE UPLOAD BUTTON) #}
                 <div class="collapse mt-3" id="reply-form-{{ comment.id }}">
-                    <form action="{{ path('app_forum_comment_reply', {'id': comment.id}) }}" method="POST">
-                        <textarea name="content" class="form-control mb-2" rows="2" placeholder="What are your thoughts?" required style="background: var(--nova-input-bg); border-color: var(--nova-border); color: var(--nova-text-main); font-size: 14px;"></textarea>
-                        <div class="text-end">
-                            <button type="button" class="btn btn-sm btn-light rounded-pill px-3 me-2" data-bs-toggle="collapse" data-bs-target="#reply-form-{{ comment.id }}">Cancel</button>
-                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">Reply</button>
+                    <form action="{{ path('app_forum_comment_reply', {'id': comment.id}) }}" method="POST" enctype="multipart/form-data">
+                        <textarea name="content" class="form-control mb-2" rows="2" placeholder="What are your thoughts?" style="background: var(--nova-input-bg); border-color: var(--nova-border); color: var(--nova-text-main); font-size: 14px;"></textarea>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center overflow-hidden" style="max-width: 60%;">
+                                <label class="btn btn-sm btn-outline-secondary rounded-pill px-3 m-0 text-nowrap label-image-btn" style="cursor: pointer; border-color: var(--nova-border);">
+                                    <i class="bi bi-image me-1"></i> <span class="btn-text">Image</span>
+                                    <input type="file" name="image" class="d-none inline-image-input" id="inline-image-{{ comment.id }}" accept="image/*" data-filename-target="filename-{{ comment.id }}">
+                                </label>
+                                <span id="filename-{{ comment.id }}" class="ms-2 small text-muted text-truncate"></span>
+                            </div>
+                            <div class="text-end text-nowrap">
+                                <button type="button" class="btn btn-sm btn-light rounded-pill px-3 me-2" data-bs-toggle="collapse" data-bs-target="#reply-form-{{ comment.id }}" style="background: var(--nova-card-bg); border: 1px solid var(--nova-border); color: var(--nova-text-main);">Cancel</button>
+                                <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">Reply</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -101,7 +144,7 @@
         </div>
     </div>
 
-    {# RENDER NESTED REPLIES #}
+    {# RENDER NESTED REPLIES RECURSIVELY #}
     {% if comment.replies|length > 0 %}
         <div class="thread-line">
             {% for reply in comment.replies %}
@@ -144,28 +187,28 @@
     <div class="container-fluid px-xl-5">
         <div class="row justify-content-center">
             
-            {# --- 1. LEFT COLUMN --- #}
+            {# --- 1. LEFT COLUMN: NAVIGATION SIDEBAR --- #}
             <div class="col-xl-2 col-lg-3 d-none d-lg-block">
-                <div class="sticky-sidebar">
+                <div class="sticky-sidebar pe-2">
                     <div class="p-3 shadow-sm rounded-4" style="background-color: var(--nova-card-bg); border: 1px solid var(--nova-border);">
                         
                         <div class="left-nav-section-title pt-0">Feeds</div>
-                        <a href="{{ path('app_forum') }}" class="left-nav-link {{ currentFilter is defined and currentFilter is null and currentSpace is defined and currentSpace is null ? 'active' : '' }}">
+                        <a href="{{ path('app_forum') }}" class="left-nav-link">
                             <i class="bi bi-house-door"></i> Home
                         </a>
-                        <a href="{{ path('app_forum', {'filter': 'popular'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'popular' ? 'active' : '' }}">
+                        <a href="{{ path('app_forum', {'filter': 'popular'}) }}" class="left-nav-link">
                             <i class="bi bi-fire text-danger"></i> Popular
                         </a>
-                        <a href="{{ path('app_forum', {'filter': 'unanswered'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'unanswered' ? 'active' : '' }}">
+                        <a href="{{ path('app_forum', {'filter': 'unanswered'}) }}" class="left-nav-link">
                             <i class="bi bi-patch-question text-warning"></i> Unanswered
                         </a>
 
                         <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">My NOVA</div>
-                        <a href="{{ path('app_forum', {'filter': 'history'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'history' ? 'active' : '' }}">
+                        <a href="{{ path('app_forum', {'filter': 'history'}) }}" class="left-nav-link">
                             <i class="bi bi-clock-history text-secondary"></i> History
                         </a>
                         {% if app.user %}
-                            <a href="{{ path('app_forum', {'filter': 'bookmarks'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'bookmarks' ? 'active' : '' }}">
+                            <a href="{{ path('app_forum', {'filter': 'bookmarks'}) }}" class="left-nav-link">
                                 <i class="bi bi-bookmark-fill text-info"></i> Saved Posts
                             </a>
                         {% endif %}
@@ -174,16 +217,16 @@
                         {% for s in spaces|default([]) %}
                             {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
                             {% set color = colors[s.id % colors|length] %}
-                            <a href="{{ path('app_forum_space', {'id': s.id}) }}" class="left-nav-link d-flex align-items-center {{ currentSpace is defined and currentSpace == s.id ? 'active' : (space is defined and space.id == s.id ? 'active' : (post is defined and post.space and post.space.id == s.id ? 'active' : '')) }}">
+                            <a href="{{ path('app_forum_space', {'id': s.id}) }}" class="left-nav-link d-flex align-items-center {{ post.space and s.id == post.space.id ? 'active' : '' }}">
                                 <div class="rounded-circle me-3" style="width: 14px; height: 14px; background-color: {{ color }}; margin-left: 5px;"></div>
                                 <span class="text-truncate">{{ s.name }}</span>
                             </a>
                         {% endfor %}
-
-                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
-                        <a href="{{ path('app_forum_about') }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'about' ? 'active' : '' }}"><i class="bi bi-info-circle"></i> About NOVA</a>
-                        <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'guidelines' ? 'active' : '' }}"><i class="bi bi-shield-check"></i> Guidelines</a>
                         
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
+                        <a href="{{ path('app_forum_about') }}" class="left-nav-link"><i class="bi bi-info-circle"></i> About NOVA</a>
+                        <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link"><i class="bi bi-shield-check"></i> Guidelines</a>
+
                     </div>
                 </div>
             </div>
@@ -195,16 +238,16 @@
                     <div class="vote-sidebar post-vote-box" data-id="{{ post.id }}">
                         {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
                         {% set is_downvoted = app.user and post.isDownvotedBy(app.user) %}
-                        <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-type="up" onclick="event.stopPropagation();">
+                        <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'up'}) }}" onclick="event.stopPropagation();">
                             <i class="bi bi-arrow-up-short"></i>
                         </a>
                         <span class="vote-score post-score-count">{{ post.upvotes }}</span>
-                        <a href="#" class="vote-arrow down {{ is_downvoted ? 'active' : '' }}" data-type="down" onclick="event.stopPropagation();">
+                        <a href="#" class="vote-arrow down {{ is_downvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'down'}) }}" onclick="event.stopPropagation();">
                             <i class="bi bi-arrow-down-short"></i>
                         </a>
                     </div>
 
-                    <div class="p-3 p-md-4 w-100">
+                    <div class="p-3 p-md-4 w-100 overflow-hidden">
                         <div class="d-flex align-items-center mb-2">
                             {% if post.space %}
                                 {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
@@ -284,22 +327,34 @@
                             {% endif %}
                         {% endif %}
 
-                        <div class="d-flex justify-content-between align-items-center p-3 mb-4 rounded-3" style="background: rgba(111, 66, 193, 0.05); border: 1px solid rgba(111, 66, 193, 0.2);">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-stars fs-4 me-3" style="color: #6f42c1;"></i>
+                        {# --- FIXED: AI SUMMARY INLINE WIDGET --- #}
+                        <div class="d-flex justify-content-between align-items-center p-3 mb-4 rounded-3" style="background: rgba(111, 66, 193, 0.08); border: 1px solid rgba(111, 66, 193, 0.3);">
+                            <div class="d-flex align-items-start me-3">
+                                <i class="bi bi-stars fs-4 me-3 mt-1" style="color: #6f42c1;"></i>
                                 <div>
-                                    <h6 class="mb-0 fw-bold" style="color: #6f42c1;">AI Summary</h6>
-                                    <small class="text-muted" id="ai-summary-content">Get a quick TL;DR of this discussion.</small>
+                                    <h6 class="mb-1 fw-bold" style="color: #6f42c1;">AI Summary</h6>
+                                    <div class="nova-text-main" id="ai-summary-content" style="font-size: 14px; line-height: 1.5;">Get a quick TL;DR of this discussion.</div>
                                 </div>
                             </div>
-                            <button id="btn-summarize" class="btn btn-sm rounded-pill text-white fw-bold px-3" style="background-color: #6f42c1; box-shadow: 0 2px 4px rgba(111,66,193,0.3);" data-url="{{ path('app_forum_summary', {id: post.id}) }}">
-                                Generate
+                            <button id="btn-summarize" class="btn btn-sm rounded-pill text-white fw-bold px-3 flex-shrink-0" style="background-color: #6f42c1; box-shadow: 0 2px 4px rgba(111,66,193,0.3);" data-url="{{ path('app_forum_summary', {id: post.id}) }}">
+                                <i class="bi bi-magic me-1"></i> Summarize
                             </button>
                         </div>
 
                         <div class="d-flex flex-wrap gap-2 align-items-center mt-2 pt-3 border-top" style="border-color: var(--nova-border) !important;">
+                            
+                            <div class="vote-pill vote-container me-2 d-md-none">
+                                <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'up'}) }}"><i class="bi bi-arrow-up-short"></i></a>
+                                <span class="vote-score">{{ post.upvotes }}</span>
+                                <a href="#" class="vote-arrow down {{ is_downvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'down'}) }}"><i class="bi bi-arrow-down-short"></i></a>
+                            </div>
+                            
                             <a href="#replyForm" class="action-pill"><i class="bi bi-chat-square"></i> {{ post.comments|length }} Comments</a>
-                            <button class="action-pill share-btn ms-2" data-url="{{ url('app_forum_show', {'id': post.id}) }}"><i class="bi bi-share"></i> Share</button>
+                            
+                            {# FIXED SHARE BUTTON #}
+                            <button class="action-pill share-btn ms-2" data-url="{{ url('app_forum_show', {'id': post.id}) }}">
+                                <i class="bi bi-share"></i> <span class="share-text">Share</span>
+                            </button>
                             
                             {% if app.user and app.user.hasBookmarkedPost(post) %}
                                 <button class="action-pill saved bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}"><i class="bi bi-bookmark-fill"></i> Saved</button>
@@ -309,7 +364,7 @@
                             
                             <div class="ms-auto d-flex align-items-center">
                                 {% if app.user and app.user != post.author %}
-                                    <button class="action-pill" data-bs-toggle="modal" data-bs-target="#reportPostModal"><i class="bi bi-flag"></i> Report</button>
+                                    <button class="action-pill text-danger opacity-75 hover-opacity-100" data-bs-toggle="modal" data-bs-target="#reportPostModal"><i class="bi bi-flag"></i> Report</button>
                                 {% endif %}
                                 {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
                                     <div class="dropdown">
@@ -338,7 +393,6 @@
                     </div>
                     <div class="card-body">
                         {% for comment in post.comments %}
-                            {# ONLY RENDER TOP LEVEL COMMENTS HERE. MACRO HANDLES CHILDREN #}
                             {% if comment.parent is null %}
                                 {{ _self.render_comment(comment, post, app) }}
                             {% endif %}
@@ -365,13 +419,19 @@
                             <h5 class="mb-0 nova-text-main">Leave a Reply</h5>
                         </div>
                         <div class="card-body p-4">
-                            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                            {# MAIN TOP-LEVEL REPLY FORM #}
+                            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
                                 <div class="mb-3">
-                                    {{ form_widget(form.content, {'attr': {'class': 'form-control nova-text-main', 'rows': '4', 'placeholder': 'Add a top-level reply...', 'style': 'background: var(--nova-input-bg); border-color: var(--nova-border);'}}) }}
+                                    {{ form_widget(form.content, {'attr': {'class': 'form-control nova-text-main', 'rows': '4', 'placeholder': 'What are your thoughts?', 'style': 'background: var(--nova-input-bg); border-color: var(--nova-border);', 'required': false}}) }}
                                     <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
                                 </div>
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold mb-0">Post Reply</button>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {{ form_widget(form.imageFile, {'attr': {'class': 'form-control form-control-sm target-image-input', 'style': 'background: var(--nova-input-bg); border: 1px solid var(--nova-border); color: var(--nova-text-main); max-width: 250px;'}}) }}
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold mb-0">Post Reply</button>
+                                    </div>
                                 </div>
                             {{ form_end(form) }}
                         </div>
@@ -390,6 +450,20 @@
                             <ul class="list-unstyled mb-0 font-sm nova-text-main">
                                 <li class="mb-3 d-flex align-items-center"><i class="bi bi-shield-lock-fill {{ post.isLocked ? 'text-danger' : 'text-success' }} fs-5 me-3"></i> <div><small class="nova-text-muted d-block">Status</small><strong>{{ post.isLocked ? 'Closed' : 'Open' }}</strong></div></li>
                                 <li class="mb-3 d-flex align-items-center"><i class="bi bi-chat-dots-fill text-primary fs-5 me-3"></i> <div><small class="nova-text-muted d-block">Replies</small><strong>{{ post.comments|length }}</strong></div></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="nova-card shadow-sm">
+                        <div class="card-header border-bottom p-3" style="background: transparent; border-color: var(--nova-border) !important;">
+                            <h3 class="mb-0 h6 fw-bold nova-text-main">Forum Rules</h3>
+                        </div>
+                        <div class="card-body p-3">
+                            <ul class="list-unstyled nova-text-muted mb-0 small">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Be respectful to others</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>No spamming</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Stay on topic</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Provide helpful answers</li>
                             </ul>
                         </div>
                     </div>
@@ -428,6 +502,34 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        
+        // FILENAME PREVIEW FOR INLINE REPLIES
+        document.querySelectorAll('.inline-image-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const targetId = this.dataset.filenameTarget;
+                const targetSpan = document.getElementById(targetId);
+                const label = this.closest('.label-image-btn');
+                const icon = label.querySelector('i');
+                const text = label.querySelector('.btn-text');
+                
+                if (this.files && this.files.length > 0) {
+                    targetSpan.textContent = this.files[0].name;
+                    label.classList.remove('btn-outline-secondary');
+                    label.classList.add('btn-success', 'text-white');
+                    label.style.borderColor = 'var(--bs-success)';
+                    icon.classList.replace('bi-image', 'bi-check-lg');
+                    text.textContent = 'Selected';
+                } else {
+                    targetSpan.textContent = '';
+                    label.classList.remove('btn-success', 'text-white');
+                    label.classList.add('btn-outline-secondary');
+                    label.style.borderColor = 'var(--nova-border)';
+                    icon.classList.replace('bi-check-lg', 'bi-image');
+                    text.textContent = 'Image';
+                }
+            });
+        });
+
         // Post Upvote/Downvote
         document.querySelectorAll('.post-vote-box .vote-arrow').forEach(arrow => {
             arrow.addEventListener('click', function(e) {
@@ -467,20 +569,24 @@
             });
         });
 
-        // Share
+        // Share Button (FIXED)
         document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault(); e.stopPropagation();
-                const urlToShare = this.getAttribute('data-url'); const textSpan = this.querySelector('.share-text'); const icon = this.querySelector('i');
+                const urlToShare = this.getAttribute('data-url'); 
+                const textSpan = this.querySelector('.share-text'); 
+                const icon = this.querySelector('i');
                 navigator.clipboard.writeText(urlToShare).then(() => {
-                    const originalText = textSpan.innerText; const originalIcon = icon.className;
-                    textSpan.innerText = 'Copied!'; icon.className = 'bi bi-check2 text-success fw-bold';
+                    const originalText = textSpan.innerText; 
+                    const originalIcon = icon.className;
+                    textSpan.innerText = 'Copied!'; 
+                    icon.className = 'bi bi-check2 text-success fw-bold';
                     setTimeout(() => { textSpan.innerText = originalText; icon.className = originalIcon; }, 2000);
                 });
             });
         });
 
-        // Solution Mark
+        // Mark Solution
         document.querySelectorAll('.solution-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault(); 
@@ -511,7 +617,7 @@
             });
         });
 
-        // AI Summary
+        // AI Summary (FIXED)
         const btnSum = document.getElementById('btn-summarize');
         const summaryContent = document.getElementById('ai-summary-content');
         if (btnSum) {
@@ -519,13 +625,13 @@
                 const origTxt = this.innerHTML; 
                 this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>'; 
                 this.disabled = true;
-                summaryContent.classList.remove('d-none');
+                
                 summaryContent.innerHTML = 'Google Gemini is reading the discussion...';
                 
                 fetch(this.dataset.url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(r => r.json()).then(data => { 
                     summaryContent.innerHTML = `<strong>TL;DR:</strong> ${data.summary}`; 
-                    this.innerHTML = '✨ Summarized'; 
+                    this.innerHTML = '<i class="bi bi-check2"></i> Done'; 
                 })
                 .catch(() => { 
                     summaryContent.innerHTML = 'Error communicating with AI.'; 
