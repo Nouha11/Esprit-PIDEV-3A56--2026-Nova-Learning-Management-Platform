@@ -1,68 +1,68 @@
-{# AI Chat Widget Component #}
-<div id="ai-chat-widget" class="ai-chat-widget">
+{# Study Buddy AI Widget Component #}
+<div id="study-buddy-widget" class="study-buddy-widget">
     <!-- Chat Toggle Button -->
-    <button id="ai-chat-toggle" class="ai-chat-toggle" type="button" title="AI Assistant">
-        <i class="bi bi-robot"></i>
-        <span class="pulse-ring"></span>
+    <button id="study-buddy-toggle" class="study-buddy-toggle" type="button" title="Study Buddy AI">
+        <i class="bi bi-book"></i>
+        <span class="pulse-ring-study"></span>
     </button>
 
     <!-- Chat Window -->
-    <div id="ai-chat-window" class="ai-chat-window" style="display: none;">
-        <div class="ai-chat-header">
+    <div id="study-buddy-window" class="study-buddy-window" style="display: none;">
+        <div class="study-buddy-header">
             <div class="d-flex align-items-center">
-                <div class="ai-avatar">
-                    <i class="bi bi-robot"></i>
+                <div class="study-avatar">
+                    <i class="bi bi-book"></i>
                 </div>
                 <div class="ms-2">
-                    <h6 class="mb-0">AI Assistant</h6>
-                    <small class="text-muted">Here to help you!</small>
+                    <h6 class="mb-0">Study Buddy AI</h6>
+                    <small class="text-muted">Your learning companion!</small>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <button id="ai-chat-clear" class="btn btn-sm btn-link text-white p-0" type="button" title="Clear chat history">
+                <button id="study-buddy-clear" class="btn btn-sm btn-link text-white p-0" type="button" title="Clear chat history">
                     <i class="bi bi-trash"></i>
                 </button>
-                <button id="ai-chat-close" class="btn-close btn-close-white" type="button"></button>
+                <button id="study-buddy-close" class="btn-close btn-close-white" type="button"></button>
             </div>
         </div>
 
-        <div id="ai-chat-messages" class="ai-chat-messages">
-            <div class="ai-message">
-                <div class="ai-message-avatar">
-                    <i class="bi bi-robot"></i>
+        <div id="study-buddy-messages" class="study-buddy-messages">
+            <div class="study-message">
+                <div class="study-message-avatar">
+                    <i class="bi bi-book"></i>
                 </div>
-                <div class="ai-message-content">
-                    <p class="mb-1"><strong>🤖 Hi! I'm your Game AI Assistant.</strong></p>
-                    <p class="mb-2 small">I can help with:</p>
+                <div class="study-message-content">
+                    <p class="mb-1"><strong>👋 Hi! I'm your Study Buddy AI.</strong></p>
+                    <p class="mb-2 small">Ask me about:</p>
                     <ul class="mb-1 small">
-                        <li>🏆 Reward recommendations</li>
-                        <li>📈 Progress tracking</li>
-                        <li>🎮 Game info &amp; tips</li>
-                        <li>⭐ XP &amp; token strategies</li>
+                        <li>📊 Your study sessions &amp; progress</li>
+                        <li>⏰ Time management tips</li>
+                        <li>📝 Note-taking strategies</li>
+                        <li>📚 Course planning advice</li>
                     </ul>
-                    <p class="mb-0 small text-muted">✨ Use quick actions or ask anything!</p>
+                    <p class="mb-0 small text-muted">✨ Try the quick actions below!</p>
                 </div>
             </div>
         </div>
 
-        <div class="ai-chat-input">
-            <div class="ai-quick-actions mb-2">
-                <button class="btn btn-sm btn-outline-primary" data-action="recommendation">
-                    🏆 Recommend
+        <div class="study-buddy-input">
+            <div class="study-quick-actions mb-2">
+                <button class="btn btn-sm btn-outline-success" data-action="study-tips">
+                    💡 Study Tips
                 </button>
-                <button class="btn btn-sm btn-outline-info" data-action="progress">
-                    📊 Progress
+                <button class="btn btn-sm btn-outline-info" data-action="summarize">
+                    📄 Summarize
                 </button>
-                <button class="btn btn-sm btn-outline-success" data-action="games">
-                    🎮 Games
+                <button class="btn btn-sm btn-outline-primary" data-action="quiz">
+                    ❓ Quiz Ideas
                 </button>
-                <button class="btn btn-sm btn-outline-warning" data-action="earn-xp">
-                    ⭐ Earn XP
+                <button class="btn btn-sm btn-outline-warning" data-action="schedule">
+                    📅 Schedule
                 </button>
             </div>
             <div class="input-group">
-                <input type="text" id="ai-chat-input-field" class="form-control" placeholder="Ask me anything..." />
-                <button id="ai-chat-send" class="btn btn-primary" type="button">
+                <input type="text" id="study-buddy-input-field" class="form-control" placeholder="Ask me anything..." />
+                <button id="study-buddy-send" class="btn btn-success" type="button">
                     <i class="bi bi-send-fill"></i>
                 </button>
             </div>
@@ -71,23 +71,23 @@
 </div>
 
 <style>
-.ai-chat-widget {
+.study-buddy-widget {
     position: fixed;
     bottom: 20px;
     right: 20px;
     z-index: 1050;
 }
 
-.ai-chat-toggle {
+.study-buddy-toggle {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     border: none;
     color: white;
     font-size: 28px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
     transition: all 0.3s ease;
     position: relative;
     display: flex;
@@ -95,16 +95,16 @@
     justify-content: center;
 }
 
-.ai-chat-toggle:hover {
+.study-buddy-toggle:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 6px 16px rgba(17, 153, 142, 0.6);
 }
 
-.pulse-ring {
+.pulse-ring-study {
     position: absolute;
     width: 100%;
     height: 100%;
-    border: 3px solid #667eea;
+    border: 3px solid #11998e;
     border-radius: 50%;
     animation: pulse 2s infinite;
 }
@@ -120,7 +120,7 @@
     }
 }
 
-.ai-chat-window {
+.study-buddy-window {
     position: absolute;
     bottom: 80px;
     right: 0;
@@ -136,7 +136,7 @@
     animation: slideUp 0.3s ease;
 }
 
-[data-bs-theme="dark"] .ai-chat-window {
+[data-bs-theme="dark"] .study-buddy-window {
     background: #1a1d29;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
@@ -152,8 +152,8 @@
     }
 }
 
-.ai-chat-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.study-buddy-header {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     color: white;
     padding: 16px;
     display: flex;
@@ -161,7 +161,7 @@
     align-items: center;
 }
 
-.ai-avatar {
+.study-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -172,18 +172,18 @@
     font-size: 20px;
 }
 
-.ai-chat-messages {
+.study-buddy-messages {
     flex: 1;
     overflow-y: auto;
     padding: 16px;
     background: #f8f9fa;
 }
 
-[data-bs-theme="dark"] .ai-chat-messages {
+[data-bs-theme="dark"] .study-buddy-messages {
     background: #0d0f14;
 }
 
-.ai-message, .user-message {
+.study-message, .user-study-message {
     display: flex;
     margin-bottom: 16px;
     animation: fadeIn 0.3s ease;
@@ -200,15 +200,15 @@
     }
 }
 
-.ai-message {
+.study-message {
     flex-direction: row;
 }
 
-.user-message {
+.user-study-message {
     flex-direction: row-reverse;
 }
 
-.ai-message-avatar, .user-message-avatar {
+.study-message-avatar, .user-study-message-avatar {
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -219,19 +219,19 @@
     flex-shrink: 0;
 }
 
-.ai-message-avatar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.study-message-avatar {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     color: white;
     margin-right: 12px;
 }
 
-.user-message-avatar {
-    background: #28a745;
+.user-study-message-avatar {
+    background: #17a2b8;
     color: white;
     margin-left: 12px;
 }
 
-.ai-message-content, .user-message-content {
+.study-message-content, .user-study-message-content {
     max-width: 75%;
     padding: 10px 14px;
     border-radius: 12px;
@@ -239,56 +239,56 @@
     line-height: 1.4;
 }
 
-.ai-message-content {
+.study-message-content {
     background: white;
     color: #333;
     border-bottom-left-radius: 4px;
 }
 
-[data-bs-theme="dark"] .ai-message-content {
+[data-bs-theme="dark"] .study-message-content {
     background: #1a1d29;
     color: #e0e0e0;
 }
 
-.user-message-content {
-    background: #667eea;
+.user-study-message-content {
+    background: #11998e;
     color: white;
     border-bottom-right-radius: 4px;
 }
 
-.ai-message-content ul {
+.study-message-content ul {
     padding-left: 18px;
     margin-bottom: 0;
     font-size: 12px;
 }
 
-.ai-message-content li {
+.study-message-content li {
     margin-bottom: 2px;
 }
 
-.ai-chat-input {
+.study-buddy-input {
     padding: 16px;
     background: white;
     border-top: 1px solid #dee2e6;
 }
 
-[data-bs-theme="dark"] .ai-chat-input {
+[data-bs-theme="dark"] .study-buddy-input {
     background: #1a1d29;
     border-top-color: #2d3139;
 }
 
-.ai-quick-actions {
+.study-quick-actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
 }
 
-.ai-quick-actions .btn {
+.study-quick-actions .btn {
     font-size: 12px;
     padding: 4px 8px;
 }
 
-.typing-indicator {
+.study-typing-indicator {
     display: flex;
     align-items: center;
     padding: 12px 16px;
@@ -298,24 +298,24 @@
     max-width: 75px;
 }
 
-[data-bs-theme="dark"] .typing-indicator {
+[data-bs-theme="dark"] .study-typing-indicator {
     background: #1a1d29;
 }
 
-.typing-indicator span {
+.study-typing-indicator span {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #667eea;
+    background: #11998e;
     margin: 0 2px;
     animation: typing 1.4s infinite;
 }
 
-.typing-indicator span:nth-child(2) {
+.study-typing-indicator span:nth-child(2) {
     animation-delay: 0.2s;
 }
 
-.typing-indicator span:nth-child(3) {
+.study-typing-indicator span:nth-child(3) {
     animation-delay: 0.4s;
 }
 
@@ -329,7 +329,7 @@
 }
 
 @media (max-width: 576px) {
-    .ai-chat-window {
+    .study-buddy-window {
         width: calc(100vw - 40px);
         height: 550px;
     }
@@ -338,34 +338,32 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const widget = document.getElementById('ai-chat-widget');
-    const toggle = document.getElementById('ai-chat-toggle');
-    const window = document.getElementById('ai-chat-window');
-    const close = document.getElementById('ai-chat-close');
-    const clear = document.getElementById('ai-chat-clear');
-    const messages = document.getElementById('ai-chat-messages');
-    const input = document.getElementById('ai-chat-input-field');
-    const send = document.getElementById('ai-chat-send');
-    const quickActions = document.querySelectorAll('[data-action]');
+    const widget = document.getElementById('study-buddy-widget');
+    const toggle = document.getElementById('study-buddy-toggle');
+    const window = document.getElementById('study-buddy-window');
+    const close = document.getElementById('study-buddy-close');
+    const clear = document.getElementById('study-buddy-clear');
+    const messages = document.getElementById('study-buddy-messages');
+    const input = document.getElementById('study-buddy-input-field');
+    const send = document.getElementById('study-buddy-send');
+    const quickActions = document.querySelectorAll('.study-quick-actions [data-action]');
 
-    const STORAGE_KEY = 'ai_chat_history';
-    const MAX_HISTORY = 50; // Keep last 50 messages
+    const STORAGE_KEY = 'study_buddy_chat_history';
+    const MAX_HISTORY = 50;
 
-    // Load chat history from localStorage
+    // Load chat history
     function loadChatHistory() {
         try {
             const history = localStorage.getItem(STORAGE_KEY);
             if (history) {
                 const chatData = JSON.parse(history);
-                // Clear existing messages except welcome message
-                const welcomeMsg = messages.querySelector('.ai-message');
+                const welcomeMsg = messages.querySelector('.study-message');
                 messages.innerHTML = '';
                 if (welcomeMsg) {
                     messages.appendChild(welcomeMsg);
                 }
-                // Restore messages
                 chatData.messages.forEach(msg => {
-                    addMessage(msg.text, msg.type, false); // false = don't save to storage
+                    addMessage(msg.text, msg.type, false);
                 });
             }
         } catch (e) {
@@ -373,29 +371,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Save chat history to localStorage
+    // Save chat history
     function saveChatHistory() {
         try {
-            const messageElements = messages.querySelectorAll('.ai-message, .user-message');
+            const messageElements = messages.querySelectorAll('.study-message, .user-study-message');
             const chatMessages = [];
             
             messageElements.forEach(el => {
-                // Skip welcome message
-                if (el.querySelector('.ai-message-content')?.innerHTML.includes('Hi! I\'m your Game AI Assistant')) {
+                if (el.querySelector('.study-message-content')?.innerHTML.includes('Hi! I\'m your Study Buddy AI')) {
                     return;
                 }
                 
-                const isUser = el.classList.contains('user-message');
-                const content = el.querySelector(isUser ? '.user-message-content' : '.ai-message-content');
+                const isUser = el.classList.contains('user-study-message');
+                const content = el.querySelector(isUser ? '.user-study-message-content' : '.study-message-content');
                 if (content) {
                     chatMessages.push({
                         text: content.innerHTML,
-                        type: isUser ? 'user' : 'ai'
+                        type: isUser ? 'user' : 'study'
                     });
                 }
             });
 
-            // Keep only last MAX_HISTORY messages
             const recentMessages = chatMessages.slice(-MAX_HISTORY);
             
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -412,7 +408,6 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.removeItem(STORAGE_KEY);
     }
 
-    // Load history on page load
     loadChatHistory();
 
     // Toggle chat window
@@ -427,11 +422,10 @@ document.addEventListener('DOMContentLoaded', function() {
         window.style.display = 'none';
     });
 
-    // Clear chat history
+    // Clear chat
     clear.addEventListener('click', () => {
         if (confirm('Clear all chat history? This cannot be undone.')) {
-            // Keep only welcome message
-            const welcomeMsg = messages.querySelector('.ai-message');
+            const welcomeMsg = messages.querySelector('.study-message');
             messages.innerHTML = '';
             if (welcomeMsg) {
                 messages.appendChild(welcomeMsg);
@@ -444,15 +438,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function sendMessage(message) {
         if (!message.trim()) return;
 
-        // Add user message
         addMessage(message, 'user');
         input.value = '';
 
-        // Show typing indicator
         showTyping();
 
-        // Send to API
-        fetch("{{ path('ai_assistant_chat') }}", {
+        fetch("{{ path('study_buddy_chat') }}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -463,14 +454,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             hideTyping();
             if (data.success) {
-                addMessage(data.message, 'ai');
+                addMessage(data.message, 'study');
             } else {
-                addMessage(data.message || 'Sorry, something went wrong.', 'ai');
+                addMessage(data.message || 'Sorry, something went wrong.', 'study');
             }
         })
         .catch(error => {
             hideTyping();
-            addMessage('Sorry, I couldn\'t process your request. Please try again.', 'ai');
+            addMessage('Sorry, I couldn\'t process your request. Please try again.', 'study');
             console.error('Chat error:', error);
         });
     }
@@ -487,32 +478,14 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', () => {
             const action = btn.dataset.action;
             
-            if (action === 'recommendation') {
-                // Show user message first
-                addMessage('Recommend a reward for me', 'user');
-                
-                showTyping();
-                fetch("{{ path('ai_assistant_recommendation') }}")
-                    .then(response => response.json())
-                    .then(data => {
-                        hideTyping();
-                        if (data.success) {
-                            addMessage(data.message, 'ai');
-                        } else {
-                            addMessage(data.message || 'Unable to generate recommendation.', 'ai');
-                        }
-                    })
-                    .catch(error => {
-                        hideTyping();
-                        addMessage('Sorry, I couldn\'t get a recommendation. Please try again.', 'ai');
-                        console.error('Recommendation error:', error);
-                    });
-            } else if (action === 'progress') {
-                sendMessage('Tell me about my current progress');
-            } else if (action === 'games') {
-                sendMessage('What types of games are available and how do they work?');
-            } else if (action === 'earn-xp') {
-                sendMessage('How can I earn more XP quickly?');
+            if (action === 'study-tips') {
+                sendMessage('What study tips work best for my schedule?');
+            } else if (action === 'summarize') {
+                sendMessage('Quick tips for summarizing notes?');
+            } else if (action === 'quiz') {
+                sendMessage('Best way to create practice quizzes?');
+            } else if (action === 'schedule') {
+                sendMessage('How should I organize my study time?');
             }
         });
     });
@@ -520,24 +493,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Helper functions
     function addMessage(text, type, saveToStorage = true) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = type === 'user' ? 'user-message' : 'ai-message';
+        messageDiv.className = type === 'user' ? 'user-study-message' : 'study-message';
         
         const avatar = document.createElement('div');
-        avatar.className = type === 'user' ? 'user-message-avatar' : 'ai-message-avatar';
-        avatar.innerHTML = type === 'user' ? '<i class="bi bi-person-fill"></i>' : '<i class="bi bi-robot"></i>';
+        avatar.className = type === 'user' ? 'user-study-message-avatar' : 'study-message-avatar';
+        avatar.innerHTML = type === 'user' ? '<i class="bi bi-person-fill"></i>' : '<i class="bi bi-book"></i>';
         
         const content = document.createElement('div');
-        content.className = type === 'user' ? 'user-message-content' : 'ai-message-content';
+        content.className = type === 'user' ? 'user-study-message-content' : 'study-message-content';
         content.innerHTML = text.replace(/\n/g, '<br>');
         
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(content);
         messages.appendChild(messageDiv);
         
-        // Scroll to bottom
         messages.scrollTop = messages.scrollHeight;
         
-        // Save to localStorage
         if (saveToStorage) {
             saveChatHistory();
         }
@@ -545,13 +516,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showTyping() {
         const typing = document.createElement('div');
-        typing.className = 'ai-message';
-        typing.id = 'typing-indicator-wrapper';
+        typing.className = 'study-message';
+        typing.id = 'study-typing-indicator-wrapper';
         typing.innerHTML = `
-            <div class="ai-message-avatar">
-                <i class="bi bi-robot"></i>
+            <div class="study-message-avatar">
+                <i class="bi bi-book"></i>
             </div>
-            <div class="typing-indicator">
+            <div class="study-typing-indicator">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -562,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function hideTyping() {
-        const typing = document.getElementById('typing-indicator-wrapper');
+        const typing = document.getElementById('study-typing-indicator-wrapper');
         if (typing) {
             typing.remove();
         }

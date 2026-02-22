@@ -35,7 +35,10 @@
                     <!-- Reward Icon -->
                     <div class="text-center mb-4">
                         {% if reward.icon %}
-                            <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="reward-icon-large mb-3" style="width: 120px; height: 120px; object-fit: contain;">
+                            <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" 
+                                 alt="{{ reward.name }}" 
+                                 class="reward-icon-large mb-3" 
+                                 style="max-width: 150px; max-height: 150px; object-fit: contain;">
                         {% else %}
                             <div class="reward-icon-placeholder-large mb-3">
                                 {% if reward.type == 'BADGE' %}

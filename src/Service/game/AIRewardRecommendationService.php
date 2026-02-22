@@ -101,7 +101,8 @@ class AIRewardRecommendationService
 
         try {
             $studentData = $this->collectStudentData($student);
-            $prompt = $this->buildChatPrompt($studentData, $question);
+            $studentName = $student->getFirstName() ?? 'there';
+            $prompt = $this->buildChatPrompt($studentData, $question, $studentName);
             
             $response = $this->httpClient->request('POST', self::API_URL, [
                 'headers' => [
@@ -113,22 +114,40 @@ class AIRewardRecommendationService
                     'messages' => [
                         ['role' => 'user', 'content' => $prompt]
                     ],
-                    'max_tokens' => 250,
+                    'max_tokens' => 150,
                     'temperature' => 0.3,
                 ],
                 'timeout' => 20,
             ]);
 
             if ($response->getStatusCode() !== 200) {
-                throw new \Exception('AI API returned status: ' . $response->getStatusCode());
+                $errorContent = $response->getContent(false);
+                $this->logger->error('AI API returned non-200 status', [
+                    'status' => $response->getStatusCode(),
+                    'response' => $errorContent
+                ]);
+                
+                // Try to parse error message
+                $errorData = json_decode($errorContent, true);
+                $errorMsg = $errorData['error'] ?? 'API returned status: ' . $response->getStatusCode();
+                
+                if ($response->getStatusCode() === 401) {
+                    throw new \Exception('Hugging Face API key is invalid or expired. Please contact administrator.');
+                }
+                
+                throw new \Exception('AI service error: ' . $errorMsg);
             }
 
             $data = $response->toArray();
             $message = $data['choices'][0]['message']['content'] ?? '';
             
             if (empty($message)) {
+                $this->logger->error('Empty AI response', ['data' => $data]);
                 throw new \Exception('No response from AI');
             }
+            
+            // Clean up response
+            $message = $this->cleanResponse($message);
 
             return [
                 'success' => true,
@@ -138,6 +157,7 @@ class AIRewardRecommendationService
         } catch (\Exception $e) {
             $this->logger->error('AI Chat Response failed', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'student_id' => $student->getId(),
                 'question' => $question
             ]);
@@ -296,7 +316,7 @@ PROMPT;
     /**
      * Build prompt for chat response
      */
-    private function buildChatPrompt(array $studentData, string $question): string
+    private function buildChatPrompt(array $studentData, string $question, string $studentName): string
     {
         // Build detailed rewards list
         $availableRewardsList = empty($studentData['availableRewards'])
@@ -349,6 +369,7 @@ PROMPT;
 You are NOVA's gaming assistant. Answer using ONLY the exact data below. Include actual game/reward names when relevant.
 
 === STUDENT STATUS ===
+Name: {$studentName}
 Level: {$studentData['level']} | XP: {$studentData['xp']} | Tokens: {$studentData['tokens']}
 Unlocked Rewards ({$studentData['unlockedCount']}): {$unlockedRewardsList}
 
@@ -372,13 +393,56 @@ HOW TO EARN:
 QUESTION: {$question}
 
 ANSWER RULES:
-1. Use actual game/reward names from data above
-2. Answer in 2-3 sentences max (use bullets if listing)
-3. Include exact numbers (XP, tokens, costs)
-4. Say "HARD difficulty" not "HARD category"
-5. When listing games, mention actual names like 'GAMES QUIZ', 'Word Scramble', etc.
+1. Address the student as {$studentName} when appropriate
+2. Use relevant emojis (🎮 🏆 ⭐ 💎 🎯 💪 🔥 ✨) to make responses engaging
+3. Answer in 2-3 sentences max (NO numbered lists)
+4. Include exact numbers (XP, tokens, costs)
+5. Say "HARD difficulty" not "HARD category"
+6. When listing games, mention actual names like 'GAMES QUIZ', 'Word Scramble', etc.
+7. Be concise and direct - get straight to the point
+8. Maximum 60 words total
+
+EXAMPLE GOOD RESPONSES:
+Q: "Tell me about my progress"
+A: "Hey {$studentName}! 🎮 You're at Level {$studentData['level']} with {$studentData['xp']} XP and {$studentData['tokens']} tokens. You've unlocked {$studentData['unlockedCount']} rewards so far - keep it up! 🌟"
+
+Q: "How do I earn more XP?"
+A: "{$studentName}, play HARD difficulty games for 60% more XP! 🔥 Try 'GAMES QUIZ' or 'Word Scramble' and aim for perfect scores. Each completed game gives you XP based on your performance ⭐"
 
 ANSWER:
 PROMPT;
+    }
+
+    /**
+     * Clean AI response by removing markdown and limiting length
+     */
+    private function cleanResponse(string $response): string
+    {
+        // Remove markdown headers (###, ##, #)
+        $response = preg_replace('/^#{1,6}\s+/m', '', $response);
+        
+        // Remove bold/italic markdown (**, *, __)
+        $response = preg_replace('/(\*\*|__)(.*?)\1/', '$2', $response);
+        $response = preg_replace('/(\*|_)(.*?)\1/', '$2', $response);
+        
+        // Remove numbered lists (1., 2., etc.)
+        $response = preg_replace('/^\d+\.\s+/m', '', $response);
+        
+        // Remove bullet points (-, *, •)
+        $response = preg_replace('/^[\-\*•]\s+/m', '', $response);
+        
+        // Split into sentences
+        $sentences = preg_split('/(?<=[.!?])\s+/', trim($response), -1, PREG_SPLIT_NO_EMPTY);
+        
+        // Keep only first 3 sentences
+        if (count($sentences) > 3) {
+            $sentences = array_slice($sentences, 0, 3);
+        }
+        
+        // Join and clean up extra whitespace
+        $result = implode(' ', $sentences);
+        $result = preg_replace('/\s+/', ' ', $result);
+        
+        return trim($result);
     }
 }
