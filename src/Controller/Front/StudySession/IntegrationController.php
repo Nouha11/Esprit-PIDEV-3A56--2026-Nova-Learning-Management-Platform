@@ -31,6 +31,7 @@ class IntegrationController extends AbstractController
     public function youtubeSearch(Request $request): Response
     {
         $query = $request->query->get('q', '');
+        $courseId = $request->query->get('courseId');
         
         if (empty(trim($query))) {
             $this->addFlash('warning', 'Please enter a search term.');
@@ -38,6 +39,7 @@ class IntegrationController extends AbstractController
                 'videos' => [],
                 'query' => '',
                 'error' => null,
+                'courseId' => $courseId,
             ]);
         }
 
@@ -53,12 +55,14 @@ class IntegrationController extends AbstractController
                 'videos' => $videos,
                 'query' => $query,
                 'error' => $error,
+                'courseId' => $courseId,
             ]);
         } catch (\Exception $e) {
             return $this->render('front/study_session/youtube_search.html.twig', [
                 'videos' => [],
                 'query' => $query,
                 'error' => 'YouTube API is currently unavailable. Please try again later.',
+                'courseId' => $courseId,
             ]);
         }
     }
@@ -70,6 +74,7 @@ class IntegrationController extends AbstractController
     public function wikipediaSearch(Request $request): Response
     {
         $query = $request->query->get('q', '');
+        $courseId = $request->query->get('courseId');
         
         if (empty(trim($query))) {
             $this->addFlash('warning', 'Please enter a search term.');
@@ -77,6 +82,7 @@ class IntegrationController extends AbstractController
                 'articles' => [],
                 'query' => '',
                 'error' => null,
+                'courseId' => $courseId,
             ]);
         }
 
@@ -92,12 +98,14 @@ class IntegrationController extends AbstractController
                 'articles' => $articles,
                 'query' => $query,
                 'error' => $error,
+                'courseId' => $courseId,
             ]);
         } catch (\Exception $e) {
             return $this->render('front/study_session/wikipedia_search.html.twig', [
                 'articles' => [],
                 'query' => $query,
                 'error' => 'Wikipedia API is currently unavailable. Please try again later.',
+                'courseId' => $courseId,
             ]);
         }
     }
@@ -122,9 +130,10 @@ class IntegrationController extends AbstractController
      * Get AI-powered study recommendations based on recent sessions
      */
     #[Route('/ai/recommendations', name: 'integration_ai_recommendations', methods: ['GET'])]
-    public function aiRecommendations(): Response
+    public function aiRecommendations(Request $request): Response
     {
         $user = $this->getUser();
+        $courseId = $request->query->get('courseId');
         
         try {
             // Get recent sessions (last 10 completed sessions)
@@ -144,6 +153,7 @@ class IntegrationController extends AbstractController
                 return $this->render('front/study_session/ai_recommendations.html.twig', [
                     'recommendations' => [],
                     'error' => 'No completed sessions found. Complete some study sessions to get personalized recommendations.',
+                    'courseId' => $courseId,
                 ]);
             }
 
@@ -155,11 +165,13 @@ class IntegrationController extends AbstractController
             return $this->render('front/study_session/ai_recommendations.html.twig', [
                 'recommendations' => $recommendations,
                 'error' => null,
+                'courseId' => $courseId,
             ]);
         } catch (\Exception $e) {
             return $this->render('front/study_session/ai_recommendations.html.twig', [
                 'recommendations' => [],
                 'error' => 'AI service is temporarily unavailable. Please try again later.',
+                'courseId' => $courseId,
             ]);
         }
     }

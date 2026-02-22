@@ -25,6 +25,7 @@ class AnalyticsController extends AbstractController
     public function dashboard(Request $request): Response
     {
         $user = $this->getUser();
+        $courseId = $request->query->get('courseId');
         
         // Get time range filter from query parameter (default: week)
         $timeRange = $request->query->get('range', 'week');
@@ -88,6 +89,7 @@ class AnalyticsController extends AbstractController
             'session_count' => $sessionCount,
             'has_course_data' => $hasCourseData,
             'has_xp_data' => $hasXpData,
+            'courseId' => $courseId,
             // Chart.js data
             'course_labels' => json_encode($courseLabels),
             'course_durations' => json_encode($courseDurations),

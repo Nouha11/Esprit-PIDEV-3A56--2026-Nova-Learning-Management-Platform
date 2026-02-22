@@ -12,7 +12,8 @@
             <div class="card-body">
                 {{ form_start(form, {
                     'attr': {
-                        'novalidate': 'novalidate'
+                        'novalidate': 'novalidate',
+                        'id': 'game-form'
                     }
                 }) }}
 
@@ -72,21 +73,231 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="card bg-light">
-                                        <div class="card-header">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
                                             <h6 class="mb-0">
                                                 <i class="bi bi-trophy me-1"></i>Special Rewards (Optional)
                                             </h6>
+                                            <div>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllRewards(true)">
+                                                    <i class="bi bi-check-square me-1"></i>Select All
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllRewards(false)">
+                                                    <i class="bi bi-square me-1"></i>Deselect All
+                                                </button>
+                                            </div>
                                         </div>
                                         <div class="card-body">
-                                            {{ form_row(form.rewards) }}
-                                            <small class="text-muted">
+                                            <div class="mb-2">
+                                                <input type="text" id="rewardSearch" class="form-control form-control-sm" placeholder="Search rewards...">
+                                            </div>
+                                            <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: var(--bs-body-bg);">
+                                                <div class="row g-2" id="rewardsList">
+                                                    {% for reward_checkbox in form.rewards %}
+                                                        <div class="col-md-6 reward-item" data-reward-name="{{ reward_checkbox.vars.label|lower }}">
+                                                            <div class="form-check">
+                                                                {{ form_widget(reward_checkbox, {'attr': {'class': 'form-check-input reward-checkbox'}}) }}
+                                                                {{ form_label(reward_checkbox, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            {{ form_errors(form.rewards) }}
+                                            <small class="text-muted d-block mt-2">
+                                                <i class="bi bi-info-circle me-1"></i>
                                                 Select special rewards that players can earn by completing this game.
                                             </small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            
+                            <script>
+                                function selectAllRewards(checked) {
+                                    document.querySelectorAll('.reward-checkbox:not([style*="display: none"])').forEach(checkbox => {
+                                        if (checkbox.closest('.reward-item').style.display !== 'none') {
+                                            checkbox.checked = checked;
+                                        }
+                                    });
+                                }
+                                
+                                // Search functionality
+                                document.getElementById('rewardSearch').addEventListener('input', function(e) {
+                                    const searchTerm = e.target.value.toLowerCase();
+                                    document.querySelectorAll('.reward-item').forEach(item => {
+                                        const rewardName = item.getAttribute('data-reward-name');
+                                        if (rewardName.includes(searchTerm)) {
+                                            item.style.display = '';
+                                        } else {
+                                            item.style.display = 'none';
+                                        }
+                                    });
+                                });
+                            </script>
+                            
+                            <style>
+                                .form-check-input:checked {
+                                    background-color: #667eea;
+                                    border-color: #667eea;
+                                }
+                                .form-check-label {
+                                    cursor: pointer;
+                                    user-select: none;
+                                }
+                                .reward-item .form-check:hover {
+                                    background-color: rgba(102, 126, 234, 0.1);
+                                    border-radius: 4px;
+                                    padding: 2px 4px;
+                                    margin: -2px -4px;
+                                }
+                            </style>
                         {% endif %}
+                    </div>
+
+                    {# AI Question Generator - Only for TRIVIA games #}
+                    <div id="ai-generator-section" class="mt-4" style="display: none;">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-robot"></i> AI Question Generator
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Use AI to automatically generate trivia questions. Review and edit them before saving.
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="ai-topic" class="form-label">Topic</label>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   id="ai-topic" 
+                                                   placeholder="e.g., World History, Mathematics, Science">
+                                            <small class="text-muted">Be specific for better results (e.g., "Ancient Roman Empire" instead of "History")</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="ai-count" class="form-label">Number of Questions</label>
+                                            <select class="form-select" id="ai-count">
+                                                <option value="3">3 questions</option>
+                                                <option value="5" selected>5 questions</option>
+                                                <option value="7">7 questions</option>
+                                                <option value="10">10 questions</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="button" 
+                                        class="btn btn-primary" 
+                                        id="generate-questions-btn">
+                                    <i class="bi bi-magic"></i> Generate Questions with AI
+                                </button>
+                                
+                                <button type="button" 
+                                        class="btn btn-outline-secondary ms-2" 
+                                        id="test-ai-btn">
+                                    <i class="bi bi-wifi"></i> Test AI Connection
+                                </button>
+                                
+                                <div id="ai-loading" class="mt-3" style="display: none;">
+                                    <div class="spinner-border spinner-border-sm me-2"></div>
+                                    <span>Generating questions... This may take 10-30 seconds.</span>
+                                </div>
+                                
+                                <div id="ai-error" class="alert alert-danger mt-3" style="display: none;"></div>
+                                <div id="ai-success" class="alert alert-success mt-3" style="display: none;"></div>
+                                
+                                <div id="ai-questions-preview" class="mt-3" style="display: none;">
+                                    <h6>Generated Questions Preview:</h6>
+                                    <div id="questions-list" class="list-group"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Custom Content Fields - Dynamic based on game type #}
+                    <div id="custom-content-section" class="mt-4" style="display: none;">
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-gear"></i> Game Content
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {# PUZZLE - Word Scramble #}
+                                <div id="content-puzzle" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="content-word" class="form-label">Word to Scramble</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="content-word" 
+                                               placeholder="e.g., SYMFONY">
+                                        <small class="text-muted">Enter a word that will be scrambled for players to guess</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="content-hint" class="form-label">Hint</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="content-hint" 
+                                               placeholder="e.g., A PHP framework">
+                                        <small class="text-muted">Provide a helpful hint for the player</small>
+                                    </div>
+                                </div>
+
+                                {# MEMORY - Card Flip #}
+                                <div id="content-memory" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="content-words" class="form-label">Words/Emojis (6 items)</label>
+                                        <textarea class="form-control" 
+                                                  id="content-words" 
+                                                  rows="6" 
+                                                  placeholder="🍎&#10;🍌&#10;🍇&#10;🍊&#10;🍓&#10;🍉"></textarea>
+                                        <small class="text-muted">Enter exactly 6 words or emojis (one per line). Each will appear twice in the game.</small>
+                                    </div>
+                                </div>
+
+                                {# TRIVIA - Quiz (Manual Entry) #}
+                                <div id="content-trivia" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-lightbulb me-2"></i>
+                                        Use the AI Generator above to create questions automatically, or enter them manually below.
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="content-topic" class="form-label">Topic</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="content-topic" 
+                                               placeholder="e.g., World History">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Questions (JSON format)</label>
+                                        <textarea class="form-control font-monospace" 
+                                                  id="content-questions" 
+                                                  rows="10" 
+                                                  placeholder='[&#10;  {&#10;    "question": "What year did World War II end?",&#10;    "choices": ["1943", "1944", "1945", "1946"],&#10;    "correct": 2&#10;  }&#10;]'></textarea>
+                                        <small class="text-muted">Enter questions in JSON format. The AI generator will fill this automatically.</small>
+                                    </div>
+                                </div>
+
+                                {# ARCADE - Typing Challenge #}
+                                <div id="content-arcade" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="content-sentences" class="form-label">Sentences (3-5 items)</label>
+                                        <textarea class="form-control" 
+                                                  id="content-sentences" 
+                                                  rows="5" 
+                                                  placeholder="The quick brown fox jumps over the lazy dog.&#10;Practice makes perfect.&#10;Typing speed improves with time."></textarea>
+                                        <small class="text-muted">Enter 3-5 sentences (one per line) for the typing challenge</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mt-4">
@@ -175,77 +386,32 @@
             const rewardTokensInput = document.querySelector('input[name="game_form[rewardTokens]"]');
             const rewardXPInput = document.querySelector('input[name="game_form[rewardXP]"]');
 
-            // Placeholder suggestions based on game type and category
             const placeholders = {
                 FULL_GAME: {
-                    PUZZLE: {
-                        name: 'e.g., Word Scramble Challenge, Logic Puzzle Master',
-                        description: 'e.g., Unscramble words within the time limit to test your vocabulary skills',
-                        tokens: '10-30',
-                        xp: '20-60'
-                    },
-                    MEMORY: {
-                        name: 'e.g., Memory Match Pro, Card Flip Challenge',
-                        description: 'e.g., Match pairs of cards in the shortest time possible',
-                        tokens: '10-30',
-                        xp: '20-60'
-                    },
-                    TRIVIA: {
-                        name: 'e.g., Quick Quiz Master, Knowledge Test',
-                        description: 'e.g., Answer multiple choice questions correctly to earn rewards',
-                        tokens: '10-30',
-                        xp: '20-60'
-                    },
-                    ARCADE: {
-                        name: 'e.g., Reaction Clicker, Speed Challenge',
-                        description: 'e.g., Click targets as fast as possible before they disappear',
-                        tokens: '10-30',
-                        xp: '20-60'
-                    }
+                    PUZZLE: { name: 'e.g., Word Scramble Challenge', description: 'e.g., Unscramble words within the time limit', tokens: '10-30', xp: '20-60' },
+                    MEMORY: { name: 'e.g., Memory Match Pro', description: 'e.g., Match pairs of cards in the shortest time possible', tokens: '10-30', xp: '20-60' },
+                    TRIVIA: { name: 'e.g., Quick Quiz Master', description: 'e.g., Answer multiple choice questions correctly to earn rewards', tokens: '10-30', xp: '20-60' },
+                    ARCADE: { name: 'e.g., Reaction Clicker', description: 'e.g., Click targets as fast as possible before they disappear', tokens: '10-30', xp: '20-60' }
                 },
                 MINI_GAME: {
-                    PUZZLE: {
-                        name: 'e.g., Quick Brain Teaser, Mini Puzzle Break',
-                        description: 'e.g., A quick puzzle to refresh your mind and restore energy',
-                        energy: '3-5'
-                    },
-                    MEMORY: {
-                        name: 'e.g., Memory Refresh, Quick Match',
-                        description: 'e.g., A short memory game to boost your focus and energy',
-                        energy: '3-5'
-                    },
-                    TRIVIA: {
-                        name: 'e.g., Quick Facts, Mini Quiz Break',
-                        description: 'e.g., Answer a few quick questions to recharge',
-                        energy: '3-5'
-                    },
-                    ARCADE: {
-                        name: 'e.g., Breathing Exercise, Quick Stretch, Eye Rest',
-                        description: 'e.g., Take a moment to relax and restore your energy',
-                        energy: '3-5'
-                    }
+                    PUZZLE: { name: 'e.g., Quick Brain Teaser', description: 'e.g., A quick puzzle to refresh your mind', energy: '3-5' },
+                    MEMORY: { name: 'e.g., Memory Refresh', description: 'e.g., A short memory game to boost your focus', energy: '3-5' },
+                    TRIVIA: { name: 'e.g., Quick Facts', description: 'e.g., Answer a few quick questions to recharge', energy: '3-5' },
+                    ARCADE: { name: 'e.g., Breathing Exercise', description: 'e.g., Take a moment to relax and restore energy', energy: '3-5' }
                 }
             };
 
             function updatePlaceholders() {
                 const category = categorySelect.value;
                 const type = typeSelect.value;
-                
                 if (category && type && placeholders[category] && placeholders[category][type]) {
                     const config = placeholders[category][type];
-                    
-                    // Update name placeholder
                     nameInput.setAttribute('placeholder', config.name);
-                    
-                    // Update description placeholder
                     descriptionInput.setAttribute('placeholder', config.description);
-                    
                     if (category === 'MINI_GAME') {
-                        // Update energy points placeholder
                         energyInput.setAttribute('placeholder', config.energy + ' points');
                         tokenCostInput.setAttribute('placeholder', '0 (mini games are free)');
                     } else {
-                        // Update reward placeholders
                         rewardTokensInput.setAttribute('placeholder', config.tokens + ' tokens');
                         rewardXPInput.setAttribute('placeholder', config.xp + ' XP');
                         tokenCostInput.setAttribute('placeholder', '0 (free) or set a cost');
@@ -255,36 +421,200 @@
 
             function toggleFields() {
                 const category = categorySelect.value;
-                
                 if (category === 'MINI_GAME') {
-                    // Show energy points, hide rewards
                     energyField.style.display = 'block';
                     fullGameRewards.style.display = 'none';
-                    
-                    // Update help content
                     document.getElementById('categoryHelp').style.display = 'block';
                     document.getElementById('fullGameHelp').style.display = 'none';
                     document.getElementById('miniGameHelp').style.display = 'block';
                 } else {
-                    // Hide energy points, show rewards
                     energyField.style.display = 'none';
                     fullGameRewards.style.display = 'block';
-                    
-                    // Update help content
                     document.getElementById('categoryHelp').style.display = 'block';
                     document.getElementById('fullGameHelp').style.display = 'block';
                     document.getElementById('miniGameHelp').style.display = 'none';
                 }
-                
                 updatePlaceholders();
             }
 
-            // Initial state
             toggleFields();
-
-            // Listen for changes
             categorySelect.addEventListener('change', toggleFields);
             typeSelect.addEventListener('change', updatePlaceholders);
         });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeField = document.getElementById('game_form_type');
+        const categoryField = document.getElementById('game_form_category');
+        const aiSection = document.getElementById('ai-generator-section');
+        const contentSection = document.getElementById('custom-content-section');
+
+        function updateSections() {
+            const gameType = typeField.value;
+            aiSection.style.display = gameType === 'TRIVIA' ? 'block' : 'none';
+            contentSection.style.display = gameType ? 'block' : 'none';
+            document.querySelectorAll('[id^="content-"]').forEach(el => {
+                el.style.display = 'none';
+            });
+            if (gameType) {
+                const contentDiv = document.getElementById('content-' + gameType.toLowerCase());
+                if (contentDiv) contentDiv.style.display = 'block';
+            }
+        }
+
+        typeField.addEventListener('change', updateSections);
+        categoryField.addEventListener('change', updateSections);
+        updateSections();
+
+        // Test AI Connection
+        document.getElementById('test-ai-btn').addEventListener('click', async function() {
+            this.disabled = true;
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Testing...';
+
+            try {
+                const response = await fetch("{{ path('admin_game_ai_test_connection') }}");
+                const data = await response.json();
+                if (data.success) {
+                    showSuccess(data.message);
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                showError('Connection test failed: ' + error.message);
+            } finally {
+                this.disabled = false;
+                this.innerHTML = originalText;
+            }
+        });
+
+        // Generate Questions with AI
+        document.getElementById('generate-questions-btn').addEventListener('click', async function() {
+            const topic = document.getElementById('ai-topic').value.trim();
+            const count = document.getElementById('ai-count').value;
+            const difficulty = document.getElementById('game_form_difficulty').value || 'MEDIUM';
+
+            if (!topic) {
+                showError('Please enter a topic');
+                return;
+            }
+
+            document.getElementById('ai-loading').style.display = 'block';
+            document.getElementById('ai-error').style.display = 'none';
+            document.getElementById('ai-success').style.display = 'none';
+            document.getElementById('ai-questions-preview').style.display = 'none';
+            this.disabled = true;
+
+            try {
+                const response = await fetch("{{ path('admin_game_ai_generate_questions') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        topic: topic,
+                        count: parseInt(count),
+                        difficulty: difficulty
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('content-questions').value = JSON.stringify(data.questions, null, 2);
+                    document.getElementById('content-topic').value = topic;
+                    displayQuestionsPreview(data.questions);
+                    showSuccess(data.message + ' - Review them below and edit if needed.');
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                showError('Failed to generate questions: ' + error.message);
+            } finally {
+                document.getElementById('ai-loading').style.display = 'none';
+                this.disabled = false;
+            }
+        });
+
+        function displayQuestionsPreview(questions) {
+            const preview = document.getElementById('ai-questions-preview');
+            const list = document.getElementById('questions-list');
+            list.innerHTML = '';
+            questions.forEach((q, index) => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item';
+                item.innerHTML = `
+                    <h6 class="mb-2">Q${index + 1}: ${escapeHtml(q.question)}</h6>
+                    <div class="ms-3">
+                        ${q.choices.map((choice, i) => `
+                            <div class="${i === q.correct ? 'text-success fw-bold' : ''}">
+                                ${String.fromCharCode(65 + i)}) ${escapeHtml(choice)}
+                                ${i === q.correct ? '<i class="bi bi-check-circle-fill ms-2"></i>' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+            preview.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('ai-success');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 10000);
+        }
+
+        function showError(message) {
+            const el = document.getElementById('ai-error');
+            el.textContent = message;
+            el.style.display = 'block';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Inject custom content fields into form on submit
+        const gameForm = document.getElementById('game-form');
+        if (gameForm) {
+            gameForm.addEventListener('submit', function(e) {
+                const gameType = typeField.value;
+
+                function addHidden(name, value) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.value = value;
+                    gameForm.appendChild(input);
+                }
+
+                if (gameType === 'PUZZLE') {
+                    const word = document.getElementById('content-word').value.trim();
+                    const hint = document.getElementById('content-hint').value.trim();
+                    if (word) addHidden('content_word', word);
+                    if (hint) addHidden('content_hint', hint);
+
+                } else if (gameType === 'MEMORY') {
+                    const words = document.getElementById('content-words').value.trim();
+                    if (words) addHidden('content_words', words);
+
+                } else if (gameType === 'TRIVIA') {
+                    const topic = document.getElementById('content-topic').value.trim();
+                    const questions = document.getElementById('content-questions').value.trim();
+                    if (topic) addHidden('content_topic', topic);
+                    if (questions) addHidden('content_questions', questions);
+
+                } else if (gameType === 'ARCADE') {
+                    const sentences = document.getElementById('content-sentences').value.trim();
+                    if (sentences) addHidden('content_sentences', sentences);
+                }
+            });
+        }
+    });
     </script>
 {% endblock %}

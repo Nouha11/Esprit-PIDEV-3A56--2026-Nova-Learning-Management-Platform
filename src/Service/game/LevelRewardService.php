@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\gamification;
+namespace App\Service\game;
 
 use App\Entity\users\StudentProfile;
 use App\Repository\Gamification\RewardRepository;

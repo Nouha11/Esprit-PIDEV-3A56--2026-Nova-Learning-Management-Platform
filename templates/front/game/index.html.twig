@@ -303,6 +303,10 @@
         color: rgba(255, 255, 255, 0.5);
     }
 </style>
+
+{# Include AI Chat Widget #}
+{% include 'components/ai_chat_widget.html.twig' %}
+
 {% endblock %}
 
 {% block javascripts %}
@@ -329,7 +333,7 @@
             document.getElementById('games-container').style.opacity = '0.5';
 
             // Fetch filtered games
-            fetch('{{ path('front_game_index') }}?' + params.toString(), {
+            fetch("{{ path('front_game_index') }}?" + params.toString(), {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
@@ -341,7 +345,7 @@
                 document.getElementById('games-container').style.opacity = '1';
                 
                 // Update URL without reload
-                const newUrl = '{{ path('front_game_index') }}?' + params.toString();
+                const newUrl = "{{ path('front_game_index') }}?" + params.toString();
                 window.history.pushState({}, '', newUrl);
             })
             .catch(error => {

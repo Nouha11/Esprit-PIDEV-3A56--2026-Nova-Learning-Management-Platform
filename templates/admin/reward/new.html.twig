@@ -64,19 +64,24 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">{{ form.games.vars.label }}</label>
+                            <label class="form-label d-flex justify-content-between align-items-center">
+                                <span>{{ form.games.vars.label }}</span>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllGames(true)">
+                                        <i class="bi bi-check-square me-1"></i>Select All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllGames(false)">
+                                        <i class="bi bi-square me-1"></i>Deselect All
+                                    </button>
+                                </div>
+                            </label>
                             <div class="mb-2">
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllGames(true)">
-                                    <i class="bi bi-check-square me-1"></i>Select All
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllGames(false)">
-                                    <i class="bi bi-square me-1"></i>Deselect All
-                                </button>
+                                <input type="text" id="gameSearch" class="form-control form-control-sm" placeholder="Search games...">
                             </div>
-                            <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto; background-color: var(--bs-body-bg);">
-                                <div class="row g-2">
+                            <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: var(--bs-body-bg);">
+                                <div class="row g-2" id="gamesList">
                                     {% for game_checkbox in form.games %}
-                                        <div class="col-md-6">
+                                        <div class="col-md-6 game-item" data-game-name="{{ game_checkbox.vars.label|lower }}">
                                             <div class="form-check">
                                                 {{ form_widget(game_checkbox, {'attr': {'class': 'form-check-input game-checkbox'}}) }}
                                                 {{ form_label(game_checkbox, null, {'label_attr': {'class': 'form-check-label'}}) }}
@@ -94,10 +99,25 @@
 
                         <script>
                             function selectAllGames(checked) {
-                                document.querySelectorAll('.game-checkbox').forEach(checkbox => {
-                                    checkbox.checked = checked;
+                                document.querySelectorAll('.game-checkbox:not([style*="display: none"])').forEach(checkbox => {
+                                    if (checkbox.closest('.game-item').style.display !== 'none') {
+                                        checkbox.checked = checked;
+                                    }
                                 });
                             }
+                            
+                            // Search functionality
+                            document.getElementById('gameSearch').addEventListener('input', function(e) {
+                                const searchTerm = e.target.value.toLowerCase();
+                                document.querySelectorAll('.game-item').forEach(item => {
+                                    const gameName = item.getAttribute('data-game-name');
+                                    if (gameName.includes(searchTerm)) {
+                                        item.style.display = '';
+                                    } else {
+                                        item.style.display = 'none';
+                                    }
+                                });
+                            });
                         </script>
 
                         <style>

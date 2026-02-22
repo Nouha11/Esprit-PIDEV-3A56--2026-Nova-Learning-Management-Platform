@@ -1,10 +1,26 @@
 # Nova Learning Platform - Study Session Enhancement
 
-A comprehensive Symfony-based learning management system with advanced study session tracking, analytics, AI-powered recommendations, and productivity tools.
+A comprehensive Symfony-based learning management system with advanced study session tracking, analytics, AI-powered recommendations, gamification, and productivity tools.
+
+## 📚 Documentation
+
+**All documentation is now organized in the `/docs/` folder.**
+
+### Quick Links:
+- **[Documentation Index](docs/INDEX.md)** - Complete guide to all documentation
+- **[Quick Start: AI Games](docs/QUICK_START_AI_GAMES.md)** - Create trivia games in 3 minutes
+- **[Latest Fixes](docs/FINAL_FIX_SUMMARY.md)** - Recent bug fixes and solutions
+- **[Testing Guide](docs/TEST_TRIVIA_GAME.md)** - How to test the trivia game system
+
+### Key Documentation:
+- **AI & Games**: [AI Generator Usage](docs/AI_GENERATOR_USAGE.md), [Game System](docs/GAME_SYSTEM_SUMMARY.md)
+- **Setup**: [OAuth Setup](docs/OAUTH_SETUP_GUIDE.md), [2FA Setup](docs/TWO_FACTOR_AUTHENTICATION.md)
+- **Features**: [Rating System](docs/GAME_RATING_SYSTEM.md), [Leveling System](docs/LEVELING_AND_LEADERBOARD.md)
 
 ## Table of Contents
 
 - [Features](#features)
+- [Documentation](#documentation)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
@@ -15,6 +31,16 @@ A comprehensive Symfony-based learning management system with advanced study ses
 - [Deployment](#deployment)
 
 ## Features
+
+### 🎮 Gamification System
+- **AI-Powered Question Generator**: Generate trivia questions using Hugging Face AI
+- **Multiple Game Types**: PUZZLE, MEMORY, TRIVIA, ARCADE
+- **Game Categories**: Full games with rewards, Mini games for energy
+- **Custom Content**: Create games with custom questions, words, and challenges
+- **Rating System**: 5-star ratings with statistics
+- **Token Economy**: Earn and spend tokens on games
+- **XP & Leveling**: 60-level progression system with milestones
+- **Leaderboards**: Compete with other students
 
 ### Core Study Session Management
 - **Study Session Tracking**: Create, edit, and manage study sessions with detailed metadata
@@ -46,8 +72,8 @@ A comprehensive Symfony-based learning management system with advanced study ses
 ### External Integrations
 - **YouTube Search**: Discover educational videos related to study topics
 - **Wikipedia Integration**: Quick access to article summaries for research
-- **Weather Suggestions**: Get study time recommendations based on weather conditions (planned)
-- **AI-Powered Recommendations**: Personalized study suggestions based on performance patterns
+- **AI-Powered Recommendations**: Personalized study suggestions using OpenAI/Gemini
+- **OAuth Login**: Google and LinkedIn authentication
 - **Note Summarization**: AI-generated summaries of study notes
 - **Quiz Generation**: Automatically create quiz questions from study content
 

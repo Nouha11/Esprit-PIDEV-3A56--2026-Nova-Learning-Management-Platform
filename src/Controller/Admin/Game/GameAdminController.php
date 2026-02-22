@@ -3,6 +3,7 @@
 namespace App\Controller\Admin\Game;
 
 use App\Entity\Gamification\Game;
+use App\Entity\Gamification\GameContent;
 use App\Form\Admin\GameFormType;
 use App\Repository\Gamification\GameRepository;
 use App\Service\game\GameService;
@@ -24,7 +25,8 @@ class GameAdminController extends AbstractController
         private GameService $gameService,
         private GameRepository $gameRepository,
         private PaginatorInterface $paginator,
-        private GameTemplateService $templateService
+        private GameTemplateService $templateService,
+        private \App\Service\game\HuggingFaceService $huggingFaceService
     ) {
     }
 
@@ -98,13 +100,17 @@ class GameAdminController extends AbstractController
     * Create new game
     */
     #[Route('/new', name: 'admin_game_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $game = new Game();
         $form = $this->createForm(GameFormType::class, $game);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->gameService->createGame($game);
+            
+            // Handle custom content
+            $this->saveGameContent($game, $request, $em);
+            
             $this->addFlash('success', 'Game created successfully!');
             return $this->redirectToRoute('admin_game_index');
         }
@@ -129,18 +135,30 @@ class GameAdminController extends AbstractController
     * Edit game
     */
     #[Route('/{id}/edit', name: 'admin_game_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function edit(Request $request, Game $game): Response
+    public function edit(Request $request, Game $game, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(GameFormType::class, $game);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->gameService->updateGame($game);
+            
+            // Handle custom content
+            $this->saveGameContent($game, $request, $em);
+            
             $this->addFlash('success', 'Game updated successfully!');
             return $this->redirectToRoute('admin_game_index');
         }
+        
+        // Load existing content for editing
+        $existingContent = null;
+        if ($game->getContent()) {
+            $existingContent = $game->getContent()->getData();
+        }
+        
         return $this->render('admin/game/edit.html.twig', [
         'form' => $form,
         'game' => $game,
+        'existingContent' => $existingContent,
         ]);
     }
     
@@ -255,9 +273,31 @@ class GameAdminController extends AbstractController
             return $this->redirectToRoute('admin_game_templates');
         }
 
+        // Determine the game name
+        $baseName = $customName ?: $config['name'];
+        $gameName = $baseName;
+        
+        // Check if game with this name already exists
+        $existingGame = $this->gameRepository->findOneBy(['name' => $gameName]);
+        
+        if ($existingGame) {
+            // Make name unique by appending a number
+            $counter = 1;
+            do {
+                $gameName = $baseName . ' (' . $counter . ')';
+                $existingGame = $this->gameRepository->findOneBy(['name' => $gameName]);
+                $counter++;
+            } while ($existingGame && $counter < 100); // Safety limit
+            
+            if ($existingGame) {
+                $this->addFlash('error', 'Unable to create unique game name. Please use a custom name.');
+                return $this->redirectToRoute('admin_game_templates');
+            }
+        }
+
         // Create game entity
         $game = new Game();
-        $game->setName($customName ?: $config['name']);
+        $game->setName($gameName);
         $game->setDescription($config['description']);
         $game->setType($config['type']);
         $game->setCategory($config['category']);
@@ -281,14 +321,237 @@ class GameAdminController extends AbstractController
             'settings' => $config['settings'] ?? [],
         ];
         
-        // You might want to add a 'gameData' JSON field to the Game entity
-        // For now, we'll append it to description
-        $game->setDescription($config['description'] . ' [Engine: ' . $config['engine'] . ']');
+        // Don't append engine tag to description - the play controller has a fallback
+        // that determines engine from game type automatically
+        $game->setDescription($config['description']);
 
         $em->persist($game);
         $em->flush();
+        
+        // DO NOT create default content for template games
+        // Let the game engine generate appropriate content based on difficulty
+        // Only create content if admin explicitly adds it via edit page
 
         $this->addFlash('success', 'Game created successfully from template!');
         return $this->redirectToRoute('admin_game_edit', ['id' => $game->getId()]);
+    }
+
+    /**
+     * Test AI connection
+     */
+/*     #[Route('/ai/test', name: 'admin_game_ai_test', methods: ['GET'])]
+    public function testAI(): JsonResponse
+    {
+        try {
+            $isConnected = $this->huggingFaceService->testConnection();
+            
+            if ($isConnected) {
+                return $this->json([
+                    'success' => true,
+                    'message' => 'Hugging Face API is connected and working!'
+                ]);
+            } else {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Failed to connect to Hugging Face API. Check your API key.'
+                ], 500);
+            }
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    } */
+
+    /**
+     * Generate trivia questions using AI
+     */
+/*     #[Route('/ai/generate-questions', name: 'admin_game_ai_generate', methods: ['POST'])]
+    public function generateQuestions(Request $request): JsonResponse
+    {
+        $topic = $request->request->get('topic');
+        $count = $request->request->getInt('count', 5);
+        $difficulty = $request->request->get('difficulty', 'MEDIUM');
+        
+        if (empty($topic)) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Topic is required'
+            ], 400);
+        }
+        
+        if ($count < 3 || $count > 10) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Question count must be between 3 and 10'
+            ], 400);
+        }
+        
+        try {
+            $questions = $this->huggingFaceService->generateTriviaQuestions($topic, $count, $difficulty);
+            
+            if (empty($questions)) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'No questions were generated. Please try again with a different topic.'
+                ], 500);
+            }
+            
+            return $this->json([
+                'success' => true,
+                'message' => "Successfully generated {$count} {$difficulty} questions about '{$topic}'",
+                'questions' => $questions,
+                'count' => count($questions)
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    } */
+
+    /**
+     * Save or update game content based on game type
+     */
+    private function saveGameContent(Game $game, Request $request, EntityManagerInterface $em): void
+    {
+        $gameType = $game->getType();
+        
+        // Get or create GameContent entity
+        $content = $game->getContent();
+        if (!$content) {
+            $content = new GameContent();
+            $content->setGame($game);
+            $em->persist($content);
+        }
+        
+        // Extract content based on game type
+        $data = [];
+        
+        switch ($gameType) {
+            case 'PUZZLE':
+                $word = $request->request->get('content_word');
+                $hint = $request->request->get('content_hint');
+                if ($word) {
+                    $data['word'] = $word;
+                }
+                if ($hint) {
+                    $data['hint'] = $hint;
+                }
+                break;
+                
+            case 'MEMORY':
+                $wordsText = $request->request->get('content_words');
+                if ($wordsText) {
+                    $words = array_filter(array_map('trim', explode("\n", $wordsText)));
+                    if (count($words) === 6) {
+                        $data['words'] = $words;
+                    }
+                }
+                break;
+                
+            case 'TRIVIA':
+                $topic = $request->request->get('content_topic');
+                $questionsJson = $request->request->get('content_questions');
+                
+                if ($topic) {
+                    $data['topic'] = $topic;
+                }
+                
+                if ($questionsJson) {
+                    try {
+                        $questions = json_decode($questionsJson, true);
+                        if (is_array($questions) && !empty($questions)) {
+                            $data['questions'] = $questions;
+                        }
+                    } catch (\Exception $e) {
+                        // Invalid JSON, skip
+                    }
+                }
+                break;
+                
+            case 'ARCADE':
+                $sentencesText = $request->request->get('content_sentences');
+                if ($sentencesText) {
+                    $sentences = array_filter(array_map('trim', explode("\n", $sentencesText)));
+                    if (count($sentences) >= 3 && count($sentences) <= 5) {
+                        $data['sentences'] = $sentences;
+                    }
+                }
+                break;
+        }
+        
+        // Save data if any content was provided
+        if (!empty($data)) {
+            $content->setData($data);
+            $em->flush();
+        }
+    }
+    
+    /**
+     * Create default game content for template-based games
+     */
+    private function createDefaultGameContent(Game $game, array $config, EntityManagerInterface $em): void
+    {
+        $content = new GameContent();
+        $content->setGame($game);
+        
+        $data = [];
+        
+        switch ($game->getType()) {
+            case 'PUZZLE':
+                $data = [
+                    'word' => 'EXAMPLE',
+                    'hint' => 'A sample word to demonstrate the game'
+                ];
+                break;
+                
+            case 'MEMORY':
+                $data = [
+                    'words' => ['🎮', '🎯', '🎲', '🎪', '🎨', '🎭']
+                ];
+                break;
+                
+            case 'TRIVIA':
+                $data = [
+                    'topic' => 'General Knowledge',
+                    'questions' => [
+                        [
+                            'question' => 'What is 2 + 2?',
+                            'choices' => ['3', '4', '5', '6'],
+                            'correct' => 1
+                        ],
+                        [
+                            'question' => 'What color is the sky?',
+                            'choices' => ['Green', 'Blue', 'Red', 'Yellow'],
+                            'correct' => 1
+                        ],
+                        [
+                            'question' => 'How many days in a week?',
+                            'choices' => ['5', '6', '7', '8'],
+                            'correct' => 2
+                        ]
+                    ]
+                ];
+                break;
+                
+            case 'ARCADE':
+                $data = [
+                    'sentences' => [
+                        'The quick brown fox jumps over the lazy dog.',
+                        'Practice makes perfect.',
+                        'Typing speed improves with time.'
+                    ]
+                ];
+                break;
+        }
+        
+        if (!empty($data)) {
+            $content->setData($data);
+            $em->persist($content);
+            $em->flush();
+        }
     }
 }

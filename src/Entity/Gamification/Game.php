@@ -89,6 +89,10 @@ class Game
     // Many-to-many: Game can be favorited by many users
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'favoriteGames')]
     private Collection $favoritedBy;
+
+    // One-to-one: Game has custom content
+    #[ORM\OneToOne(mappedBy: 'game', targetEntity: GameContent::class, cascade: ['persist', 'remove'])]
+    private ?GameContent $content = null;
     
     public function __construct()
     {
@@ -283,6 +287,27 @@ class Game
         if ($this->favoritedBy->removeElement($user)) {
             $user->removeFavoriteGame($this);
         }
+        return $this;
+    }
+
+    public function getContent(): ?GameContent
+    {
+        return $this->content;
+    }
+
+    public function setContent(?GameContent $content): static
+    {
+        // Unset the owning side of the relation if necessary
+        if ($content === null && $this->content !== null) {
+            $this->content->setGame(null);
+        }
+
+        // Set the owning side of the relation if necessary
+        if ($content !== null && $content->getGame() !== $this) {
+            $content->setGame($this);
+        }
+
+        $this->content = $content;
         return $this;
     }
 }

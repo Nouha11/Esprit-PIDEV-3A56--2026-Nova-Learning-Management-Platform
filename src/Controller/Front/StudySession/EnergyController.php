@@ -5,6 +5,7 @@ namespace App\Controller\Front\StudySession;
 use App\Service\StudySession\AnalyticsService;
 use App\Repository\StudySession\StudySessionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -22,9 +23,10 @@ class EnergyController extends AbstractController
      * Display energy patterns analytics
      */
     #[Route('/analytics', name: 'energy_analytics', methods: ['GET'])]
-    public function analytics(): Response
+    public function analytics(Request $request): Response
     {
         $user = $this->getUser();
+        $courseId = $request->query->get('courseId');
         
         // Check if user has at least 5 sessions with energy data
         $sessionsWithEnergy = $this->studySessionRepository->createQueryBuilder('s')
@@ -50,6 +52,7 @@ class EnergyController extends AbstractController
             'energy_patterns' => $energyPatterns,
             'insufficient_data' => $insufficientData,
             'session_count' => $sessionsWithEnergy,
+            'courseId' => $courseId,
         ]);
     }
 

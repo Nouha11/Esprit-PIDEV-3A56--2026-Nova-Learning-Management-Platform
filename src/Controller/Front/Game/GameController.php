@@ -7,7 +7,7 @@ use App\Repository\Gamification\GameRatingRepository;
 use App\Service\game\GameService;
 use App\Service\game\LevelCalculatorService;
 use App\Service\game\TokenService;
-use App\Service\gamification\LevelRewardService;
+use App\Service\game\LevelRewardService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -285,17 +285,36 @@ class GameController extends AbstractController
             $session->set('game_' . $game->getId() . '_balance_before', $balanceBeforePlay);
         }
 
-        // Extract game engine from description
+        // Extract game engine from description or determine from game type
         $gameEngine = 'default';
         $gameSettings = [];
         
         if (preg_match('/\[Engine: ([^\]]+)\]/', $game->getDescription(), $matches)) {
             $gameEngine = $matches[1];
+        } else {
+            // Fallback: Determine engine from game type
+            $gameEngine = match($game->getType()) {
+                'PUZZLE' => 'word_scramble',
+                'MEMORY' => 'memory_match',
+                'TRIVIA' => 'quick_quiz',
+                'ARCADE' => 'reaction_clicker',
+                default => 'default'
+            };
         }
 
         // Build game settings based on game type and difficulty
         if ($game->getCategory() === 'FULL_GAME') {
             $gameSettings = $this->buildGameSettings($game);
+            
+            // DEBUG: Log what we're passing to the template
+            error_log('Game ID: ' . $game->getId());
+            error_log('Game Type: ' . $game->getType());
+            error_log('Game Engine: ' . $gameEngine);
+            error_log('Has Content: ' . ($game->getContent() ? 'YES' : 'NO'));
+            if ($game->getContent()) {
+                error_log('Content Data: ' . json_encode($game->getContent()->getData()));
+            }
+            error_log('Game Settings: ' . json_encode($gameSettings));
         } else {
             // Mini game settings
             $gameSettings = [
@@ -327,31 +346,65 @@ class GameController extends AbstractController
             default => 1.0,
         };
 
+        // Get custom content if available
+        $content = $game->getContent();
+
         // Type-specific settings
         switch ($game->getType()) {
             case 'PUZZLE':
                 $settings = [
-                    'time' => (int)(60 / $difficultyMultiplier),
-                    'words' => (int)(5 * $difficultyMultiplier),
+                    'timeLimit' => (int)round(60 / $difficultyMultiplier),
+                    'words' => (int)round(5 * $difficultyMultiplier),
+                    'difficulty' => $game->getDifficulty(),
                 ];
+                // Add custom content if available
+                if ($content) {
+                    if ($content->getWord()) {
+                        $settings['word'] = $content->getWord();
+                    }
+                    if ($content->getHint()) {
+                        $settings['hint'] = $content->getHint();
+                    }
+                }
                 break;
             case 'MEMORY':
                 $settings = [
-                    'pairs' => (int)(6 * $difficultyMultiplier),
-                    'time' => (int)(90 * $difficultyMultiplier),
+                    'pairs' => (int)round(6 * $difficultyMultiplier),
+                    'timeLimit' => (int)round(90 * $difficultyMultiplier),
+                    'difficulty' => $game->getDifficulty(),
                 ];
+                // Add custom content if available
+                if ($content && $content->getWords()) {
+                    $settings['words'] = $content->getWords();
+                }
                 break;
             case 'TRIVIA':
                 $settings = [
-                    'questions' => (int)(5 * $difficultyMultiplier),
-                    'time_per_q' => (int)(15 / $difficultyMultiplier),
+                    'questions' => (int)round(5 * $difficultyMultiplier),
+                    'timeLimit' => (int)round(60 * $difficultyMultiplier), // Total time for all questions
+                    'difficulty' => $game->getDifficulty(),
                 ];
+                // Add custom content if available
+                if ($content) {
+                    if ($content->getQuestions()) {
+                        $settings['questionsData'] = $content->getQuestions();
+                        $settings['questions'] = count($content->getQuestions());
+                    }
+                    if ($content->getTopic()) {
+                        $settings['topic'] = $content->getTopic();
+                    }
+                }
                 break;
             case 'ARCADE':
                 $settings = [
-                    'targets' => (int)(10 * $difficultyMultiplier),
-                    'speed' => (int)(2000 / $difficultyMultiplier),
+                    'targets' => (int)round(10 * $difficultyMultiplier),
+                    'speed' => (int)round(2000 / $difficultyMultiplier),
+                    'difficulty' => $game->getDifficulty(),
                 ];
+                // Add custom content if available
+                if ($content && $content->getSentences()) {
+                    $settings['sentences'] = $content->getSentences();
+                }
                 break;
         }
 
@@ -363,14 +416,16 @@ class GameController extends AbstractController
      */
     #[Route('/{id}/complete', name: 'front_game_complete', methods: ['POST'])]
     #[IsGranted('ROLE_STUDENT')]
-    public function complete(Game $game, Request $request): Response
+    public function complete(Game $game, Request $request): JsonResponse
     {
         $user = $this->getUser();
         $student = $user->getStudentProfile();
 
         if (!$student) {
-            $this->addFlash('error', '<i class="bi bi-exclamation-triangle me-2"></i>Student profile not found. Please contact support.');
-            return $this->redirectToRoute('front_game_index');
+            return $this->json([
+                'success' => false,
+                'message' => 'Student profile not found. Please contact support.'
+            ], 404);
         }
 
         // Clear any existing flash messages to avoid clutter
@@ -413,6 +468,43 @@ class GameController extends AbstractController
         
         // Flush to database
         $this->entityManager->flush();
+        
+        // Award special bonus rewards associated with this game
+        $bonusRewards = [];
+        foreach ($game->getRewards() as $reward) {
+            if ($reward->isActive() && !$student->hasEarnedReward($reward)) {
+                // Award the reward
+                $student->addEarnedReward($reward);
+                
+                // Apply bonus tokens or XP
+                if ($reward->getType() === 'BONUS_TOKENS' && $reward->getValue() > 0) {
+                    $student->addTokens($reward->getValue());
+                    $bonusRewards[] = [
+                        'name' => $reward->getName(),
+                        'type' => 'tokens',
+                        'value' => $reward->getValue()
+                    ];
+                } elseif ($reward->getType() === 'BONUS_XP' && $reward->getValue() > 0) {
+                    $student->addXP($reward->getValue());
+                    $bonusRewards[] = [
+                        'name' => $reward->getName(),
+                        'type' => 'xp',
+                        'value' => $reward->getValue()
+                    ];
+                } else {
+                    $bonusRewards[] = [
+                        'name' => $reward->getName(),
+                        'type' => strtolower($reward->getType()),
+                        'value' => 0
+                    ];
+                }
+            }
+        }
+        
+        // Flush bonus rewards
+        if (!empty($bonusRewards)) {
+            $this->entityManager->flush();
+        }
         
         // Check for level-based rewards after XP update (only if level increased)
         $levelRewards = [];
@@ -460,6 +552,21 @@ class GameController extends AbstractController
                 $rewardXP
             );
         }
+        
+        // Add bonus rewards to message
+        if (!empty($bonusRewards)) {
+            $message .= '<div class="mt-2 alert alert-success p-2"><strong>Bonus Rewards Unlocked!</strong><br>';
+            foreach ($bonusRewards as $bonus) {
+                if ($bonus['type'] === 'tokens') {
+                    $message .= sprintf('<i class="bi bi-coin me-1"></i>%s: +%d tokens<br>', $bonus['name'], $bonus['value']);
+                } elseif ($bonus['type'] === 'xp') {
+                    $message .= sprintf('<i class="bi bi-star-fill me-1"></i>%s: +%d XP<br>', $bonus['name'], $bonus['value']);
+                } else {
+                    $message .= sprintf('<i class="bi bi-award me-1"></i>%s unlocked!<br>', $bonus['name']);
+                }
+            }
+            $message .= '</div>';
+        }
 
         $this->addFlash('success', $message);
 
@@ -468,7 +575,22 @@ class GameController extends AbstractController
             $session->set('milestone_unlocked', $levelRewards);
         }
 
-        return $this->redirectToRoute('front_game_show', ['id' => $game->getId()]);
+        return $this->json([
+            'success' => true,
+            'message' => $message,
+            'rewards' => [
+                'tokens' => $rewardTokens,
+                'xp' => $rewardXP,
+            ],
+            'bonusRewards' => $bonusRewards,
+            'newBalance' => [
+                'tokens' => $tokensAfter,
+                'xp' => $xpAfter,
+                'level' => $newLevel,
+            ],
+            'levelUp' => $newLevel > $previousLevel,
+            'redirectUrl' => $this->generateUrl('front_game_show', ['id' => $game->getId()])
+        ]);
     }
 
     /**

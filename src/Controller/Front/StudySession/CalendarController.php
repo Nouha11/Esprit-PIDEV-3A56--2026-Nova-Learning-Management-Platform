@@ -27,9 +27,13 @@ class CalendarController extends AbstractController
      * ✅ Calendar entry point (NO redirect)
      */
     #[Route('/', name: 'calendar_index', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        return $this->render('front/study_session/calendar.html.twig');
+        $courseId = $request->query->get('courseId');
+        
+        return $this->render('front/study_session/calendar.html.twig', [
+            'courseId' => $courseId,
+        ]);
     }
 
     /**

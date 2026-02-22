@@ -1,10 +1,12 @@
-{% extends 'front/base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Analytics Dashboard{% endblock %}
 
-{% block front_content %}
-<div class="row mt-4">
-    <div class="col-12">
+{% block body %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
         <h1 class="mb-4">Analytics Dashboard</h1>
         
         <!-- Time Range Filter -->
@@ -12,15 +14,15 @@
             <div class="card-body">
                 <h5 class="card-title">Time Range</h5>
                 <div class="btn-group" role="group">
-                    <a href="{{ path('analytics_dashboard', {range: 'week'}) }}" 
+                    <a href="{{ path('analytics_dashboard', {range: 'week', courseId: courseId}) }}" 
                        class="btn btn-{{ time_range == 'week' ? 'primary' : 'outline-primary' }}">
                         Week
                     </a>
-                    <a href="{{ path('analytics_dashboard', {range: 'month'}) }}" 
+                    <a href="{{ path('analytics_dashboard', {range: 'month', courseId: courseId}) }}" 
                        class="btn btn-{{ time_range == 'month' ? 'primary' : 'outline-primary' }}">
                         Month
                     </a>
-                    <a href="{{ path('analytics_dashboard', {range: 'year'}) }}" 
+                    <a href="{{ path('analytics_dashboard', {range: 'year', courseId: courseId}) }}" 
                        class="btn btn-{{ time_range == 'year' ? 'primary' : 'outline-primary' }}">
                         Year
                     </a>
@@ -147,9 +149,10 @@
         <!-- Back to Study Sessions Link -->
         <div class="row">
             <div class="col-12">
-                <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Study Sessions
+                <a href="{{ courseId ? path('course_show', {id: courseId}) : path('study_session_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to {{ courseId ? 'Course' : 'Study Sessions' }}
                 </a>
+            </div>
             </div>
         </div>
     </div>

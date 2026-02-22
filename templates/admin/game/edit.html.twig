@@ -18,7 +18,8 @@
             <div class="card-body">
                 {{ form_start(form, {
                     'attr': {
-                        'novalidate': 'novalidate'
+                        'novalidate': 'novalidate',
+                        'id': 'game-form'
                     }
                 }) }}
 
@@ -76,14 +77,38 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="card bg-light">
-                                        <div class="card-header">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
                                             <h6 class="mb-0">
                                                 <i class="bi bi-trophy me-1"></i>Special Rewards
                                             </h6>
+                                            <div>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllRewards(true)">
+                                                    <i class="bi bi-check-square me-1"></i>Select All
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllRewards(false)">
+                                                    <i class="bi bi-square me-1"></i>Deselect All
+                                                </button>
+                                            </div>
                                         </div>
                                         <div class="card-body">
-                                            {{ form_row(form.rewards) }}
-                                            <small class="text-muted">
+                                            <div class="mb-2">
+                                                <input type="text" id="rewardSearch" class="form-control form-control-sm" placeholder="Search rewards...">
+                                            </div>
+                                            <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: var(--bs-body-bg);">
+                                                <div class="row g-2" id="rewardsList">
+                                                    {% for reward_checkbox in form.rewards %}
+                                                        <div class="col-md-6 reward-item" data-reward-name="{{ reward_checkbox.vars.label|lower }}">
+                                                            <div class="form-check">
+                                                                {{ form_widget(reward_checkbox, {'attr': {'class': 'form-check-input reward-checkbox'}}) }}
+                                                                {{ form_label(reward_checkbox, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            {{ form_errors(form.rewards) }}
+                                            <small class="text-muted d-block mt-2">
+                                                <i class="bi bi-info-circle me-1"></i>
                                                 Select special rewards that players can earn by completing this game.
                                                 Currently: {{ game.rewards|length }} reward(s) selected.
                                             </small>
@@ -91,7 +116,286 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <script>
+                                function selectAllRewards(checked) {
+                                    document.querySelectorAll('.reward-checkbox:not([style*="display: none"])').forEach(checkbox => {
+                                        if (checkbox.closest('.reward-item').style.display !== 'none') {
+                                            checkbox.checked = checked;
+                                        }
+                                    });
+                                }
+                                
+                                // Search functionality
+                                document.getElementById('rewardSearch').addEventListener('input', function(e) {
+                                    const searchTerm = e.target.value.toLowerCase();
+                                    document.querySelectorAll('.reward-item').forEach(item => {
+                                        const rewardName = item.getAttribute('data-reward-name');
+                                        if (rewardName.includes(searchTerm)) {
+                                            item.style.display = '';
+                                        } else {
+                                            item.style.display = 'none';
+                                        }
+                                    });
+                                });
+                            </script>
+                            
+                            <style>
+                                .form-check-input:checked {
+                                    background-color: #667eea;
+                                    border-color: #667eea;
+                                }
+                                .form-check-label {
+                                    cursor: pointer;
+                                    user-select: none;
+                                }
+                                .reward-item .form-check:hover {
+                                    background-color: rgba(102, 126, 234, 0.1);
+                                    border-radius: 4px;
+                                    padding: 2px 4px;
+                                    margin: -2px -4px;
+                                }
+                            </style>
                         {% endif %}
+                    </div>
+
+                    {# AI Question Generator - Only for TRIVIA games #}
+                    <div id="ai-generator-section" class="mt-4" style="display: none;">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-robot"></i> AI Question Generator
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Use AI to automatically generate trivia questions. Review and edit them before saving.
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="ai-topic" class="form-label">Topic</label>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   id="ai-topic" 
+                                                   placeholder="e.g., World History, Mathematics, Science">
+                                            <small class="text-muted">Be specific for better results (e.g., "Ancient Roman Empire" instead of "History")</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="ai-count" class="form-label">Number of Questions</label>
+                                            <select class="form-select" id="ai-count">
+                                                <option value="3">3 questions</option>
+                                                <option value="5" selected>5 questions</option>
+                                                <option value="7">7 questions</option>
+                                                <option value="10">10 questions</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="button" 
+                                        class="btn btn-primary" 
+                                        id="generate-questions-btn">
+                                    <i class="bi bi-magic"></i> Generate New Questions with AI
+                                </button>
+                                
+                                <button type="button" 
+                                        class="btn btn-outline-secondary ms-2" 
+                                        id="test-ai-btn">
+                                    <i class="bi bi-wifi"></i> Test AI Connection
+                                </button>
+                                
+                                <button type="button" 
+                                        class="btn btn-outline-danger ms-2" 
+                                        id="clear-questions-btn"
+                                        style="display: none;">
+                                    <i class="bi bi-trash"></i> Clear Questions
+                                </button>
+                                
+                                <div id="ai-loading" class="mt-3" style="display: none;">
+                                    <div class="spinner-border spinner-border-sm me-2"></div>
+                                    <span>Generating questions... This may take 10-30 seconds.</span>
+                                </div>
+                                
+                                <div id="ai-error" class="alert alert-danger mt-3" style="display: none;"></div>
+                                <div id="ai-success" class="alert alert-success mt-3" style="display: none;"></div>
+                                
+                                <div id="ai-questions-preview" class="mt-3" style="display: none;">
+                                    <h6>Generated Questions Preview:</h6>
+                                    <div id="questions-list" class="list-group"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Custom Content Fields - Dynamic based on game type #}
+                    <div id="custom-content-section" class="mt-4" style="display: none;">
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-gear"></i> Game Content
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {# PUZZLE - Word Scramble #}
+                                <div id="content-puzzle" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="content-word" class="form-label">Word to Scramble</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="content-word" 
+                                               value="{{ existingContent.word ?? '' }}"
+                                               placeholder="e.g., SYMFONY">
+                                        <small class="text-muted">Enter a word that will be scrambled for players to guess</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="content-hint" class="form-label">Hint</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="content-hint" 
+                                               value="{{ existingContent.hint ?? '' }}"
+                                               placeholder="e.g., A PHP framework">
+                                        <small class="text-muted">Provide a helpful hint for the player</small>
+                                    </div>
+                                </div>
+
+                                {# MEMORY - Card Flip #}
+                                <div id="content-memory" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="content-words" class="form-label">Words/Emojis (6 items)</label>
+                                        <textarea class="form-control" 
+                                                  id="content-words" 
+                                                  rows="6" 
+                                                  placeholder="🍎&#10;🍌&#10;🍇&#10;🍊&#10;🍓&#10;🍉">{{ existingContent.words|default([])|join('\n') }}</textarea>
+                                        <small class="text-muted">Enter exactly 6 words or emojis (one per line). Each will appear twice in the game.</small>
+                                    </div>
+                                </div>
+
+                                {# TRIVIA - Quiz (Manual Entry) #}
+                                <div id="content-trivia" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-lightbulb me-2"></i>
+                                        Use the AI Generator above to create questions automatically, or enter them manually below.
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="content-topic" class="form-label">Topic</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="content-topic" 
+                                               value="{{ existingContent.topic ?? '' }}"
+                                               placeholder="e.g., World History">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Questions (JSON format)</label>
+                                        <textarea class="form-control font-monospace" 
+                                                  id="content-questions" 
+                                                  rows="10" 
+                                                  placeholder='[&#10;  {&#10;    "question": "What year did World War II end?",&#10;    "choices": ["1943", "1944", "1945", "1946"],&#10;    "correct": 2&#10;  }&#10;]'>{{ existingContent.questions|default([])|json_encode(constant('JSON_PRETTY_PRINT')) }}</textarea>
+                                        <small class="text-muted">Enter questions in JSON format. The AI generator will fill this automatically.</small>
+                                    </div>
+                                    
+                                    {# Show default questions if no custom content #}
+                                    {% if not existingContent or not existingContent.questions or existingContent.questions is empty %}
+                                        <div class="alert alert-warning">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            <strong>No custom questions configured.</strong> The game will use default questions based on difficulty.
+                                        </div>
+                                        
+                                        <div class="card border mb-3">
+                                            <div class="card-header">
+                                                <strong>Default Questions Preview ({{ game.difficulty }} difficulty)</strong>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="accordion" id="editDefaultQuestionsAccordion">
+                                                    {% if game.difficulty == 'EASY' %}
+                                                        {% set defaultQuestions = [
+                                                            {'q': 'What is 2 + 2?', 'opts': ['3', '4', '5', '6'], 'correct': 1},
+                                                            {'q': 'What color is the sky on a clear day?', 'opts': ['Green', 'Blue', 'Red', 'Yellow'], 'correct': 1},
+                                                            {'q': 'How many days are in a week?', 'opts': ['5', '6', '7', '8'], 'correct': 2},
+                                                            {'q': 'What is the capital of France?', 'opts': ['London', 'Berlin', 'Paris', 'Madrid'], 'correct': 2},
+                                                            {'q': 'How many legs does a spider have?', 'opts': ['6', '8', '10', '12'], 'correct': 1}
+                                                        ] %}
+                                                    {% elseif game.difficulty == 'MEDIUM' %}
+                                                        {% set defaultQuestions = [
+                                                            {'q': 'What is the largest planet in our solar system?', 'opts': ['Earth', 'Mars', 'Jupiter', 'Saturn'], 'correct': 2},
+                                                            {'q': 'Who wrote Romeo and Juliet?', 'opts': ['Charles Dickens', 'William Shakespeare', 'Jane Austen', 'Mark Twain'], 'correct': 1},
+                                                            {'q': 'What is the chemical symbol for gold?', 'opts': ['Go', 'Gd', 'Au', 'Ag'], 'correct': 2},
+                                                            {'q': 'In which year did World War II end?', 'opts': ['1943', '1944', '1945', '1946'], 'correct': 2},
+                                                            {'q': 'What is the speed of light?', 'opts': ['300,000 km/s', '150,000 km/s', '450,000 km/s', '600,000 km/s'], 'correct': 0},
+                                                            {'q': 'How many continents are there?', 'opts': ['5', '6', '7', '8'], 'correct': 2},
+                                                            {'q': 'What is the smallest country in the world?', 'opts': ['Monaco', 'Vatican City', 'San Marino', 'Liechtenstein'], 'correct': 1}
+                                                        ] %}
+                                                    {% else %}
+                                                        {% set defaultQuestions = [
+                                                            {'q': 'What is the smallest prime number?', 'opts': ['0', '1', '2', '3'], 'correct': 2},
+                                                            {'q': 'Who developed the theory of relativity?', 'opts': ['Isaac Newton', 'Albert Einstein', 'Stephen Hawking', 'Niels Bohr'], 'correct': 1},
+                                                            {'q': 'What is the capital of Australia?', 'opts': ['Sydney', 'Melbourne', 'Canberra', 'Brisbane'], 'correct': 2},
+                                                            {'q': 'How many elements are in the periodic table?', 'opts': ['108', '118', '128', '138'], 'correct': 1},
+                                                            {'q': 'What is the longest river in the world?', 'opts': ['Amazon', 'Nile', 'Yangtze', 'Mississippi'], 'correct': 1},
+                                                            {'q': 'What is the square root of 144?', 'opts': ['10', '11', '12', '13'], 'correct': 2},
+                                                            {'q': 'Who painted the Mona Lisa?', 'opts': ['Michelangelo', 'Leonardo da Vinci', 'Raphael', 'Donatello'], 'correct': 1},
+                                                            {'q': 'What is the boiling point of water at sea level?', 'opts': ['90°C', '95°C', '100°C', '105°C'], 'correct': 2}
+                                                        ] %}
+                                                    {% endif %}
+                                                    
+                                                    {% for question in defaultQuestions %}
+                                                        <div class="accordion-item">
+                                                            <h2 class="accordion-header" id="editDefaultHeading{{ loop.index }}">
+                                                                <button class="accordion-button {% if loop.index > 1 %}collapsed{% endif %}" 
+                                                                        type="button" 
+                                                                        data-bs-toggle="collapse" 
+                                                                        data-bs-target="#editDefaultCollapse{{ loop.index }}" 
+                                                                        aria-expanded="{% if loop.index == 1 %}true{% else %}false{% endif %}">
+                                                                    <strong>Q{{ loop.index }}:</strong>&nbsp;{{ question.q }}
+                                                                </button>
+                                                            </h2>
+                                                            <div id="editDefaultCollapse{{ loop.index }}" 
+                                                                 class="accordion-collapse collapse {% if loop.index == 1 %}show{% endif %}" 
+                                                                 aria-labelledby="editDefaultHeading{{ loop.index }}" 
+                                                                 data-bs-parent="#editDefaultQuestionsAccordion">
+                                                                <div class="accordion-body">
+                                                                    <ul class="list-group">
+                                                                        {% for opt in question.opts %}
+                                                                            <li class="list-group-item {% if loop.index0 == question.correct %}list-group-item-success{% endif %}">
+                                                                                <strong>{{ ['A', 'B', 'C', 'D'][loop.index0] }})&nbsp;</strong>{{ opt }}
+                                                                                {% if loop.index0 == question.correct %}
+                                                                                    <i class="bi bi-check-circle-fill text-success float-end"></i>
+                                                                                {% endif %}
+                                                                            </li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="alert alert-secondary border mt-3 mb-0">
+                                                    <i class="bi bi-info-circle me-2"></i>
+                                                    These are the default questions that will be used in the game. To customize, use the AI Generator or enter your own questions above.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                {# ARCADE - Typing Challenge #}
+                                <div id="content-arcade" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="content-sentences" class="form-label">Sentences (3-5 items)</label>
+                                        <textarea class="form-control" 
+                                                  id="content-sentences" 
+                                                  rows="5" 
+                                                  placeholder="The quick brown fox jumps over the lazy dog.&#10;Practice makes perfect.&#10;Typing speed improves with time.">{{ existingContent.sentences|default([])|join('\n') }}</textarea>
+                                        <small class="text-muted">Enter 3-5 sentences (one per line) for the typing challenge</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mt-4">
@@ -159,8 +463,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const categorySelect = document.querySelector('[data-game-category="true"]');
+            const typeField = document.getElementById('game_form_type');
             const energyField = document.getElementById('energy-points-field');
             const fullGameRewards = document.getElementById('full-game-rewards');
+            const aiSection = document.getElementById('ai-generator-section');
+            const contentSection = document.getElementById('custom-content-section');
 
             function toggleFields() {
                 const category = categorySelect.value;
@@ -176,11 +483,240 @@
                 }
             }
 
+            function updateSections() {
+                const gameType = typeField.value;
+                const gameCategory = categorySelect.value;
+                
+                // Show AI generator only for TRIVIA games
+                aiSection.style.display = gameType === 'TRIVIA' ? 'block' : 'none';
+                
+                // Show custom content for all game types
+                contentSection.style.display = gameType ? 'block' : 'none';
+                
+                // Hide all content type sections
+                document.querySelectorAll('[id^="content-"]').forEach(el => {
+                    el.style.display = 'none';
+                });
+                
+                // Show relevant content section
+                if (gameType) {
+                    const contentDiv = document.getElementById('content-' + gameType.toLowerCase());
+                    if (contentDiv) {
+                        contentDiv.style.display = 'block';
+                    }
+                }
+            }
+
             // Initial state
             toggleFields();
+            updateSections();
+            
+            // Pre-fill AI topic and show questions preview if editing TRIVIA game
+            const existingTopic = document.getElementById('content-topic').value;
+            const existingQuestions = document.getElementById('content-questions').value;
+            
+            if (typeField.value === 'TRIVIA' && existingTopic) {
+                document.getElementById('ai-topic').value = existingTopic;
+            }
+            
+            if (typeField.value === 'TRIVIA' && existingQuestions) {
+                try {
+                    const questions = JSON.parse(existingQuestions);
+                    if (questions && questions.length > 0) {
+                        displayQuestionsPreview(questions);
+                        document.getElementById('clear-questions-btn').style.display = 'inline-block';
+                        showSuccess(`Loaded ${questions.length} existing questions. You can edit them below or generate new ones.`);
+                    }
+                } catch (e) {
+                    console.error('Error parsing existing questions:', e);
+                }
+            }
 
             // Listen for changes
             categorySelect.addEventListener('change', toggleFields);
+            typeField.addEventListener('change', updateSections);
+            
+            // Test AI Connection
+            document.getElementById('test-ai-btn').addEventListener('click', async function() {
+                this.disabled = true;
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Testing...';
+                
+                try {
+                    const response = await fetch("{{ path('admin_game_ai_test_connection') }}");
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showSuccess(data.message);
+                    } else {
+                        showError(data.message);
+                    }
+                } catch (error) {
+                    showError('Connection test failed: ' + error.message);
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = originalText;
+                }
+            });
+            
+            // Generate Questions with AI
+            document.getElementById('generate-questions-btn').addEventListener('click', async function() {
+                const topic = document.getElementById('ai-topic').value.trim();
+                const count = document.getElementById('ai-count').value;
+                const difficulty = document.getElementById('game_form_difficulty').value || 'MEDIUM';
+                const existingQuestions = document.getElementById('content-questions').value.trim();
+                
+                if (!topic) {
+                    showError('Please enter a topic');
+                    return;
+                }
+                
+                // Confirm if replacing existing questions
+                if (existingQuestions && existingQuestions !== '[]' && existingQuestions !== '') {
+                    if (!confirm('This will replace your existing questions. Are you sure?')) {
+                        return;
+                    }
+                }
+                
+                // Show loading
+                document.getElementById('ai-loading').style.display = 'block';
+                document.getElementById('ai-error').style.display = 'none';
+                document.getElementById('ai-success').style.display = 'none';
+                document.getElementById('ai-questions-preview').style.display = 'none';
+                this.disabled = true;
+                
+                try {
+                    const response = await fetch("{{ path('admin_game_ai_generate_questions') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            topic: topic,
+                            count: parseInt(count),
+                            difficulty: difficulty
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Fill the questions field
+                        document.getElementById('content-questions').value = JSON.stringify(data.questions, null, 2);
+                        document.getElementById('content-topic').value = topic;
+                        
+                        // Show preview
+                        displayQuestionsPreview(data.questions);
+                        
+                        // Show clear button
+                        document.getElementById('clear-questions-btn').style.display = 'inline-block';
+                        
+                        showSuccess(data.message + ' - Review them below and edit if needed.');
+                    } else {
+                        showError(data.message);
+                    }
+                } catch (error) {
+                    showError('Failed to generate questions: ' + error.message);
+                } finally {
+                    document.getElementById('ai-loading').style.display = 'none';
+                    this.disabled = false;
+                }
+            });
+            
+            // Clear Questions Button
+            document.getElementById('clear-questions-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear all questions? This cannot be undone.')) {
+                    document.getElementById('content-questions').value = '';
+                    document.getElementById('content-topic').value = '';
+                    document.getElementById('ai-topic').value = '';
+                    document.getElementById('ai-questions-preview').style.display = 'none';
+                    this.style.display = 'none';
+                    showSuccess('Questions cleared. You can now generate new ones or enter manually.');
+                }
+            });
+            
+            function displayQuestionsPreview(questions) {
+                const preview = document.getElementById('ai-questions-preview');
+                const list = document.getElementById('questions-list');
+                list.innerHTML = '';
+                
+                questions.forEach((q, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item';
+                    item.innerHTML = `
+                        <h6 class="mb-2">Q${index + 1}: ${escapeHtml(q.question)}</h6>
+                        <div class="ms-3">
+                            ${q.choices.map((choice, i) => `
+                                <div class="${i === q.correct ? 'text-success fw-bold' : ''}">
+                                    ${String.fromCharCode(65 + i)}) ${escapeHtml(choice)}
+                                    ${i === q.correct ? '<i class="bi bi-check-circle-fill ms-2"></i>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+                
+                preview.style.display = 'block';
+            }
+            
+            function showSuccess(message) {
+                const successDiv = document.getElementById('ai-success');
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                setTimeout(() => {
+                    successDiv.style.display = 'none';
+                }, 10000);
+            }
+            
+            function showError(message) {
+                const errorDiv = document.getElementById('ai-error');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+            
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // Add custom content fields to form submission
+            const gameForm = document.getElementById('game-form');
+            if (gameForm) {
+                gameForm.addEventListener('submit', function(e) {
+                    const gameType = typeField.value;
+                    
+                    function addHidden(name, value) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = name;
+                        input.value = value;
+                        gameForm.appendChild(input);
+                    }
+
+                    if (gameType === 'PUZZLE') {
+                        const word = document.getElementById('content-word').value.trim();
+                        const hint = document.getElementById('content-hint').value.trim();
+                        if (word) addHidden('content_word', word);
+                        if (hint) addHidden('content_hint', hint);
+
+                    } else if (gameType === 'MEMORY') {
+                        const words = document.getElementById('content-words').value.trim();
+                        if (words) addHidden('content_words', words);
+
+                    } else if (gameType === 'TRIVIA') {
+                        const topic = document.getElementById('content-topic').value.trim();
+                        const questions = document.getElementById('content-questions').value.trim();
+                        if (topic) addHidden('content_topic', topic);
+                        if (questions) addHidden('content_questions', questions);
+
+                    } else if (gameType === 'ARCADE') {
+                        const sentences = document.getElementById('content-sentences').value.trim();
+                        if (sentences) addHidden('content_sentences', sentences);
+                    }
+                });
+            }
         });
     </script>
 {% endblock %}

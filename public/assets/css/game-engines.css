@@ -157,3 +157,208 @@
         height: 150px;
     }
 }
+
+/* Quick Quiz Game */
+.quick-quiz-game {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.quiz-option {
+    position: relative;
+    padding: 1.25rem 1.5rem;
+    transition: all 0.3s ease;
+    border-width: 2px;
+    font-size: 1.1rem;
+}
+
+.quiz-option:hover:not(:disabled) {
+    transform: translateX(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.quiz-option .option-letter {
+    display: inline-block;
+    width: 35px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.quiz-option .option-text {
+    flex: 1;
+}
+
+.quiz-option:disabled {
+    cursor: not-allowed;
+}
+
+.quiz-option.btn-success {
+    animation: correctAnswer 0.5s ease;
+}
+
+.quiz-option.btn-danger {
+    animation: wrongAnswer 0.5s ease;
+}
+
+@keyframes correctAnswer {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes wrongAnswer {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-10px);
+    }
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+.quiz-header .badge {
+    padding: 0.75rem 1.25rem;
+}
+
+.quiz-question-card {
+    animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.quiz-results {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Dark theme for quiz */
+[data-bs-theme="dark"] .quiz-option {
+    border-color: #4a5568;
+}
+
+[data-bs-theme="dark"] .quiz-option:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+}
+
+[data-bs-theme="dark"] .quiz-question-card .card {
+    background-color: #2d3748;
+    border-color: #4a5568;
+}
+
+/* Responsive quiz */
+@media (max-width: 768px) {
+    .quiz-option {
+        font-size: 1rem;
+        padding: 1rem;
+    }
+    
+    .quiz-option .option-letter {
+        width: 30px;
+    }
+    
+    .quiz-header .badge {
+        font-size: 0.85rem !important;
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Reaction Clicker Game */
+.reaction-clicker-game {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.reaction-target {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
+.reaction-target:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.reaction-target:active {
+    transform: scale(0.9) !important;
+}
+
+.game-area {
+    border: 3px solid #dee2e6;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="dark"] .game-area {
+    background-color: #2d3748 !important;
+    border-color: #4a5568;
+}
+
+.stat-card {
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.points-popup {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Reaction Results */
+.reaction-results {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.stat-box {
+    transition: transform 0.2s ease;
+}
+
+.stat-box:hover {
+    transform: scale(1.05);
+}
+
+/* Dark theme for reaction game */
+[data-bs-theme="dark"] .stat-card {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .stat-box {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Responsive reaction game */
+@media (max-width: 768px) {
+    .reaction-target {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .game-area {
+        height: 300px !important;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 1.5rem !important;
+    }
+}

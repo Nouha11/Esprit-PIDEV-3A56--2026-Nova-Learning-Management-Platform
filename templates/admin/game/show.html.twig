@@ -74,6 +74,385 @@
                 </div>
             </div>
 
+            {# Game Content Section #}
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear-fill me-2"></i>Game Content & Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if game.content and game.content.data %}
+                        {% set contentData = game.content.data %}
+                        
+                        {# PUZZLE Content #}
+                        {% if game.type == 'PUZZLE' and (contentData.word or contentData.hint) %}
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-puzzle me-2"></i>Word Scramble Content
+                            </h6>
+                            <div class="row">
+                                {% if contentData.word %}
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Word to Scramble:</label>
+                                    <div class="card border mb-0">
+                                        <div class="card-body">
+                                            <h4 class="mb-0 text-primary">{{ contentData.word }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if contentData.hint %}
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Hint:</label>
+                                    <div class="card border mb-0">
+                                        <div class="card-body">
+                                            <p class="mb-0">{{ contentData.hint }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        {# MEMORY Content #}
+                        {% if game.type == 'MEMORY' and contentData.words %}
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-grid-3x3-gap me-2"></i>Memory Match Content
+                            </h6>
+                            <label class="form-label text-muted">Cards ({{ contentData.words|length }} items):</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for word in contentData.words %}
+                                    <div class="badge bg-primary fs-5 p-3">{{ word }}</div>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle me-1"></i>Each item appears twice in the game ({{ contentData.words|length * 2 }} cards total)
+                            </small>
+                        {% endif %}
+                        
+                        {# TRIVIA Content #}
+                        {% if game.type == 'TRIVIA' and contentData.questions %}
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-question-circle me-2"></i>Trivia Questions
+                            </h6>
+                            {% if contentData.topic %}
+                                <div class="alert alert-info mb-3">
+                                    <strong>Topic:</strong> {{ contentData.topic }}
+                                </div>
+                            {% endif %}
+                            <div class="accordion" id="questionsAccordion">
+                                {% for question in contentData.questions %}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading{{ loop.index }}">
+                                            <button class="accordion-button {% if loop.index > 1 %}collapsed{% endif %}" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#collapse{{ loop.index }}" 
+                                                    aria-expanded="{% if loop.index == 1 %}true{% else %}false{% endif %}" 
+                                                    aria-controls="collapse{{ loop.index }}">
+                                                <strong>Question {{ loop.index }}:</strong>&nbsp;{{ question.question }}
+                                            </button>
+                                        </h2>
+                                        <div id="collapse{{ loop.index }}" 
+                                             class="accordion-collapse collapse {% if loop.index == 1 %}show{% endif %}" 
+                                             aria-labelledby="heading{{ loop.index }}" 
+                                             data-bs-parent="#questionsAccordion">
+                                            <div class="accordion-body">
+                                                <ul class="list-group">
+                                                    {% for choice in question.choices %}
+                                                        <li class="list-group-item {% if loop.index0 == question.correct %}list-group-item-success{% endif %}">
+                                                            <strong>{{ ['A', 'B', 'C', 'D'][loop.index0] }})&nbsp;</strong>{{ choice }}
+                                                            {% if loop.index0 == question.correct %}
+                                                                <i class="bi bi-check-circle-fill text-success float-end"></i>
+                                                            {% endif %}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="alert alert-secondary border mt-3 mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Total Questions:</strong> {{ contentData.questions|length }}
+                            </div>
+                        {% endif %}
+                        
+                        {# ARCADE Content #}
+                        {% if game.type == 'ARCADE' and contentData.sentences %}
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-keyboard me-2"></i>Typing Challenge Content
+                            </h6>
+                            <label class="form-label text-muted">Sentences ({{ contentData.sentences|length }} items):</label>
+                            <ol class="list-group list-group-numbered">
+                                {% for sentence in contentData.sentences %}
+                                    <li class="list-group-item">{{ sentence }}</li>
+                                {% endfor %}
+                            </ol>
+                        {% endif %}
+                        
+                        {# Show warning if content exists but is empty for this type #}
+                        {% if game.type == 'PUZZLE' and not (contentData.word or contentData.hint) %}
+                            <div class="alert alert-warning mb-0">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>No content configured.</strong> This PUZZLE game needs a word and hint to be playable.
+                                <a href="{{ path('admin_game_edit', {id: game.id}) }}" class="alert-link">Edit game to add content</a>
+                            </div>
+                        {% endif %}
+                        {% if game.type == 'MEMORY' and not contentData.words %}
+                            <div class="alert alert-warning mb-0">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>No content configured.</strong> This MEMORY game needs 6 words/emojis to be playable.
+                                <a href="{{ path('admin_game_edit', {id: game.id}) }}" class="alert-link">Edit game to add content</a>
+                            </div>
+                        {% endif %}
+                        {% if game.type == 'TRIVIA' and not contentData.questions %}
+                            <div class="alert alert-warning mb-0">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>No content configured.</strong> This TRIVIA game needs questions to be playable.
+                                <a href="{{ path('admin_game_edit', {id: game.id}) }}" class="alert-link">Edit game to add content</a>
+                            </div>
+                        {% endif %}
+                        {% if game.type == 'ARCADE' and not contentData.sentences %}
+                            <div class="alert alert-warning mb-0">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>No content configured.</strong> This ARCADE game needs 3-5 sentences to be playable.
+                                <a href="{{ path('admin_game_edit', {id: game.id}) }}" class="alert-link">Edit game to add content</a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        {# No GameContent - Show what players will see #}
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-eye me-2"></i>Player View Preview
+                        </h6>
+                        
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            This shows what students will see when they view this game (before playing).
+                        </div>
+                        
+                        <div class="card border">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ game.name }}</h5>
+                                {% set cleanDescription = game.description|replace({'[Engine: word_scramble]': '', '[Engine: memory_match]': '', '[Engine: quick_quiz]': '', '[Engine: reaction_clicker]': '', '[Engine: breathing]': ''})|trim %}
+                                <p class="card-text">{{ cleanDescription }}</p>
+                                
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <p class="mb-2">
+                                            <i class="bi bi-controller me-2"></i>
+                                            <strong>Type:</strong> {{ game.type }}
+                                        </p>
+                                        <p class="mb-2">
+                                            <i class="bi bi-speedometer me-2"></i>
+                                            <strong>Difficulty:</strong> 
+                                            <span class="badge bg-{{ game.difficulty == 'EASY' ? 'success' : (game.difficulty == 'MEDIUM' ? 'warning' : 'danger') }}">
+                                                {{ game.difficulty }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {% if not game.isMiniGame() %}
+                                        <p class="mb-2">
+                                            <i class="bi bi-coin me-2"></i>
+                                            <strong>Rewards:</strong> {{ game.rewardTokens }} tokens + {{ game.rewardXP }} XP
+                                        </p>
+                                        {% else %}
+                                        <p class="mb-2">
+                                            <i class="bi bi-lightning-charge me-2"></i>
+                                            <strong>Energy:</strong> +{{ game.energyPoints }} points
+                                        </p>
+                                        {% endif %}
+                                        <p class="mb-2">
+                                            <i class="bi bi-wallet2 me-2"></i>
+                                            <strong>Cost:</strong> {{ game.tokenCost > 0 ? game.tokenCost ~ ' tokens' : 'Free' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Custom content not configured.</strong> 
+                            This game uses default {{ game.type }} mechanics. 
+                            <a href="{{ path('admin_game_edit', {id: game.id}) }}" class="alert-link">Edit game to add custom content</a> 
+                            (questions, words, etc.) for a better experience.
+                        </div>
+                        
+                        {# Show default game engine settings #}
+                        <div class="card border mt-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-code-square me-2"></i>Default Game Engine Settings
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    This game uses the <strong>{{ game.type|lower }}</strong> engine with default settings based on difficulty.
+                                </p>
+                                
+                                {% if game.type == 'PUZZLE' %}
+                                    <h6 class="text-primary mb-3">Word Scramble Engine</h6>
+                                    <ul class="list-unstyled mb-3">
+                                        <li class="mb-2"><i class="bi bi-clock me-2 text-primary"></i><strong>Time Limit:</strong> 
+                                            {% if game.difficulty == 'EASY' %}60 seconds
+                                            {% elseif game.difficulty == 'MEDIUM' %}46 seconds
+                                            {% else %}38 seconds{% endif %}
+                                        </li>
+                                        <li class="mb-2"><i class="bi bi-puzzle me-2 text-primary"></i><strong>Words:</strong> 
+                                            {% if game.difficulty == 'EASY' %}5 words
+                                            {% elseif game.difficulty == 'MEDIUM' %}7 words
+                                            {% else %}8 words{% endif %}
+                                        </li>
+                                        <li class="mb-2"><i class="bi bi-shuffle me-2 text-primary"></i><strong>Mechanic:</strong> Unscramble randomly shuffled letters</li>
+                                    </ul>
+                                    <div class="badge bg-secondary">Engine: word-scramble.js</div>
+                                {% endif %}
+                                
+                                {% if game.type == 'MEMORY' %}
+                                    <h6 class="text-primary mb-3">Memory Match Engine</h6>
+                                    <ul class="list-unstyled mb-3">
+                                        <li class="mb-2"><i class="bi bi-clock me-2 text-primary"></i><strong>Time Limit:</strong> 
+                                            {% if game.difficulty == 'EASY' %}90 seconds
+                                            {% elseif game.difficulty == 'MEDIUM' %}117 seconds
+                                            {% else %}144 seconds{% endif %}
+                                        </li>
+                                        <li class="mb-2"><i class="bi bi-grid-3x3-gap me-2 text-primary"></i><strong>Pairs:</strong> 
+                                            {% if game.difficulty == 'EASY' %}6 pairs (12 cards)
+                                            {% elseif game.difficulty == 'MEDIUM' %}8 pairs (16 cards)
+                                            {% else %}10 pairs (20 cards){% endif %}
+                                        </li>
+                                        <li class="mb-2"><i class="bi bi-eye me-2 text-primary"></i><strong>Mechanic:</strong> Flip cards to find matching pairs</li>
+                                    </ul>
+                                    <div class="badge bg-secondary">Engine: memory-match.js</div>
+                                {% endif %}
+                                
+                                {% if game.type == 'TRIVIA' %}
+                                    <h6 class="text-primary mb-3">Quick Quiz Engine</h6>
+                                    <ul class="list-unstyled mb-3">
+                                        <li class="mb-2"><i class="bi bi-clock me-2 text-primary"></i><strong>Time Limit:</strong> 
+                                            {% if game.difficulty == 'EASY' %}60 seconds total
+                                            {% elseif game.difficulty == 'MEDIUM' %}78 seconds total
+                                            {% else %}96 seconds total{% endif %}
+                                        </li>
+                                        <li class="mb-2"><i class="bi bi-question-circle me-2 text-primary"></i><strong>Questions:</strong> 
+                                            {% if game.difficulty == 'EASY' %}5 questions
+                                            {% elseif game.difficulty == 'MEDIUM' %}7 questions
+                                            {% else %}8 questions{% endif %}
+                                        </li>
+                                        <li class="mb-2"><i class="bi bi-list-check me-2 text-primary"></i><strong>Mechanic:</strong> Multiple choice (4 options per question)</li>
+                                        <li class="mb-2"><i class="bi bi-trophy me-2 text-primary"></i><strong>Pass Threshold:</strong> 60% correct answers</li>
+                                    </ul>
+                                    
+                                    {# Show actual default questions #}
+                                    <div class="card border mb-3">
+                                        <div class="card-header">
+                                            <strong>Default Questions ({{ game.difficulty }} difficulty)</strong>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="accordion" id="defaultQuestionsAccordion">
+                                                {% if game.difficulty == 'EASY' %}
+                                                    {% set defaultQuestions = [
+                                                        {'q': 'What is 2 + 2?', 'opts': ['3', '4', '5', '6'], 'correct': 1},
+                                                        {'q': 'What color is the sky on a clear day?', 'opts': ['Green', 'Blue', 'Red', 'Yellow'], 'correct': 1},
+                                                        {'q': 'How many days are in a week?', 'opts': ['5', '6', '7', '8'], 'correct': 2},
+                                                        {'q': 'What is the capital of France?', 'opts': ['London', 'Berlin', 'Paris', 'Madrid'], 'correct': 2},
+                                                        {'q': 'How many legs does a spider have?', 'opts': ['6', '8', '10', '12'], 'correct': 1}
+                                                    ] %}
+                                                {% elseif game.difficulty == 'MEDIUM' %}
+                                                    {% set defaultQuestions = [
+                                                        {'q': 'What is the largest planet in our solar system?', 'opts': ['Earth', 'Mars', 'Jupiter', 'Saturn'], 'correct': 2},
+                                                        {'q': 'Who wrote Romeo and Juliet?', 'opts': ['Charles Dickens', 'William Shakespeare', 'Jane Austen', 'Mark Twain'], 'correct': 1},
+                                                        {'q': 'What is the chemical symbol for gold?', 'opts': ['Go', 'Gd', 'Au', 'Ag'], 'correct': 2},
+                                                        {'q': 'In which year did World War II end?', 'opts': ['1943', '1944', '1945', '1946'], 'correct': 2},
+                                                        {'q': 'What is the speed of light?', 'opts': ['300,000 km/s', '150,000 km/s', '450,000 km/s', '600,000 km/s'], 'correct': 0},
+                                                        {'q': 'How many continents are there?', 'opts': ['5', '6', '7', '8'], 'correct': 2},
+                                                        {'q': 'What is the smallest country in the world?', 'opts': ['Monaco', 'Vatican City', 'San Marino', 'Liechtenstein'], 'correct': 1}
+                                                    ] %}
+                                                {% else %}
+                                                    {% set defaultQuestions = [
+                                                        {'q': 'What is the smallest prime number?', 'opts': ['0', '1', '2', '3'], 'correct': 2},
+                                                        {'q': 'Who developed the theory of relativity?', 'opts': ['Isaac Newton', 'Albert Einstein', 'Stephen Hawking', 'Niels Bohr'], 'correct': 1},
+                                                        {'q': 'What is the capital of Australia?', 'opts': ['Sydney', 'Melbourne', 'Canberra', 'Brisbane'], 'correct': 2},
+                                                        {'q': 'How many elements are in the periodic table?', 'opts': ['108', '118', '128', '138'], 'correct': 1},
+                                                        {'q': 'What is the longest river in the world?', 'opts': ['Amazon', 'Nile', 'Yangtze', 'Mississippi'], 'correct': 1},
+                                                        {'q': 'What is the square root of 144?', 'opts': ['10', '11', '12', '13'], 'correct': 2},
+                                                        {'q': 'Who painted the Mona Lisa?', 'opts': ['Michelangelo', 'Leonardo da Vinci', 'Raphael', 'Donatello'], 'correct': 1},
+                                                        {'q': 'What is the boiling point of water at sea level?', 'opts': ['90°C', '95°C', '100°C', '105°C'], 'correct': 2}
+                                                    ] %}
+                                                {% endif %}
+                                                
+                                                {% for question in defaultQuestions %}
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="defaultHeading{{ loop.index }}">
+                                                            <button class="accordion-button {% if loop.index > 1 %}collapsed{% endif %}" 
+                                                                    type="button" 
+                                                                    data-bs-toggle="collapse" 
+                                                                    data-bs-target="#defaultCollapse{{ loop.index }}" 
+                                                                    aria-expanded="{% if loop.index == 1 %}true{% else %}false{% endif %}">
+                                                                <strong>Q{{ loop.index }}:</strong>&nbsp;{{ question.q }}
+                                                            </button>
+                                                        </h2>
+                                                        <div id="defaultCollapse{{ loop.index }}" 
+                                                             class="accordion-collapse collapse {% if loop.index == 1 %}show{% endif %}" 
+                                                             aria-labelledby="defaultHeading{{ loop.index }}" 
+                                                             data-bs-parent="#defaultQuestionsAccordion">
+                                                            <div class="accordion-body">
+                                                                <ul class="list-group">
+                                                                    {% for opt in question.opts %}
+                                                                        <li class="list-group-item {% if loop.index0 == question.correct %}list-group-item-success{% endif %}">
+                                                                            <strong>{{ ['A', 'B', 'C', 'D'][loop.index0] }})&nbsp;</strong>{{ opt }}
+                                                                            {% if loop.index0 == question.correct %}
+                                                                                <i class="bi bi-check-circle-fill text-success float-end"></i>
+                                                                            {% endif %}
+                                                                        </li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info mb-3">
+                                        <small>
+                                            <i class="bi bi-lightbulb me-1"></i>
+                                            <strong>Note:</strong> These are the default questions that students will see. 
+                                            <a href="{{ path('admin_game_edit', {id: game.id}) }}" class="alert-link">Edit game</a> to add custom questions for a better experience.
+                                        </small>
+                                    </div>
+                                    <div class="badge bg-secondary">Engine: quick-quiz.js</div>
+                                {% endif %}
+                                
+                                {% if game.type == 'ARCADE' %}
+                                    <h6 class="text-primary mb-3">Reaction Clicker Engine</h6>
+                                    <ul class="list-unstyled mb-3">
+                                        <li class="mb-2"><i class="bi bi-bullseye me-2 text-primary"></i><strong>Targets:</strong> 
+                                            {% if game.difficulty == 'EASY' %}10 targets
+                                            {% elseif game.difficulty == 'MEDIUM' %}13 targets
+                                            {% else %}16 targets{% endif %}
+                                        </li>
+                                        <li class="mb-2"><i class="bi bi-speedometer me-2 text-primary"></i><strong>Speed:</strong> 
+                                            {% if game.difficulty == 'EASY' %}2000ms per target
+                                            {% elseif game.difficulty == 'MEDIUM' %}1538ms per target
+                                            {% else %}1250ms per target{% endif %}
+                                        </li>
+                                        <li class="mb-2"><i class="bi bi-cursor me-2 text-primary"></i><strong>Mechanic:</strong> Click targets before they disappear</li>
+                                        <li class="mb-2"><i class="bi bi-trophy me-2 text-primary"></i><strong>Pass Threshold:</strong> 60% accuracy</li>
+                                    </ul>
+                                    <div class="badge bg-secondary">Engine: reaction-clicker.js</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
             {# Associated Rewards Section - Only for Full Games #}
             {% if not game.isMiniGame() %}
             {% set nonMilestoneRewards = game.rewards|filter(r => r.type != 'LEVEL_MILESTONE') %}
@@ -82,7 +461,7 @@
                     <h5 class="mb-0">
                         <i class="bi bi-trophy-fill me-2"></i>Associated Rewards
                     </h5>
-                    <span class="badge bg-light text-dark">{{ nonMilestoneRewards|length }} reward(s)</span>
+                    <span class="badge bg-secondary">{{ nonMilestoneRewards|length }} reward(s)</span>
                 </div>
                 <div class="card-body">
                     {% if nonMilestoneRewards is not empty %}

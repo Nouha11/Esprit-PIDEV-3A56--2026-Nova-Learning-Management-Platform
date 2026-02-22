@@ -1,4 +1,4 @@
-{% extends 'front/base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Study Session Calendar{% endblock %}
 
@@ -63,9 +63,11 @@
     </style>
 {% endblock %}
 
-{% block front_content %}
-<div class="row mt-4">
-    <div class="col-12">
+{% block body %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="mb-0">
@@ -94,6 +96,17 @@
                 
                 <!-- Calendar Container -->
                 <div id="calendar"></div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <a href="{{ courseId ? path('course_show', {id: courseId}) : path('study_session_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to {{ courseId ? 'Course' : 'Study Sessions' }}
+                </a>
+            </div>
+        </div>
             </div>
         </div>
     </div>

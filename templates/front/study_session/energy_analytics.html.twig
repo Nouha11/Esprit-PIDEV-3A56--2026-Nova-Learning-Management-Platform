@@ -1,10 +1,12 @@
-{% extends 'front/base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Energy Analytics{% endblock %}
 
-{% block front_content %}
-<div class="row mt-4">
-    <div class="col-12">
+{% block body %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
         <h1 class="mb-4">Energy Analytics</h1>
         
         {% if insufficient_data %}
@@ -26,8 +28,8 @@
             </div>
             
             <div class="mt-4">
-                <a href="{{ path('study_session_index') }}" class="btn btn-primary">
-                    <i class="bi bi-arrow-left"></i> Back to Study Sessions
+                <a href="{{ courseId ? path('course_show', {id: courseId}) : path('study_session_index') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> Back to {{ courseId ? 'Course' : 'Study Sessions' }}
                 </a>
             </div>
         {% else %}
@@ -68,12 +70,14 @@
             <!-- Back to Study Sessions Link -->
             <div class="row">
                 <div class="col-12">
-                    <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Back to Study Sessions
+                    <a href="{{ courseId ? path('course_show', {id: courseId}) : path('study_session_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to {{ courseId ? 'Course' : 'Study Sessions' }}
                     </a>
                 </div>
             </div>
         {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 

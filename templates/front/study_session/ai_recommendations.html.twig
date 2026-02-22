@@ -1,14 +1,16 @@
-{% extends 'front/base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}AI Study Recommendations{% endblock %}
 
-{% block front_content %}
-<div class="row mt-4">
-    <div class="col-12">
+{% block body %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>AI Study Recommendations</h1>
-            <a href="{{ path('study_session_index') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to Study Sessions
+            <a href="{{ courseId ? path('course_show', {id: courseId}) : path('study_session_index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to {{ courseId ? 'Course' : 'Study Sessions' }}
             </a>
         </div>
 
@@ -270,6 +272,8 @@
                 </div>
             </div>
         {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 
