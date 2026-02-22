@@ -528,4 +528,21 @@ class ForumController extends AbstractController
             return $this->json(['error' => 'AI is currently resting. Please try again.'], 500);
         }
     }
+
+
+    #[Route('/forum/guidelines', name: 'app_forum_guidelines')]
+    public function guidelines(EntityManagerInterface $entityManager): Response
+    {
+        // We fetch spaces just to keep the left sidebar populated
+        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+
+        return $this->render('front/forum/guidelines.html.twig', [
+            'spaces' => $spaces,
+            'currentFilter' => 'guidelines', // Helps highlight the active link in the sidebar
+            'currentSpace' => null,
+            'searchQuery' => null
+        ]);
+    }
+
+
 }

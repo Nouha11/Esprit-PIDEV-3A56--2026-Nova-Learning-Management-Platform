@@ -60,11 +60,15 @@
                         {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
                         {% set color = colors[s.id % colors|length] %}
                         <a href="{{ path('app_forum_space', {'id': s.id}) }}" class="left-nav-link d-flex align-items-center {{ post.space and s.id == post.space.id ? 'active' : '' }}">
-                            {# CLEAN COLORED DOT #}
+                            {# CHANGED: CLEAN DOT #}
                             <div class="rounded-circle me-3" style="width: 14px; height: 14px; background-color: {{ color }}; margin-left: 5px;"></div>
                             <span class="text-truncate">{{ s.name }}</span>
                         </a>
                     {% endfor %}
+
+                    
+
+
                 </div>
             </div>
 
@@ -112,6 +116,22 @@
                         {% if post.imageName %}
                             <div class="mb-4 text-center p-3 rounded-3 border" style="background: var(--nova-input-bg); border-color: var(--nova-border) !important;">
                                 <img src="{{ vich_uploader_asset(post, 'imageFile') }}" class="img-fluid rounded" style="max-height: 500px; object-fit: contain;">
+                            </div>
+                        {% endif %}
+
+                        {# --- FILE ATTACHMENT CARD --- #}
+                        {% if post.attachmentName %}
+                            <div class="mb-4 p-3 rounded-3 border d-flex align-items-center" style="background: var(--nova-input-bg); border-color: var(--nova-border) !important;">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
+                                    <i class="bi bi-file-earmark-text fs-3"></i>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden pe-3">
+                                    <h6 class="mb-1 nova-text-main text-truncate" style="font-size: 15px;">{{ post.attachmentName }}</h6>
+                                    <small class="nova-text-muted">Attached Document</small>
+                                </div>
+                                <a href="{{ vich_uploader_asset(post, 'attachmentFile') }}" class="btn btn-primary rounded-pill px-4 text-nowrap" download>
+                                    <i class="bi bi-download me-2"></i> Download
+                                </a>
                             </div>
                         {% endif %}
 

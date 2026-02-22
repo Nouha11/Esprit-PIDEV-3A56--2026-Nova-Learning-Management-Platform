@@ -1,0 +1,164 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
+
+{% block title %}Community Guidelines - NOVA Forum{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root { --nova-bg: #dae0e6; --nova-card-bg: #ffffff; --nova-border: #cccccc; --nova-text-main: #1a1a1b; --nova-text-muted: #787c7e; --nova-vote-bg: #f8f9fa; --nova-hover-bg: rgba(0,0,0,0.05); --nova-input-bg: #f6f7f8; }
+        [data-bs-theme="dark"], body.dark-mode, .dark-mode { --nova-bg: #030303; --nova-card-bg: #1a1a1b; --nova-border: #343536; --nova-text-main: #d7dadc; --nova-text-muted: #818384; --nova-vote-bg: #1a1a1b; --nova-hover-bg: rgba(255,255,255,0.1); --nova-input-bg: #272729; }
+        
+        body { background-color: var(--nova-bg) !important; color: var(--nova-text-main); }
+        .nova-card { background-color: var(--nova-card-bg) !important; border: 1px solid var(--nova-border) !important; border-radius: 6px; }
+        .nova-text-main { color: var(--nova-text-main) !important; }
+        .nova-text-muted { color: var(--nova-text-muted) !important; }
+        
+        .sticky-sidebar { position: sticky; top: 80px; height: calc(100vh - 80px); overflow-y: auto; }
+        .sticky-sidebar::-webkit-scrollbar { width: 0px; } 
+
+        .left-nav-link { display: flex; align-items: center; padding: 10px 16px; color: var(--nova-text-main); font-size: 14px; font-weight: 500; border-radius: 8px; text-decoration: none; transition: background 0.2s; margin-bottom: 4px; }
+        .left-nav-link i { font-size: 20px; margin-right: 12px; width: 24px; text-align: center; }
+        .left-nav-link:hover, .left-nav-link.active { background-color: var(--nova-hover-bg); }
+        .left-nav-section-title { font-size: 11px; font-weight: 700; color: var(--nova-text-muted); text-transform: uppercase; padding: 16px 16px 8px 16px; letter-spacing: 0.5px; }
+
+        .widget-card { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; margin-bottom: 16px; overflow: hidden; color: var(--nova-text-main); }
+        .widget-header { background: #0d6efd; color: white; font-size: 14px; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--nova-border); }
+
+        .rule-number { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: var(--nova-input-bg); color: #0d6efd; font-weight: bold; flex-shrink: 0; border: 1px solid var(--nova-border); }
+    </style>
+{% endblock %}
+
+{% block body %}
+<main style="min-height: 100vh; padding-top: 20px; padding-bottom: 40px;">
+    <div class="container-fluid px-xl-5">
+        <div class="row justify-content-center">
+            
+            {# --- 1. LEFT COLUMN: NAVIGATION --- #}
+            <div class="col-xl-2 col-lg-3 d-none d-lg-block">
+                <div class="sticky-sidebar pe-2">
+                    <div class="left-nav-section-title">Feeds</div>
+                    <a href="{{ path('app_forum') }}" class="left-nav-link">
+                        <i class="bi bi-house-door"></i> Home
+                    </a>
+                    <a href="{{ path('app_forum', {'filter': 'popular'}) }}" class="left-nav-link">
+                        <i class="bi bi-fire text-danger"></i> Popular
+                    </a>
+                    <a href="{{ path('app_forum', {'filter': 'unanswered'}) }}" class="left-nav-link">
+                        <i class="bi bi-patch-question text-warning"></i> Unanswered
+                    </a>
+
+                    <div class="left-nav-section-title mt-3 border-top pt-3" style="border-color: var(--nova-border) !important;">My NOVA</div>
+                    <a href="{{ path('app_forum', {'filter': 'history'}) }}" class="left-nav-link">
+                        <i class="bi bi-clock-history text-secondary"></i> History
+                    </a>
+                    {% if app.user %}
+                        <a href="{{ path('app_forum', {'filter': 'bookmarks'}) }}" class="left-nav-link">
+                            <i class="bi bi-bookmark-fill text-info"></i> Saved Posts
+                        </a>
+                    {% endif %}
+
+                    <div class="left-nav-section-title mt-3 border-top pt-3" style="border-color: var(--nova-border) !important;">Study Spaces</div>
+                    {% for s in spaces|default([]) %}
+                        {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
+                        {% set color = colors[s.id % colors|length] %}
+                        <a href="{{ path('app_forum_space', {'id': s.id}) }}" class="left-nav-link d-flex align-items-center">
+                            <div class="rounded-circle me-3" style="width: 14px; height: 14px; background-color: {{ color }}; margin-left: 5px;"></div>
+                            <span class="text-truncate">{{ s.name }}</span>
+                        </a>
+                    {% endfor %}
+
+                    <div class="left-nav-section-title mt-3 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
+                    <a href="#" class="left-nav-link"><i class="bi bi-info-circle"></i> About NOVA</a>
+                    <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link active"><i class="bi bi-shield-check text-success"></i> Guidelines</a>
+                </div>
+            </div>
+
+            {# --- 2. MIDDLE COLUMN: GUIDELINES CONTENT --- #}
+            <div class="col-xl-7 col-lg-6 col-md-12">
+                <div class="nova-card shadow-sm mb-4">
+                    <div class="card-header border-bottom p-4" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%); border-color: var(--nova-border) !important;">
+                        <div class="d-flex align-items-center text-white">
+                            <i class="bi bi-shield-check display-4 me-3"></i>
+                            <div>
+                                <h1 class="h3 fw-bold mb-1">Community Guidelines</h1>
+                                <p class="mb-0 opacity-75">Rules and etiquette for the NOVA Forum.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5 nova-text-main">
+                        <p class="mb-5" style="font-size: 16px; line-height: 1.6;">
+                            Welcome to the NOVA Community Forum! Our goal is to provide a collaborative, safe, and academically enriching environment for all students and tutors. To maintain the quality of our discussions, we require all members to adhere to the following guidelines.
+                        </p>
+
+                        <h4 class="fw-bold mb-4 d-flex align-items-center"><i class="bi bi-book-half text-primary me-2"></i> 1. Academic Integrity</h4>
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="rule-number">1.1</div>
+                            <div class="ms-3">
+                                <h6 class="fw-bold mb-1">Do not post direct answers for assignments.</h6>
+                                <p class="nova-text-muted mb-0" style="font-size: 14px;">The goal is to learn, not to copy. Tutors and peers should provide guidance, formulas, or hints that lead the student to the answer.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start mb-5">
+                            <div class="rule-number">1.2</div>
+                            <div class="ms-3">
+                                <h6 class="fw-bold mb-1">No cheating or plagiarism.</h6>
+                                <p class="nova-text-muted mb-0" style="font-size: 14px;">Sharing answers during active exams or copying external work without citation is strictly forbidden and may result in a ban.</p>
+                            </div>
+                        </div>
+
+                        <h4 class="fw-bold mb-4 d-flex align-items-center"><i class="bi bi-chat-quote-fill text-warning me-2"></i> 2. Etiquette & Behavior</h4>
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="rule-number">2.1</div>
+                            <div class="ms-3">
+                                <h6 class="fw-bold mb-1">Be respectful and constructive.</h6>
+                                <p class="nova-text-muted mb-0" style="font-size: 14px;">Harassment, hate speech, sexism, racism, or insulting another user's intelligence will not be tolerated.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start mb-5">
+                            <div class="rule-number">2.2</div>
+                            <div class="ms-3">
+                                <h6 class="fw-bold mb-1">Stay on topic.</h6>
+                                <p class="nova-text-muted mb-0" style="font-size: 14px;">Make sure you are posting in the correct Study Space (e.g., don't post a History question in the Computer Science space).</p>
+                            </div>
+                        </div>
+
+                        <h4 class="fw-bold mb-4 d-flex align-items-center"><i class="bi bi-pencil-square text-info me-2"></i> 3. Formatting & Posting</h4>
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="rule-number">3.1</div>
+                            <div class="ms-3">
+                                <h6 class="fw-bold mb-1">Use clear and descriptive titles.</h6>
+                                <p class="nova-text-muted mb-0" style="font-size: 14px;">Avoid titles like "HELP ME" or "Urgent". Instead, use titles like "How do I implement a Binary Search Tree in Java?"</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="rule-number">3.2</div>
+                            <div class="ms-3">
+                                <h6 class="fw-bold mb-1">Format your code.</h6>
+                                <p class="nova-text-muted mb-0" style="font-size: 14px;">If you are asking a Computer Science question, format your code properly or use our ✨ AI Enhancer to clean up your question before posting.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# --- 3. RIGHT COLUMN: WIDGETS --- #}
+            <div class="col-xl-3 col-lg-3 d-none d-lg-block">
+                <div class="sticky-sidebar">
+                    <div class="widget-card shadow-sm">
+                        <div class="card-header bg-transparent border-bottom-0 pt-3 pb-2 px-3">
+                            <h3 class="mb-0 h6 fw-bold nova-text-main">Moderation Team</h3>
+                        </div>
+                        <div class="card-body p-3 pt-0 nova-text-muted" style="font-size: 13px;">
+                            <p>Our forum is moderated by NOVA administrators and trusted tutors. If you see a post that violates these guidelines, please use the <strong class="text-danger"><i class="bi bi-flag-fill"></i> Report</strong> button on the post to alert us.</p>
+                            <a href="{{ path('app_forum') }}" class="btn btn-outline-primary btn-sm w-100 mt-2 rounded-pill fw-bold">Return to Feed</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+{% endblock %}

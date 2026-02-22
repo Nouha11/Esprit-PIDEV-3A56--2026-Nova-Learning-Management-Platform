@@ -88,7 +88,13 @@ class Post
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $linkImage = null;
-    // ==========================================
+    
+    
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $attachmentName = null;
+
+    #[Vich\UploadableField(mapping: 'forum_attachments', fileNameProperty: 'attachmentName')]
+    private ?File $attachmentFile = null;
 
     public function __construct()
     {
@@ -357,4 +363,31 @@ class Post
 
         return $this;
     }
+
+
+    public function getAttachmentName(): ?string
+    {
+        return $this->attachmentName;
+    }
+
+    public function setAttachmentName(?string $attachmentName): static
+    {
+        $this->attachmentName = $attachmentName;
+        return $this;
+    }
+
+    public function getAttachmentFile(): ?File
+    {
+        return $this->attachmentFile;
+    }
+
+    public function setAttachmentFile(?File $attachmentFile = null): void
+    {
+        $this->attachmentFile = $attachmentFile;
+        // This triggers Doctrine to update the database if the file changes
+        if (null !== $attachmentFile && property_exists($this, 'updatedAt')) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
 }

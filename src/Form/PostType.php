@@ -11,6 +11,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class PostType extends AbstractType
 {
@@ -45,6 +46,12 @@ class PostType extends AbstractType
                 'image_uri' => true,
                 'label' => 'Upload an Image (Optional)',
                 'asset_helper' => true,
+            ])
+            
+            ->add('attachmentFile', VichFileType::class, [
+                'required' => false,
+                'allow_delete' => false, // Set to false to keep our UI clean
+                'download_uri' => false, // Set to false to keep our UI clean
             ])
         ;
     }

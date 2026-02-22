@@ -22,7 +22,6 @@
         .left-nav-link:hover, .left-nav-link.active { background-color: var(--nova-hover-bg); }
         .left-nav-section-title { font-size: 11px; font-weight: 700; color: var(--nova-text-muted); text-transform: uppercase; padding: 16px 16px 8px 16px; letter-spacing: 0.5px; }
 
-        /* --- POST FORM REDESIGN --- */
         .nova-form-wrapper { border: 1px solid var(--nova-border); border-radius: 6px; overflow: hidden; background: var(--nova-card-bg); transition: border-color 0.2s; }
         .nova-form-wrapper:focus-within { border-color: #0d6efd; }
         .nova-form-control { background: transparent !important; border: none !important; color: var(--nova-text-main) !important; box-shadow: none !important; }
@@ -36,10 +35,11 @@
         .reddit-card { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; transition: all 0.2s ease; cursor: pointer; }
         .reddit-card:hover { border-color: var(--nova-border-hover); }
         .vote-sidebar { background-color: var(--nova-vote-bg); width: 45px; border-right: 1px solid var(--nova-border); display: flex; flex-direction: column; align-items: center; padding-top: 10px; border-top-left-radius: 4px; border-bottom-left-radius: 4px;}
-        .vote-arrow { color: var(--nova-text-muted); font-size: 1.3rem; cursor: pointer; border-radius: 4px; padding: 0px; line-height: 1; transition: all 0.2s; }
-        .vote-arrow.up:hover { color: #ff4500; background-color: rgba(255, 69, 0, 0.1); }
-        .vote-arrow.down:hover { color: #7193ff; background-color: rgba(113, 147, 255, 0.1); }
-        .vote-score { font-size: 13px; font-weight: 700; color: var(--nova-text-main); margin: 6px 0; }
+        .vote-arrow { color: var(--nova-text-muted); font-size: 1.4rem; cursor: pointer; border-radius: 4px; padding: 2px; line-height: 1; transition: all 0.1s; }
+        .vote-arrow:hover { background-color: var(--nova-hover-bg); }
+        .vote-arrow.up.active, .vote-arrow.up:hover { color: #ff4500; }
+        .vote-arrow.down.active, .vote-arrow.down:hover { color: #7193ff; }
+        .vote-score { font-size: 13px; font-weight: 700; color: var(--nova-text-main); margin: 4px 0; }
         
         .post-meta { font-size: 12px; color: var(--nova-text-muted); margin-bottom: 8px; }
         .post-author { color: var(--nova-text-muted); text-decoration: none; font-weight: 600; }
@@ -67,7 +67,7 @@
     <div class="container-fluid px-xl-5">
         <div class="row justify-content-center">
             
-            {# --- 1. LEFT COLUMN: NAVIGATION --- #}
+            {# --- 1. LEFT COLUMN --- #}
             <div class="col-xl-2 col-lg-3 d-none d-lg-block">
                 <div class="sticky-sidebar pe-2">
                     <div class="left-nav-section-title">Feeds</div>
@@ -96,24 +96,29 @@
                         {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
                         {% set color = colors[s.id % colors|length] %}
                         <a href="{{ path('app_forum_space', {'id': s.id}) }}" class="left-nav-link d-flex align-items-center {{ s.id == space.id ? 'active' : '' }}">
-                            {# CLEAN COLORED DOT #}
+                            {# CHANGED: CLEAN DOT #}
                             <div class="rounded-circle me-3" style="width: 14px; height: 14px; background-color: {{ color }}; margin-left: 5px;"></div>
                             <span class="text-truncate">{{ s.name }}</span>
                         </a>
+                    
                     {% endfor %}
+
+
+
+
+
                 </div>
             </div>
 
-            {# --- 2. MIDDLE COLUMN: SPACE FEED --- #}
+            {# --- 2. MIDDLE COLUMN --- #}
             <div class="col-xl-7 col-lg-6 col-md-12">
                 
-                {# Space Banner #}
                 <div class="card border rounded-3 mb-4 overflow-hidden shadow-sm" style="border-color: var(--nova-border) !important; background: var(--nova-card-bg);">
                     {% set spaceColor = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'][space.id % 7] %}
                     <div style="background: linear-gradient(135deg, {{ spaceColor }} 0%, #343a40 100%); height: 80px;"></div>
                     <div class="card-body d-flex align-items-center position-relative" style="padding-top: 10px;">
                         <div class="rounded-circle p-1 position-absolute" style="top: -35px; left: 15px; background: var(--nova-card-bg);">
-                            {# ROCKET ICON INSTEAD OF LETTER #}
+                            {# CHANGED: ROCKET ICON #}
                             <div class="text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 60px; height: 60px; font-size: 30px; background-color: {{ spaceColor }};">
                                 <i class="bi bi-rocket-takeoff-fill"></i>
                             </div>
@@ -136,9 +141,9 @@
                     </div>
                     <button class="btn btn-sm btn-outline-secondary border-0 p-2" id="quick-image-btn" data-bs-toggle="collapse" data-bs-target="#addPostForm"><i class="bi bi-image fs-5"></i></button>
                     <button class="btn btn-sm btn-outline-secondary border-0 p-2" id="quick-link-btn" data-bs-toggle="collapse" data-bs-target="#addPostForm"><i class="bi bi-link-45deg fs-4"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary border-0 p-2" id="quick-file-btn" data-bs-toggle="collapse" data-bs-target="#addPostForm"><i class="bi bi-paperclip fs-5"></i></button>
                 </div>
 
-                {# NEW: Redesigned Create Post Form #}
                 <div class="collapse mb-4 {{ form.vars.submitted ? 'show' : '' }}" id="addPostForm">
                     <div class="nova-form-wrapper shadow-sm">
                         {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }} 
@@ -161,14 +166,18 @@
                             </div>
 
                             <div class="nova-form-footer">
-                                <div class="row gx-3 mb-3">
-                                    <div class="col-md-6 mb-3 mb-md-0">
-                                        <label class="form-label fw-bold nova-text-muted mb-1" style="font-size: 11px; text-transform: uppercase;"><i class="bi bi-link-45deg"></i> Attach Link</label>
+                                <div class="row gx-2 mb-3">
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <label class="form-label fw-bold nova-text-muted mb-1" style="font-size: 11px; text-transform: uppercase;"><i class="bi bi-link-45deg"></i> Link</label>
                                         {{ form_widget(form.link, {'attr': {'class': 'form-control form-control-sm target-link-input', 'style': 'background: var(--nova-card-bg); border: 1px solid var(--nova-border); color: var(--nova-text-main);'}}) }}
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold nova-text-muted mb-1" style="font-size: 11px; text-transform: uppercase;"><i class="bi bi-image"></i> Upload Image</label>
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <label class="form-label fw-bold nova-text-muted mb-1" style="font-size: 11px; text-transform: uppercase;"><i class="bi bi-image"></i> Image</label>
                                         {{ form_widget(form.imageFile, {'attr': {'class': 'form-control form-control-sm target-image-input', 'style': 'background: var(--nova-card-bg); border: 1px solid var(--nova-border); color: var(--nova-text-main);'}}) }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold nova-text-muted mb-1" style="font-size: 11px; text-transform: uppercase;"><i class="bi bi-paperclip"></i> File</label>
+                                        {{ form_widget(form.attachmentFile, {'attr': {'class': 'form-control form-control-sm target-file-input', 'style': 'background: var(--nova-card-bg); border: 1px solid var(--nova-border); color: var(--nova-text-main);'}}) }}
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-end align-items-center mt-2 pt-3 border-top" style="border-color: var(--nova-border) !important;">
@@ -189,11 +198,19 @@
                 <div class="d-flex flex-column gap-3 mb-4">
                     {% for post in posts %}
                         <div class="reddit-card d-flex shadow-sm" onclick="window.location.href='{{ path('app_forum_show', {'id': post.id}) }}'">
-                            <div class="vote-sidebar">
-                                <i class="bi bi-arrow-up-short vote-arrow up"></i>
-                                <span class="vote-score">{{ post.upvotes }}</span>
-                                <i class="bi bi-arrow-down-short vote-arrow down"></i>
+                            
+                            {# UPDATED: FEED VOTE BOX #}
+                            <div class="vote-sidebar feed-vote-box" data-id="{{ post.id }}">
+                                {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
+                                <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-type="up" onclick="event.stopPropagation();">
+                                    <i class="bi bi-arrow-up-short"></i>
+                                </a>
+                                <span class="vote-score post-score-count">{{ post.upvotes }}</span>
+                                <a href="#" class="vote-arrow down" data-type="down" onclick="event.stopPropagation();">
+                                    <i class="bi bi-arrow-down-short"></i>
+                                </a>
                             </div>
+
                             <div class="p-3 w-100">
                                 <div class="post-meta d-flex align-items-center">
                                     <span>Posted by <a href="#" class="post-author" onclick="event.stopPropagation();">u/{{ post.author.username }}</a></span>
@@ -209,6 +226,21 @@
                                 {% if post.imageName %}
                                     <div class="mb-3 rounded overflow-hidden border" style="border-color: var(--nova-border) !important; max-height: 400px; text-align: center; background-color: var(--nova-input-bg);">
                                         <img src="{{ vich_uploader_asset(post, 'imageFile') }}" style="max-height: 400px; width: auto; max-width: 100%; object-fit: contain;">
+                                    </div>
+                                {% endif %}
+
+                                {% if post.attachmentName %}
+                                    <div class="mb-3 p-3 rounded border d-flex align-items-center" style="background: var(--nova-input-bg); border-color: var(--nova-border) !important;" onclick="event.stopPropagation();">
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-file-earmark-text fs-4"></i>
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden pe-3">
+                                            <h6 class="mb-0 nova-text-main text-truncate" style="font-size: 14px;">{{ post.attachmentName }}</h6>
+                                            <small class="nova-text-muted">Attached File</small>
+                                        </div>
+                                        <a href="{{ vich_uploader_asset(post, 'attachmentFile') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 text-nowrap" download>
+                                            <i class="bi bi-download me-1"></i> Download
+                                        </a>
                                     </div>
                                 {% endif %}
 
@@ -247,9 +279,9 @@
                                     <a href="{{ path('app_forum_show', {'id': post.id}) }}#comments" class="action-pill" onclick="event.stopPropagation();"><i class="bi bi-chat-square"></i> {{ post.comments|length }} Comments</a>
                                     <button class="action-pill share-btn ms-1" data-url="{{ url('app_forum_show', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-share"></i> <span class="share-text">Share</span></button>
                                     {% if app.user and app.user.hasBookmarkedPost(post) %}
-                                        <button class="action-pill ms-1 saved" onclick="event.stopPropagation();"><i class="bi bi-bookmark-fill"></i> Saved</button>
+                                        <button class="action-pill ms-1 saved bookmark-btn-feed" data-id="{{ post.id }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark-fill"></i> Saved</button>
                                     {% else %}
-                                        <button class="action-pill ms-1" onclick="event.stopPropagation();"><i class="bi bi-bookmark"></i> Save</button>
+                                        <button class="action-pill ms-1 bookmark-btn-feed" data-id="{{ post.id }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark"></i> Save</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -269,7 +301,7 @@
                 </div>
             </div>
 
-            {# --- 3. RIGHT COLUMN: WIDGETS (REDESIGNED) --- #}
+            {# --- 3. RIGHT COLUMN --- #}
             <div class="col-lg-3 d-none d-lg-block">
                 <div class="sticky-sidebar">
                     
@@ -277,7 +309,6 @@
                         <div class="position-relative">
                             <div style="background: linear-gradient(135deg, {{ spaceColor }} 0%, #343a40 100%); height: 44px;"></div>
                             <div class="position-absolute rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px; top: 22px; left: 16px; border: 2px solid var(--nova-card-bg); background: var(--nova-card-bg);">
-                                {# ROCKET ICON FOR WIDGET TOO #}
                                 <div class="text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 18px; font-weight: bold; background-color: {{ spaceColor }};">
                                     <i class="bi bi-rocket-takeoff-fill"></i>
                                 </div>
@@ -339,11 +370,9 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Quick Action Buttons Focus
         document.getElementById('quick-image-btn')?.addEventListener('click', () => setTimeout(() => document.querySelector('.target-image-input').focus(), 300));
         document.getElementById('quick-link-btn')?.addEventListener('click', () => setTimeout(() => document.querySelector('.target-link-input').focus(), 300));
 
-        // AI Enhancer
         const enhanceBtn = document.getElementById('ai-enhance-btn');
         const textArea = document.querySelector('.post-content-textarea');
         if (enhanceBtn && textArea) {
@@ -371,9 +400,7 @@
             });
         }
 
-        // Share Button
-        const shareButtons = document.querySelectorAll('.share-btn');
-        shareButtons.forEach(btn => {
+        document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault(); e.stopPropagation();
                 const urlToShare = this.getAttribute('data-url');
@@ -384,6 +411,54 @@
                     textSpan.innerText = 'Copied!'; icon.className = 'bi bi-check2 text-success fw-bold';
                     setTimeout(() => { textSpan.innerText = originalText; icon.className = originalIcon; }, 2000);
                 });
+            });
+        });
+
+        // Feed Post Upvote Logic
+        document.querySelectorAll('.feed-vote-box .vote-arrow').forEach(arrow => {
+            arrow.addEventListener('click', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                const type = this.dataset.type;
+                if(type === 'down') return; 
+                
+                const container = this.closest('.feed-vote-box');
+                const postId = container.dataset.id;
+                const scoreDisplay = container.querySelector('.post-score-count');
+                
+                fetch(`/forum/post/${postId}/upvote`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => {
+                    if (r.status === 403) { alert('You must be logged in.'); throw new Error('Auth'); }
+                    return r.json();
+                }).then(data => {
+                    if(data) {
+                        scoreDisplay.textContent = data.upvotes;
+                        if(data.isUpvoted) { this.classList.add('active'); } 
+                        else { this.classList.remove('active'); }
+                    }
+                }).catch(err => {});
+            });
+        });
+
+        // Feed Post Bookmark Logic
+        document.querySelectorAll('.bookmark-btn-feed').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                const postId = this.dataset.id;
+                fetch(`/forum/post/${postId}/bookmark`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => {
+                    if (r.status === 403) { alert('You must be logged in.'); throw new Error('Auth'); }
+                    return r.json();
+                }).then(data => {
+                    if(data) {
+                        if(data.isBookmarked) {
+                            this.innerHTML = '<i class="bi bi-bookmark-fill"></i> Saved';
+                            this.classList.add('saved');
+                        } else {
+                            this.innerHTML = '<i class="bi bi-bookmark"></i> Save';
+                            this.classList.remove('saved');
+                        }
+                    }
+                }).catch(err => {});
             });
         });
     });
