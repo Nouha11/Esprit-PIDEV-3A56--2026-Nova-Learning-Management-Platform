@@ -71,6 +71,7 @@
                              <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}"><i class="bi bi-shield-lock fa-fw me-2"></i>Admin Dashboard</a></li>
                         {% elseif 'ROLE_TUTOR' in app.user.roles %}
                              <li><a class="dropdown-item" href="{{ path('admin_game_index') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>Tutor Dashboard</a></li>
+                             <li><a class="dropdown-item" href="{{ path('enrollment_requests') }}"><i class="bi bi-person-check fa-fw me-2"></i>Enrollment Requests</a></li>
                         {% else %}
                              <li><a class="dropdown-item" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>My Dashboard</a></li>
                         {% endif %}

@@ -56,18 +56,55 @@
                         </div>
 
                         <div class="mb-3">
-                            {{ form_label(form.iconFile) }}
-                            {{ form_widget(form.iconFile) }}
-                            {{ form_errors(form.iconFile) }}
+                            {{ form_label(form.iconFile, 'Icon/Image Upload') }}
+                            
                             {% if reward.icon %}
-                                <div class="mt-2">
-                                    <small class="text-muted">Current icon:</small><br>
-                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="Current icon" style="max-width: 100px; max-height: 100px; object-fit: contain;" class="mt-1">
+                                <div class="alert alert-info mb-2">
+                                    <i class="bi bi-image me-2"></i>
+                                    <strong>Current file:</strong> {{ reward.icon }}
                                 </div>
-                            {% else %}
-                                <small class="form-text text-muted">No icon uploaded yet</small>
+                                <div class="mb-2">
+                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" 
+                                         alt="Current icon" 
+                                         style="max-width: 120px; max-height: 120px; object-fit: contain;" 
+                                         class="border rounded p-2 bg-light">
+                                </div>
                             {% endif %}
+                            
+                            <div class="custom-file-upload">
+                                {{ form_widget(form.iconFile, {'attr': {'class': 'form-control', 'id': 'iconFileInput'}}) }}
+                                {% if not reward.icon %}
+                                    <small class="form-text text-muted d-block mt-1">
+                                        <i class="bi bi-info-circle me-1"></i>No icon uploaded yet. Upload an image file.
+                                    </small>
+                                {% else %}
+                                    <small class="form-text text-muted d-block mt-1">
+                                        <i class="bi bi-info-circle me-1"></i>Upload a new file to replace the current icon, or leave empty to keep it.
+                                    </small>
+                                {% endif %}
+                            </div>
+                            {{ form_errors(form.iconFile) }}
                         </div>
+                        
+                        <script>
+                            // Show selected filename when user chooses a new file
+                            document.getElementById('iconFileInput').addEventListener('change', function(e) {
+                                const fileName = e.target.files[0]?.name;
+                                if (fileName) {
+                                    const fileInfo = document.createElement('div');
+                                    fileInfo.className = 'alert alert-success mt-2';
+                                    fileInfo.innerHTML = '<i class="bi bi-check-circle me-2"></i><strong>New file selected:</strong> ' + fileName;
+                                    
+                                    // Remove any existing new file alert
+                                    const existingAlert = e.target.parentElement.querySelector('.alert-success');
+                                    if (existingAlert) {
+                                        existingAlert.remove();
+                                    }
+                                    
+                                    e.target.parentElement.appendChild(fileInfo);
+                                }
+                            });
+                        </script>
 
                         <div class="mb-3">
                             <label class="form-label d-flex justify-content-between align-items-center">

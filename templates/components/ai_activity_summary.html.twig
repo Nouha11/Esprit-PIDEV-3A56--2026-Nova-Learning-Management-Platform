@@ -157,19 +157,32 @@
                     <div class="row g-3">
                         {% for recommendation in summary.recommendations %}
                             <div class="col-md-6">
-                                <div class="card border-0 bg-{{ recommendation.color }} bg-opacity-10 h-100">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-start mb-2">
-                                            <i class="{{ recommendation.icon }} fs-4 text-{{ recommendation.color }} me-2"></i>
-                                            <p class="mb-0 small">{{ recommendation.text }}</p>
+                                {% if recommendation is iterable and recommendation.color is defined %}
+                                    {# Recommendation is an object with properties #}
+                                    <div class="card border-0 bg-{{ recommendation.color }} bg-opacity-10 h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-start mb-2">
+                                                <i class="{{ recommendation.icon }} fs-4 text-{{ recommendation.color }} me-2"></i>
+                                                <p class="mb-0 small">{{ recommendation.text }}</p>
+                                            </div>
+                                            {% if recommendation.link is defined %}
+                                                <a href="{{ recommendation.link }}" class="btn btn-sm btn-{{ recommendation.color }} w-100 mt-2">
+                                                    {{ recommendation.action }}
+                                                </a>
+                                            {% endif %}
                                         </div>
-                                        {% if recommendation.link is defined %}
-                                            <a href="{{ recommendation.link }}" class="btn btn-sm btn-{{ recommendation.color }} w-100 mt-2">
-                                                {{ recommendation.action }}
-                                            </a>
-                                        {% endif %}
                                     </div>
-                                </div>
+                                {% else %}
+                                    {# Recommendation is a simple string #}
+                                    <div class="card border-0 bg-info bg-opacity-10 h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-start mb-2">
+                                                <i class="bi bi-lightbulb fs-4 text-info me-2"></i>
+                                                <p class="mb-0 small">{{ recommendation }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>

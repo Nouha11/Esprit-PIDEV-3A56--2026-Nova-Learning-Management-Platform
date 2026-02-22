@@ -32,14 +32,15 @@
                     <i class="bi bi-robot"></i>
                 </div>
                 <div class="ai-message-content">
-                    <p class="mb-1"><strong>Hi! I'm your AI assistant.</strong></p>
+                    <p class="mb-1"><strong>🤖 Hi! I'm your Game AI Assistant.</strong></p>
                     <p class="mb-2 small">I can help with:</p>
                     <ul class="mb-1 small">
-                        <li>Reward recommendations</li>
-                        <li>Progress tracking</li>
-                        <li>Game info & tips</li>
+                        <li>🏆 Reward recommendations</li>
+                        <li>📈 Progress tracking</li>
+                        <li>🎮 Game info &amp; tips</li>
+                        <li>⭐ XP &amp; token strategies</li>
                     </ul>
-                    <p class="mb-0 small text-muted">Use quick actions or ask anything!</p>
+                    <p class="mb-0 small text-muted">✨ Use quick actions or ask anything!</p>
                 </div>
             </div>
         </div>
@@ -47,16 +48,16 @@
         <div class="ai-chat-input">
             <div class="ai-quick-actions mb-2">
                 <button class="btn btn-sm btn-outline-primary" data-action="recommendation">
-                    <i class="bi bi-trophy me-1"></i>Recommend Reward
+                    🏆 Recommend
                 </button>
                 <button class="btn btn-sm btn-outline-info" data-action="progress">
-                    <i class="bi bi-graph-up me-1"></i>My Progress
+                    📊 Progress
                 </button>
                 <button class="btn btn-sm btn-outline-success" data-action="games">
-                    <i class="bi bi-controller me-1"></i>About Games
+                    🎮 Games
                 </button>
                 <button class="btn btn-sm btn-outline-warning" data-action="earn-xp">
-                    <i class="bi bi-star me-1"></i>Earn More XP
+                    ⭐ Earn XP
                 </button>
             </div>
             <div class="input-group">
@@ -380,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             messageElements.forEach(el => {
                 // Skip welcome message
-                if (el.querySelector('.ai-message-content')?.innerHTML.includes('Hi! I\'m your AI assistant')) {
+                if (el.querySelector('.ai-message-content')?.innerHTML.includes('Hi! I\'m your Game AI Assistant')) {
                     return;
                 }
                 

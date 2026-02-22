@@ -14,7 +14,8 @@
             <div class="card-body">
                 {{ form_start(form, {
                     'attr': {
-                        'novalidate': 'novalidate'
+                        'novalidate': 'novalidate',
+                        'enctype': 'multipart/form-data'
                     }
                 }) }}
                     <div class="mb-3">
@@ -32,8 +33,55 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        {{ form_row(form.icon) }}
+                        {{ form_label(form.icon, 'Icon/Image Upload') }}
+                        
+                        {% if milestone.icon %}
+                            <div class="alert alert-info mb-2">
+                                <i class="bi bi-image me-2"></i>
+                                <strong>Current file:</strong> {{ milestone.icon }}
+                            </div>
+                            <div class="mb-2">
+                                <img src="{{ asset('uploads/rewards/' ~ milestone.icon) }}" 
+                                     alt="Current icon" 
+                                     style="max-width: 120px; max-height: 120px; object-fit: contain;" 
+                                     class="border rounded p-2 bg-light">
+                            </div>
+                        {% endif %}
+                        
+                        <div class="custom-file-upload">
+                            {{ form_widget(form.icon, {'attr': {'class': 'form-control', 'id': 'iconFileInput'}}) }}
+                            {% if not milestone.icon %}
+                                <small class="form-text text-muted d-block mt-1">
+                                    <i class="bi bi-info-circle me-1"></i>No icon uploaded yet. Upload an image file.
+                                </small>
+                            {% else %}
+                                <small class="form-text text-muted d-block mt-1">
+                                    <i class="bi bi-info-circle me-1"></i>Upload a new file to replace the current icon, or leave empty to keep it.
+                                </small>
+                            {% endif %}
+                        </div>
+                        {{ form_errors(form.icon) }}
                     </div>
+                    
+                    <script>
+                        // Show selected filename when user chooses a new file
+                        document.getElementById('iconFileInput').addEventListener('change', function(e) {
+                            const fileName = e.target.files[0]?.name;
+                            if (fileName) {
+                                const fileInfo = document.createElement('div');
+                                fileInfo.className = 'alert alert-success mt-2';
+                                fileInfo.innerHTML = '<i class="bi bi-check-circle me-2"></i><strong>New file selected:</strong> ' + fileName;
+                                
+                                // Remove any existing new file alert
+                                const existingAlert = e.target.parentElement.querySelector('.alert-success');
+                                if (existingAlert) {
+                                    existingAlert.remove();
+                                }
+                                
+                                e.target.parentElement.appendChild(fileInfo);
+                            }
+                        });
+                    </script>
                     <div class="mb-3">
                         <div class="form-check">
                             {{ form_widget(form.isActive) }}
