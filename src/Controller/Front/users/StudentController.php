@@ -6,6 +6,8 @@ use App\Entity\users\StudentProfile;
 use App\Repository\StudentProfileRepository;
 use App\Service\ProfileCompletionService;
 use App\Service\LoginHistoryService;
+use App\Service\UserActivityService;
+use App\Service\AIActivitySummaryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +21,9 @@ final class StudentController extends AbstractController
 {
     public function __construct(
         private ProfileCompletionService $profileCompletionService,
-        private LoginHistoryService $loginHistoryService
+        private LoginHistoryService $loginHistoryService,
+        private UserActivityService $userActivityService,
+        private AIActivitySummaryService $activitySummaryService
     ) {}
 
     #[Route('/profile', name: 'app_student_profile', methods: ['GET'])]
@@ -146,11 +150,19 @@ final class StudentController extends AbstractController
         
         // Get recent login history
         $recentLogins = $this->loginHistoryService->getRecentLogins($user, 5);
+        
+        // Get recent activities
+        $recentActivities = $this->userActivityService->getRecentActivities($user, 10);
+        
+        // Get smart activity summary
+        $activitySummary = $this->activitySummaryService->generateSummary($user);
 
         return $this->render('front/users/student/dashboard.html.twig', [
             'student' => $student,
             'completion' => $completion,
             'recentLogins' => $recentLogins,
+            'recentActivities' => $recentActivities,
+            'activitySummary' => $activitySummary,
         ]);
     }
 

@@ -1,0 +1,154 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Activities - NOVA{% endblock %}
+
+{% block body %}
+<section class="pt-4 pb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="mb-1 h3">My Activities</h1>
+                        <p class="text-muted mb-0">Track your learning journey and achievements</p>
+                    </div>
+                    <a href="{{ app.user.role == 'ROLE_STUDENT' ? path('app_student_dashboard') : path('app_tutor_dashboard') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+
+                <!-- Activity Stats -->
+                <div class="row g-4 mb-4">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card border h-100">
+                            <div class="card-body text-center">
+                                <div class="icon-lg bg-primary bg-opacity-10 rounded-circle text-primary mb-3 mx-auto">
+                                    <i class="bi bi-controller fs-3"></i>
+                                </div>
+                                <h3 class="text-primary mb-0">{{ stats.game_played }}</h3>
+                                <p class="text-muted mb-0 small">Games Played</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card border h-100">
+                            <div class="card-body text-center">
+                                <div class="icon-lg bg-purple bg-opacity-10 rounded-circle text-purple mb-3 mx-auto">
+                                    <i class="bi bi-lightning-charge fs-3"></i>
+                                </div>
+                                <h3 class="text-purple mb-0">{{ stats.quiz_completed }}</h3>
+                                <p class="text-muted mb-0 small">Quizzes Completed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card border h-100">
+                            <div class="card-body text-center">
+                                <div class="icon-lg bg-success bg-opacity-10 rounded-circle text-success mb-3 mx-auto">
+                                    <i class="bi bi-star fs-3"></i>
+                                </div>
+                                <h3 class="text-success mb-0">{{ stats.xp_earned }}</h3>
+                                <p class="text-muted mb-0 small">XP Earned</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card border h-100">
+                            <div class="card-body text-center">
+                                <div class="icon-lg bg-warning bg-opacity-10 rounded-circle text-warning mb-3 mx-auto">
+                                    <i class="bi bi-gift fs-3"></i>
+                                </div>
+                                <h3 class="text-warning mb-0">{{ stats.reward_claimed }}</h3>
+                                <p class="text-muted mb-0 small">Rewards Claimed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activities List -->
+                <div class="card border">
+                    <div class="card-header bg-light border-bottom">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock-history me-2"></i>Activity Timeline
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if activities is empty %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-inbox display-1 text-muted"></i>
+                                <h4 class="mt-4">No Activities Yet</h4>
+                                <p class="text-muted">Start exploring the platform to see your activity history!</p>
+                                <div class="mt-4">
+                                    <a href="{{ path('front_game_index') }}" class="btn btn-primary me-2">
+                                        <i class="bi bi-controller me-2"></i>Play Games
+                                    </a>
+                                    <a href="{{ path('app_front_quiz_index') }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-lightning-charge me-2"></i>Take Quiz
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="list-group list-group-flush">
+                                {% for activity in activities %}
+                                    <div class="list-group-item px-0 py-4">
+                                        <div class="d-flex align-items-start">
+                                            <div class="avatar avatar-md flex-shrink-0">
+                                                <div class="avatar-img rounded-circle bg-{{ activity.color }} bg-opacity-10">
+                                                    <i class="{{ activity.icon }} text-{{ activity.color }} position-absolute top-50 start-50 translate-middle fs-5"></i>
+                                                </div>
+                                            </div>
+                                            <div class="ms-3 flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1">{{ activity.description }}</h6>
+                                                        <p class="mb-0 small text-muted">
+                                                            <i class="bi bi-clock me-1"></i>
+                                                            {{ activity.createdAt|date('F d, Y \\a\\t h:i A') }}
+                                                        </p>
+                                                    </div>
+                                                    <span class="badge bg-{{ activity.color }}-soft text-{{ activity.color }}">
+                                                        {{ activity.activityType|replace({'_': ' '})|title }}
+                                                    </span>
+                                                </div>
+                                                {% if activity.metadata %}
+                                                    <div class="mt-3">
+                                                        {% if activity.metadata.xp is defined %}
+                                                            <span class="badge bg-success-soft text-success me-2">
+                                                                <i class="bi bi-star me-1"></i>+{{ activity.metadata.xp }} XP
+                                                            </span>
+                                                        {% endif %}
+                                                        {% if activity.metadata.tokens is defined %}
+                                                            <span class="badge bg-warning-soft text-warning me-2">
+                                                                <i class="bi bi-coin me-1"></i>+{{ activity.metadata.tokens }} Tokens
+                                                            </span>
+                                                        {% endif %}
+                                                        {% if activity.metadata.level is defined %}
+                                                            <span class="badge bg-primary-soft text-primary me-2">
+                                                                <i class="bi bi-arrow-up-circle me-1"></i>Level {{ activity.metadata.level }}
+                                                            </span>
+                                                        {% endif %}
+                                                        {% if activity.metadata.game_name is defined %}
+                                                            <span class="badge bg-info-soft text-info me-2">
+                                                                <i class="bi bi-controller me-1"></i>{{ activity.metadata.game_name }}
+                                                            </span>
+                                                        {% endif %}
+                                                        {% if activity.metadata.quiz_name is defined %}
+                                                            <span class="badge bg-purple-soft text-purple me-2">
+                                                                <i class="bi bi-lightning-charge me-1"></i>{{ activity.metadata.quiz_name }}
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

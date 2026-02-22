@@ -103,6 +103,64 @@
                 box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
             }
         }
+        
+        /* Scrollable Sidebar with internal scrollbar */
+        .sidebar-content {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Make the navbar list scrollable with internal scrollbar */
+        #navbar-sidebar {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: calc(100vh - 200px); /* Account for logo and bottom section */
+            padding-right: 8px; /* Space for scrollbar */
+        }
+        
+        /* Custom internal scrollbar styling */
+        #navbar-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #navbar-sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin: 4px 0;
+        }
+        
+        #navbar-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        
+        #navbar-sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        
+        /* For Firefox - internal scrollbar */
+        #navbar-sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.15) rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Ensure bottom section stays fixed */
+        .sidebar-content > .px-3 {
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+        
+        /* Force scrollbar to always show */
+        #navbar-sidebar::-webkit-scrollbar {
+            width: 8px;
+            display: block;
+        }
     </style>
     
     {% block stylesheets %}{% endblock %}

@@ -1,0 +1,156 @@
+{# AI Activity Summary Component #}
+{% set summary = activitySummary|default({}) %}
+
+<div class="card bg-transparent border rounded-3 mb-4">
+    <div class="card-header bg-gradient border-bottom" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-white">
+                <i class="bi bi-stars me-2"></i>Smart Activity Summary
+            </h5>
+            {% if summary.ai_generated|default(false) %}
+                <span class="badge bg-white text-primary">
+                    <i class="bi bi-robot me-1"></i>AI Powered
+                </span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        {% if summary.summary is defined %}
+            {# Main Summary #}
+            <div class="alert alert-info bg-opacity-10 border-0 mb-4">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-lightbulb fs-3 me-3 text-info"></i>
+                    <div>
+                        <h6 class="alert-heading mb-2">Your Week in Review</h6>
+                        <p class="mb-0">{{ summary.summary }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {# Stats Row #}
+            {% if summary.stats is defined %}
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-primary bg-opacity-10 h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-activity fs-1 text-primary mb-2"></i>
+                                <h3 class="text-primary mb-0">{{ summary.stats.total_activities }}</h3>
+                                <p class="text-muted small mb-0">Total Activities</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-success bg-opacity-10 h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-fire fs-1 text-success mb-2"></i>
+                                <h3 class="text-success mb-0">{{ summary.stats.streak }}</h3>
+                                <p class="text-muted small mb-0">Day Streak</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-warning bg-opacity-10 h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-calendar-check fs-1 text-warning mb-2"></i>
+                                <h3 class="text-warning mb-0">
+                                    {% if summary.stats.most_active_day %}
+                                        {{ summary.stats.most_active_day.count }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </h3>
+                                <p class="text-muted small mb-0">Peak Day Activities</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {# Insights #}
+            {% if summary.insights is defined and summary.insights is not empty %}
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3">
+                        <i class="bi bi-graph-up me-2"></i>Key Insights
+                    </h6>
+                    <div class="row g-3">
+                        {% for insight in summary.insights %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start p-3 bg-{{ insight.color }} bg-opacity-10 rounded">
+                                    <i class="{{ insight.icon }} fs-4 text-{{ insight.color }} me-3"></i>
+                                    <p class="mb-0 small">{{ insight.text }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {# Highlights #}
+            {% if summary.highlights is defined and summary.highlights is not empty %}
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3">
+                        <i class="bi bi-trophy me-2"></i>Recent Highlights
+                    </h6>
+                    <div class="list-group list-group-flush">
+                        {% for highlight in summary.highlights %}
+                            <div class="list-group-item px-0 py-2 border-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm flex-shrink-0">
+                                        <div class="avatar-img rounded-circle bg-{{ highlight.color }} bg-opacity-10">
+                                            <i class="{{ highlight.icon }} text-{{ highlight.color }} position-absolute top-50 start-50 translate-middle"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ms-3 flex-grow-1">
+                                        <p class="mb-0">{{ highlight.text }}</p>
+                                        <small class="text-muted">{{ highlight.date|date('M d, Y') }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {# Recommendations #}
+            {% if summary.recommendations is defined and summary.recommendations is not empty %}
+                <div class="mb-3">
+                    <h6 class="text-muted mb-3">
+                        <i class="bi bi-compass me-2"></i>Personalized Recommendations
+                    </h6>
+                    <div class="row g-3">
+                        {% for recommendation in summary.recommendations %}
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-{{ recommendation.color }} bg-opacity-10 h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-start mb-2">
+                                            <i class="{{ recommendation.icon }} fs-4 text-{{ recommendation.color }} me-2"></i>
+                                            <p class="mb-0 small">{{ recommendation.text }}</p>
+                                        </div>
+                                        {% if recommendation.link is defined %}
+                                            <a href="{{ recommendation.link }}" class="btn btn-sm btn-{{ recommendation.color }} w-100 mt-2">
+                                                {{ recommendation.action }}
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {# View All Button #}
+            <div class="text-center mt-4">
+                <a href="{{ path('app_user_activities') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-clock-history me-2"></i>View All Activities
+                </a>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-inbox display-4 text-muted"></i>
+                <p class="text-muted mt-3 mb-0">No activity data available</p>
+                <p class="text-muted small">Start exploring to see your personalized summary!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>

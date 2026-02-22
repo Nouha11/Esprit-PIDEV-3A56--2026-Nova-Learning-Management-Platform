@@ -1,0 +1,68 @@
+{# Recent Activities Component #}
+{% set activities = activities|default([]) %}
+{% set limit = limit|default(10) %}
+{% set showViewAll = showViewAll|default(true) %}
+
+<div class="card bg-transparent border rounded-3">
+    <div class="card-header bg-transparent border-bottom">
+        <div class="d-sm-flex justify-content-between align-items-center">
+            <h5 class="mb-2 mb-sm-0">
+                <i class="bi bi-clock-history me-2"></i>Recent Activities
+            </h5>
+            {% if showViewAll %}
+                <a href="{{ path('app_user_activities') }}" class="btn btn-sm btn-primary-soft mb-0">
+                    View All
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        {% if activities is empty %}
+            <div class="text-center py-4">
+                <i class="bi bi-inbox display-4 text-muted"></i>
+                <p class="text-muted mt-3 mb-0">No recent activities yet</p>
+                <p class="text-muted small">Start exploring to see your activity history!</p>
+            </div>
+        {% else %}
+            <div class="list-group list-group-flush">
+                {% for activity in activities|slice(0, limit) %}
+                    <div class="list-group-item px-0 py-3">
+                        <div class="d-flex align-items-start">
+                            <div class="avatar avatar-sm flex-shrink-0">
+                                <div class="avatar-img rounded-circle bg-{{ activity.color }} bg-opacity-10">
+                                    <i class="{{ activity.icon }} text-{{ activity.color }} position-absolute top-50 start-50 translate-middle"></i>
+                                </div>
+                            </div>
+                            <div class="ms-3 flex-grow-1">
+                                <h6 class="mb-1">{{ activity.description }}</h6>
+                                <p class="mb-0 small text-muted">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ activity.createdAt|date('M d, Y \\a\\t h:i A') }}
+                                </p>
+                                {% if activity.metadata %}
+                                    <div class="mt-2">
+                                        {% if activity.metadata.xp is defined %}
+                                            <span class="badge bg-success-soft text-success me-1">
+                                                <i class="bi bi-star me-1"></i>+{{ activity.metadata.xp }} XP
+                                            </span>
+                                        {% endif %}
+                                        {% if activity.metadata.tokens is defined %}
+                                            <span class="badge bg-warning-soft text-warning me-1">
+                                                <i class="bi bi-coin me-1"></i>+{{ activity.metadata.tokens }} Tokens
+                                            </span>
+                                        {% endif %}
+                                        {% if activity.metadata.level is defined %}
+                                            <span class="badge bg-primary-soft text-primary me-1">
+                                                <i class="bi bi-arrow-up-circle me-1"></i>Level {{ activity.metadata.level }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

@@ -51,10 +51,20 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_admin_users_show', methods: ['GET'])]
-    public function show(User $user): Response
+    public function show(User $user, EntityManagerInterface $entityManager): Response
     {
+        // Get login history
+        $loginHistory = $entityManager->getRepository(\App\Entity\users\LoginHistory::class)
+            ->findBy(['user' => $user], ['createdAt' => 'DESC'], 10);
+        
+        // Get recent activities
+        $recentActivities = $entityManager->getRepository(\App\Entity\users\UserActivity::class)
+            ->findBy(['user' => $user], ['createdAt' => 'DESC'], 10);
+        
         return $this->render('admin/users/admin/show.html.twig', [
             'user' => $user,
+            'loginHistory' => $loginHistory,
+            'recentActivities' => $recentActivities,
         ]);
     }
 
