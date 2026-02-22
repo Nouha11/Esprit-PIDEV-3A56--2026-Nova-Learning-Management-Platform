@@ -37,12 +37,23 @@
                     <dt class="col-sm-4">Description:</dt>
                     <dd class="col-sm-8">{{ milestone.description ?? 'No description' }}</dd>
 
-                    <dt class="col-sm-4">Icon:</dt>
+                    <dt class="col-sm-4">Icon/Image:</dt>
                     <dd class="col-sm-8">
                         {% if milestone.icon %}
-                            {{ milestone.icon }}
+                            <div class="mb-2">
+                                <img src="{{ asset('uploads/rewards/' ~ milestone.icon) }}" 
+                                     alt="{{ milestone.name }}" 
+                                     style="max-width: 100px; max-height: 100px; object-fit: contain;"
+                                     class="border rounded p-2 bg-light">
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bi bi-file-image me-1"></i>{{ milestone.icon }}
+                            </div>
                         {% else %}
-                            <span class="text-muted">No icon</span>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-award-fill text-danger me-2" style="font-size: 2rem;"></i>
+                                <span class="text-muted">No image uploaded (using default icon)</span>
+                            </div>
                         {% endif %}
                     </dd>
 

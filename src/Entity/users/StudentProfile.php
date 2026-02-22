@@ -113,6 +113,9 @@ class StudentProfile
     #[ORM\Column]
     private ?int $level = 1;
 
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 100])]
+    private ?int $energy = 100;
+
     // Relationship: Track earned rewards
     #[ORM\ManyToMany(targetEntity: Reward::class, inversedBy: 'students')]
     #[ORM\JoinTable(name: 'student_earned_rewards')]
@@ -351,5 +354,16 @@ class StudentProfile
     public function hasEarnedReward(Reward $reward): bool
     {
         return $this->earnedRewards->contains($reward);
+    }
+
+    public function getEnergy(): ?int
+    {
+        return $this->energy ?? 100;
+    }
+
+    public function setEnergy(int $energy): static
+    {
+        $this->energy = max(0, min(100, $energy));
+        return $this;
     }
 }

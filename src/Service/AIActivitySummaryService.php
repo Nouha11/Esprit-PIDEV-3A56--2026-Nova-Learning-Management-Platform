@@ -39,6 +39,10 @@ class AIActivitySummaryService
                     'streak' => 0,
                 ],
                 'highlights' => [],
+                'charts' => [
+                    'activity_types' => [],
+                    'daily_activity' => [],
+                ],
                 'ai_generated' => false,
             ];
         }
@@ -71,6 +75,10 @@ class AIActivitySummaryService
                 'streak' => $streak,
             ],
             'highlights' => $highlights,
+            'charts' => [
+                'activity_types' => $activityTypes,
+                'daily_activity' => $dailyActivity,
+            ],
             'ai_generated' => true,
         ];
     }
@@ -271,6 +279,10 @@ PROMPT;
                 'streak' => $streak,
             ],
             'highlights' => $this->extractHighlights($activities),
+            'charts' => [
+                'activity_types' => $activityTypes,
+                'daily_activity' => $dailyActivity,
+            ],
             'ai_generated' => false,
         ];
     }

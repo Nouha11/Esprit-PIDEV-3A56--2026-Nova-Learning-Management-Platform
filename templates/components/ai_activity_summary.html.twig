@@ -66,6 +66,43 @@
                 </div>
             {% endif %}
 
+            {# Charts Section #}
+            {% if summary.charts is defined and (summary.charts.activity_types is not empty or summary.charts.daily_activity is not empty) %}
+                <div class="row g-4 mb-4">
+                    {# Activity Types Chart #}
+                    {% if summary.charts.activity_types is not empty %}
+                        <div class="col-lg-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">
+                                        <i class="bi bi-pie-chart me-2"></i>Activity Distribution
+                                    </h6>
+                                    <div style="position: relative; height: 300px;">
+                                        <canvas id="activityTypesChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {# Daily Activity Chart #}
+                    {% if summary.charts.daily_activity is not empty %}
+                        <div class="col-lg-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">
+                                        <i class="bi bi-graph-up me-2"></i>Daily Activity Trend
+                                    </h6>
+                                    <div style="position: relative; height: 300px;">
+                                        <canvas id="dailyActivityChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
             {# Insights #}
             {% if summary.insights is defined and summary.insights is not empty %}
                 <div class="mb-4">
@@ -120,19 +157,32 @@
                     <div class="row g-3">
                         {% for recommendation in summary.recommendations %}
                             <div class="col-md-6">
-                                <div class="card border-0 bg-{{ recommendation.color }} bg-opacity-10 h-100">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-start mb-2">
-                                            <i class="{{ recommendation.icon }} fs-4 text-{{ recommendation.color }} me-2"></i>
-                                            <p class="mb-0 small">{{ recommendation.text }}</p>
+                                {% if recommendation is iterable and recommendation.color is defined %}
+                                    {# Recommendation is an object with properties #}
+                                    <div class="card border-0 bg-{{ recommendation.color }} bg-opacity-10 h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-start mb-2">
+                                                <i class="{{ recommendation.icon }} fs-4 text-{{ recommendation.color }} me-2"></i>
+                                                <p class="mb-0 small">{{ recommendation.text }}</p>
+                                            </div>
+                                            {% if recommendation.link is defined %}
+                                                <a href="{{ recommendation.link }}" class="btn btn-sm btn-{{ recommendation.color }} w-100 mt-2">
+                                                    {{ recommendation.action }}
+                                                </a>
+                                            {% endif %}
                                         </div>
-                                        {% if recommendation.link is defined %}
-                                            <a href="{{ recommendation.link }}" class="btn btn-sm btn-{{ recommendation.color }} w-100 mt-2">
-                                                {{ recommendation.action }}
-                                            </a>
-                                        {% endif %}
                                     </div>
-                                </div>
+                                {% else %}
+                                    {# Recommendation is a simple string #}
+                                    <div class="card border-0 bg-info bg-opacity-10 h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-start mb-2">
+                                                <i class="bi bi-lightbulb fs-4 text-info me-2"></i>
+                                                <p class="mb-0 small">{{ recommendation }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>
@@ -154,3 +204,178 @@
         {% endif %}
     </div>
 </div>
+
+{# Chart.js Scripts #}
+{% if summary.charts is defined and (summary.charts.activity_types is not empty or summary.charts.daily_activity is not empty) %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get theme colors
+    const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    const textColor = isDarkMode ? '#e9ecef' : '#495057';
+    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+    {% if summary.charts.activity_types is not empty %}
+    // Activity Types Pie Chart
+    const activityTypesCtx = document.getElementById('activityTypesChart');
+    if (activityTypesCtx) {
+        const activityTypesData = {{ summary.charts.activity_types|json_encode|raw }};
+        
+        // Format labels
+        const labels = Object.keys(activityTypesData).map(key => 
+            key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+        );
+        const data = Object.values(activityTypesData);
+        
+        // Color palette
+        const colors = [
+            'rgba(102, 126, 234, 0.8)',
+            'rgba(118, 75, 162, 0.8)',
+            'rgba(237, 100, 166, 0.8)',
+            'rgba(255, 154, 158, 0.8)',
+            'rgba(250, 208, 196, 0.8)',
+            'rgba(52, 211, 153, 0.8)',
+            'rgba(251, 191, 36, 0.8)',
+            'rgba(239, 68, 68, 0.8)',
+        ];
+        
+        new Chart(activityTypesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: isDarkMode ? '#1a1d20' : '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: textColor,
+                            padding: 12,
+                            font: {
+                                size: 11
+                            },
+                            boxWidth: 15,
+                            boxHeight: 15
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+
+    {% if summary.charts.daily_activity is not empty %}
+    // Daily Activity Line Chart
+    const dailyActivityCtx = document.getElementById('dailyActivityChart');
+    if (dailyActivityCtx) {
+        const dailyActivityData = {{ summary.charts.daily_activity|json_encode|raw }};
+        
+        // Format dates
+        const labels = Object.keys(dailyActivityData).map(date => {
+            const d = new Date(date);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
+        const data = Object.values(dailyActivityData);
+        
+        new Chart(dailyActivityCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Activities',
+                    data: data,
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Activities: ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: textColor,
+                            stepSize: 1,
+                            precision: 0
+                        },
+                        grid: {
+                            color: gridColor
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: textColor
+                        },
+                        grid: {
+                            color: gridColor
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+    }
+    {% endif %}
+
+    // Update charts on theme change
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-bs-theme') {
+                location.reload(); // Reload to update chart colors
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-bs-theme']
+    });
+});
+</script>
+{% endif %}

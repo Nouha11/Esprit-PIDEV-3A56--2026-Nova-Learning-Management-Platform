@@ -20,6 +20,9 @@ class Course
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: Planning::class)]
     private Collection $plannings;
 
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Resource::class)]
+    private Collection $resources;
+
     // --- FIXED: Added inversedBy to link back to User ---
     #[ORM\ManyToOne(inversedBy: 'courses')]
     #[ORM\JoinColumn(nullable: true)]
@@ -98,6 +101,7 @@ class Course
         $this->isPublished = false;
         $this->status = 'NOT_STARTED';
         $this->plannings = new ArrayCollection();
+        $this->resources = new ArrayCollection();
     }
 
     // ... (Keep existing getters and setters exactly as they are below) ...
@@ -261,6 +265,32 @@ class Course
     public function setCreatedBy(?\App\Entity\users\User $createdBy): static
     {
         $this->createdBy = $createdBy;
+
+        return $this;
+    }
+
+    public function getResources(): Collection
+    {
+        return $this->resources;
+    }
+
+    public function addResource(Resource $resource): static
+    {
+        if (!$this->resources->contains($resource)) {
+            $this->resources->add($resource);
+            $resource->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeResource(Resource $resource): static
+    {
+        if ($this->resources->removeElement($resource)) {
+            if ($resource->getCourse() === $this) {
+                $resource->setCourse(null);
+            }
+        }
 
         return $this;
     }

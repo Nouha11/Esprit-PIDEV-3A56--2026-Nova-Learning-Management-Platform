@@ -8,6 +8,7 @@ use App\Service\game\GameService;
 use App\Service\game\LevelCalculatorService;
 use App\Service\game\TokenService;
 use App\Service\game\LevelRewardService;
+use App\Service\StudySession\EnergyMonitorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,7 +29,8 @@ class GameController extends AbstractController
         private GamificationGameRepository $gameRepository,
         private GameRatingRepository $ratingRepository,
         private PaginatorInterface $paginator,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private EnergyMonitorService $energyMonitorService
     ) {
     }
 
@@ -504,6 +506,23 @@ class GameController extends AbstractController
         // Flush bonus rewards
         if (!empty($bonusRewards)) {
             $this->entityManager->flush();
+        }
+        
+        // Check if this is an energy restore game (MINI_GAME with energyPoints > 0)
+        $energyRestored = 0;
+        if ($game->getCategory() === 'MINI_GAME' && $game->getEnergyPoints() > 0) {
+            $energyBefore = $this->energyMonitorService->getCurrentEnergy($user);
+            $this->energyMonitorService->restoreEnergy($user, $game->getEnergyPoints());
+            $energyAfter = $this->energyMonitorService->getCurrentEnergy($user);
+            $energyRestored = $energyAfter - $energyBefore;
+            
+            // Add energy restoration flash message
+            if ($energyRestored > 0) {
+                $this->addFlash('success', sprintf(
+                    'Energy restored! Well done for completing the mini game! (+%d energy)',
+                    $energyRestored
+                ));
+            }
         }
         
         // Check for level-based rewards after XP update (only if level increased)

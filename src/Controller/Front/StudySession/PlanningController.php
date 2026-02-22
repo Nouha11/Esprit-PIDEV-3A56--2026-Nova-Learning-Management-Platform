@@ -37,6 +37,24 @@ class PlanningController extends AbstractController
             ? $this->planningService->findAll()
             : $this->planningService->findByFilters($filters);
 
+        // Auto-update missed sessions
+        $now = new \DateTimeImmutable();
+        foreach ($plannings as $planning) {
+            if ($planning->getStatus() === Planning::STATUS_SCHEDULED) {
+                // Combine scheduled date and time for comparison
+                $scheduledDateTime = $planning->getScheduledDate()->setTime(
+                    (int) $planning->getScheduledTime()->format('H'),
+                    (int) $planning->getScheduledTime()->format('i')
+                );
+                
+                // If scheduled time has passed, mark as missed
+                if ($scheduledDateTime < $now) {
+                    $planning->setStatus(Planning::STATUS_MISSED);
+                    $this->planningService->update($planning);
+                }
+            }
+        }
+
         return $this->render('front/planning/index.html.twig', [
             'plannings' => $plannings,
             'currentStatus' => $status,

@@ -196,6 +196,9 @@
                     {% include 'components/language_switcher.html.twig' %}
                 </li>
 
+                <!-- Notification Bell -->
+                {% include 'components/notification_bell.html.twig' %}
+
                 <!-- Dark/Light mode toggle -->
                 <li class="nav-item me-2 d-none d-sm-block">
                     <div class="mode-switch theme-icon-active d-flex align-items-center">
@@ -345,6 +348,7 @@
                             <li><a class="dropdown-item" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>{{ t.t('My Dashboard') }}</a></li>
                         {% elseif 'ROLE_TUTOR' in app.user.roles %}
                             <li><a class="dropdown-item" href="{{ path('app_tutor_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>{{ t.t('Tutor Dashboard') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ path('enrollment_requests') }}"><i class="bi bi-person-check fa-fw me-2"></i>{{ t.t('Enrollment Requests') }}</a></li>
                         {% endif %}
 
                         {% if 'ROLE_STUDENT' in app.user.roles %}

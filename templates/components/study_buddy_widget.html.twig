@@ -1,0 +1,542 @@
+{# Study Buddy AI Widget Component #}
+<div id="study-buddy-widget" class="study-buddy-widget">
+    <!-- Chat Toggle Button -->
+    <button id="study-buddy-toggle" class="study-buddy-toggle" type="button" title="Study Buddy AI">
+        <i class="bi bi-book"></i>
+        <span class="pulse-ring-study"></span>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="study-buddy-window" class="study-buddy-window" style="display: none;">
+        <div class="study-buddy-header">
+            <div class="d-flex align-items-center">
+                <div class="study-avatar">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div class="ms-2">
+                    <h6 class="mb-0">Study Buddy AI</h6>
+                    <small class="text-muted">Your learning companion!</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button id="study-buddy-clear" class="btn btn-sm btn-link text-white p-0" type="button" title="Clear chat history">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <button id="study-buddy-close" class="btn-close btn-close-white" type="button"></button>
+            </div>
+        </div>
+
+        <div id="study-buddy-messages" class="study-buddy-messages">
+            <div class="study-message">
+                <div class="study-message-avatar">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div class="study-message-content">
+                    <p class="mb-1"><strong>👋 Hi! I'm your Study Buddy AI.</strong></p>
+                    <p class="mb-2 small">Ask me about:</p>
+                    <ul class="mb-1 small">
+                        <li>📊 Your study sessions &amp; progress</li>
+                        <li>⏰ Time management tips</li>
+                        <li>📝 Note-taking strategies</li>
+                        <li>📚 Course planning advice</li>
+                    </ul>
+                    <p class="mb-0 small text-muted">✨ Try the quick actions below!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="study-buddy-input">
+            <div class="study-quick-actions mb-2">
+                <button class="btn btn-sm btn-outline-success" data-action="study-tips">
+                    💡 Study Tips
+                </button>
+                <button class="btn btn-sm btn-outline-info" data-action="summarize">
+                    📄 Summarize
+                </button>
+                <button class="btn btn-sm btn-outline-primary" data-action="quiz">
+                    ❓ Quiz Ideas
+                </button>
+                <button class="btn btn-sm btn-outline-warning" data-action="schedule">
+                    📅 Schedule
+                </button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="study-buddy-input-field" class="form-control" placeholder="Ask me anything..." />
+                <button id="study-buddy-send" class="btn btn-success" type="button">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.study-buddy-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.study-buddy-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.study-buddy-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(17, 153, 142, 0.6);
+}
+
+.pulse-ring-study {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid #11998e;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.study-buddy-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    height: 600px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+}
+
+[data-bs-theme="dark"] .study-buddy-window {
+    background: #1a1d29;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.study-buddy-header {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.study-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.study-buddy-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: #f8f9fa;
+}
+
+[data-bs-theme="dark"] .study-buddy-messages {
+    background: #0d0f14;
+}
+
+.study-message, .user-study-message {
+    display: flex;
+    margin-bottom: 16px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.study-message {
+    flex-direction: row;
+}
+
+.user-study-message {
+    flex-direction: row-reverse;
+}
+
+.study-message-avatar, .user-study-message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.study-message-avatar {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    margin-right: 12px;
+}
+
+.user-study-message-avatar {
+    background: #17a2b8;
+    color: white;
+    margin-left: 12px;
+}
+
+.study-message-content, .user-study-message-content {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.study-message-content {
+    background: white;
+    color: #333;
+    border-bottom-left-radius: 4px;
+}
+
+[data-bs-theme="dark"] .study-message-content {
+    background: #1a1d29;
+    color: #e0e0e0;
+}
+
+.user-study-message-content {
+    background: #11998e;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.study-message-content ul {
+    padding-left: 18px;
+    margin-bottom: 0;
+    font-size: 12px;
+}
+
+.study-message-content li {
+    margin-bottom: 2px;
+}
+
+.study-buddy-input {
+    padding: 16px;
+    background: white;
+    border-top: 1px solid #dee2e6;
+}
+
+[data-bs-theme="dark"] .study-buddy-input {
+    background: #1a1d29;
+    border-top-color: #2d3139;
+}
+
+.study-quick-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.study-quick-actions .btn {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+.study-typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    max-width: 75px;
+}
+
+[data-bs-theme="dark"] .study-typing-indicator {
+    background: #1a1d29;
+}
+
+.study-typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #11998e;
+    margin: 0 2px;
+    animation: typing 1.4s infinite;
+}
+
+.study-typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.study-typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-10px);
+    }
+}
+
+@media (max-width: 576px) {
+    .study-buddy-window {
+        width: calc(100vw - 40px);
+        height: 550px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const widget = document.getElementById('study-buddy-widget');
+    const toggle = document.getElementById('study-buddy-toggle');
+    const window = document.getElementById('study-buddy-window');
+    const close = document.getElementById('study-buddy-close');
+    const clear = document.getElementById('study-buddy-clear');
+    const messages = document.getElementById('study-buddy-messages');
+    const input = document.getElementById('study-buddy-input-field');
+    const send = document.getElementById('study-buddy-send');
+    const quickActions = document.querySelectorAll('.study-quick-actions [data-action]');
+
+    const STORAGE_KEY = 'study_buddy_chat_history';
+    const MAX_HISTORY = 50;
+
+    // Load chat history
+    function loadChatHistory() {
+        try {
+            const history = localStorage.getItem(STORAGE_KEY);
+            if (history) {
+                const chatData = JSON.parse(history);
+                const welcomeMsg = messages.querySelector('.study-message');
+                messages.innerHTML = '';
+                if (welcomeMsg) {
+                    messages.appendChild(welcomeMsg);
+                }
+                chatData.messages.forEach(msg => {
+                    addMessage(msg.text, msg.type, false);
+                });
+            }
+        } catch (e) {
+            console.error('Error loading chat history:', e);
+        }
+    }
+
+    // Save chat history
+    function saveChatHistory() {
+        try {
+            const messageElements = messages.querySelectorAll('.study-message, .user-study-message');
+            const chatMessages = [];
+            
+            messageElements.forEach(el => {
+                if (el.querySelector('.study-message-content')?.innerHTML.includes('Hi! I\'m your Study Buddy AI')) {
+                    return;
+                }
+                
+                const isUser = el.classList.contains('user-study-message');
+                const content = el.querySelector(isUser ? '.user-study-message-content' : '.study-message-content');
+                if (content) {
+                    chatMessages.push({
+                        text: content.innerHTML,
+                        type: isUser ? 'user' : 'study'
+                    });
+                }
+            });
+
+            const recentMessages = chatMessages.slice(-MAX_HISTORY);
+            
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                messages: recentMessages,
+                timestamp: Date.now()
+            }));
+        } catch (e) {
+            console.error('Error saving chat history:', e);
+        }
+    }
+
+    // Clear chat history
+    function clearChatHistory() {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+
+    loadChatHistory();
+
+    // Toggle chat window
+    toggle.addEventListener('click', () => {
+        window.style.display = window.style.display === 'none' ? 'flex' : 'none';
+        if (window.style.display === 'flex') {
+            input.focus();
+        }
+    });
+
+    close.addEventListener('click', () => {
+        window.style.display = 'none';
+    });
+
+    // Clear chat
+    clear.addEventListener('click', () => {
+        if (confirm('Clear all chat history? This cannot be undone.')) {
+            const welcomeMsg = messages.querySelector('.study-message');
+            messages.innerHTML = '';
+            if (welcomeMsg) {
+                messages.appendChild(welcomeMsg);
+            }
+            clearChatHistory();
+        }
+    });
+
+    // Send message
+    function sendMessage(message) {
+        if (!message.trim()) return;
+
+        addMessage(message, 'user');
+        input.value = '';
+
+        showTyping();
+
+        fetch("{{ path('study_buddy_chat') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ question: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideTyping();
+            if (data.success) {
+                addMessage(data.message, 'study');
+            } else {
+                addMessage(data.message || 'Sorry, something went wrong.', 'study');
+            }
+        })
+        .catch(error => {
+            hideTyping();
+            addMessage('Sorry, I couldn\'t process your request. Please try again.', 'study');
+            console.error('Chat error:', error);
+        });
+    }
+
+    send.addEventListener('click', () => sendMessage(input.value));
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage(input.value);
+        }
+    });
+
+    // Quick actions
+    quickActions.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const action = btn.dataset.action;
+            
+            if (action === 'study-tips') {
+                sendMessage('What study tips work best for my schedule?');
+            } else if (action === 'summarize') {
+                sendMessage('Quick tips for summarizing notes?');
+            } else if (action === 'quiz') {
+                sendMessage('Best way to create practice quizzes?');
+            } else if (action === 'schedule') {
+                sendMessage('How should I organize my study time?');
+            }
+        });
+    });
+
+    // Helper functions
+    function addMessage(text, type, saveToStorage = true) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = type === 'user' ? 'user-study-message' : 'study-message';
+        
+        const avatar = document.createElement('div');
+        avatar.className = type === 'user' ? 'user-study-message-avatar' : 'study-message-avatar';
+        avatar.innerHTML = type === 'user' ? '<i class="bi bi-person-fill"></i>' : '<i class="bi bi-book"></i>';
+        
+        const content = document.createElement('div');
+        content.className = type === 'user' ? 'user-study-message-content' : 'study-message-content';
+        content.innerHTML = text.replace(/\n/g, '<br>');
+        
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(content);
+        messages.appendChild(messageDiv);
+        
+        messages.scrollTop = messages.scrollHeight;
+        
+        if (saveToStorage) {
+            saveChatHistory();
+        }
+    }
+
+    function showTyping() {
+        const typing = document.createElement('div');
+        typing.className = 'study-message';
+        typing.id = 'study-typing-indicator-wrapper';
+        typing.innerHTML = `
+            <div class="study-message-avatar">
+                <i class="bi bi-book"></i>
+            </div>
+            <div class="study-typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        `;
+        messages.appendChild(typing);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function hideTyping() {
+        const typing = document.getElementById('study-typing-indicator-wrapper');
+        if (typing) {
+            typing.remove();
+        }
+    }
+});
+</script>

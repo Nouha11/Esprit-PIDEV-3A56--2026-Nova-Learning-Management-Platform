@@ -4,6 +4,8 @@ namespace App\EventSubscriber;
 
 use App\Entity\users\User;
 use App\Service\LoginHistoryService;
+use App\Service\SessionManagementService;
+use App\Service\NotificationService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 use Symfony\Component\Security\Http\Event\LoginFailureEvent;
@@ -11,7 +13,9 @@ use Symfony\Component\Security\Http\Event\LoginFailureEvent;
 class LoginHistorySubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private LoginHistoryService $loginHistoryService
+        private LoginHistoryService $loginHistoryService,
+        private SessionManagementService $sessionManagementService,
+        private NotificationService $notificationService
     ) {}
 
     public static function getSubscribedEvents(): array
@@ -30,12 +34,31 @@ class LoginHistorySubscriber implements EventSubscriberInterface
             // Check if 2FA was used
             $is2faUsed = $user->isTotpAuthenticationEnabled();
             
+            // Log the login attempt
             $this->loginHistoryService->logLoginAttempt(
                 $user,
                 'success',
                 null,
                 $is2faUsed
             );
+
+            // Create or update session
+            $sessionResult = $this->sessionManagementService->createSession($user);
+            $session = $sessionResult['session'];
+            $isNewDevice = $sessionResult['is_new_device'];
+
+            // Send notification if it's a new device
+            if ($isNewDevice) {
+                $this->notificationService->notifyNewDeviceLogin(
+                    user: $user,
+                    browser: $session->getBrowser() ?? 'Unknown Browser',
+                    platform: $session->getPlatform() ?? 'Unknown Platform',
+                    device: $session->getDevice() ?? 'Unknown Device',
+                    location: $session->getLocation(),
+                    ipAddress: $session->getIpAddress(),
+                    loginTime: $session->getCreatedAt()
+                );
+            }
         }
     }
 

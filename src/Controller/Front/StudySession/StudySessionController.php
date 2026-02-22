@@ -79,6 +79,7 @@ class StudySessionController extends AbstractController
             $studySession = new StudySession();
             $studySession->setUser($this->getUser());
             $studySession->setPlanning($planning);
+            $studySession->setDuration($duration); // Set duration field (required)
             $studySession->setActualDuration($duration);
             $studySession->setXpEarned($xpEarned);
             $studySession->setBurnoutRisk($burnoutRisk);

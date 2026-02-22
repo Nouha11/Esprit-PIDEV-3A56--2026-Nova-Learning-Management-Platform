@@ -16,8 +16,12 @@ class Resource
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: StudySession::class, inversedBy: 'resources')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?StudySession $studySession = null;
+
+    #[ORM\ManyToOne(targetEntity: Course::class, inversedBy: 'resources')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Course $course = null;
 
     #[ORM\Column(length: 255)]
     private ?string $filename = null;
@@ -112,6 +116,18 @@ class Resource
     public function setUploadedAt(\DateTimeImmutable $uploadedAt): static
     {
         $this->uploadedAt = $uploadedAt;
+
+        return $this;
+    }
+
+    public function getCourse(): ?Course
+    {
+        return $this->course;
+    }
+
+    public function setCourse(?Course $course): static
+    {
+        $this->course = $course;
 
         return $this;
     }

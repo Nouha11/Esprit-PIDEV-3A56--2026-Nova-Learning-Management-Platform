@@ -5,11 +5,13 @@ namespace App\Form\StudySession;
 use App\Entity\StudySession\Course;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class CourseType extends AbstractType
 {
@@ -50,7 +52,18 @@ class CourseType extends AbstractType
                 'invalid_message' => 'Please enter a valid number',
                 'empty_data' => '0',
             ])
-            ->add('isPublished');
+            ->add('isPublished')
+            ->add('pdfResources', FileType::class, [
+                'label' => 'PDF Resources (Optional)',
+                'mapped' => false,
+                'required' => false,
+                'multiple' => true,
+                'attr' => [
+                    'accept' => '.pdf',
+                    'class' => 'form-control'
+                ],
+                'help' => 'Upload PDF resources for this course (max 10MB per file). You can select multiple files.'
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

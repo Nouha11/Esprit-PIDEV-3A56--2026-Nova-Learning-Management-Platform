@@ -39,13 +39,35 @@
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-3">
-                            <strong>Icon:</strong>
+                            <strong>Icon/Image:</strong>
                         </div>
                         <div class="col-md-9">
                             {% if reward.icon %}
-                                <span style="font-size: 3rem;">{{ reward.icon }}</span>
+                                <div class="mb-2">
+                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" 
+                                         alt="{{ reward.name }}" 
+                                         style="max-width: 150px; max-height: 150px; object-fit: contain;"
+                                         class="border rounded p-2 bg-light">
+                                </div>
+                                <div class="text-muted">
+                                    <i class="bi bi-file-image me-1"></i>
+                                    <strong>Filename:</strong> {{ reward.icon }}
+                                </div>
                             {% else %}
-                                <span class="text-muted">No icon set</span>
+                                <div class="d-flex align-items-center">
+                                    {% if reward.type == 'BADGE' %}
+                                        <i class="bi bi-award-fill text-warning me-3" style="font-size: 3rem;"></i>
+                                    {% elseif reward.type == 'ACHIEVEMENT' %}
+                                        <i class="bi bi-trophy-fill text-success me-3" style="font-size: 3rem;"></i>
+                                    {% elseif reward.type == 'BONUS_XP' %}
+                                        <i class="bi bi-star-fill text-info me-3" style="font-size: 3rem;"></i>
+                                    {% elseif reward.type == 'BONUS_TOKENS' %}
+                                        <i class="bi bi-coin text-warning me-3" style="font-size: 3rem;"></i>
+                                    {% else %}
+                                        <i class="bi bi-award text-muted me-3" style="font-size: 3rem;"></i>
+                                    {% endif %}
+                                    <span class="text-muted">No image uploaded (using default icon)</span>
+                                </div>
                             {% endif %}
                         </div>
                     </div>
@@ -253,9 +275,26 @@
                 <div class="card-body text-center">
                     <div class="mb-3">
                         {% if reward.icon %}
-                            <span style="font-size: 5rem;">{{ reward.icon }}</span>
+                            <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" 
+                                 alt="{{ reward.name }}" 
+                                 style="max-width: 150px; max-height: 150px; object-fit: contain;"
+                                 class="mb-2">
+                            <div class="text-muted small">
+                                <i class="bi bi-file-image me-1"></i>{{ reward.icon }}
+                            </div>
                         {% else %}
-                            <i class="bi bi-award text-muted" style="font-size: 5rem;"></i>
+                            {% if reward.type == 'BADGE' %}
+                                <i class="bi bi-award-fill text-warning" style="font-size: 5rem;"></i>
+                            {% elseif reward.type == 'ACHIEVEMENT' %}
+                                <i class="bi bi-trophy-fill text-success" style="font-size: 5rem;"></i>
+                            {% elseif reward.type == 'BONUS_XP' %}
+                                <i class="bi bi-star-fill text-info" style="font-size: 5rem;"></i>
+                            {% elseif reward.type == 'BONUS_TOKENS' %}
+                                <i class="bi bi-coin text-warning" style="font-size: 5rem;"></i>
+                            {% else %}
+                                <i class="bi bi-award text-muted" style="font-size: 5rem;"></i>
+                            {% endif %}
+                            <div class="text-muted small mt-2">Default icon</div>
                         {% endif %}
                     </div>
                     <h4>{{ reward.name }}</h4>

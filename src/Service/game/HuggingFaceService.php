@@ -53,11 +53,21 @@ class HuggingFaceService
             $statusCode = $response->getStatusCode();
             
             if ($statusCode !== 200) {
+                $errorContent = $response->getContent(false);
                 $this->logger->error('Hugging Face API error', [
                     'status_code' => $statusCode,
-                    'response' => $response->getContent(false)
+                    'response' => $errorContent
                 ]);
-                throw new \Exception('Failed to generate questions. API returned status: ' . $statusCode);
+                
+                // Try to parse error message
+                $errorData = json_decode($errorContent, true);
+                $errorMsg = $errorData['error'] ?? 'API returned status: ' . $statusCode;
+                
+                if ($statusCode === 401) {
+                    throw new \Exception('Hugging Face API key is invalid or expired. Please update your API key in .env file.');
+                }
+                
+                throw new \Exception('Failed to generate questions. ' . $errorMsg);
             }
 
             $data = $response->toArray();
@@ -256,6 +266,81 @@ PROMPT;
         } catch (\Exception $e) {
             $this->logger->error('HF error: ' . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * General chat method for AI assistants
+     * 
+     * @param string $userMessage The user's message
+     * @param string $systemPrompt The system prompt with context
+     * @return string The AI's response
+     * @throws \Exception If API call fails
+     */
+    public function chat(string $userMessage, string $systemPrompt = ''): string
+    {
+        if (empty($this->huggingFaceApiKey)) {
+            throw new \Exception('Hugging Face API key is not configured.');
+        }
+
+        try {
+            $messages = [];
+            
+            // Add system prompt if provided
+            if (!empty($systemPrompt)) {
+                $messages[] = ['role' => 'system', 'content' => $systemPrompt];
+            }
+            
+            // Add user message
+            $messages[] = ['role' => 'user', 'content' => $userMessage];
+
+            $response = $this->httpClient->request('POST', self::API_URL, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->huggingFaceApiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'qwen/qwen2.5-7b-instruct',
+                    'messages' => $messages,
+                    'max_tokens' => 100,
+                    'temperature' => 0.3,
+                ],
+                'timeout' => 20,
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                $errorContent = $response->getContent(false);
+                $this->logger->error('Hugging Face chat API error', [
+                    'status_code' => $response->getStatusCode(),
+                    'response' => $errorContent
+                ]);
+                
+                // Try to parse error message
+                $errorData = json_decode($errorContent, true);
+                $errorMsg = $errorData['error'] ?? 'API returned status: ' . $response->getStatusCode();
+                
+                if ($response->getStatusCode() === 401) {
+                    throw new \Exception('Hugging Face API key is invalid or expired. Please update your API key.');
+                }
+                
+                throw new \Exception('AI service error: ' . $errorMsg);
+            }
+
+            $data = $response->toArray();
+            $message = $data['choices'][0]['message']['content'] ?? '';
+            
+            if (empty($message)) {
+                throw new \Exception('No response from AI');
+            }
+
+            return trim($message);
+
+        } catch (\Exception $e) {
+            $this->logger->error('Hugging Face chat failed', [
+                'error' => $e->getMessage(),
+                'user_message' => $userMessage
+            ]);
+            throw $e;
         }
     }
 }
