@@ -52,20 +52,22 @@ class CourseSessionController extends AbstractController
             throw new \RuntimeException('Student profile not found');
         }
 
-        // Check current energy level and show warning if low
+        // Check current energy level
         $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
+        
+        // Block access if energy is depleted
+        if ($currentEnergy <= 0) {
+            $this->addFlash('error', 'Your energy is depleted! Play mini games to restore it or wait 30 minutes for auto-refill.');
+            return $this->redirectToRoute('course_show', ['id' => $courseId]);
+        }
+        
+        // Show warning if energy is low
         if ($currentEnergy > 0 && $currentEnergy <= 20) {
             $this->addFlash('warning', 'Your energy is running low! Consider playing a mini game to restore it.');
         }
 
         // Load course resources
         $resources = $this->courseResourceService->getCourseResources($course);
-
-        // Check if there are new resources (this is a placeholder - you'd need to track "seen" resources)
-        if (count($resources) > 0) {
-            // You could add logic here to check if resources are new
-            // For now, we'll skip this flash message to avoid spam
-        }
 
         // Initialize Pomodoro timer state
         $pomodoroState = [
@@ -74,8 +76,7 @@ class CourseSessionController extends AbstractController
             'status' => 'ready'
         ];
 
-        // Show success message on first course start (check if this is their first time)
-        // This could be tracked with a session variable or database flag
+        // Show success message on first course start
         $session = $this->container->get('request_stack')->getCurrentRequest()->getSession();
         $firstStartKey = 'course_' . $courseId . '_first_start';
         if (!$session->has($firstStartKey)) {
@@ -88,7 +89,8 @@ class CourseSessionController extends AbstractController
             'studentProfile' => $studentProfile,
             'resources' => $resources,
             'pomodoroState' => $pomodoroState,
-            'currentEnergy' => $currentEnergy
+            'currentEnergy' => $currentEnergy,
+            'timeUntilRefill' => $this->energyMonitorService->getTimeUntilNextRefill($user)
         ]);
     }
 
@@ -112,6 +114,91 @@ class CourseSessionController extends AbstractController
         return new JsonResponse([
             'energy' => $currentEnergy,
             'depleted' => $isDepleted
+        ]);
+    }
+    
+    /**
+     * Deplete energy during study session
+     */
+    #[Route('/{courseId}/session/deplete-energy', name: 'course_session_deplete_energy', methods: ['POST'])]
+    public function depleteEnergy(int $courseId): JsonResponse
+    {
+        $user = $this->getUser();
+        
+        // Verify course exists and user is enrolled
+        $course = $this->courseRepository->find($courseId);
+        if (!$course || !$this->enrollmentService->isEnrolled($user, $course)) {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+        
+        // Get amount from request (default to 1)
+        $request = $this->container->get('request_stack')->getCurrentRequest();
+        $data = json_decode($request->getContent(), true);
+        $amount = $data['amount'] ?? 1;
+        
+        // Deplete energy
+        $this->energyMonitorService->depleteEnergy($user, $amount);
+        
+        $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
+        $isDepleted = $this->energyMonitorService->isEnergyDepleted($user);
+        
+        return new JsonResponse([
+            'success' => true,
+            'energy' => $currentEnergy,
+            'depleted' => $isDepleted
+        ]);
+    }
+    
+    /**
+     * Update course progress based on Pomodoro completion
+     */
+    #[Route('/{courseId}/session/update-progress', name: 'course_session_update_progress', methods: ['POST'])]
+    public function updateProgress(int $courseId): JsonResponse
+    {
+        $user = $this->getUser();
+        
+        // Verify course exists and user is enrolled
+        $course = $this->courseRepository->find($courseId);
+        if (!$course || !$this->enrollmentService->isEnrolled($user, $course)) {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+        
+        // Get data from request
+        $request = $this->container->get('request_stack')->getCurrentRequest();
+        $data = json_decode($request->getContent(), true);
+        $pomodoroCount = $data['pomodoroCount'] ?? 0;
+        $minutesStudied = $data['minutesStudied'] ?? null;
+        
+        // Get current progress
+        $currentProgress = $course->getProgress() ?? 0;
+        
+        // Calculate progress
+        if ($minutesStudied !== null) {
+            // Gradual progress: add 1% per minute studied
+            // This accumulates progress instead of resetting
+            $newProgress = min(100, $currentProgress + 1);
+        } else {
+            // Full Pomodoro completion: each Pomodoro = 25% progress
+            $newProgress = min(100, $pomodoroCount * 25);
+        }
+        
+        // Update course progress
+        $course->setProgress($newProgress);
+        
+        // Update course status based on progress
+        if ($newProgress >= 100) {
+            $course->setStatus('COMPLETED');
+        } elseif ($newProgress > 0) {
+            $course->setStatus('IN_PROGRESS');
+        }
+        
+        // Persist changes
+        $this->courseRepository->getEntityManager()->flush();
+        
+        return new JsonResponse([
+            'success' => true,
+            'progress' => $newProgress,
+            'status' => $course->getStatus()
         ]);
     }
 

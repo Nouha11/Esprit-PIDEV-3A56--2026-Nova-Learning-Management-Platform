@@ -110,6 +110,12 @@ class GameController extends AbstractController
         $gameIds = array_map(fn($game) => $game->getId(), iterator_to_array($pagination));
         $gameRatings = $this->ratingRepository->getAverageRatingsForGames($gameIds);
 
+        // Get current energy for student users
+        $currentEnergy = 100;
+        if ($this->isGranted('ROLE_STUDENT')) {
+            $currentEnergy = $this->energyMonitorService->getCurrentEnergy($this->getUser());
+        }
+
         // If Ajax request, return only the games partial
         if ($isAjax) {
             return $this->render('front/game/_games_list.html.twig', [
@@ -123,6 +129,7 @@ class GameController extends AbstractController
             'gameRatings' => $gameRatings,
             'miniGames' => $miniGamesPagination,
             'miniGameRatings' => $miniGameRatings,
+            'currentEnergy' => $currentEnergy,
             'search' => $search,
             'type' => $type,
             'difficulty' => $difficulty,
@@ -597,6 +604,8 @@ class GameController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => $message,
+            'energyRestored' => $energyRestored,
+            'currentEnergy' => $this->energyMonitorService->getCurrentEnergy($user),
             'rewards' => [
                 'tokens' => $rewardTokens,
                 'xp' => $rewardXP,

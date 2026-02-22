@@ -8,8 +8,8 @@
         <!-- Page Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>{{ course.courseName }}</h1>
-            <a href="{{ path('app_student_dashboard') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            <a href="{{ path('course_show', {id: course.id}) }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Course Details
             </a>
         </div>
 
@@ -49,6 +49,31 @@
                                 <i class="bi bi-arrow-clockwise"></i> Reset
                             </button>
                         </div>
+                        
+                        <!-- Pomodoro Progress Indicators -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+                                <span class="pomodoro-indicator"></span>
+                                <span class="pomodoro-indicator"></span>
+                                <span class="pomodoro-indicator"></span>
+                                <span class="pomodoro-indicator"></span>
+                            </div>
+                            <small class="text-muted" id="progress-text">0 / 4 Pomodoros</small>
+                        </div>
+                        
+                        <!-- Pomodoro Count Display -->
+                        <div class="mb-3">
+                            <p class="mb-1 text-muted">Total Pomodoros Completed</p>
+                            <h3 id="pomodoro-count-display"><strong>0</strong></h3>
+                        </div>
+                        
+                        <!-- Pomodoro Progress Bar -->
+                        <div class="progress mb-3" style="height: 20px;">
+                            <div id="pomodoro-progress-bar" class="progress-bar bg-info" role="progressbar" 
+                                 style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                0%
+                            </div>
+                        </div>
 
                         <!-- Break Suggestion -->
                         <div id="break-suggestion" class="alert alert-info" style="display: none;">
@@ -66,7 +91,7 @@
                     </div>
                     <div class="card-body">
                         <div class="progress mb-2" style="height: 30px;">
-                            <div class="progress-bar progress-bar-striped bg-success" 
+                            <div id="course-progress-bar" class="progress-bar progress-bar-striped bg-success" 
                                  role="progressbar" 
                                  style="width: {{ course.progress ?? 0 }}%"
                                  aria-valuenow="{{ course.progress ?? 0 }}" 
@@ -82,36 +107,31 @@
                 </div>
 
                 <!-- Energy Bar Display -->
+                {% if is_granted('ROLE_STUDENT') %}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h4 class="mb-0"><i class="bi bi-lightning-charge"></i> Energy Level</h4>
+                        <h4 class="mb-0"><i class="bi bi-lightning-charge-fill text-warning"></i> Energy Monitor</h4>
                     </div>
                     <div class="card-body">
-                        <div id="energy-bar" class="progress mb-2" style="height: 30px;">
-                            <div class="progress-bar progress-bar-striped {% if currentEnergy > 50 %}bg-success{% elseif currentEnergy > 20 %}bg-warning{% else %}bg-danger{% endif %}" 
-                                 role="progressbar" 
-                                 style="width: {{ currentEnergy }}%"
-                                 aria-valuenow="{{ currentEnergy }}" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100">
-                                <strong class="energy-percentage">{{ currentEnergy }}%</strong>
-                            </div>
+                        {% include 'components/energy_bar_widget.html.twig' with {
+                            'currentEnergy': currentEnergy,
+                            'showLabel': true,
+                            'size': 'normal',
+                            'timeUntilRefill': timeUntilRefill
+                        } %}
+                        
+                        <div class="mt-3 text-center">
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Your energy decreases 1 point per minute as you study. Restores 10 points every 5 minutes or play mini games!
+                            </p>
+                            <a href="{{ path('front_game_index', {'category': 'MINI_GAME'}) }}" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-controller me-1"></i> Play Mini Games
+                            </a>
                         </div>
-                        <p class="text-muted mb-0 text-center">
-                            <small id="energy-status">
-                                {% if currentEnergy > 50 %}
-                                    You have plenty of energy to study!
-                                {% elseif currentEnergy > 25 %}
-                                    Your energy is getting low
-                                {% elseif currentEnergy > 0 %}
-                                    Your energy is critically low!
-                                {% else %}
-                                    Your energy is depleted!
-                                {% endif %}
-                            </small>
-                        </p>
                     </div>
                 </div>
+                {% endif %}
 
                 <!-- Course Content Placeholder -->
                 <div class="card mb-4" style="position: relative;">
@@ -340,6 +360,42 @@
     color: rgba(255, 255, 255, 0.9);
     margin-top: 10px;
 }
+
+.pomodoro-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.pomodoro-indicator.completed {
+    background-color: #17a2b8;
+    box-shadow: 0 0 10px rgba(23, 162, 184, 0.5);
+}
+
+/* Energy depletion animation */
+@keyframes energy-deplete {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.98); }
+    100% { transform: scale(1); }
+}
+
+.energy-depleting {
+    animation: energy-deplete 0.5s ease-out;
+}
+
+/* Progress growth animation */
+@keyframes progress-grow {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; box-shadow: 0 0 15px rgba(40, 167, 69, 0.6); }
+    100% { opacity: 1; }
+}
+
+.progress-growing {
+    animation: progress-grow 0.5s ease-out;
+}
 </style>
 
 <script>
@@ -348,7 +404,9 @@ window.pomodoroData = {
     courseId: {{ course.id }},
     duration: {{ pomodoroState.duration }},
     pomodoroCount: {{ pomodoroState.pomodoroCount }},
-    status: '{{ pomodoroState.status }}'
+    status: '{{ pomodoroState.status }}',
+    depleteEnergyUrl: '{{ path('course_session_deplete_energy', {courseId: course.id}) }}',
+    updateProgressUrl: '{{ path('course_session_update_progress', {courseId: course.id}) }}'
 };
 
 // Initialize Energy Bar monitoring
@@ -358,11 +416,11 @@ window.energyData = {
 };
 </script>
 
-<script src="{{ asset('js/pomodoro-timer.js') }}" type="module"></script>
-<script src="{{ asset('js/energy-bar.js') }}"></script>
+<script src="{{ asset('js/pomodoro-timer.js') }}"></script>
 <script>
-// Initialize and start energy monitoring
+// Initialize energy monitoring - the widget already has updateEnergyBar function
 document.addEventListener('DOMContentLoaded', function() {
+<<<<<<< Updated upstream
     if (window.energyData) {
         const energyBar = new EnergyBar(
             window.energyData.initialEnergy,
@@ -374,6 +432,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load existing notes and tags
     loadNotes();
     loadTags();
+=======
+    console.log('Energy bar initialized with value:', {{ currentEnergy }});
+>>>>>>> Stashed changes
 });
 
 // Notes Management

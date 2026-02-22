@@ -1,0 +1,329 @@
+{# Energy Bar Widget Component #}
+{% set currentEnergy = currentEnergy|default(100) %}
+{% set showLabel = showLabel|default(true) %}
+{% set size = size|default('normal') %} {# normal, small, large #}
+{% set timeUntilRefill = timeUntilRefill|default(0) %}
+
+<div class="energy-bar-widget">
+    {% if showLabel %}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-lightning-charge-fill text-warning me-2"></i>
+            <span class="fw-semibold">Energy Level</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge energy-badge">
+                <span id="energy-value">{{ currentEnergy }}</span>/100
+            </span>
+            {% if currentEnergy < 100 and timeUntilRefill > 0 %}
+            <span class="badge bg-info" id="refill-timer" data-seconds="{{ timeUntilRefill }}">
+                <i class="bi bi-clock"></i> <span id="refill-countdown">{{ (timeUntilRefill / 60)|number_format(0) }}m</span>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="energy-bar-container {% if size == 'small' %}energy-bar-small{% elseif size == 'large' %}energy-bar-large{% endif %}">
+        <div id="energy-bar" class="energy-bar" data-energy="{{ currentEnergy }}">
+            <div class="energy-bar-fill" style="width: {{ currentEnergy }}%">
+                <div class="energy-bar-shine"></div>
+                <div class="energy-bar-glow"></div>
+            </div>
+            <div class="energy-bar-text">
+                <i class="bi bi-lightning-charge-fill"></i>
+                <span id="energy-percentage">{{ currentEnergy }}%</span>
+            </div>
+        </div>
+    </div>
+    
+    {% if currentEnergy <= 20 %}
+    <div class="alert alert-warning alert-sm mt-2 mb-0 py-2 px-3">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <small>Low energy! Play a mini game to restore it.</small>
+    </div>
+    {% elseif currentEnergy <= 0 %}
+    <div class="alert alert-danger alert-sm mt-2 mb-0 py-2 px-3">
+        <i class="bi bi-battery-charging me-1"></i>
+        <small>Energy depleted! Take a break or play a mini game.</small>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.energy-bar-widget {
+    width: 100%;
+}
+
+.energy-badge {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #fff;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.energy-bar-container {
+    position: relative;
+    width: 100%;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.energy-bar-small {
+    height: 25px;
+    border-radius: 12px;
+}
+
+.energy-bar-large {
+    height: 50px;
+    border-radius: 25px;
+}
+
+[data-bs-theme="dark"] .energy-bar-container {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.energy-bar {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.energy-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(135deg, #4caf50 0%, #8bc34a 50%, #cddc39 100%);
+    border-radius: 20px;
+    transition: width 0.5s ease, background 0.3s ease;
+    overflow: hidden;
+}
+
+/* Energy level colors */
+.energy-bar[data-energy="100"] .energy-bar-fill,
+.energy-bar[data-energy^="9"] .energy-bar-fill,
+.energy-bar[data-energy^="8"] .energy-bar-fill,
+.energy-bar[data-energy^="7"] .energy-bar-fill,
+.energy-bar[data-energy^="6"] .energy-bar-fill {
+    background: linear-gradient(135deg, #4caf50 0%, #8bc34a 50%, #cddc39 100%);
+}
+
+.energy-bar[data-energy^="5"] .energy-bar-fill,
+.energy-bar[data-energy^="4"] .energy-bar-fill,
+.energy-bar[data-energy^="3"] .energy-bar-fill {
+    background: linear-gradient(135deg, #ffc107 0%, #ffeb3b 100%);
+}
+
+.energy-bar[data-energy^="2"] .energy-bar-fill,
+.energy-bar[data-energy^="1"] .energy-bar-fill {
+    background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+    animation: pulse-warning 1.5s ease-in-out infinite;
+}
+
+.energy-bar[data-energy="0"] .energy-bar-fill {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    animation: pulse-danger 1s ease-in-out infinite;
+}
+
+.energy-bar-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        transparent 100%
+    );
+    animation: shine 3s ease-in-out infinite;
+}
+
+.energy-bar-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(180deg, 
+        rgba(255, 255, 255, 0.4) 0%, 
+        transparent 100%
+    );
+    border-radius: 20px 20px 0 0;
+}
+
+.energy-bar-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.energy-bar-small .energy-bar-text {
+    font-size: 0.75rem;
+}
+
+.energy-bar-large .energy-bar-text {
+    font-size: 1rem;
+}
+
+@keyframes shine {
+    0% {
+        left: -100%;
+    }
+    50%, 100% {
+        left: 100%;
+    }
+}
+
+@keyframes pulse-warning {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+@keyframes pulse-danger {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+}
+
+.alert-sm {
+    font-size: 0.875rem;
+}
+
+/* Animation for energy restoration */
+@keyframes energy-restore {
+    0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    }
+}
+
+.energy-bar-container.restoring {
+    animation: energy-restore 0.6s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .energy-bar-text {
+        font-size: 0.75rem;
+    }
+}
+</style>
+
+<script>
+// Energy Bar Update Function
+window.updateEnergyBar = function(newEnergy) {
+    const energyBar = document.getElementById('energy-bar');
+    const energyFill = energyBar?.querySelector('.energy-bar-fill');
+    const energyValue = document.getElementById('energy-value');
+    const energyPercentage = document.getElementById('energy-percentage');
+    const container = energyBar?.closest('.energy-bar-container');
+    
+    if (!energyBar || !energyFill) return;
+    
+    // Clamp energy between 0 and 100
+    newEnergy = Math.max(0, Math.min(100, newEnergy));
+    
+    // Update data attribute
+    energyBar.setAttribute('data-energy', newEnergy);
+    
+    // Update fill width
+    energyFill.style.width = newEnergy + '%';
+    
+    // Update text values
+    if (energyValue) energyValue.textContent = newEnergy;
+    if (energyPercentage) energyPercentage.textContent = newEnergy + '%';
+    
+    // Add restoration animation
+    if (container) {
+        container.classList.add('restoring');
+        setTimeout(() => container.classList.remove('restoring'), 600);
+    }
+    
+    // Trigger custom event
+    window.dispatchEvent(new CustomEvent('energyUpdated', { 
+        detail: { energy: newEnergy } 
+    }));
+};
+
+// Countdown timer for energy refill
+function startRefillCountdown() {
+    const timerElement = document.getElementById('refill-timer');
+    const countdownElement = document.getElementById('refill-countdown');
+    
+    if (!timerElement || !countdownElement) return;
+    
+    let secondsRemaining = parseInt(timerElement.dataset.seconds) || 0;
+    
+    const updateCountdown = () => {
+        if (secondsRemaining <= 0) {
+            // Refill time reached - reload to get updated energy
+            window.location.reload();
+            return;
+        }
+        
+        const minutes = Math.floor(secondsRemaining / 60);
+        const seconds = secondsRemaining % 60;
+        
+        if (minutes > 0) {
+            countdownElement.textContent = `${minutes}m ${seconds}s`;
+        } else {
+            countdownElement.textContent = `${seconds}s`;
+        }
+        
+        secondsRemaining--;
+    };
+    
+    // Update immediately
+    updateCountdown();
+    
+    // Update every second
+    setInterval(updateCountdown, 1000);
+}
+
+// Start countdown on page load
+document.addEventListener('DOMContentLoaded', startRefillCountdown);
+
+// Listen for energy updates from games
+window.addEventListener('gameCompleted', function(event) {
+    if (event.detail && event.detail.energyRestored) {
+        const currentEnergy = parseInt(document.getElementById('energy-bar')?.getAttribute('data-energy') || 100);
+        const newEnergy = Math.min(100, currentEnergy + event.detail.energyRestored);
+        window.updateEnergyBar(newEnergy);
+        
+        // Show notification
+        if (event.detail.energyRestored > 0) {
+            console.log(`Energy restored: +${event.detail.energyRestored}`);
+        }
+    }
+});
+</script>

@@ -4,6 +4,9 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+    
     <style>
         #calendar {
             max-width: 1200px;
@@ -51,6 +54,28 @@
             background-color: #6c757d;
         }
         
+        /* Dark theme support */
+        [data-bs-theme="dark"] .fc {
+            --fc-border-color: rgba(255, 255, 255, 0.1);
+            --fc-button-bg-color: #0d6efd;
+            --fc-button-border-color: #0d6efd;
+            --fc-button-hover-bg-color: #0b5ed7;
+            --fc-button-hover-border-color: #0a58ca;
+            --fc-button-active-bg-color: #0a58ca;
+            --fc-button-active-border-color: #0a53be;
+            --fc-today-bg-color: rgba(13, 110, 253, 0.1);
+        }
+        
+        [data-bs-theme="dark"] .fc .fc-col-header-cell,
+        [data-bs-theme="dark"] .fc .fc-daygrid-day {
+            background-color: transparent;
+        }
+        
+        [data-bs-theme="dark"] .fc .fc-daygrid-day-number,
+        [data-bs-theme="dark"] .fc .fc-col-header-cell-cushion {
+            color: #e0e0e0;
+        }
+        
         /* Modal styling */
         .modal-body .detail-row {
             margin-bottom: 10px;
@@ -59,6 +84,10 @@
         .modal-body .detail-label {
             font-weight: bold;
             color: #666;
+        }
+        
+        [data-bs-theme="dark"] .modal-body .detail-label {
+            color: #aaa;
         }
     </style>
 {% endblock %}
@@ -158,8 +187,6 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <!-- FullCalendar CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
     
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
@@ -236,8 +263,8 @@
                     
                     // Set create button link
                     const createBtn = document.getElementById('createSessionBtn');
-                    createBtn.href = '{{ path('study_session_new') }}?date=' + selectedDate + 
-                                     {% if courseId %}'&courseId={{ courseId }}'{% endif %};
+                    const courseParam = {% if courseId %}'&courseId={{ courseId }}'{% else %}''{% endif %};
+                    createBtn.href = '{{ path('study_session_new') }}?date=' + selectedDate + courseParam;
                     
                     // Show modal
                     const modal = new bootstrap.Modal(document.getElementById('createSessionModal'));

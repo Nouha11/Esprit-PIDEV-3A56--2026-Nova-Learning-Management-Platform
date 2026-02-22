@@ -43,6 +43,17 @@
 					{% endif %}
 				</div>
 			</div>
+			
+			{# Energy Bar for Students #}
+			{% if is_granted('ROLE_STUDENT') %}
+			<div class="mt-4">
+				{% include 'components/energy_bar_widget.html.twig' with {
+					'currentEnergy': currentEnergy,
+					'showLabel': true,
+					'size': 'normal'
+				} %}
+			</div>
+			{% endif %}
 		</section>
 
         <section class="py-5">

@@ -9,6 +9,7 @@ use App\Service\StudySession\CourseService;
 use App\Service\StudySession\EnrollmentService;
 use App\Service\StudySession\PlanningService;
 use App\Service\StudySession\StudySessionService;
+use App\Service\StudySession\EnergyMonitorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +24,8 @@ class CourseController extends AbstractController
         private CourseService $courseService,
         private PlanningService $planningService,
         private StudySessionService $studySessionService,
-        private EnrollmentService $enrollmentService
+        private EnrollmentService $enrollmentService,
+        private EnergyMonitorService $energyMonitorService
     ) {
     }
 
@@ -49,8 +51,12 @@ class CourseController extends AbstractController
         // Get enrollment status for each course if user is a student
         $enrolledCourses = [];
         $pendingRequests = [];
+        $currentEnergy = 100;
+        
         if ($this->isGranted('ROLE_STUDENT')) {
             $user = $this->getUser();
+            $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
+            
             foreach ($courses as $course) {
                 $enrolledCourses[$course->getId()] = $this->enrollmentService->isEnrolled($user, $course);
                 $pendingRequest = $this->enrollmentService->getPendingRequest($user, $course);
@@ -65,7 +71,8 @@ class CourseController extends AbstractController
             'current_category' => $category,
             'current_published' => $isPublished,
             'enrolled_courses' => $enrolledCourses,
-            'pending_requests' => $pendingRequests
+            'pending_requests' => $pendingRequests,
+            'currentEnergy' => $currentEnergy
         ]);
     }
 
@@ -209,6 +216,13 @@ class CourseController extends AbstractController
         $avgDuration = $totalSessions > 0 
             ? round(array_sum(array_map(fn($s) => $s->getDuration(), $studySessions)) / $totalSessions, 2)
             : 0;
+        
+        // Get current energy for students
+        $currentEnergy = 100;
+        if ($this->isGranted('ROLE_STUDENT')) {
+            $user = $this->getUser();
+            $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
+        }
 
         return $this->render('front/course/detail.html.twig', [
             'course' => $course,
@@ -218,7 +232,8 @@ class CourseController extends AbstractController
             'date_to' => $dateTo,
             'total_sessions' => $totalSessions,
             'total_xp' => $totalXP,
-            'avg_duration' => $avgDuration
+            'avg_duration' => $avgDuration,
+            'currentEnergy' => $currentEnergy
         ]);
     }
 

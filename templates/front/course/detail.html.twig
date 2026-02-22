@@ -71,9 +71,14 @@
 								{% endif %}
 								
 								{% if is_granted('ROLE_STUDENT') %}
-									<a href="{{ path('planning_new', {course: course.id}) }}" class="btn btn-primary w-100">
-										<i class="bi bi-calendar-plus"></i> Plan Study Session
-									</a>
+									<div class="d-grid gap-2">
+										<a href="{{ path('course_session_view', {courseId: course.id}) }}" class="btn btn-success btn-lg">
+											<i class="bi bi-play-circle"></i> Start Course Session
+										</a>
+										<a href="{{ path('planning_new', {course: course.id}) }}" class="btn btn-primary">
+											<i class="bi bi-calendar-plus"></i> Plan Study Session
+										</a>
+									</div>
 								{% endif %}
 							</div>
 						</div>
@@ -81,6 +86,19 @@
 				</div>
 			</div>
 		</section>
+		
+		{# Energy Bar for Students #}
+		{% if is_granted('ROLE_STUDENT') %}
+		<section class="py-3">
+			<div class="container">
+				{% include 'components/energy_bar_widget.html.twig' with {
+					'currentEnergy': currentEnergy,
+					'showLabel': true,
+					'size': 'normal'
+				} %}
+			</div>
+		</section>
+		{% endif %}
 
         <!-- Course Details -->
         <section class="py-5">
@@ -346,9 +364,6 @@
                                 
                                 <h6 class="mb-2"><i class="bi bi-robot me-2"></i>AI Tools</h6>
                                 <div class="d-grid gap-2">
-                                    <a href="{{ path('integration_ai_recommendations', {courseId: course.id}) }}" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-lightbulb me-2"></i>AI Recommendations
-                                    </a>
                                     <a href="{{ path('integration_youtube_search', {courseId: course.id}) }}" class="btn btn-outline-danger btn-sm">
                                         <i class="bi bi-youtube me-2"></i>YouTube Search
                                     </a>

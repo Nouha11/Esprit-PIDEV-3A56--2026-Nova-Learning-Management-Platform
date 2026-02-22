@@ -103,7 +103,7 @@
     {% elseif gameEngine == 'stretch' %}
         <script src="{{ asset('js/game-engines/stretch.js') }}"></script>
     {% elseif gameEngine == 'eye_rest' %}
-        <script src="{{ asset('js/game-engines/eye-rest.js') }}"></script>
+        <script src="{{ asset('js/game-engines/eye_rest.js') }}"></script>
     {% elseif gameEngine == 'hydration' %}
         <script src="{{ asset('js/game-engines/hydration.js') }}"></script>
     {% endif %}
@@ -128,6 +128,21 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // Dispatch energy restoration event if applicable
+                        if (data.energyRestored && data.energyRestored > 0) {
+                            window.dispatchEvent(new CustomEvent('gameCompleted', {
+                                detail: {
+                                    energyRestored: data.energyRestored,
+                                    currentEnergy: data.currentEnergy
+                                }
+                            }));
+                            
+                            // Update energy bar if it exists
+                            if (typeof window.updateEnergyBar === 'function') {
+                                window.updateEnergyBar(data.currentEnergy);
+                            }
+                        }
+                        
                         // Redirect to game show page with success message
                         window.location.href = '{{ path('front_game_show', {id: game.id}) }}?completed=1';
                     }

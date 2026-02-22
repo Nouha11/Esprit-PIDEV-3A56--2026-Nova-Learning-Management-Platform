@@ -116,6 +116,9 @@ class StudentProfile
     #[ORM\Column(type: Types::INTEGER, options: ['default' => 100])]
     private ?int $energy = 100;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $lastEnergyUpdate = null;
+
     // Relationship: Track earned rewards
     #[ORM\ManyToMany(targetEntity: Reward::class, inversedBy: 'students')]
     #[ORM\JoinTable(name: 'student_earned_rewards')]
@@ -364,6 +367,18 @@ class StudentProfile
     public function setEnergy(int $energy): static
     {
         $this->energy = max(0, min(100, $energy));
+        $this->lastEnergyUpdate = new \DateTime();
+        return $this;
+    }
+
+    public function getLastEnergyUpdate(): ?\DateTimeInterface
+    {
+        return $this->lastEnergyUpdate;
+    }
+
+    public function setLastEnergyUpdate(?\DateTimeInterface $lastEnergyUpdate): static
+    {
+        $this->lastEnergyUpdate = $lastEnergyUpdate;
         return $this;
     }
 }

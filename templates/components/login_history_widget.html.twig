@@ -3,7 +3,7 @@
 {% set limit = limit|default(5) %}
 
 <div class="card border-0 shadow-sm h-100">
-    <div class="card-header bg-white border-bottom">
+    <div class="card-header border-bottom">
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
                 <i class="bi bi-clock-history text-primary"></i>
@@ -23,19 +23,19 @@
         {% else %}
             <div class="list-group list-group-flush">
                 {% for login in recentLogins|slice(0, limit) %}
-                    <div class="list-group-item px-0 {% if not loop.last %}border-bottom{% endif %}">
+                    <div class="list-group-item login-history-item px-0 {% if not loop.last %}border-bottom{% endif %}">
                         <div class="d-flex align-items-start">
                             <div class="flex-shrink-0 me-3">
                                 {% if login.status == 'success' %}
-                                    <div class="bg-success bg-opacity-10 rounded-circle p-2">
+                                    <div class="login-icon-success rounded-circle p-2">
                                         <i class="bi bi-check-circle-fill text-success"></i>
                                     </div>
                                 {% elseif login.status == 'failed' %}
-                                    <div class="bg-danger bg-opacity-10 rounded-circle p-2">
+                                    <div class="login-icon-danger rounded-circle p-2">
                                         <i class="bi bi-x-circle-fill text-danger"></i>
                                     </div>
                                 {% else %}
-                                    <div class="bg-warning bg-opacity-10 rounded-circle p-2">
+                                    <div class="login-icon-warning rounded-circle p-2">
                                         <i class="bi bi-shield-exclamation text-warning"></i>
                                     </div>
                                 {% endif %}
@@ -45,15 +45,15 @@
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <div>
                                         {% if login.status == 'success' %}
-                                            <span class="badge bg-success-soft text-success small">Success</span>
+                                            <span class="badge login-badge-success small">Success</span>
                                         {% elseif login.status == 'failed' %}
-                                            <span class="badge bg-danger-soft text-danger small">Failed</span>
+                                            <span class="badge login-badge-danger small">Failed</span>
                                         {% else %}
-                                            <span class="badge bg-warning-soft text-warning small">Blocked</span>
+                                            <span class="badge login-badge-warning small">Blocked</span>
                                         {% endif %}
                                         
                                         {% if login.is2faUsed %}
-                                            <span class="badge bg-primary-soft text-primary small ms-1">
+                                            <span class="badge login-badge-primary small ms-1">
                                                 <i class="bi bi-shield-check"></i> 2FA
                                             </span>
                                         {% endif %}
@@ -107,20 +107,78 @@
 </div>
 
 <style>
-.bg-success-soft {
+/* Light theme styles */
+.login-history-item {
+    background-color: transparent;
+}
+
+.login-icon-success {
     background-color: rgba(25, 135, 84, 0.1);
 }
 
-.bg-danger-soft {
+.login-icon-danger {
     background-color: rgba(220, 53, 69, 0.1);
 }
 
-.bg-warning-soft {
+.login-icon-warning {
     background-color: rgba(255, 193, 7, 0.1);
 }
 
-.bg-primary-soft {
+.login-badge-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+.login-badge-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.login-badge-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.login-badge-primary {
     background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+/* Dark theme styles */
+[data-bs-theme="dark"] .login-icon-success {
+    background-color: rgba(25, 135, 84, 0.2);
+}
+
+[data-bs-theme="dark"] .login-icon-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+
+[data-bs-theme="dark"] .login-icon-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+}
+
+[data-bs-theme="dark"] .login-badge-success {
+    background-color: rgba(25, 135, 84, 0.2);
+    color: #75b798;
+}
+
+[data-bs-theme="dark"] .login-badge-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #ea868f;
+}
+
+[data-bs-theme="dark"] .login-badge-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffda6a;
+}
+
+[data-bs-theme="dark"] .login-badge-primary {
+    background-color: rgba(13, 110, 253, 0.2);
+    color: #6ea8fe;
+}
+
+[data-bs-theme="dark"] .login-history-item {
+    border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .alert-sm {
