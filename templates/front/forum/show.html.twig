@@ -60,15 +60,14 @@
                         {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
                         {% set color = colors[s.id % colors|length] %}
                         <a href="{{ path('app_forum_space', {'id': s.id}) }}" class="left-nav-link d-flex align-items-center {{ post.space and s.id == post.space.id ? 'active' : '' }}">
-                            {# CHANGED: CLEAN DOT #}
                             <div class="rounded-circle me-3" style="width: 14px; height: 14px; background-color: {{ color }}; margin-left: 5px;"></div>
                             <span class="text-truncate">{{ s.name }}</span>
                         </a>
                     {% endfor %}
 
-                    
-
-
+                    <div class="left-nav-section-title mt-3 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
+                    <a href="#" class="left-nav-link"><i class="bi bi-info-circle"></i> About NOVA</a>
+                    <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link"><i class="bi bi-shield-check"></i> Guidelines</a>
                 </div>
             </div>
 

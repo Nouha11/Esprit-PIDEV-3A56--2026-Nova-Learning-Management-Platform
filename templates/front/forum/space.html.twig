@@ -35,11 +35,10 @@
         .reddit-card { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; transition: all 0.2s ease; cursor: pointer; }
         .reddit-card:hover { border-color: var(--nova-border-hover); }
         .vote-sidebar { background-color: var(--nova-vote-bg); width: 45px; border-right: 1px solid var(--nova-border); display: flex; flex-direction: column; align-items: center; padding-top: 10px; border-top-left-radius: 4px; border-bottom-left-radius: 4px;}
-        .vote-arrow { color: var(--nova-text-muted); font-size: 1.4rem; cursor: pointer; border-radius: 4px; padding: 2px; line-height: 1; transition: all 0.1s; }
-        .vote-arrow:hover { background-color: var(--nova-hover-bg); }
-        .vote-arrow.up.active, .vote-arrow.up:hover { color: #ff4500; }
-        .vote-arrow.down.active, .vote-arrow.down:hover { color: #7193ff; }
-        .vote-score { font-size: 13px; font-weight: 700; color: var(--nova-text-main); margin: 4px 0; }
+        .vote-arrow { color: var(--nova-text-muted); font-size: 1.4rem; cursor: pointer; border-radius: 4px; padding: 0px; line-height: 1; transition: all 0.2s; }
+        .vote-arrow.up.active, .vote-arrow.up:hover { color: #ff4500; background-color: rgba(255, 69, 0, 0.1); }
+        .vote-arrow.down.active, .vote-arrow.down:hover { color: #7193ff; background-color: rgba(113, 147, 255, 0.1); }
+        .vote-score { font-size: 13px; font-weight: 700; color: var(--nova-text-main); margin: 6px 0; }
         
         .post-meta { font-size: 12px; color: var(--nova-text-muted); margin-bottom: 8px; }
         .post-author { color: var(--nova-text-muted); text-decoration: none; font-weight: 600; }
@@ -96,17 +95,14 @@
                         {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
                         {% set color = colors[s.id % colors|length] %}
                         <a href="{{ path('app_forum_space', {'id': s.id}) }}" class="left-nav-link d-flex align-items-center {{ s.id == space.id ? 'active' : '' }}">
-                            {# CHANGED: CLEAN DOT #}
                             <div class="rounded-circle me-3" style="width: 14px; height: 14px; background-color: {{ color }}; margin-left: 5px;"></div>
                             <span class="text-truncate">{{ s.name }}</span>
                         </a>
-                    
                     {% endfor %}
 
-
-
-
-
+                    <div class="left-nav-section-title mt-3 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
+                    <a href="#" class="left-nav-link"><i class="bi bi-info-circle"></i> About NOVA</a>
+                    <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link"><i class="bi bi-shield-check"></i> Guidelines</a>
                 </div>
             </div>
 
@@ -118,7 +114,6 @@
                     <div style="background: linear-gradient(135deg, {{ spaceColor }} 0%, #343a40 100%); height: 80px;"></div>
                     <div class="card-body d-flex align-items-center position-relative" style="padding-top: 10px;">
                         <div class="rounded-circle p-1 position-absolute" style="top: -35px; left: 15px; background: var(--nova-card-bg);">
-                            {# CHANGED: ROCKET ICON #}
                             <div class="text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 60px; height: 60px; font-size: 30px; background-color: {{ spaceColor }};">
                                 <i class="bi bi-rocket-takeoff-fill"></i>
                             </div>
@@ -199,7 +194,6 @@
                     {% for post in posts %}
                         <div class="reddit-card d-flex shadow-sm" onclick="window.location.href='{{ path('app_forum_show', {'id': post.id}) }}'">
                             
-                            {# UPDATED: FEED VOTE BOX #}
                             <div class="vote-sidebar feed-vote-box" data-id="{{ post.id }}">
                                 {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
                                 <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-type="up" onclick="event.stopPropagation();">
@@ -317,28 +311,13 @@
                         <div class="card-body nova-text-main" style="padding: 32px 16px 16px 16px; font-size: 14px;">
                             <h2 class="h6 fw-bold mb-2">NOVA/{{ space.name }}</h2>
                             <p class="mb-3 nova-text-muted" style="font-size: 13px;">{{ space.description|default('Welcome to the ' ~ space.name ~ ' space! A place for peer-to-peer tutoring and discussion.') }}</p>
-                            
                             <hr style="border-color: var(--nova-border); opacity: 1; margin: 16px 0;">
-
                             <div class="d-flex gap-4 mb-3">
-                                <div>
-                                    <div class="fs-5 fw-bold nova-text-main lh-1">{{ posts.getTotalItemCount }}</div>
-                                    <div class="nova-text-muted mt-1" style="font-size: 12px;">Members</div>
-                                </div>
-                                <div>
-                                    <div class="fs-5 fw-bold nova-text-main lh-1 d-flex align-items-center">
-                                        <span class="bg-success rounded-circle me-2" style="width: 8px; height: 8px; display: inline-block;"></span>
-                                        12
-                                    </div>
-                                    <div class="nova-text-muted mt-1" style="font-size: 12px;">Online</div>
-                                </div>
+                                <div><div class="fs-5 fw-bold nova-text-main lh-1">{{ posts.getTotalItemCount }}</div><div class="nova-text-muted mt-1" style="font-size: 12px;">Members</div></div>
+                                <div><div class="fs-5 fw-bold nova-text-main lh-1 d-flex align-items-center"><span class="bg-success rounded-circle me-2" style="width: 8px; height: 8px; display: inline-block;"></span>12</div><div class="nova-text-muted mt-1" style="font-size: 12px;">Online</div></div>
                             </div>
-                            
                             <hr style="border-color: var(--nova-border); opacity: 1; margin: 16px 0;">
-
-                            <button class="btn w-100 rounded-pill fw-bold text-white mb-2" style="background-color: {{ spaceColor }}; border-color: {{ spaceColor }}; font-size: 14px;" type="button" data-bs-toggle="collapse" data-bs-target="#addPostForm">
-                                Create Post
-                            </button>
+                            <button class="btn w-100 rounded-pill fw-bold text-white mb-2" style="background-color: {{ spaceColor }}; border-color: {{ spaceColor }}; font-size: 14px;" type="button" data-bs-toggle="collapse" data-bs-target="#addPostForm">Create Post</button>
                         </div>
                     </div>
 
@@ -347,17 +326,11 @@
                             <h3 class="mb-0 h6 fw-bold nova-text-main">NOVA/{{ space.name }} Rules</h3>
                         </div>
                         <div class="list-group list-group-flush rounded-bottom nova-text-main pb-2" style="font-size: 13px;">
-                            <div class="list-group-item py-2 px-3 border-bottom-0 bg-transparent nova-text-main widget-rule-item d-flex align-items-center">
-                                <span class="fw-bold me-2">1.</span> <span>Be respectful to tutors and students.</span>
-                            </div>
+                            <div class="list-group-item py-2 px-3 border-bottom-0 bg-transparent nova-text-main widget-rule-item d-flex align-items-center"><span class="fw-bold me-2">1.</span> <span>Be respectful to tutors and students.</span></div>
                             <hr class="my-0 mx-3" style="border-color: var(--nova-border); opacity: 0.5;">
-                            <div class="list-group-item py-2 px-3 border-bottom-0 bg-transparent nova-text-main widget-rule-item d-flex align-items-center">
-                                <span class="fw-bold me-2">2.</span> <span>Do not post direct answers; help guide the peer.</span>
-                            </div>
+                            <div class="list-group-item py-2 px-3 border-bottom-0 bg-transparent nova-text-main widget-rule-item d-flex align-items-center"><span class="fw-bold me-2">2.</span> <span>Do not post direct answers; help guide the peer.</span></div>
                             <hr class="my-0 mx-3" style="border-color: var(--nova-border); opacity: 0.5;">
-                            <div class="list-group-item py-2 px-3 border-bottom-0 bg-transparent nova-text-main widget-rule-item d-flex align-items-center">
-                                <span class="fw-bold me-2">3.</span> <span>Stay on the topic of {{ space.name }}.</span>
-                            </div>
+                            <div class="list-group-item py-2 px-3 border-bottom-0 bg-transparent nova-text-main widget-rule-item d-flex align-items-center"><span class="fw-bold me-2">3.</span> <span>Stay on the topic of {{ space.name }}.</span></div>
                         </div>
                     </div>
 
@@ -372,6 +345,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('quick-image-btn')?.addEventListener('click', () => setTimeout(() => document.querySelector('.target-image-input').focus(), 300));
         document.getElementById('quick-link-btn')?.addEventListener('click', () => setTimeout(() => document.querySelector('.target-link-input').focus(), 300));
+        document.getElementById('quick-file-btn')?.addEventListener('click', () => setTimeout(() => document.querySelector('.target-file-input').focus(), 300));
 
         const enhanceBtn = document.getElementById('ai-enhance-btn');
         const textArea = document.querySelector('.post-content-textarea');
