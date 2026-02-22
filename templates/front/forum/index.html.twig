@@ -27,38 +27,39 @@
         .nova-form-control { background: transparent !important; border: none !important; color: var(--nova-text-main) !important; box-shadow: none !important; }
         .nova-form-control::placeholder { color: var(--nova-text-muted); font-weight: 400; }
         .nova-form-footer { background: var(--nova-input-bg); border-top: 1px dashed var(--nova-border); padding: 16px; }
-        
+
         .create-post-bar { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; padding: 8px; display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
         .create-post-input { background: var(--nova-input-bg); border: 1px solid var(--nova-border); border-radius: 4px; padding: 10px 16px; color: var(--nova-text-muted); width: 100%; cursor: text; transition: 0.2s; }
         .create-post-input:hover { border-color: #0079d3; background: var(--nova-card-bg); }
 
         .post-card { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; transition: border 0.1s; cursor: pointer; }
         .post-card:hover { border: 1px solid var(--nova-border-hover); }
-        .vote-sidebar { background-color: var(--nova-vote-bg); width: 45px; border-right: 1px solid var(--nova-border); display: flex; flex-direction: column; align-items: center; padding-top: 8px; border-top-left-radius: 4px; border-bottom-left-radius: 4px;}
-        .vote-arrow { color: var(--nova-text-muted); font-size: 1.4rem; cursor: pointer; border-radius: 4px; padding: 2px; line-height: 1; transition: all 0.1s; }
+
+        /* Unified Voting System */
+        .vote-sidebar { background-color: var(--nova-vote-bg); width: 45px; border-right: 1px solid var(--nova-border); display: flex; flex-direction: column; align-items: center; padding-top: 10px; border-top-left-radius: 4px; border-bottom-left-radius: 4px;}
+        .vote-arrow { color: var(--nova-text-muted); font-size: 1.4rem; cursor: pointer; border-radius: 4px; padding: 0px; line-height: 1; transition: all 0.2s; text-decoration: none; }
         .vote-arrow:hover { background-color: var(--nova-hover-bg); }
         .vote-arrow.up.active, .vote-arrow.up:hover { color: #ff4500; }
         .vote-arrow.down.active, .vote-arrow.down:hover { color: #7193ff; }
-        .vote-score { font-size: 13px; font-weight: 700; color: var(--nova-text-main); margin: 4px 0; }
+        .vote-score { font-size: 13px; font-weight: 700; color: var(--nova-text-main); margin: 6px 0; }
         
         .post-meta { font-size: 12px; color: var(--nova-text-muted); margin-bottom: 8px; }
-        .post-author { color: var(--nova-text-muted); text-decoration: none; }
+        .post-author { color: var(--nova-text-muted); text-decoration: none; font-weight: 600; }
         .post-author:hover { text-decoration: underline; color: var(--nova-text-main); }
-        .post-title { font-size: 18px; font-weight: 500; color: var(--nova-text-main); text-decoration: none; line-height: 22px; }
+        .post-title { font-size: 1.15rem; font-weight: 600; color: var(--nova-text-main); text-decoration: none; line-height: 1.4; }
         .post-title:hover { text-decoration: underline; }
 
-        .action-pill { display: inline-flex; align-items: center; padding: 6px 8px; border-radius: 4px; color: var(--nova-text-muted); font-size: 12px; font-weight: 700; text-decoration: none; border: none; background: transparent; transition: 0.2s; }
+        .action-pill { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 4px; color: var(--nova-text-muted); font-size: 13px; font-weight: 600; text-decoration: none; transition: background-color 0.2s; background: transparent; border: none; }
         .action-pill i { font-size: 18px; margin-right: 6px; }
         .action-pill:hover { background-color: var(--nova-hover-bg); color: var(--nova-text-main); }
         .action-pill.saved { color: #eab308; }
-
+        
         .sort-bar { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .sort-btn { background: transparent; border: none; color: var(--nova-text-muted); font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
+        .sort-btn { background: transparent; border: none; color: var(--nova-text-muted); font-weight: 600; font-size: 14px; padding: 6px 14px; border-radius: 20px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; text-decoration: none; }
         .sort-btn:hover { background: var(--nova-hover-bg); color: var(--nova-text-main); }
-        .sort-btn.active { background: var(--nova-input-bg); color: #0079d3; }
-
+        .sort-btn.active { background: var(--nova-input-bg); color: #0d6efd; }
+        
         .widget-card { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; margin-bottom: 16px; overflow: hidden; color: var(--nova-text-main); }
-        .widget-header { padding: 12px 16px; font-size: 14px; font-weight: 700; border-bottom: 1px solid var(--nova-border); }
     </style>
 {% endblock %}
 
@@ -105,12 +106,11 @@
 
                     <div class="left-nav-section-title mt-3 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
                     <a href="#" class="left-nav-link"><i class="bi bi-info-circle"></i> About NOVA</a>
-                    {# --- UPDATED GUIDELINES LINK --- #}
                     <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link"><i class="bi bi-shield-check"></i> Guidelines</a>
                 </div>
             </div>
 
-            {# --- 2. MIDDLE COLUMN: THE FEED --- #}
+            {# --- 2. MIDDLE COLUMN --- #}
             <div class="col-xl-7 col-lg-6 col-md-12">
                 
                 <div class="create-post-bar shadow-sm">
@@ -149,7 +149,7 @@
                             </div>
 
                             <div>
-                                {{ form_widget(form.content, {'attr': {'class': 'form-control nova-form-control post-content-textarea py-3 px-3', 'rows': '6', 'placeholder': 'Text (optional)', 'style': 'resize: none;'}}) }}
+                                {{ form_widget(form.content, {'attr': {'class': 'form-control nova-form-control post-content-textarea py-3 px-3', 'rows': '6', 'placeholder': 'Type your messy thoughts here, and let AI clean it up...', 'style': 'resize: none;'}}) }}
                                 <div class="px-3 pb-2 text-danger small">{{ form_errors(form.content) }}</div>
                             </div>
 
@@ -200,13 +200,14 @@
                     {% for post in posts %}
                         <div class="post-card d-flex shadow-sm" onclick="window.location.href='{{ path('app_forum_show', {'id': post.id}) }}'">
                             
-                            <div class="vote-sidebar feed-vote-box" data-id="{{ post.id }}">
+                            <div class="vote-sidebar vote-container">
                                 {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
-                                <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-type="up" onclick="event.stopPropagation();">
+                                {% set is_downvoted = app.user and post.isDownvotedBy(app.user) %}
+                                <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'up'}) }}" onclick="event.stopPropagation();">
                                     <i class="bi bi-arrow-up-short"></i>
                                 </a>
-                                <span class="vote-score post-score-count">{{ post.upvotes }}</span>
-                                <a href="#" class="vote-arrow down" data-type="down" onclick="event.stopPropagation();">
+                                <span class="vote-score">{{ post.upvotes }}</span>
+                                <a href="#" class="vote-arrow down {{ is_downvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'down'}) }}" onclick="event.stopPropagation();">
                                     <i class="bi bi-arrow-down-short"></i>
                                 </a>
                             </div>
@@ -233,7 +234,7 @@
                                 </div>
                                 
                                 {% if post.imageName %}
-                                    <div class="mb-2 rounded overflow-hidden" style="max-height: 400px; text-align: center; background-color: #000;">
+                                    <div class="mb-2 rounded overflow-hidden border" style="border-color: var(--nova-border) !important; max-height: 400px; text-align: center; background-color: var(--nova-input-bg);">
                                         <img src="{{ vich_uploader_asset(post, 'imageFile') }}" style="max-height: 400px; width: auto; max-width: 100%; object-fit: contain;">
                                     </div>
                                 {% endif %}
@@ -260,7 +261,7 @@
                                                 <div class="row g-0">
                                                     {% if post.linkImage %}
                                                         <div class="col-4 bg-dark text-center border-end" style="border-color: var(--nova-border) !important;">
-                                                            <img src="{{ post.linkImage }}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 110px;" alt="Link Preview">
+                                                            <img src="{{ post.linkImage }}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 110px;">
                                                         </div>
                                                     {% endif %}
                                                     <div class="{{ post.linkImage ? 'col-8' : 'col-12' }}">
@@ -292,9 +293,9 @@
                                         <i class="bi bi-share"></i> <span class="share-text">Share</span>
                                     </button>
                                     {% if app.user and app.user.hasBookmarkedPost(post) %}
-                                        <button class="action-pill ms-1 saved bookmark-btn-feed" data-id="{{ post.id }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark-fill"></i> Saved</button>
+                                        <button class="action-pill ms-1 saved bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark-fill"></i> Saved</button>
                                     {% else %}
-                                        <button class="action-pill ms-1 bookmark-btn-feed" data-id="{{ post.id }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark"></i> Save</button>
+                                        <button class="action-pill ms-1 bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark"></i> Save</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -315,7 +316,7 @@
             </div>
 
             {# --- 3. RIGHT COLUMN --- #}
-            <div class="col-xl-3 col-lg-3 d-none d-lg-block">
+            <div class="col-lg-3 d-none d-lg-block">
                 <div class="sticky-sidebar">
                     <div class="widget-card shadow-sm">
                         <div class="card-body p-3">
@@ -400,51 +401,51 @@
         document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault(); e.stopPropagation();
-                const urlToShare = this.getAttribute('data-url');
-                const textSpan = this.querySelector('.share-text');
-                const icon = this.querySelector('i');
-                navigator.clipboard.writeText(urlToShare).then(() => {
-                    const originalText = textSpan.innerText;
-                    const originalIcon = icon.className;
-                    textSpan.innerText = 'Copied!';
-                    icon.className = 'bi bi-check2 text-success fw-bold';
+                const textSpan = this.querySelector('.share-text'); const icon = this.querySelector('i');
+                navigator.clipboard.writeText(this.getAttribute('data-url')).then(() => {
+                    const originalText = textSpan.innerText; const originalIcon = icon.className;
+                    textSpan.innerText = 'Copied!'; icon.className = 'bi bi-check2 text-success fw-bold';
                     setTimeout(() => { textSpan.innerText = originalText; icon.className = originalIcon; }, 2000);
                 });
             });
         });
 
-        // Feed Post Upvote Logic
-        document.querySelectorAll('.feed-vote-box .vote-arrow').forEach(arrow => {
+        // ROBUST VOTE LOGIC
+        document.querySelectorAll('.vote-arrow').forEach(arrow => {
             arrow.addEventListener('click', function(e) {
                 e.preventDefault(); e.stopPropagation();
-                const type = this.dataset.type;
-                if(type === 'down') return; 
+                const url = this.dataset.url;
+                if(!url) return;
                 
-                const container = this.closest('.feed-vote-box');
-                const postId = container.dataset.id;
-                const scoreDisplay = container.querySelector('.post-score-count');
+                const container = this.closest('.vote-container');
+                const scoreDisplay = container.querySelector('.vote-score');
                 
-                fetch(`/forum/post/${postId}/upvote`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(r => {
-                    if (r.status === 403) { alert('You must be logged in.'); throw new Error('Auth'); }
+                fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(async r => {
+                    if (r.status === 403) { alert('You must be logged in to vote.'); throw new Error('Auth'); }
+                    if (!r.ok) { alert('Database error. Did you run the migration for downvoters?'); throw new Error('Server'); }
                     return r.json();
                 }).then(data => {
-                    if(data) {
-                        scoreDisplay.textContent = data.upvotes;
-                        if(data.isUpvoted) { this.classList.add('active'); } 
-                        else { this.classList.remove('active'); }
-                    }
+                    if(data.error) return alert(data.error);
+                    if(scoreDisplay) scoreDisplay.textContent = data.score ?? data.upvotes;
+                    
+                    const upBtn = container.querySelector('.vote-arrow.up');
+                    const downBtn = container.querySelector('.vote-arrow.down');
+                    if(upBtn) { upBtn.classList.remove('active'); if(data.upvoted) upBtn.classList.add('active'); }
+                    if(downBtn) { downBtn.classList.remove('active'); if(data.downvoted) downBtn.classList.add('active'); }
                 }).catch(err => {});
             });
         });
 
-        // Feed Post Bookmark Logic
-        document.querySelectorAll('.bookmark-btn-feed').forEach(btn => {
+        // ROBUST BOOKMARK LOGIC
+        document.querySelectorAll('.bookmark-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault(); e.stopPropagation();
-                const postId = this.dataset.id;
-                fetch(`/forum/post/${postId}/bookmark`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(r => {
+                const url = this.dataset.url;
+                if(!url) return;
+
+                fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(async r => {
                     if (r.status === 403) { alert('You must be logged in.'); throw new Error('Auth'); }
                     return r.json();
                 }).then(data => {

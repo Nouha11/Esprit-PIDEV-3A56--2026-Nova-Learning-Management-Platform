@@ -22,7 +22,28 @@
         .left-nav-link:hover, .left-nav-link.active { background-color: var(--nova-hover-bg); }
         .left-nav-section-title { font-size: 11px; font-weight: 700; color: var(--nova-text-muted); text-transform: uppercase; padding: 16px 16px 8px 16px; letter-spacing: 0.5px; }
 
-        .comment-box { background: var(--nova-input-bg) !important; border-color: var(--nova-border) !important; }
+        /* POST UI HORIZONTAL PILL */
+        .vote-pill { display: inline-flex; align-items: center; background: var(--nova-input-bg); border: 1px solid var(--nova-border); border-radius: 20px; overflow: hidden; }
+        .vote-pill .vote-arrow { padding: 4px 8px; color: var(--nova-text-muted); text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; transition: 0.2s; }
+        .vote-pill .vote-arrow:hover { background: var(--nova-hover-bg); }
+        .vote-pill .vote-arrow.up.active, .vote-pill .vote-arrow.up:hover { color: #ff4500; }
+        .vote-pill .vote-arrow.down.active, .vote-pill .vote-arrow.down:hover { color: #7193ff; }
+        .vote-pill .vote-score { padding: 0 8px; font-weight: 700; font-size: 13px; color: var(--nova-text-main); }
+
+        /* COMMENT VERTICAL SIDEBAR */
+        .vote-sidebar { background-color: transparent; width: 40px; display: flex; flex-direction: column; align-items: center; padding-top: 4px;}
+        .vote-sidebar .vote-arrow { color: var(--nova-text-muted); font-size: 1.3rem; cursor: pointer; border-radius: 4px; padding: 0px; line-height: 1; transition: all 0.2s; text-decoration: none;}
+        .vote-sidebar .vote-arrow:hover { background-color: var(--nova-hover-bg); }
+        .vote-sidebar .vote-arrow.up.active, .vote-sidebar .vote-arrow.up:hover { color: #ff4500; }
+        .vote-sidebar .vote-arrow.down.active, .vote-sidebar .vote-arrow.down:hover { color: #7193ff; }
+        .vote-sidebar .vote-score { font-size: 12px; font-weight: 700; color: var(--nova-text-main); margin: 4px 0; }
+
+        .action-pill { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 4px; color: var(--nova-text-muted); font-size: 13px; font-weight: 600; text-decoration: none; transition: background-color 0.2s; background: transparent; border: none; }
+        .action-pill i { font-size: 18px; margin-right: 6px; }
+        .action-pill:hover { background-color: var(--nova-hover-bg); color: var(--nova-text-main); }
+        .action-pill.saved { color: #eab308; }
+
+        .comment-box { background: var(--nova-card-bg) !important; border-color: var(--nova-border) !important; }
     </style>
 {% endblock %}
 
@@ -103,11 +124,6 @@
                                 <h6 class="mb-0 nova-text-main">{{ post.author.username }}</h6>
                                 <small class="nova-text-muted">{{ post.createdAt|date('F d, Y') }}</small>
                             </div>
-                            <div class="ms-auto">
-                                <span class="badge bg-primary bg-opacity-10 text-primary fs-6">
-                                    <span id="top-upvote-count">{{ post.upvotes }}</span> Upvotes
-                                </span>
-                            </div>
                         </div>
 
                         <p class="mb-4 nova-text-main" style="white-space: pre-wrap; font-size: 15px;">{{ post.content }}</p>
@@ -168,50 +184,63 @@
                             {% endif %}
                         {% endif %}
 
-                        <div class="d-flex gap-2 align-items-center mt-4 border-top pt-3" style="border-color: var(--nova-border) !important;">
-                            {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
-                            <button class="btn btn-sm mb-0 upvote-btn {{ is_upvoted ? 'btn-primary' : 'btn-outline-secondary' }}" data-id="{{ post.id }}">
-                                <i class="bi bi-hand-thumbs-up me-1"></i> <span class="btn-text">{{ is_upvoted ? 'Upvoted' : 'Upvote' }}</span>
+                        {# --- REDESIGNED AI SUMMARY INLINE WIDGET --- #}
+                        <div class="d-flex justify-content-between align-items-center p-3 mb-4 rounded-3" style="background: rgba(111, 66, 193, 0.05); border: 1px solid rgba(111, 66, 193, 0.2);">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-stars fs-4 me-3" style="color: #6f42c1;"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-bold" style="color: #6f42c1;">AI Summary</h6>
+                                    <small class="text-muted" id="ai-summary-content">Get a quick TL;DR of this discussion.</small>
+                                </div>
+                            </div>
+                            <button id="btn-summarize" class="btn btn-sm rounded-pill text-white fw-bold px-3" style="background-color: #6f42c1; box-shadow: 0 2px 4px rgba(111,66,193,0.3);" data-url="{{ path('app_forum_summary', {id: post.id}) }}">
+                                Generate
                             </button>
-                            
-                            {% set is_bookmarked = app.user and app.user.hasBookmarkedPost(post) %}
-                            <button class="btn btn-sm mb-0 bookmark-btn {{ is_bookmarked ? 'btn-warning text-dark border-warning' : 'btn-outline-secondary' }}" data-id="{{ post.id }}">
-                                <i class="bi {{ is_bookmarked ? 'bi-bookmark-fill' : 'bi-bookmark' }} me-1"></i> <span class="btn-text">{{ is_bookmarked ? 'Saved' : 'Save' }}</span>
-                            </button>
-                            
-                            <button class="btn btn-sm btn-outline-secondary share-btn mb-0" data-url="{{ url('app_forum_show', {'id': post.id}) }}">
-                                <i class="bi bi-share me-1"></i> <span class="share-text">Share</span>
-                            </button>
+                        </div>
 
-                            {% if not post.isLocked %}
-                                <a href="#replyForm" class="btn btn-sm btn-primary-soft mb-0 ms-1"><i class="bi bi-reply-fill me-1"></i> Reply</a>
+                        {# --- REDESIGNED ACTION FOOTER --- #}
+                        <div class="d-flex flex-wrap gap-2 align-items-center mt-2 pt-3 border-top" style="border-color: var(--nova-border) !important;">
+                            
+                            {# THE VOTE PILL #}
+                            <div class="vote-pill vote-container me-2">
+                                {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
+                                {% set is_downvoted = app.user and post.isDownvotedBy(app.user) %}
+                                <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'up'}) }}"><i class="bi bi-arrow-up-short"></i></a>
+                                <span class="vote-score">{{ post.upvotes }}</span>
+                                <a href="#" class="vote-arrow down {{ is_downvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'down'}) }}"><i class="bi bi-arrow-down-short"></i></a>
+                            </div>
+                            
+                            <a href="#replyForm" class="action-pill"><i class="bi bi-chat-square"></i> {{ post.comments|length }} Comments</a>
+                            <button class="action-pill share-btn" data-url="{{ url('app_forum_show', {'id': post.id}) }}"><i class="bi bi-share"></i> Share</button>
+                            
+                            {% if app.user and app.user.hasBookmarkedPost(post) %}
+                                <button class="action-pill saved bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}"><i class="bi bi-bookmark-fill"></i> Saved</button>
+                            {% else %}
+                                <button class="action-pill bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}"><i class="bi bi-bookmark"></i> Save</button>
                             {% endif %}
                             
-                            <div class="ms-auto d-flex gap-2">
+                            <div class="ms-auto d-flex align-items-center">
                                 {% if app.user and app.user != post.author %}
-                                    <button type="button" class="btn btn-sm btn-outline-danger mb-0" data-bs-toggle="modal" data-bs-target="#reportModal-{{ post.id }}"><i class="bi bi-flag-fill"></i></button>
+                                    <button class="action-pill" data-bs-toggle="modal" data-bs-target="#reportModal-{{ post.id }}"><i class="bi bi-flag"></i> Report</button>
                                 {% endif %}
                                 {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
-                                    <a href="{{ path('app_forum_toggle_lock', {'id': post.id}) }}" class="btn btn-sm {{ post.isLocked ? 'btn-success-soft' : 'btn-secondary-soft' }} mb-0">
-                                        <i class="bi bi-{{ post.isLocked ? 'unlock' : 'lock' }}-fill"></i>
-                                    </a>
-                                    <a href="{{ path('app_forum_edit', {'id': post.id}) }}" class="btn btn-sm btn-warning-soft mb-0"><i class="bi bi-pencil"></i></a>
-                                    <form method="post" action="{{ path('app_forum_delete', {'id': post.id}) }}" style="display:inline;" onsubmit="return confirm('Delete this post?')">
-                                        <button class="btn btn-sm btn-danger-soft mb-0" type="submit"><i class="bi bi-trash"></i></button>
-                                    </form>
+                                    <div class="dropdown">
+                                        <button class="action-pill" type="button" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="background: var(--nova-card-bg); border-color: var(--nova-border);">
+                                            <li><a class="dropdown-item nova-text-main" href="{{ path('app_forum_toggle_lock', {'id': post.id}) }}"><i class="bi bi-{{ post.isLocked ? 'unlock' : 'lock' }} me-2"></i> {{ post.isLocked ? 'Unlock' : 'Lock' }}</a></li>
+                                            <li><a class="dropdown-item nova-text-main" href="{{ path('app_forum_edit', {'id': post.id}) }}"><i class="bi bi-pencil me-2"></i> Edit Post</a></li>
+                                            <li><hr class="dropdown-divider" style="border-color: var(--nova-border);"></li>
+                                            <li>
+                                                <form method="post" action="{{ path('app_forum_delete', {'id': post.id}) }}" onsubmit="return confirm('Delete this post?')">
+                                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i> Delete Post</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="nova-card shadow-sm mt-4 mb-4" style="border-color: #6f42c1 !important;">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0" style="color: #6f42c1;"><i class="bi bi-magic me-2"></i>AI Thread Summary</h5>
-                            <button id="btn-summarize" class="btn btn-sm text-white" style="background-color: #6f42c1;" data-url="{{ path('app_forum_summary', {id: post.id}) }}">✨ Generate TL;DR</button>
-                        </div>
-                        <div id="ai-summary-content" class="nova-text-muted">Too long to read? Click the button to have Google Gemini summarize this entire discussion.</div>
                     </div>
                 </div>
 
@@ -228,10 +257,10 @@
                                             <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
                                         </div>
                                     </div>
-                                    <div class="d-flex flex-column align-items-center comment-vote-box" data-id="{{ comment.id }}">
-                                        <a href="#" class="vote-action text-secondary {{ app.user and comment.isUpvotedBy(app.user) ? 'text-success' : '' }}" data-type="up" style="text-decoration: none;"><i class="bi bi-caret-up-fill fs-4"></i></a>
-                                        <span class="fw-bold small score-count my-1 nova-text-main">{{ comment.score }}</span>
-                                        <a href="#" class="vote-action text-secondary {{ app.user and comment.isDownvotedBy(app.user) ? 'text-danger' : '' }}" data-type="down" style="text-decoration: none;"><i class="bi bi-caret-down-fill fs-4"></i></a>
+                                    <div class="vote-sidebar vote-container">
+                                        <a href="#" class="vote-arrow up {{ app.user and comment.isUpvotedBy(app.user) ? 'active' : '' }}" data-url="{{ path('app_forum_comment_vote', {'id': comment.id, 'type': 'up'}) }}"><i class="bi bi-arrow-up-short"></i></a>
+                                        <span class="vote-score">{{ comment.score }}</span>
+                                        <a href="#" class="vote-arrow down {{ app.user and comment.isDownvotedBy(app.user) ? 'active' : '' }}" data-url="{{ path('app_forum_comment_vote', {'id': comment.id, 'type': 'down'}) }}"><i class="bi bi-arrow-down-short"></i></a>
                                     </div>
                                 </div>
                                 <div class="w-100">
@@ -246,8 +275,8 @@
                                     </div>
                                     <p class="mt-2 mb-2 nova-text-main" style="white-space: pre-wrap;">{{ comment.content }}</p>
                                     {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
-                                        <div class="d-flex justify-content-end">
-                                            <button class="btn btn-sm solution-btn {{ comment.isSolution ? 'btn-outline-success active' : 'btn-outline-secondary' }}" data-id="{{ comment.id }}">
+                                        <div class="d-flex justify-content-end mt-2 pt-2 border-top" style="border-color: var(--nova-border) !important;">
+                                            <button class="btn btn-sm solution-btn {{ comment.isSolution ? 'btn-outline-success active' : 'btn-outline-secondary' }}" data-url="{{ path('app_forum_solution', {'id': comment.id}) }}" data-id="{{ comment.id }}">
                                                 <i class="bi bi-check-lg"></i> <span class="btn-text">{{ comment.isSolution ? 'Unmark Solution' : 'Mark as Solution' }}</span>
                                             </button>
                                         </div>
@@ -302,7 +331,6 @@
                             <ul class="list-unstyled mb-0 font-sm nova-text-main">
                                 <li class="mb-3 d-flex align-items-center"><i class="bi bi-shield-lock-fill {{ post.isLocked ? 'text-danger' : 'text-success' }} fs-5 me-3"></i> <div><small class="nova-text-muted d-block">Status</small><strong>{{ post.isLocked ? 'Closed' : 'Open' }}</strong></div></li>
                                 <li class="mb-3 d-flex align-items-center"><i class="bi bi-chat-dots-fill text-primary fs-5 me-3"></i> <div><small class="nova-text-muted d-block">Replies</small><strong>{{ post.comments|length }}</strong></div></li>
-                                <li class="mb-0 d-flex align-items-center"><i class="bi bi-hand-thumbs-up-fill text-warning fs-5 me-3"></i> <div><small class="nova-text-muted d-block">Upvotes</small><strong id="sidebar-upvote-count">{{ post.upvotes }}</strong></div></li>
                             </ul>
                         </div>
                     </div>
@@ -329,19 +357,19 @@
 
 {# --- REPORT MODAL --- #}
 {% if app.user and app.user != post.author %}
-<div class="modal fade" id="reportModal-{{ post.id }}" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+<div class="modal fade" id="reportModal-{{ post.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background-color: var(--nova-card-bg); color: var(--nova-text-main); border-color: var(--nova-border);">
             <div class="modal-header border-bottom" style="border-color: var(--nova-border) !important;">
-                <h5 class="modal-title" id="reportModalLabel"><i class="bi bi-flag-fill text-danger me-2"></i>Report Discussion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title"><i class="bi bi-flag-fill text-danger me-2"></i>Report Discussion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ path('app_forum_report', {id: post.id}) }}" method="POST">
                 <div class="modal-body">
-                    <p class="mb-3 nova-text-muted">Please tell us why you are reporting <strong>"{{ post.title|slice(0, 30) }}..."</strong>. Your report will be sent to the moderators.</p>
-                    <div class="form-check mb-2"><input class="form-check-input" type="radio" name="reason" id="reasonSpam" value="Spam or Advertising" required><label class="form-check-label" for="reasonSpam">Spam or Advertising</label></div>
-                    <div class="form-check mb-2"><input class="form-check-input" type="radio" name="reason" id="reasonHarassment" value="Harassment or Hate Speech"><label class="form-check-label" for="reasonHarassment">Harassment or Hate Speech</label></div>
-                    <div class="form-check mb-2"><input class="form-check-input" type="radio" name="reason" id="reasonOffTopic" value="Off-Topic or Inappropriate"><label class="form-check-label" for="reasonOffTopic">Off-Topic or Inappropriate</label></div>
+                    <p class="mb-3 nova-text-muted">Please tell us why you are reporting <strong>"{{ post.title|slice(0, 30) }}..."</strong>.</p>
+                    <div class="form-check mb-2"><input class="form-check-input" type="radio" name="reason" value="Spam or Advertising" required><label class="form-check-label">Spam or Advertising</label></div>
+                    <div class="form-check mb-2"><input class="form-check-input" type="radio" name="reason" value="Harassment or Hate Speech"><label class="form-check-label">Harassment or Hate Speech</label></div>
+                    <div class="form-check mb-2"><input class="form-check-input" type="radio" name="reason" value="Off-Topic or Inappropriate"><label class="form-check-label">Off-Topic or Inappropriate</label></div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -355,51 +383,69 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Post Upvote
-        const upvoteBtn = document.querySelector('.upvote-btn');
-        if (upvoteBtn) {
-            upvoteBtn.addEventListener('click', function (e) {
-                e.preventDefault(); const postId = this.dataset.id; const textSpan = this.querySelector('.btn-text');
-                fetch(`/forum/post/${postId}/upvote`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(r => r.json()).then(data => {
-                    if (data.isUpvoted) { this.classList.replace('btn-outline-secondary', 'btn-primary'); textSpan.textContent = 'Upvoted'; } 
-                    else { this.classList.replace('btn-primary', 'btn-outline-secondary'); textSpan.textContent = 'Upvote'; }
-                    document.getElementById('top-upvote-count').textContent = data.upvotes; document.getElementById('sidebar-upvote-count').textContent = data.upvotes;
-                });
+        // ROBUST VOTE LOGIC (Handles both Vertical Sidebar and Horizontal Pill)
+        document.querySelectorAll('.vote-arrow').forEach(arrow => {
+            arrow.addEventListener('click', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                const url = this.dataset.url;
+                if(!url) return;
+                
+                const container = this.closest('.vote-container');
+                const scoreDisplay = container.querySelector('.vote-score');
+                
+                fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(async r => {
+                    if (r.status === 403) { alert('You must be logged in to vote.'); throw new Error('Auth'); }
+                    if (!r.ok) { alert('Database error. Did you run the migration for downvoters?'); throw new Error('Server'); }
+                    return r.json();
+                }).then(data => {
+                    if(data.error) return alert(data.error);
+                    if(scoreDisplay) scoreDisplay.textContent = data.score ?? data.upvotes;
+                    
+                    const upBtn = container.querySelector('.vote-arrow.up');
+                    const downBtn = container.querySelector('.vote-arrow.down');
+                    if(upBtn) { upBtn.classList.remove('active'); if(data.upvoted) upBtn.classList.add('active'); }
+                    if(downBtn) { downBtn.classList.remove('active'); if(data.downvoted) downBtn.classList.add('active'); }
+                }).catch(err => {});
             });
-        }
+        });
 
         // Bookmark
-        const bookmarkBtn = document.querySelector('.bookmark-btn');
-        if (bookmarkBtn) {
-            bookmarkBtn.addEventListener('click', function (e) {
-                e.preventDefault(); const postId = this.dataset.id; const textSpan = this.querySelector('.btn-text'); const icon = this.querySelector('i');
-                fetch(`/forum/post/${postId}/bookmark`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(r => r.json()).then(data => {
-                    if (data.isBookmarked) { this.classList.replace('btn-outline-secondary', 'btn-warning'); this.classList.add('text-dark'); icon.classList.replace('bi-bookmark', 'bi-bookmark-fill'); textSpan.textContent = 'Saved'; } 
-                    else { this.classList.replace('btn-warning', 'btn-outline-secondary'); this.classList.remove('text-dark'); icon.classList.replace('bi-bookmark-fill', 'bi-bookmark'); textSpan.textContent = 'Save'; }
-                });
+        document.querySelectorAll('.bookmark-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault(); const url = this.dataset.url;
+                if(!url) return;
+                fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(async r => {
+                    if (r.status === 403) { alert('You must be logged in.'); throw new Error('Auth'); }
+                    return r.json();
+                }).then(data => {
+                    if (data.isBookmarked) { this.innerHTML = '<i class="bi bi-bookmark-fill"></i> Saved'; this.classList.add('saved'); } 
+                    else { this.innerHTML = '<i class="bi bi-bookmark"></i> Save'; this.classList.remove('saved'); }
+                }).catch(err => {});
             });
-        }
+        });
 
         // Share Button
-        const shareBtn = document.querySelector('.share-btn');
-        if (shareBtn) {
-            shareBtn.addEventListener('click', function (e) {
-                e.preventDefault(); const urlToShare = this.getAttribute('data-url'); const textSpan = this.querySelector('.share-text'); const icon = this.querySelector('i');
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault(); e.stopPropagation();
+                const urlToShare = this.getAttribute('data-url'); const textSpan = this.querySelector('.share-text'); const icon = this.querySelector('i');
                 navigator.clipboard.writeText(urlToShare).then(() => {
                     const originalText = textSpan.innerText; const originalIcon = icon.className;
                     textSpan.innerText = 'Copied!'; icon.className = 'bi bi-check2 text-success fw-bold';
                     setTimeout(() => { textSpan.innerText = originalText; icon.className = originalIcon; }, 2000);
                 });
             });
-        }
+        });
 
         // Mark Solution
         document.querySelectorAll('.solution-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
-                e.preventDefault(); const cId = this.dataset.id; const container = document.getElementById('comment-' + cId);
-                fetch(`/forum/comment/${cId}/solution`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                e.preventDefault(); 
+                const url = this.dataset.url;
+                const container = document.getElementById('comment-' + this.dataset.id);
+                fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(r => r.json()).then(data => {
                     document.querySelectorAll('.solution-btn').forEach(b => { b.classList.replace('btn-outline-success', 'btn-outline-secondary'); b.classList.remove('active'); b.querySelector('.btn-text').textContent = 'Mark as Solution'; });
                     document.querySelectorAll('.solution-badge').forEach(b => b.classList.add('d-none'));
@@ -409,30 +455,27 @@
             });
         });
 
-        // Comment Votes
-        document.querySelectorAll('.vote-action').forEach(action => {
-            action.addEventListener('click', function(e) {
-                e.preventDefault(); const cId = this.closest('.comment-vote-box').dataset.id; const type = this.dataset.type;
-                fetch(`/forum/comment/${cId}/vote/${type}`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(r => r.json()).then(data => {
-                    const box = this.closest('.comment-vote-box'); box.querySelector('.score-count').textContent = data.score;
-                    const u = box.querySelector('[data-type="up"]'); const d = box.querySelector('[data-type="down"]');
-                    u.classList.replace('text-success', 'text-secondary'); d.classList.replace('text-danger', 'text-secondary');
-                    if (data.upvoted) u.classList.replace('text-secondary', 'text-success');
-                    if (data.downvoted) d.classList.replace('text-secondary', 'text-danger');
-                });
-            });
-        });
-
         // AI Summary
         const btnSum = document.getElementById('btn-summarize');
+        const summaryContent = document.getElementById('ai-summary-content');
         if (btnSum) {
             btnSum.addEventListener('click', function() {
-                const origTxt = this.innerHTML; this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Thinking...'; this.disabled = true;
-                document.getElementById('ai-summary-content').innerHTML = 'Reading discussion...';
+                const origTxt = this.innerHTML; 
+                this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>'; 
+                this.disabled = true;
+                summaryContent.classList.remove('d-none');
+                summaryContent.innerHTML = 'Google Gemini is reading the discussion...';
+                
                 fetch(this.dataset.url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(r => r.json()).then(data => { document.getElementById('ai-summary-content').innerHTML = `<strong>TL;DR:</strong> ${data.summary}`; this.innerHTML = '✨ Generated'; })
-                .catch(() => { document.getElementById('ai-summary-content').innerHTML = 'Error.'; this.innerHTML = origTxt; this.disabled = false; });
+                .then(r => r.json()).then(data => { 
+                    summaryContent.innerHTML = `<strong>TL;DR:</strong> ${data.summary}`; 
+                    this.innerHTML = '✨ Summarized'; 
+                })
+                .catch(() => { 
+                    summaryContent.innerHTML = 'Error communicating with AI.'; 
+                    this.innerHTML = origTxt; 
+                    this.disabled = false; 
+                });
             });
         }
     });

@@ -253,29 +253,41 @@ class ForumController extends AbstractController
         ]);
     }
 
-    #[Route('/forum/post/{id}/upvote', name: 'app_forum_upvote', methods: ['POST'])]
-    public function upvote(Post $post, EntityManagerInterface $entityManager): JsonResponse
+    // ==============================================================
+    // --- REPLACED: NEW UNIFIED POST VOTE (UPVOTE & DOWNVOTE) ---
+    // ==============================================================
+    #[Route('/forum/post/{id}/vote/{type}', name: 'app_forum_post_vote', methods: ['POST'])]
+    public function votePost(Post $post, string $type, EntityManagerInterface $entityManager): JsonResponse
     {
         /** @var User $user */
         $user = $this->getUser();
 
         if (!$user) {
-            return $this->json(['error' => 'You must be logged in to upvote.'], 403);
+            return $this->json(['error' => 'You must be logged in to vote.'], 403);
         }
 
-        if ($post->isUpvotedBy($user)) {
-            $post->removeUpvoter($user);
-            $isUpvoted = false;
-        } else {
-            $post->addUpvoter($user);
-            $isUpvoted = true;
+        if ($type === 'up') {
+            if ($post->isUpvotedBy($user)) {
+                $post->removeUpvoter($user); 
+            } else {
+                $post->addUpvoter($user);    
+                $post->removeDownvoter($user); 
+            }
+        } elseif ($type === 'down') {
+            if ($post->isDownvotedBy($user)) {
+                $post->removeDownvoter($user); 
+            } else {
+                $post->addDownvoter($user);    
+                $post->removeUpvoter($user);   
+            }
         }
 
         $entityManager->flush();
 
         return $this->json([
-            'upvotes' => $post->getUpvotes(),
-            'isUpvoted' => $isUpvoted
+            'score' => $post->getUpvotes(), // upvotes property acts as the total score
+            'upvoted' => $post->isUpvotedBy($user),
+            'downvoted' => $post->isDownvotedBy($user)
         ]);
     }
 

@@ -34,10 +34,12 @@
 
         .reddit-card { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; transition: all 0.2s ease; cursor: pointer; }
         .reddit-card:hover { border-color: var(--nova-border-hover); }
+        
         .vote-sidebar { background-color: var(--nova-vote-bg); width: 45px; border-right: 1px solid var(--nova-border); display: flex; flex-direction: column; align-items: center; padding-top: 10px; border-top-left-radius: 4px; border-bottom-left-radius: 4px;}
-        .vote-arrow { color: var(--nova-text-muted); font-size: 1.4rem; cursor: pointer; border-radius: 4px; padding: 0px; line-height: 1; transition: all 0.2s; }
-        .vote-arrow.up.active, .vote-arrow.up:hover { color: #ff4500; background-color: rgba(255, 69, 0, 0.1); }
-        .vote-arrow.down.active, .vote-arrow.down:hover { color: #7193ff; background-color: rgba(113, 147, 255, 0.1); }
+        .vote-arrow { color: var(--nova-text-muted); font-size: 1.4rem; cursor: pointer; border-radius: 4px; padding: 0px; line-height: 1; transition: all 0.2s; text-decoration: none;}
+        .vote-arrow:hover { background-color: var(--nova-hover-bg); }
+        .vote-arrow.up.active, .vote-arrow.up:hover { color: #ff4500; }
+        .vote-arrow.down.active, .vote-arrow.down:hover { color: #7193ff; }
         .vote-score { font-size: 13px; font-weight: 700; color: var(--nova-text-main); margin: 6px 0; }
         
         .post-meta { font-size: 12px; color: var(--nova-text-muted); margin-bottom: 8px; }
@@ -49,7 +51,8 @@
         .action-pill { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 4px; color: var(--nova-text-muted); font-size: 13px; font-weight: 600; text-decoration: none; transition: background-color 0.2s; background: transparent; border: none; }
         .action-pill i { font-size: 18px; margin-right: 6px; }
         .action-pill:hover { background-color: var(--nova-hover-bg); color: var(--nova-text-main); }
-        
+        .action-pill.saved { color: #eab308; }
+
         .sort-bar { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
         .sort-btn { background: transparent; border: none; color: var(--nova-text-muted); font-weight: 600; font-size: 14px; padding: 6px 14px; border-radius: 20px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; text-decoration: none; }
         .sort-btn:hover { background: var(--nova-hover-bg); color: var(--nova-text-main); }
@@ -194,13 +197,14 @@
                     {% for post in posts %}
                         <div class="reddit-card d-flex shadow-sm" onclick="window.location.href='{{ path('app_forum_show', {'id': post.id}) }}'">
                             
-                            <div class="vote-sidebar feed-vote-box" data-id="{{ post.id }}">
+                            <div class="vote-sidebar vote-container">
                                 {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
-                                <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-type="up" onclick="event.stopPropagation();">
+                                {% set is_downvoted = app.user and post.isDownvotedBy(app.user) %}
+                                <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'up'}) }}" onclick="event.stopPropagation();">
                                     <i class="bi bi-arrow-up-short"></i>
                                 </a>
-                                <span class="vote-score post-score-count">{{ post.upvotes }}</span>
-                                <a href="#" class="vote-arrow down" data-type="down" onclick="event.stopPropagation();">
+                                <span class="vote-score">{{ post.upvotes }}</span>
+                                <a href="#" class="vote-arrow down {{ is_downvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'down'}) }}" onclick="event.stopPropagation();">
                                     <i class="bi bi-arrow-down-short"></i>
                                 </a>
                             </div>
@@ -273,9 +277,9 @@
                                     <a href="{{ path('app_forum_show', {'id': post.id}) }}#comments" class="action-pill" onclick="event.stopPropagation();"><i class="bi bi-chat-square"></i> {{ post.comments|length }} Comments</a>
                                     <button class="action-pill share-btn ms-1" data-url="{{ url('app_forum_show', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-share"></i> <span class="share-text">Share</span></button>
                                     {% if app.user and app.user.hasBookmarkedPost(post) %}
-                                        <button class="action-pill ms-1 saved bookmark-btn-feed" data-id="{{ post.id }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark-fill"></i> Saved</button>
+                                        <button class="action-pill ms-1 saved bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark-fill"></i> Saved</button>
                                     {% else %}
-                                        <button class="action-pill ms-1 bookmark-btn-feed" data-id="{{ post.id }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark"></i> Save</button>
+                                        <button class="action-pill ms-1 bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark"></i> Save</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -388,38 +392,42 @@
             });
         });
 
-        // Feed Post Upvote Logic
-        document.querySelectorAll('.feed-vote-box .vote-arrow').forEach(arrow => {
+        // ROBUST VOTE LOGIC
+        document.querySelectorAll('.vote-arrow').forEach(arrow => {
             arrow.addEventListener('click', function(e) {
                 e.preventDefault(); e.stopPropagation();
-                const type = this.dataset.type;
-                if(type === 'down') return; 
+                const url = this.dataset.url;
+                if(!url) return;
                 
-                const container = this.closest('.feed-vote-box');
-                const postId = container.dataset.id;
-                const scoreDisplay = container.querySelector('.post-score-count');
+                const container = this.closest('.vote-container');
+                const scoreDisplay = container.querySelector('.vote-score');
                 
-                fetch(`/forum/post/${postId}/upvote`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(r => {
-                    if (r.status === 403) { alert('You must be logged in.'); throw new Error('Auth'); }
+                fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(async r => {
+                    if (r.status === 403) { alert('You must be logged in to vote.'); throw new Error('Auth'); }
+                    if (!r.ok) { alert('Database error. Did you run the migration for downvoters?'); throw new Error('Server'); }
                     return r.json();
                 }).then(data => {
-                    if(data) {
-                        scoreDisplay.textContent = data.upvotes;
-                        if(data.isUpvoted) { this.classList.add('active'); } 
-                        else { this.classList.remove('active'); }
-                    }
+                    if(data.error) return alert(data.error);
+                    if(scoreDisplay) scoreDisplay.textContent = data.score ?? data.upvotes;
+                    
+                    const upBtn = container.querySelector('.vote-arrow.up');
+                    const downBtn = container.querySelector('.vote-arrow.down');
+                    if(upBtn) { upBtn.classList.remove('active'); if(data.upvoted) upBtn.classList.add('active'); }
+                    if(downBtn) { downBtn.classList.remove('active'); if(data.downvoted) downBtn.classList.add('active'); }
                 }).catch(err => {});
             });
         });
 
-        // Feed Post Bookmark Logic
-        document.querySelectorAll('.bookmark-btn-feed').forEach(btn => {
+        // ROBUST BOOKMARK LOGIC
+        document.querySelectorAll('.bookmark-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault(); e.stopPropagation();
-                const postId = this.dataset.id;
-                fetch(`/forum/post/${postId}/bookmark`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(r => {
+                const url = this.dataset.url;
+                if(!url) return;
+
+                fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(async r => {
                     if (r.status === 403) { alert('You must be logged in.'); throw new Error('Auth'); }
                     return r.json();
                 }).then(data => {
