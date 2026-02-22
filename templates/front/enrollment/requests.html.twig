@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
+
+{% block title %}{{ t.t('Enrollment Requests') }} - NOVA{% endblock %}
+
+{% block body %}
+
+<main>
+    <div class="container">
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mt-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <!-- Page Header -->
+        <section class="bg-body-secondary p-5 mt-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0 text-body-emphasis">{{ t.t('Enrollment Requests') }}</h1>
+                <a href="{{ path('course_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> {{ t.t('Back to Courses') }}
+                </a>
+            </div>
+        </section>
+
+        <!-- Requests List -->
+        <section class="py-5">
+            {% if requests is empty %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> {{ t.t('No pending enrollment requests at this time.') }}
+                </div>
+            {% else %}
+                <div class="row g-4">
+                    {% for request in requests %}
+                        <div class="col-12">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <h5 class="mb-2">
+                                                <i class="bi bi-book"></i> {{ request.course.courseName }}
+                                            </h5>
+                                            <p class="mb-1">
+                                                <strong><i class="bi bi-person"></i> {{ t.t('Student') }}:</strong> 
+                                                {{ request.student.username }}
+                                            </p>
+                                            <p class="mb-1 text-muted">
+                                                <i class="bi bi-calendar"></i> {{ t.t('Requested') }}: 
+                                                {{ request.requestedAt|date('M d, Y H:i') }}
+                                            </p>
+                                            {% if request.message %}
+                                                <p class="mb-0 mt-2">
+                                                    <strong>{{ t.t('Message') }}:</strong><br>
+                                                    <em>{{ request.message }}</em>
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                            <form method="post" action="{{ path('enrollment_approve', {id: request.id}) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-success me-2">
+                                                    <i class="bi bi-check-circle"></i> {{ t.t('Approve') }}
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{{ path('enrollment_reject', {id: request.id}) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-danger" 
+                                                        onclick="return confirm('{{ t.t('Are you sure you want to reject this request?') }}')">
+                                                    <i class="bi bi-x-circle"></i> {{ t.t('Reject') }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</main>
+
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+{% endblock %}

@@ -6,6 +6,7 @@ use App\Entity\StudySession\Course;
 use App\Form\StudySession\CourseType;
 use App\Repository\StudySession\CourseRepository;
 use App\Service\StudySession\CourseService;
+use App\Service\StudySession\EnrollmentService;
 use App\Service\StudySession\PlanningService;
 use App\Service\StudySession\StudySessionService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +22,8 @@ class CourseController extends AbstractController
     public function __construct(
         private CourseService $courseService,
         private PlanningService $planningService,
-        private StudySessionService $studySessionService
+        private StudySessionService $studySessionService,
+        private EnrollmentService $enrollmentService
     ) {
     }
 
@@ -44,12 +46,26 @@ class CourseController extends AbstractController
         $categories = array_unique(array_map(fn($c) => $c->getCategory(), $allCourses));
         sort($categories);
 
+        // Get enrollment status for each course if user is a student
+        $enrolledCourses = [];
+        $pendingRequests = [];
+        if ($this->isGranted('ROLE_STUDENT')) {
+            $user = $this->getUser();
+            foreach ($courses as $course) {
+                $enrolledCourses[$course->getId()] = $this->enrollmentService->isEnrolled($user, $course);
+                $pendingRequest = $this->enrollmentService->getPendingRequest($user, $course);
+                $pendingRequests[$course->getId()] = $pendingRequest !== null;
+            }
+        }
+
         return $this->render('front/course/index.html.twig', [
             'courses' => $courses,
             'categories' => $categories,
             'current_difficulty' => $difficulty,
             'current_category' => $category,
-            'current_published' => $isPublished
+            'current_published' => $isPublished,
+            'enrolled_courses' => $enrolledCourses,
+            'pending_requests' => $pendingRequests
         ]);
     }
 
@@ -68,7 +84,72 @@ class CourseController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->courseService->createCourse($course);
-                $this->addFlash('success', 'Course created successfully');
+                
+                // Handle PDF uploads
+                $pdfFiles = $form->get('pdfResources')->getData();
+                if ($pdfFiles) {
+                    $uploadedCount = 0;
+                    foreach ($pdfFiles as $pdfFile) {
+                        if ($pdfFile) {
+                            // Validate file
+                            if ($pdfFile->getSize() > 10 * 1024 * 1024) {
+                                $this->addFlash('warning', 'File too large: ' . $pdfFile->getClientOriginalName() . ' (max 10MB)');
+                                continue;
+                            }
+                            
+                            if ($pdfFile->getMimeType() !== 'application/pdf') {
+                                $this->addFlash('warning', 'Invalid file type: ' . $pdfFile->getClientOriginalName() . ' (PDF only)');
+                                continue;
+                            }
+                            
+                            try {
+                                // Get file info BEFORE moving (temp file will be deleted after move)
+                                $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
+                                $fileSize = $pdfFile->getSize();
+                                $mimeType = $pdfFile->getMimeType();
+                                $clientOriginalName = $pdfFile->getClientOriginalName();
+                                
+                                // Generate unique filename
+                                $safeFilename = preg_replace('/[^A-Za-z0-9_\-]/', '', $originalFilename);
+                                if (empty($safeFilename)) {
+                                    $safeFilename = 'document';
+                                }
+                                $newFilename = $safeFilename.'-'.uniqid().'.'.$pdfFile->guessExtension();
+
+                                // Move file to uploads directory
+                                $uploadsDir = $this->getParameter('kernel.project_dir').'/public/uploads/resources';
+                                if (!is_dir($uploadsDir)) {
+                                    mkdir($uploadsDir, 0777, true);
+                                }
+                                $pdfFile->move($uploadsDir, $newFilename);
+
+                                // Create Resource entity using saved values
+                                $resource = new \App\Entity\StudySession\Resource();
+                                $resource->setFilename($clientOriginalName);
+                                $resource->setStoredFilename($newFilename);
+                                $resource->setFileSize($fileSize);
+                                $resource->setMimeType($mimeType);
+                                $resource->setCourse($course);
+                                $resource->setStudySession(null); // Course resources don't need study session
+
+                                $em->persist($resource);
+                                $uploadedCount++;
+                            } catch (\Exception $e) {
+                                $this->addFlash('warning', 'Failed to upload file: ' . $pdfFile->getClientOriginalName() . ' - Error: ' . $e->getMessage());
+                            }
+                        }
+                    }
+                    
+                    if ($uploadedCount > 0) {
+                        $em->flush();
+                        $this->addFlash('success', sprintf('Course created successfully with %d PDF resource(s)', $uploadedCount));
+                    } else {
+                        $this->addFlash('success', 'Course created successfully');
+                    }
+                } else {
+                    $this->addFlash('success', 'Course created successfully');
+                }
+                
                 return $this->redirectToRoute('course_index');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Failed to create course: ' . $e->getMessage());
@@ -145,7 +226,8 @@ class CourseController extends AbstractController
     #[IsGranted('ROLE_TUTOR')]
     public function edit(
         Course $course,
-        Request $request
+        Request $request,
+        EntityManagerInterface $em
     ): Response {
         $form = $this->createForm(CourseType::class, $course);
         $form->handleRequest($request);
@@ -153,7 +235,72 @@ class CourseController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->courseService->updateCourse($course);
-                $this->addFlash('success', 'Course updated successfully');
+                
+                // Handle PDF uploads
+                $pdfFiles = $form->get('pdfResources')->getData();
+                if ($pdfFiles) {
+                    $uploadedCount = 0;
+                    foreach ($pdfFiles as $pdfFile) {
+                        if ($pdfFile) {
+                            // Validate file
+                            if ($pdfFile->getSize() > 10 * 1024 * 1024) {
+                                $this->addFlash('warning', 'File too large: ' . $pdfFile->getClientOriginalName() . ' (max 10MB)');
+                                continue;
+                            }
+                            
+                            if ($pdfFile->getMimeType() !== 'application/pdf') {
+                                $this->addFlash('warning', 'Invalid file type: ' . $pdfFile->getClientOriginalName() . ' (PDF only)');
+                                continue;
+                            }
+                            
+                            try {
+                                // Get file info BEFORE moving (temp file will be deleted after move)
+                                $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
+                                $fileSize = $pdfFile->getSize();
+                                $mimeType = $pdfFile->getMimeType();
+                                $clientOriginalName = $pdfFile->getClientOriginalName();
+                                
+                                // Generate unique filename
+                                $safeFilename = preg_replace('/[^A-Za-z0-9_\-]/', '', $originalFilename);
+                                if (empty($safeFilename)) {
+                                    $safeFilename = 'document';
+                                }
+                                $newFilename = $safeFilename.'-'.uniqid().'.'.$pdfFile->guessExtension();
+
+                                // Move file to uploads directory
+                                $uploadsDir = $this->getParameter('kernel.project_dir').'/public/uploads/resources';
+                                if (!is_dir($uploadsDir)) {
+                                    mkdir($uploadsDir, 0777, true);
+                                }
+                                $pdfFile->move($uploadsDir, $newFilename);
+
+                                // Create Resource entity using saved values
+                                $resource = new \App\Entity\StudySession\Resource();
+                                $resource->setFilename($clientOriginalName);
+                                $resource->setStoredFilename($newFilename);
+                                $resource->setFileSize($fileSize);
+                                $resource->setMimeType($mimeType);
+                                $resource->setCourse($course);
+                                $resource->setStudySession(null);
+
+                                $em->persist($resource);
+                                $uploadedCount++;
+                            } catch (\Exception $e) {
+                                $this->addFlash('warning', 'Failed to upload file: ' . $pdfFile->getClientOriginalName() . ' - Error: ' . $e->getMessage());
+                            }
+                        }
+                    }
+                    
+                    if ($uploadedCount > 0) {
+                        $em->flush();
+                        $this->addFlash('success', sprintf('Course updated successfully with %d new PDF resource(s)', $uploadedCount));
+                    } else {
+                        $this->addFlash('success', 'Course updated successfully');
+                    }
+                } else {
+                    $this->addFlash('success', 'Course updated successfully');
+                }
+                
                 return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Failed to update course: ' . $e->getMessage());
@@ -161,7 +308,8 @@ class CourseController extends AbstractController
         }
 
         return $this->render('front/course/edit.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'course' => $course
         ]);
     }
 

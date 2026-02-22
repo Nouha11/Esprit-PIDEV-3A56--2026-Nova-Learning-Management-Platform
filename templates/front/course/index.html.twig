@@ -24,12 +24,24 @@
 			<div class="d-flex justify-content-between align-items-center">
 				<h1 class="mb-0 text-body-emphasis">{{ t.t('Course List') }}</h1>
 				
-				{# Show Create New Course button only for ADMIN users #}
-				{% if is_granted('ROLE_TUTOR') %}
-					<a href="{{ path('course_new') }}" class="btn btn-success">
-						<i class="bi bi-plus-circle me-2"></i>{{ t.t('Create New Course') }}
-					</a>
-				{% endif %}
+				<div class="d-flex gap-2">
+					{# Study Session Tools for Students #}
+					{% if is_granted('ROLE_STUDENT') %}
+						<a href="{{ path('study_session_index') }}" class="btn btn-outline-primary">
+							<i class="bi bi-list-ul me-2"></i>{{ t.t('Study Session Tools') }}
+						</a>
+						<a href="{{ path('calendar_index') }}" class="btn btn-outline-info">
+							<i class="bi bi-calendar3 me-2"></i>{{ t.t('Calendar View') }}
+						</a>
+					{% endif %}
+					
+					{# Show Create New Course button only for TUTOR users #}
+					{% if is_granted('ROLE_TUTOR') %}
+						<a href="{{ path('course_new') }}" class="btn btn-success">
+							<i class="bi bi-plus-circle me-2"></i>{{ t.t('Create New Course') }}
+						</a>
+					{% endif %}
+				</div>
 			</div>
 		</section>
 
@@ -138,9 +150,27 @@
                                             <i class="bi bi-eye"></i> {{ t.t('View Details') }}
                                         </a>
                                         {% if is_granted('ROLE_STUDENT') %}
-                                            <a href="{{ path('planning_new', {course: course.id}) }}" class="btn btn-sm btn-success">
-                                                <i class="bi bi-calendar-plus"></i> {{ t.t('Plan Session') }}
-                                            </a>
+                                            {# Show Start Course button if enrolled #}
+                                            {% if enrolled_courses[course.id] is defined and enrolled_courses[course.id] %}
+                                                <a href="{{ path('course_session_view', {courseId: course.id}) }}" class="btn btn-sm btn-info me-2">
+                                                    <i class="bi bi-play-circle"></i> {{ t.t('Start Course') }}
+                                                </a>
+                                                <a href="{{ path('planning_new', {course: course.id}) }}" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-calendar-plus"></i> {{ t.t('Plan Session') }}
+                                                </a>
+                                            {# Show Pending status if request is pending #}
+                                            {% elseif pending_requests[course.id] is defined and pending_requests[course.id] %}
+                                                <button class="btn btn-sm btn-warning" disabled>
+                                                    <i class="bi bi-clock-history"></i> {{ t.t('Request Pending') }}
+                                                </button>
+                                            {# Show Request Enrollment button if not enrolled and no pending request #}
+                                            {% else %}
+                                                <form method="post" action="{{ path('enrollment_request', {id: course.id}) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-person-plus"></i> {{ t.t('Request Enrollment') }}
+                                                    </button>
+                                                </form>
+                                            {% endif %}
                                         {% endif %}
                                     </div>
                                 </div>

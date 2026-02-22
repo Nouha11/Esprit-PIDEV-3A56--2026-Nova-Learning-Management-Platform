@@ -44,7 +44,7 @@
                         </div>
                         <div class="card-body">
                             {{ form_start(form, 
-                                        {'attr': {'novalidate': 'novalidate'}}) }}
+                                        {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
                                 
                                 <div class="mb-3">
                                     {{ form_label(form.courseName, 'Course Name', {'label_attr': {'class': 'form-label'}}) }}
@@ -90,6 +90,23 @@
                                     <div class="form-check">
                                         {{ form_widget(form.isPublished, {'attr': {'class': 'form-check-input'}}) }}
                                         {{ form_label(form.isPublished, 'Publish this course immediately', {'label_attr': {'class': 'form-check-label'}}) }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="bi bi-file-earmark-pdf me-2"></i>PDF Resources (Optional)
+                                            </h6>
+                                            <p class="small text-muted mb-3">
+                                                Upload PDF files that students can download during the course session. 
+                                                You can upload multiple files at once (max 10MB per file).
+                                            </p>
+                                            {{ form_widget(form.pdfResources, {'attr': {'class': 'form-control'}}) }}
+                                            {{ form_errors(form.pdfResources) }}
+                                            {{ form_help(form.pdfResources) }}
+                                        </div>
                                     </div>
                                 </div>
 

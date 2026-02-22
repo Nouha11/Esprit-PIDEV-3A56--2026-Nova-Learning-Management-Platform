@@ -27,7 +27,7 @@ class AnalyticsService
         $qb = $this->studySessionRepository->createQueryBuilder('s');
         
         $result = $qb
-            ->select('SUM(s.duration) as total')
+            ->select('SUM(s.actualDuration) as total')
             ->where('s.user = :user')
             ->andWhere('s.completedAt IS NOT NULL')
             ->andWhere('s.completedAt >= :start')
@@ -127,7 +127,7 @@ class AnalyticsService
         
         $results = $qb
             ->select('c.courseName as course_name')
-            ->addSelect('SUM(s.duration) as total_duration')
+            ->addSelect('SUM(s.actualDuration) as total_duration')
             ->leftJoin('s.planning', 'p')
             ->leftJoin('p.course', 'c')
             ->where('s.user = :user')
