@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Service\Forum\CensorshipService;
 use App\Service\Forum\AiSummaryService;
-use App\Service\Forum\OpenGraphFetcher; 
+use App\Service\Forum\OpenGraphFetcher;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,6 +52,7 @@ class ForumController extends AbstractController
             $post->setAuthor($user);
             $post->setIsLocked(false);
 
+            // --- FETCH OPENGRAPH DATA FOR GLOBAL FEED POSTS ---
             if ($post->getLink()) {
                 $ogData = $ogFetcher->fetch($post->getLink());
                 if ($ogData) {
@@ -76,15 +77,15 @@ class ForumController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        // --- NEW: HISTORY AND FILTER LOGIC ---
         if ($searchQuery) {
             $query = $postRepository->adminSearch($searchQuery);
         } elseif ($filter === 'bookmarks' && $user) {
             $query = $user->getBookmarkedPosts(); 
         } elseif ($filter === 'history') {
-            // --- FETCH HISTORY FROM SESSION ---
             $historyIds = $request->getSession()->get('post_history', []);
             if (empty($historyIds)) {
-                $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')->where('p.id = -1'); // Empty result
+                $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')->where('p.id = -1');
             } else {
                 $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
                     ->where('p.id IN (:ids)')
@@ -129,7 +130,8 @@ class ForumController extends AbstractController
         ]);
     }
 
-    #[Route('/forum/{id}', name: 'app_forum_show')]
+    // Notice the requirements limit to prevent conflicts with /forum/ai/enhance
+    #[Route('/forum/{id}', name: 'app_forum_show', requirements: ['id' => '\d+'])]
     public function show(
         ?Post $post,
         Request $request, 
@@ -141,13 +143,14 @@ class ForumController extends AbstractController
             return $this->render('front/forum/deleted.html.twig');
         }
 
-        // --- RECORD POST VIEW IN HISTORY ---
+        // --- NEW: RECORD POST VIEW IN HISTORY ---
         $session = $request->getSession();
         $history = $session->get('post_history', []);
         array_unshift($history, $post->getId()); 
         $history = array_unique($history); 
-        $history = array_slice($history, 0, 30); // Keep last 30 posts
+        $history = array_slice($history, 0, 30); // Keep only last 30 posts
         $session->set('post_history', $history);
+        // ----------------------------------------
 
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
@@ -155,7 +158,7 @@ class ForumController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($post->isLocked()) {
-                $this->addFlash('error', 'This discussion is locked.');
+                $this->addFlash('error', 'This discussion is locked. You cannot add new replies.');
                 return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
             }
 
@@ -180,9 +183,13 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
+        // --- NEW: FETCH ALL SPACES FOR THE SIDEBAR ---
+        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+
         return $this->render('front/forum/show.html.twig', [
             'post' => $post,
             'form' => $form->createView(),
+            'spaces' => $spaces, // Passing spaces to the twig!
         ]);
     }
 
@@ -192,12 +199,18 @@ class ForumController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         
-        if (!$user) return $this->redirectToRoute('app_login');
+        if (!$user) {
+            $this->addFlash('error', 'You must be logged in.');
+            return $this->redirectToRoute('app_login');
+        }
 
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
         $isAuthor = $post->getAuthor()->getId() === $user->getId();
 
-        if (!$isAuthor && !$isAdmin) return $this->redirectToRoute('app_forum');
+        if (!$isAuthor && !$isAdmin) {
+            $this->addFlash('error', 'You cannot delete this post.');
+            return $this->redirectToRoute('app_forum');
+        }
 
         $entityManager->remove($post);
         $entityManager->flush();
@@ -212,12 +225,18 @@ class ForumController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         
-        if (!$user) return $this->redirectToRoute('app_login');
+        if (!$user) {
+            $this->addFlash('error', 'You must be logged in.');
+            return $this->redirectToRoute('app_login');
+        }
 
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
         $isAuthor = $post->getAuthor()->getId() === $user->getId();
 
-        if (!$isAuthor && !$isAdmin) return $this->redirectToRoute('app_forum');
+        if (!$isAuthor && !$isAdmin) {
+            $this->addFlash('error', 'You cannot edit this post.');
+            return $this->redirectToRoute('app_forum');
+        }
 
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
@@ -240,7 +259,9 @@ class ForumController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        if (!$user) return $this->json(['error' => 'You must be logged in to upvote.'], 403);
+        if (!$user) {
+            return $this->json(['error' => 'You must be logged in to upvote.'], 403);
+        }
 
         if ($post->isUpvotedBy($user)) {
             $post->removeUpvoter($user);
@@ -251,7 +272,11 @@ class ForumController extends AbstractController
         }
 
         $entityManager->flush();
-        return $this->json(['upvotes' => $post->getUpvotes(), 'isUpvoted' => $isUpvoted]);
+
+        return $this->json([
+            'upvotes' => $post->getUpvotes(),
+            'isUpvoted' => $isUpvoted
+        ]);
     }
 
     #[Route('/forum/comment/{id}/solution', name: 'app_forum_solution', methods: ['POST'])]
@@ -264,17 +289,24 @@ class ForumController extends AbstractController
         $isAuthor = $user && $post->getAuthor()->getId() === $user->getId();
         $isAdmin = $user && in_array('ROLE_ADMIN', $user->getRoles());
 
-        if (!$isAuthor && !$isAdmin) return $this->json(['error' => 'Unauthorized'], 403);
+        if (!$isAuthor && !$isAdmin) {
+            return $this->json(['error' => 'Unauthorized'], 403);
+        }
 
         if ($comment->isSolution()) {
             $comment->setIsSolution(false);
         } else {
-            foreach ($post->getComments() as $otherComment) { $otherComment->setIsSolution(false); }
+            foreach ($post->getComments() as $otherComment) {
+                $otherComment->setIsSolution(false);
+            }
             $comment->setIsSolution(true);
         }
 
         $entityManager->flush();
-        return $this->json(['isSolution' => $comment->isSolution()]);
+
+        return $this->json([
+            'isSolution' => $comment->isSolution()
+        ]);
     }
 
     #[Route('/forum/post/{id}/lock', name: 'app_forum_toggle_lock')]
@@ -283,15 +315,25 @@ class ForumController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        if (!$user) return $this->redirectToRoute('app_login');
+        if (!$user) {
+            $this->addFlash('error', 'You must be logged in.');
+            return $this->redirectToRoute('app_login');
+        }
 
         $isAuthor = $post->getAuthor()->getId() === $user->getId();
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
 
-        if (!$isAuthor && !$isAdmin) return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+        if (!$isAuthor && !$isAdmin) {
+            $this->addFlash('error', 'You are not authorized to manage this discussion.');
+            return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+        }
 
         $post->setIsLocked(!$post->isLocked());
         $entityManager->flush();
+
+        $status = $post->isLocked() ? 'locked' : 'unlocked';
+        $this->addFlash('success', "Discussion has been $status.");
+
         return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
     }
 
@@ -301,17 +343,28 @@ class ForumController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        if (!$user) return $this->json(['error' => 'Login required'], 403);
+        if (!$user) {
+            return $this->json(['error' => 'Login required'], 403);
+        }
 
         if ($type === 'up') {
-            if ($comment->isUpvotedBy($user)) { $comment->removeUpvoter($user); } 
-            else { $comment->addUpvoter($user); $comment->removeDownvoter($user); }
+            if ($comment->isUpvotedBy($user)) {
+                $comment->removeUpvoter($user); 
+            } else {
+                $comment->addUpvoter($user);    
+                $comment->removeDownvoter($user); 
+            }
         } elseif ($type === 'down') {
-            if ($comment->isDownvotedBy($user)) { $comment->removeDownvoter($user); } 
-            else { $comment->addDownvoter($user); $comment->removeUpvoter($user); }
+            if ($comment->isDownvotedBy($user)) {
+                $comment->removeDownvoter($user); 
+            } else {
+                $comment->addDownvoter($user);    
+                $comment->removeUpvoter($user);   
+            }
         }
 
         $entityManager->flush();
+
         return $this->json([
             'score' => $comment->getScore(),
             'upvoted' => $comment->isUpvotedBy($user),
@@ -320,12 +373,19 @@ class ForumController extends AbstractController
     }
 
     #[Route('/post/{id}/report', name: 'app_forum_report', methods: ['POST'])]
-    public function report(\App\Entity\Forum\Post $post, Request $request, EntityManagerInterface $entityManager): Response
+    public function report(\App\Entity\Forum\Post $post, \Symfony\Component\HttpFoundation\Request $request, \Doctrine\ORM\EntityManagerInterface $entityManager): \Symfony\Component\HttpFoundation\Response
     {
         $user = $this->getUser();
         
-        if (!$user) return $this->redirectToRoute('app_login');
-        if ($user === $post->getAuthor()) return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+        if (!$user) {
+            $this->addFlash('error', 'You must be logged in to report a post.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($user === $post->getAuthor()) {
+            $this->addFlash('warning', 'You cannot report your own post.');
+            return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
+        }
 
         $reason = $request->request->get('reason', 'Inappropriate content');
         
@@ -338,14 +398,18 @@ class ForumController extends AbstractController
         $entityManager->persist($report);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Thank you. The post has been reported.');
+        $this->addFlash('success', 'Thank you. The post has been reported to moderators.');
         return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
     }
 
     #[Route('/forum/post/{id}/summary', name: 'app_forum_summary', methods: ['POST'])]
     public function summarize(Post $post, AiSummaryService $aiSummaryService): JsonResponse
     {
-        return $this->json(['summary' => $aiSummaryService->generateSummary($post)]);
+        $summary = $aiSummaryService->generateSummary($post);
+
+        return $this->json([
+            'summary' => $summary
+        ]);
     }
 
     #[Route('/forum/post/{id}/bookmark', name: 'app_forum_post_bookmark', methods: ['POST'])]
@@ -354,7 +418,9 @@ class ForumController extends AbstractController
         /** @var \App\Entity\users\User $user */
         $user = $this->getUser();
 
-        if (!$user) return $this->json(['error' => 'You must be logged in.'], 403);
+        if (!$user) {
+            return $this->json(['error' => 'You must be logged in to bookmark posts.'], 403);
+        }
 
         if ($user->hasBookmarkedPost($post)) {
             $user->removeBookmarkedPost($post);
@@ -365,9 +431,10 @@ class ForumController extends AbstractController
         }
 
         $entityManager->flush();
+
         return $this->json([
             'isBookmarked' => $isBookmarked,
-            'message' => $isBookmarked ? 'Post saved!' : 'Post removed.'
+            'message' => $isBookmarked ? 'Post saved to your reading list!' : 'Post removed from your reading list.'
         ]);
     }
 
@@ -388,7 +455,10 @@ class ForumController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $this->getUser();
-            if (!$user) return $this->redirectToRoute('app_login');
+            if (!$user) {
+                $this->addFlash('error', 'You must be logged in to create a post.');
+                return $this->redirectToRoute('app_login');
+            }
 
             $post->setTitle($censorship->purify($post->getTitle()));
             $post->setContent($censorship->purify($post->getContent()));
@@ -414,6 +484,7 @@ class ForumController extends AbstractController
         }
 
         $sortBy = $request->query->get('sortBy', 'hot');
+
         $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
             ->where('p.space = :space')
             ->setParameter('space', $space);
@@ -423,10 +494,12 @@ class ForumController extends AbstractController
         } elseif ($sortBy === 'top') {
             $qb->orderBy('p.upvotes', 'DESC');
         } else {
-            $qb->orderBy('p.upvotes', 'DESC')->addOrderBy('p.createdAt', 'DESC');
+            $qb->orderBy('p.upvotes', 'DESC')
+               ->addOrderBy('p.createdAt', 'DESC');
         }
 
         $posts = $paginator->paginate($qb->getQuery(), $request->query->getInt('page', 1), 5);
+
         $allSpaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
 
         return $this->render('front/forum/space.html.twig', [
@@ -444,13 +517,15 @@ class ForumController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $text = $data['text'] ?? '';
 
-        if (empty(trim($text))) return $this->json(['error' => 'No text provided.'], 400);
+        if (empty(trim($text))) {
+            return $this->json(['error' => 'No text provided.'], 400);
+        }
 
         try {
             $enhancedText = $aiService->enhanceText($text);
             return $this->json(['enhancedText' => $enhancedText]);
         } catch (\Exception $e) {
-            return $this->json(['error' => 'AI is currently resting.'], 500);
+            return $this->json(['error' => 'AI is currently resting. Please try again.'], 500);
         }
     }
 }
