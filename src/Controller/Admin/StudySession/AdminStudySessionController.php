@@ -29,6 +29,8 @@ class AdminStudySessionController extends AbstractController
     {
         $userId = $request->query->get('userId') ? (int)$request->query->get('userId') : null;
         $burnoutRisk = $request->query->get('burnoutRisk');
+        $mood = $request->query->get('mood');
+        $energyLevel = $request->query->get('energyLevel');
         $dateFrom = $request->query->get('dateFrom') 
             ? new \DateTimeImmutable($request->query->get('dateFrom')) 
             : null;
@@ -42,6 +44,8 @@ class AdminStudySessionController extends AbstractController
             'study_sessions' => $studySessions,
             'current_user_id' => $userId,
             'current_burnout_risk' => $burnoutRisk,
+            'current_mood' => $mood,
+            'current_energy_level' => $energyLevel,
             'date_from' => $dateFrom,
             'date_to' => $dateTo,
         ]);

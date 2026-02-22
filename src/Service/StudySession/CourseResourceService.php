@@ -28,4 +28,12 @@ class CourseResourceService
     {
         return '/uploads/resources/' . $resource->getStoredFilename();
     }
+
+    /**
+     * Get full file path for resource
+     */
+    public function getResourcePath(Resource $resource): string
+    {
+        return $this->uploadDirectory . '/resources/' . $resource->getStoredFilename();
+    }
 }
