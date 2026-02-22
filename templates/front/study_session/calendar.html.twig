@@ -128,9 +128,6 @@
                 <a href="#" id="viewSessionBtn" class="btn btn-primary" style="display: none;">
                     <i class="bi bi-eye"></i> View Details
                 </a>
-                <a href="#" id="editSessionBtn" class="btn btn-warning" style="display: none;">
-                    <i class="bi bi-pencil"></i> Edit
-                </a>
             </div>
         </div>
     </div>
@@ -161,26 +158,139 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script type="module">
-        import { Calendar } from 'fullcalendar';
-
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+    
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             const calendarEl = document.getElementById('calendar');
+            
+            if (!calendarEl) {
+                console.error('Calendar element not found');
+                return;
+            }
 
-            const calendar = new Calendar(calendarEl, {
+            const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
                 editable: true,
                 selectable: true,
-
-                events: '{{ path('calendar_events') }}', // your Planning events
-
-                eventClick(info) {
-                    const planningId = info.event.extendedProps.planningId;
-                    window.location.href = `/planning/${planningId}`;
+                selectMirror: true,
+                dayMaxEvents: true,
+                weekends: true,
+                
+                // Load events from server
+                events: '{{ path('calendar_events') }}',
+                
+                // Handle event click
+                eventClick: function(info) {
+                    const event = info.event;
+                    const planningId = event.extendedProps.planningId;
+                    const status = event.extendedProps.status;
+                    
+                    // Populate modal with event details
+                    const modalContent = document.getElementById('eventDetailContent');
+                    modalContent.innerHTML = `
+                        <div class="detail-row">
+                            <span class="detail-label">Title:</span>
+                            <span>${event.title}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Start:</span>
+                            <span>${event.start.toLocaleString()}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">End:</span>
+                            <span>${event.end ? event.end.toLocaleString() : 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="badge bg-${status === 'completed' ? 'success' : 'primary'}">${status}</span>
+                        </div>
+                    `;
+                    
+                    // Show view button
+                    const viewBtn = document.getElementById('viewSessionBtn');
+                    
+                    if (planningId) {
+                        viewBtn.href = '/planning/' + planningId;
+                        viewBtn.style.display = 'inline-block';
+                    }
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('eventDetailModal'));
+                    modal.show();
+                },
+                
+                // Handle date selection (create new session)
+                select: function(info) {
+                    const selectedDate = info.startStr;
+                    document.getElementById('selectedDate').textContent = new Date(selectedDate).toLocaleDateString();
+                    
+                    // Set create button link
+                    const createBtn = document.getElementById('createSessionBtn');
+                    createBtn.href = '{{ path('study_session_new') }}?date=' + selectedDate + 
+                                     {% if courseId %}'&courseId={{ courseId }}'{% endif %};
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('createSessionModal'));
+                    modal.show();
+                    
+                    calendar.unselect();
+                },
+                
+                // Handle event drag & drop
+                eventDrop: function(info) {
+                    updateEventDateTime(info.event);
+                },
+                
+                // Handle event resize
+                eventResize: function(info) {
+                    updateEventDateTime(info.event);
+                },
+                
+                // Error handling
+                eventSourceFailure: function(error) {
+                    console.error('Error loading events:', error);
+                    alert('Failed to load calendar events. Please refresh the page.');
                 }
             });
 
             calendar.render();
+            
+            // Function to update event date/time via AJAX
+            function updateEventDateTime(event) {
+                fetch('{{ path('calendar_update_datetime') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: event.id,
+                        start: event.start.toISOString(),
+                        end: event.end ? event.end.toISOString() : null
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert('Failed to update event. Please try again.');
+                        calendar.refetchEvents();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating event:', error);
+                    alert('Failed to update event. Please try again.');
+                    calendar.refetchEvents();
+                });
+            }
         });
     </script>
 {% endblock %}

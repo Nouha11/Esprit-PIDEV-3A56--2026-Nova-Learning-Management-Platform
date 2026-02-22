@@ -40,49 +40,51 @@ class CalendarController extends AbstractController
      * Calendar events (plannings + sessions)
      */
     #[Route('/events', name: 'calendar_events', methods: ['GET'])]
-public function events(Request $request): JsonResponse
-{
-    $user = $this->getUser();
+    public function events(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
 
-    $start = $request->query->get('start');
-    $end = $request->query->get('end');
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
 
-    $dateFrom = $start ? new \DateTimeImmutable($start) : null;
-    $dateTo = $end ? new \DateTimeImmutable($end) : null;
+        $dateFrom = $start ? new \DateTimeImmutable($start) : null;
+        $dateTo = $end ? new \DateTimeImmutable($end) : null;
 
-    $plannings = $this->planningRepository->findAll();
+        $plannings = $this->planningRepository->findAll();
+        
+        $events = []; // Initialize events array
 
-foreach ($plannings as $planning) {
-    if (!$planning->getScheduledDate() || !$planning->getScheduledTime()) {
-        continue;
+        foreach ($plannings as $planning) {
+            if (!$planning->getScheduledDate() || !$planning->getScheduledTime()) {
+                continue;
+            }
+
+            $start = \DateTimeImmutable::createFromFormat(
+                'Y-m-d H:i:s',
+                $planning->getScheduledDate()->format('Y-m-d') . ' ' .
+                $planning->getScheduledTime()->format('H:i:s')
+            );
+
+            $end = $start->modify('+' . ($planning->getPlannedDuration() ?? 60) . ' minutes');
+
+            $events[] = [
+                'id' => 'planning_' . $planning->getId(),
+                'title' => $planning->getTitle(),
+                'start' => $start->format(DATE_ATOM),
+                'end' => $end->format(DATE_ATOM),
+                'backgroundColor' =>
+                    $planning->getStatus() === Planning::STATUS_COMPLETED
+                        ? '#28a745'
+                        : '#007bff',
+                'extendedProps' => [
+                    'planningId' => $planning->getId(),
+                    'status' => $planning->getStatus(),
+                ],
+            ];
+        }
+
+        return new JsonResponse($events);
     }
-
-    $start = \DateTimeImmutable::createFromFormat(
-        'Y-m-d H:i:s',
-        $planning->getScheduledDate()->format('Y-m-d') . ' ' .
-        $planning->getScheduledTime()->format('H:i:s')
-    );
-
-    $end = $start->modify('+' . ($planning->getPlannedDuration() ?? 60) . ' minutes');
-
-    $events[] = [
-        'id' => 'planning_' . $planning->getId(),
-        'title' => $planning->getTitle(),
-        'start' => $start->format(DATE_ATOM),
-        'end' => $end->format(DATE_ATOM),
-        'backgroundColor' =>
-            $planning->getStatus() === Planning::STATUS_COMPLETED
-                ? '#28a745'
-                : '#007bff',
-        'extendedProps' => [
-            'planningId' => $planning->getId(),
-            'status' => $planning->getStatus(),
-        ],
-    ];
-    }
-
-    return new JsonResponse($events);
-}
 
     /**
      * ✅ REQUIRED by Twig

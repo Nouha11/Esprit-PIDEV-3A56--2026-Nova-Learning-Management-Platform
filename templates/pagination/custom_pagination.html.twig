@@ -1,17 +1,19 @@
 {# Custom Pagination Template for KnpPaginatorBundle #}
 {% if pageCount > 1 %}
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
+<nav aria-label="Page navigation" class="pagination-wrapper">
+    <ul class="pagination justify-content-center mb-3">
         {# Previous button #}
         {% if previous is defined %}
             <li class="page-item">
                 <a class="page-link" href="{{ path(route, query|merge({(pageParameterName): previous})) }}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
+                    <i class="bi bi-chevron-left"></i>
                 </a>
             </li>
         {% else %}
             <li class="page-item disabled">
-                <span class="page-link">&laquo;</span>
+                <span class="page-link">
+                    <i class="bi bi-chevron-left"></i>
+                </span>
             </li>
         {% endif %}
 
@@ -50,19 +52,26 @@
         {% if next is defined %}
             <li class="page-item">
                 <a class="page-link" href="{{ path(route, query|merge({(pageParameterName): next})) }}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
+                    <i class="bi bi-chevron-right"></i>
                 </a>
             </li>
         {% else %}
             <li class="page-item disabled">
-                <span class="page-link">&raquo;</span>
+                <span class="page-link">
+                    <i class="bi bi-chevron-right"></i>
+                </span>
             </li>
         {% endif %}
     </ul>
+    
+    {# Pagination info #}
+    <div class="text-center text-muted small pagination-info">
+        {% if total is defined %}
+            <i class="bi bi-info-circle me-1"></i>
+            Showing <strong>{{ firstItemNumber }}</strong> to <strong>{{ lastItemNumber }}</strong> of <strong>{{ total }}</strong> results
+        {% else %}
+            Showing <strong>{{ firstItemNumber }}</strong> to <strong>{{ lastItemNumber }}</strong> results
+        {% endif %}
+    </div>
 </nav>
-
-{# Pagination info #}
-<div class="text-center text-muted small mt-2">
-    Showing {{ firstItemNumber }} to {{ lastItemNumber }} of {{ totalItemCount }} results
-</div>
 {% endif %}

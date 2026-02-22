@@ -142,12 +142,12 @@ class ApiErrorHandler
     /**
      * Handle an exception from an API call
      *
-     * @param \Exception $exception The exception to handle
+     * @param \Throwable $exception The exception to handle
      * @param string $apiName Name of the API
      * @param array $context Additional context for logging
      * @return array Parsed error information
      */
-    public function handleException(\Exception $exception, string $apiName, array $context = []): array
+    public function handleException(\Throwable $exception, string $apiName, array $context = []): array
     {
         $errorInfo = $this->parseException($exception);
         
@@ -171,7 +171,7 @@ class ApiErrorHandler
      * @param \Exception $exception The exception to parse
      * @return array Structured error information with keys: type, message, userMessage, statusCode
      */
-    public function parseException(\Exception $exception): array
+    public function parseException(\Throwable $exception): array
     {
         $errorInfo = [
             'type' => 'unknown',

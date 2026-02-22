@@ -186,6 +186,57 @@
         // Dropdown filters
         document.getElementById('type-filter').addEventListener('change', loadRewards);
         document.getElementById('status-filter').addEventListener('change', loadRewards);
+        
+        // Handle pagination clicks with event delegation
+        document.getElementById('rewards-table-container').addEventListener('click', function(e) {
+            const paginationLink = e.target.closest('.pagination a.page-link');
+            if (paginationLink) {
+                e.preventDefault();
+                const url = new URL(paginationLink.href);
+                const page = url.searchParams.get('page') || 1;
+                
+                // Get current filters
+                const search = document.getElementById('search-input').value;
+                const type = document.getElementById('type-filter').value;
+                const status = document.getElementById('status-filter').value;
+                
+                // Build query string with page
+                const params = new URLSearchParams();
+                params.append('page', page);
+                if (search) params.append('search', search);
+                if (type) params.append('type', type);
+                if (status) params.append('status', status);
+                
+                // Show loading indicator
+                document.getElementById('loading-indicator').classList.remove('d-none');
+                document.getElementById('rewards-table-container').style.opacity = '0.5';
+                
+                // Fetch page
+                fetch('{{ path('admin_reward_index') }}?' + params.toString(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('rewards-table-container').innerHTML = html;
+                    document.getElementById('loading-indicator').classList.add('d-none');
+                    document.getElementById('rewards-table-container').style.opacity = '1';
+                    
+                    // Update URL without reload
+                    const newUrl = '{{ path('admin_reward_index') }}?' + params.toString();
+                    window.history.pushState({}, '', newUrl);
+                    
+                    // Scroll to top of table
+                    document.getElementById('rewards-table-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                })
+                .catch(error => {
+                    console.error('Error loading page:', error);
+                    document.getElementById('loading-indicator').classList.add('d-none');
+                    document.getElementById('rewards-table-container').style.opacity = '1';
+                });
+            }
+        });
     });
 </script>
 {% endblock %}
