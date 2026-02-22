@@ -487,4 +487,25 @@ class ForumController extends AbstractController
             'currentSort' => $sortBy, 
         ]);
     }
+
+#[Route('/forum/ai/enhance', name: 'app_forum_ai_enhance', methods: ['POST'])]
+    public function enhancePost(Request $request, AiSummaryService $aiService): JsonResponse
+    {
+        // Get the raw text from the Javascript fetch request
+        $data = json_decode($request->getContent(), true);
+        $text = $data['text'] ?? '';
+
+        if (empty(trim($text))) {
+            return $this->json(['error' => 'No text provided.'], 400);
+        }
+
+        try {
+            // Call Gemini
+            $enhancedText = $aiService->enhanceText($text);
+            return $this->json(['enhancedText' => $enhancedText]);
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'AI is currently resting. Please try again.'], 500);
+        }
+    }
+
 }

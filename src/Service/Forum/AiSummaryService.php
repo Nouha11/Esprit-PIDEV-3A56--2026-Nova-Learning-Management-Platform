@@ -48,9 +48,8 @@ class AiSummaryService
                 ]
             );
 
-            // --- NEW: Read Google's actual error message instead of hiding it! ---
+            // Read Google's actual error message instead of hiding it!
             if ($response->getStatusCode() !== 200) {
-                // Passing 'false' prevents Symfony from crashing, allowing us to read the JSON error
                 $errorData = $response->toArray(false); 
                 $googleMessage = $errorData['error']['message'] ?? 'Unknown Google Error';
                 return 'Google API Refused: ' . $googleMessage;
@@ -62,6 +61,51 @@ class AiSummaryService
             
         } catch (\Exception $e) {
             return 'System Error: ' . $e->getMessage();
+        }
+    }
+
+    public function enhanceText(string $rawText): string
+    {
+        $prompt = "You are an expert writing assistant for an educational platform. 
+        Your job is to fix the grammar, spelling, and formatting of the user's text. 
+        Make it polite, clear, and academic. 
+        Do NOT change the core meaning of the text, and do NOT answer the question. Just improve the writing. 
+        If there is code, ensure it is formatted nicely.
+        
+        Here is the text to enhance:\n\n" . $rawText;
+
+        try {
+            // Using the exact same HTTP Client structure as the summary method!
+            $response = $this->client->request(
+                'POST',
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $this->apiKey,
+                [
+                    'verify_peer' => false, // Bypasses XAMPP SSL issues
+                    'verify_host' => false,
+                    'json' => [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    ['text' => $prompt]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            );
+
+            if ($response->getStatusCode() !== 200) {
+                $errorData = $response->toArray(false); 
+                $googleMessage = $errorData['error']['message'] ?? 'Unknown Google Error';
+                throw new \Exception('Google API Refused: ' . $googleMessage);
+            }
+
+            $data = $response->toArray();
+            return $data['candidates'][0]['content']['parts'][0]['text'] ?? $rawText;
+            
+        } catch (\Exception $e) {
+            // Throw the error so the Controller can catch it and send it to the UI alert
+            throw new \Exception('System Error: ' . $e->getMessage());
         }
     }
 }

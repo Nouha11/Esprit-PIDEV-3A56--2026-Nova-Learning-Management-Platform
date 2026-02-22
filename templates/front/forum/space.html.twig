@@ -188,7 +188,7 @@
                         </div>
                     </div>
 
-                    {# Add Post Form (Hidden by default) #}
+                    {# Add Post Form #}
                     <div class="collapse mb-4 {{ form.vars.submitted ? 'show' : '' }}" id="addPostForm">
                         <div class="card border rounded-3 shadow-sm">
                             <div class="card-body">
@@ -199,8 +199,18 @@
                                         {{ form_widget(form.title, {'attr': {'class': 'form-control form-control-lg fw-bold', 'placeholder': 'Title', 'style': 'border: none; border-bottom: 1px solid #dee2e6; border-radius: 0;'}}) }}
                                         <div class="form-text text-danger">{{ form_errors(form.title) }}</div>
                                     </div>
+                                    
+                                    {# --- ENHANCED DESCRIPTION FIELD --- #}
                                     <div class="mb-3">
-                                        {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '5', 'placeholder': 'Text (optional)', 'style': 'background: #f8f9fa; border: 1px solid #dee2e6;'}}) }}
+                                        <div class="d-flex justify-content-between align-items-end mb-1">
+                                            <label class="form-label mb-0 text-muted small fw-bold">Description</label>
+                                            
+                                            <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" id="ai-enhance-btn" data-url="{{ path('app_forum_ai_enhance') }}">
+                                                <i class="bi bi-magic me-1"></i> Enhance with AI
+                                            </button>
+                                        </div>
+                                        
+                                        {{ form_widget(form.content, {'attr': {'class': 'form-control post-content-textarea', 'rows': '5', 'placeholder': 'Type your messy thoughts here, and let AI clean it up...', 'style': 'background: #f8f9fa; border: 1px solid #dee2e6;'}}) }}
                                         <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
                                     </div>
                                     
@@ -267,7 +277,7 @@
                                         </div>
                                     {% endif %}
 
-                                    {# --- NEW: DISCORD-STYLE LINK PREVIEW --- #}
+                                    {# --- DISCORD-STYLE LINK PREVIEW --- #}
                                     {% if post.link %}
                                         {% if post.linkTitle %}
                                             <a href="{{ post.link }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none mb-3 d-block" onclick="event.stopPropagation();">
@@ -291,7 +301,6 @@
                                                 </div>
                                             </a>
                                         {% else %}
-                                            {# Fallback if the website blocks bots #}
                                             <div class="mb-3 p-2 bg-primary bg-opacity-10 rounded border border-primary border-opacity-25 d-inline-block">
                                                 <a href="{{ post.link }}" target="_blank" rel="noopener noreferrer" class="text-body fw-bold" onclick="event.stopPropagation();" style="font-size: 13px;">
                                                     <i class="bi bi-link-45deg me-1 text-primary"></i>{{ post.link|length > 50 ? post.link|slice(0, 50) ~ '...' : post.link }}
@@ -406,4 +415,67 @@
         </div>
     </section>
 </main>
+
+{# --- NEW: AI ENHANCER JAVASCRIPT --- #}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const enhanceBtn = document.getElementById('ai-enhance-btn');
+        const textArea = document.querySelector('.post-content-textarea');
+
+        if (enhanceBtn && textArea) {
+            enhanceBtn.addEventListener('click', function () {
+                const rawText = textArea.value;
+
+                if (rawText.trim() === '') {
+                    alert('Please type something first before enhancing!');
+                    return;
+                }
+
+                const originalBtnHtml = enhanceBtn.innerHTML;
+                enhanceBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enhancing...';
+                enhanceBtn.disabled = true;
+                textArea.disabled = true;
+
+                fetch(enhanceBtn.dataset.url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ text: rawText })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.enhancedText) {
+                        textArea.value = data.enhancedText;
+                        
+                        enhanceBtn.innerHTML = '<i class="bi bi-check-lg"></i> Perfected!';
+                        enhanceBtn.classList.replace('btn-outline-primary', 'btn-success');
+                        enhanceBtn.classList.add('text-white');
+                        
+                        setTimeout(() => {
+                            enhanceBtn.innerHTML = originalBtnHtml;
+                            enhanceBtn.classList.replace('btn-success', 'btn-outline-primary');
+                            enhanceBtn.classList.remove('text-white');
+                            enhanceBtn.disabled = false;
+                        }, 3000);
+                    } else {
+                        alert(data.error || 'Something went wrong.');
+                        enhanceBtn.innerHTML = originalBtnHtml;
+                        enhanceBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Could not connect to the AI server.');
+                    enhanceBtn.innerHTML = originalBtnHtml;
+                    enhanceBtn.disabled = false;
+                })
+                .finally(() => {
+                    textArea.disabled = false;
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}
