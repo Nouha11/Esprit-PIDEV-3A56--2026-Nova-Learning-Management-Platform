@@ -1,0 +1,134 @@
+{# Login History Widget Component - For User Dashboards #}
+{% set recentLogins = recentLogins|default([]) %}
+{% set limit = limit|default(5) %}
+
+<div class="card border-0 shadow-sm h-100">
+    <div class="card-header bg-white border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-clock-history text-primary"></i>
+                Recent Login Activity
+            </h5>
+            {% if recentLogins|length > 0 %}
+                <span class="badge bg-primary">{{ recentLogins|length }}</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        {% if recentLogins is empty %}
+            <div class="text-center py-4">
+                <i class="bi bi-clock-history fs-1 text-muted"></i>
+                <p class="text-muted mt-2 mb-0">No login history yet</p>
+            </div>
+        {% else %}
+            <div class="list-group list-group-flush">
+                {% for login in recentLogins|slice(0, limit) %}
+                    <div class="list-group-item px-0 {% if not loop.last %}border-bottom{% endif %}">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0 me-3">
+                                {% if login.status == 'success' %}
+                                    <div class="bg-success bg-opacity-10 rounded-circle p-2">
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    </div>
+                                {% elseif login.status == 'failed' %}
+                                    <div class="bg-danger bg-opacity-10 rounded-circle p-2">
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                    </div>
+                                {% else %}
+                                    <div class="bg-warning bg-opacity-10 rounded-circle p-2">
+                                        <i class="bi bi-shield-exclamation text-warning"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <div>
+                                        {% if login.status == 'success' %}
+                                            <span class="badge bg-success-soft text-success small">Success</span>
+                                        {% elseif login.status == 'failed' %}
+                                            <span class="badge bg-danger-soft text-danger small">Failed</span>
+                                        {% else %}
+                                            <span class="badge bg-warning-soft text-warning small">Blocked</span>
+                                        {% endif %}
+                                        
+                                        {% if login.is2faUsed %}
+                                            <span class="badge bg-primary-soft text-primary small ms-1">
+                                                <i class="bi bi-shield-check"></i> 2FA
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ login.createdAt|date('M d, H:i') }}
+                                    </small>
+                                </div>
+                                
+                                <div class="small text-muted">
+                                    {% if login.browser %}
+                                        <i class="bi bi-browser-chrome"></i> {{ login.browser }}
+                                    {% endif %}
+                                    {% if login.platform %}
+                                        • {{ login.platform }}
+                                    {% endif %}
+                                    {% if login.device %}
+                                        • {{ login.device }}
+                                    {% endif %}
+                                </div>
+                                
+                                {% if login.ipAddress %}
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-geo-alt"></i> {{ login.ipAddress }}
+                                        {% if login.location %}
+                                            ({{ login.location }})
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                
+                                {% if login.failureReason %}
+                                    <div class="alert alert-danger alert-sm mt-2 mb-0 py-1 px-2">
+                                        <small><i class="bi bi-exclamation-triangle"></i> {{ login.failureReason }}</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            {% if recentLogins|length > limit %}
+                <div class="text-center mt-3">
+                    <a href="#" class="btn btn-sm btn-outline-primary">
+                        View All History
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.bg-success-soft {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.bg-danger-soft {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.bg-warning-soft {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.bg-primary-soft {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.alert-sm {
+    font-size: 0.875rem;
+}
+
+.list-group-item {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+</style>

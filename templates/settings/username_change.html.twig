@@ -1,0 +1,281 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Change Username - NOVA{% endblock %}
+
+{% block body %}
+<section class="pt-5 pb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#">Settings</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Change Username</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pt-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <!-- Card START -->
+                <div class="card border shadow">
+                    <!-- Card header -->
+                    <div class="card-header bg-primary bg-opacity-10 border-bottom">
+                        <h3 class="mb-0">
+                            <i class="bi bi-person-badge me-2"></i>
+                            Change Username
+                        </h3>
+                    </div>
+
+                    <!-- Card body -->
+                    <div class="card-body">
+                        <!-- Flash Messages -->
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+
+                        <!-- Current Username -->
+                        <div class="alert alert-info border-0 mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-info-circle fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Current Username</h6>
+                                    <p class="mb-0"><strong>{{ currentUsername }}</strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Username Change Form -->
+                        <form method="post" id="usernameChangeForm">
+                            <div class="mb-4">
+                                <label for="username" class="form-label">New Username <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-at"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="username" 
+                                           name="username" 
+                                           required
+                                           minlength="{{ rules.minLength }}"
+                                           maxlength="{{ rules.maxLength }}"
+                                           pattern="{{ rules.pattern }}"
+                                           placeholder="Enter new username">
+                                    <button class="btn btn-outline-secondary" type="button" id="checkAvailability">
+                                        <i class="bi bi-search"></i> Check
+                                    </button>
+                                </div>
+                                <div id="usernameHelp" class="form-text">
+                                    <i class="bi bi-info-circle"></i> {{ rules.patternDescription }}. 
+                                    Length: {{ rules.minLength }}-{{ rules.maxLength }} characters.
+                                </div>
+                                <div id="availabilityMessage" class="mt-2"></div>
+                            </div>
+
+                            <!-- Username Requirements -->
+                            <div class="card bg-light border-0 mb-4">
+                                <div class="card-body py-3">
+                                    <h6 class="mb-2"><i class="bi bi-check-circle text-success"></i> Username Requirements:</h6>
+                                    <ul class="mb-0 small">
+                                        <li>Must be {{ rules.minLength }}-{{ rules.maxLength }} characters long</li>
+                                        <li>Can only contain letters (a-z, A-Z), numbers (0-9), and underscores (_)</li>
+                                        <li>Must be unique (not already taken)</li>
+                                        <li>Cannot be a reserved username</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Suggestions -->
+                            {% if suggestions is not empty %}
+                                <div class="alert alert-warning border-0 mb-4">
+                                    <h6 class="mb-2">
+                                        <i class="bi bi-lightbulb"></i> Username Suggestions:
+                                    </h6>
+                                    <p class="mb-2 small">The username you entered is taken. Try one of these available alternatives:</p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% for suggestion in suggestions %}
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-primary suggestion-btn" 
+                                                    data-username="{{ suggestion }}">
+                                                {{ suggestion }}
+                                            </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div id="suggestionsContainer"></div>
+
+                            <!-- Warning -->
+                            <div class="alert alert-warning border-0 mb-4">
+                                <h6 class="mb-2">
+                                    <i class="bi bi-exclamation-triangle"></i> Important Notice:
+                                </h6>
+                                <ul class="mb-0 small">
+                                    <li>Changing your username will affect how others find and mention you</li>
+                                    <li>Your old username may become available for others to use</li>
+                                    <li>Some features may temporarily show your old username until you log in again</li>
+                                </ul>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('app_home') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary" id="submitBtn">
+                                    <i class="bi bi-check-circle"></i> Change Username
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- Card END -->
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const usernameInput = document.getElementById('username');
+    const checkBtn = document.getElementById('checkAvailability');
+    const messageDiv = document.getElementById('availabilityMessage');
+    const suggestionsContainer = document.getElementById('suggestionsContainer');
+    const form = document.getElementById('usernameChangeForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Check availability
+    checkBtn.addEventListener('click', function() {
+        const username = usernameInput.value.trim();
+        
+        if (!username) {
+            showMessage('Please enter a username', 'danger');
+            return;
+        }
+
+        checkBtn.disabled = true;
+        checkBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking...';
+
+        fetch('{{ path('app_username_check') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'username=' + encodeURIComponent(username)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.available) {
+                showMessage(data.message, 'success');
+                submitBtn.disabled = false;
+            } else {
+                showMessage(data.message, 'danger');
+                submitBtn.disabled = true;
+                
+                // Get suggestions
+                getSuggestions(username);
+            }
+        })
+        .catch(error => {
+            showMessage('Error checking availability', 'danger');
+        })
+        .finally(() => {
+            checkBtn.disabled = false;
+            checkBtn.innerHTML = '<i class="bi bi-search"></i> Check';
+        });
+    });
+
+    // Get suggestions
+    function getSuggestions(username) {
+        fetch('{{ path('app_username_suggestions') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'username=' + encodeURIComponent(username)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.suggestions && data.suggestions.length > 0) {
+                showSuggestions(data.suggestions);
+            }
+        });
+    }
+
+    // Show suggestions
+    function showSuggestions(suggestions) {
+        let html = '<div class="alert alert-warning border-0 mb-4">';
+        html += '<h6 class="mb-2"><i class="bi bi-lightbulb"></i> Available Alternatives:</h6>';
+        html += '<div class="d-flex flex-wrap gap-2">';
+        
+        suggestions.forEach(suggestion => {
+            html += `<button type="button" class="btn btn-sm btn-outline-primary suggestion-btn" data-username="${suggestion}">${suggestion}</button>`;
+        });
+        
+        html += '</div></div>';
+        suggestionsContainer.innerHTML = html;
+
+        // Add click handlers to suggestion buttons
+        document.querySelectorAll('.suggestion-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                usernameInput.value = this.dataset.username;
+                checkBtn.click();
+            });
+        });
+    }
+
+    // Show message
+    function showMessage(message, type) {
+        messageDiv.innerHTML = `<div class="alert alert-${type} mb-0">${message}</div>`;
+    }
+
+    // Real-time validation
+    usernameInput.addEventListener('input', function() {
+        messageDiv.innerHTML = '';
+        suggestionsContainer.innerHTML = '';
+        submitBtn.disabled = false;
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        const username = usernameInput.value.trim();
+        
+        if (!username) {
+            e.preventDefault();
+            showMessage('Please enter a username', 'danger');
+            return;
+        }
+
+        if (username === '{{ currentUsername }}') {
+            e.preventDefault();
+            showMessage('New username must be different from current username', 'danger');
+            return;
+        }
+    });
+
+    // Handle suggestion button clicks (for server-rendered suggestions)
+    document.querySelectorAll('.suggestion-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            usernameInput.value = this.dataset.username;
+            checkBtn.click();
+        });
+    });
+});
+</script>
+{% endblock %}

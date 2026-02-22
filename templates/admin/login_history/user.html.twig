@@ -1,0 +1,201 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Login History - {{ user.username }} - Admin{% endblock %}
+
+{% block admin_content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1">
+                    <i class="bi bi-clock-history text-primary"></i>
+                    Login History: {{ user.username }}
+                </h1>
+                <p class="text-muted mb-0">{{ user.email }}</p>
+            </div>
+            <div>
+                <a href="{{ path('admin_login_history_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to All History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- User Info Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-3">User Information</h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">Username</small>
+                                    <strong>{{ user.username }}</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">Email</small>
+                                    <strong>{{ user.email }}</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">Role</small>
+                                    <span class="badge bg-primary">{{ user.role }}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">Status</small>
+                                    {% if user.isActive %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">2FA Status</small>
+                                    {% if user.totpEnabled %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-shield-check"></i> Enabled
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Disabled</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">Member Since</small>
+                                    <strong>{{ user.createdAt|date('M d, Y') }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{{ path('app_admin_users_edit', {'id': user.id}) }}" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Edit User
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics (Last 30 Days) -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded p-3">
+                                <i class="bi bi-graph-up fs-4 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Logins</h6>
+                            <h3 class="mb-0">{{ statistics.total }}</h3>
+                            <small class="text-muted">Last 30 days</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded p-3">
+                                <i class="bi bi-check-circle-fill fs-4 text-success"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Successful</h6>
+                            <h3 class="mb-0">{{ statistics.successful }}</h3>
+                            <small class="text-muted">{{ statistics.successRate }}% success rate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-danger bg-opacity-10 rounded p-3">
+                                <i class="bi bi-x-circle-fill fs-4 text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Failed</h6>
+                            <h3 class="mb-0">{{ statistics.failed }}</h3>
+                            <small class="text-muted">Failed attempts</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded p-3">
+                                <i class="bi bi-shield-exclamation fs-4 text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Security Alerts</h6>
+                            <h3 class="mb-0">{{ suspiciousActivity|length }}</h3>
+                            <small class="text-muted">Suspicious activities</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Alerts -->
+    {% if suspiciousActivity is not empty %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-warning border-0 shadow-sm">
+                    <h5 class="alert-heading">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Security Alerts Detected
+                    </h5>
+                    <ul class="mb-0">
+                        {% for alert in suspiciousActivity %}
+                            <li>{{ alert }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Login History Timeline -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul"></i>
+                        Login History Timeline
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% include 'components/login_history_timeline.html.twig' with {
+                        'loginHistory': loginHistory,
+                        'showUser': false,
+                        'limit': 50
+                    } %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

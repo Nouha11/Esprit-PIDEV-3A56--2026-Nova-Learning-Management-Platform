@@ -1,0 +1,171 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Login History - Admin{% endblock %}
+
+{% block admin_content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1">
+                    <i class="bi bi-clock-history text-primary"></i>
+                    Login History
+                </h1>
+                <p class="text-muted mb-0">Monitor all user login attempts across the platform</p>
+            </div>
+            <div>
+                <a href="{{ path('app_admin_users_list') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Users
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded p-3">
+                                <i class="bi bi-check-circle fs-4 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Logins</h6>
+                            <h3 class="mb-0">{{ loginHistory|length }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded p-3">
+                                <i class="bi bi-check-circle-fill fs-4 text-success"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Successful</h6>
+                            <h3 class="mb-0">
+                                {% set successful = 0 %}
+                                {% for login in loginHistory %}
+                                    {% if login.status == 'success' %}
+                                        {% set successful = successful + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ successful }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-danger bg-opacity-10 rounded p-3">
+                                <i class="bi bi-x-circle-fill fs-4 text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Failed</h6>
+                            <h3 class="mb-0">
+                                {% set failed = 0 %}
+                                {% for login in loginHistory %}
+                                    {% if login.status == 'failed' %}
+                                        {% set failed = failed + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ failed }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded p-3">
+                                <i class="bi bi-shield-check fs-4 text-info"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">With 2FA</h6>
+                            <h3 class="mb-0">
+                                {% set with2fa = 0 %}
+                                {% for login in loginHistory %}
+                                    {% if login.is2faUsed %}
+                                        {% set with2fa = with2fa + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ with2fa }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login History Timeline -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul"></i>
+                        Recent Login Attempts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% include 'components/login_history_timeline.html.twig' with {
+                        'loginHistory': loginHistory,
+                        'showUser': true,
+                        'limit': 50
+                    } %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if loginHistory|length >= 50 %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
+                            <a class="page-link" href="{{ path('admin_login_history_index', {'page': currentPage - 1}) }}">
+                                Previous
+                            </a>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">{{ currentPage }}</span>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('admin_login_history_index', {'page': currentPage + 1}) }}">
+                                Next
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

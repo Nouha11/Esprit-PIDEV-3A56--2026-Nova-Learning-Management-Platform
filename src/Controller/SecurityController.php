@@ -18,11 +18,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use App\Service\EmailVerificationService;
 use App\Service\PasswordResetService;
 use App\Service\CaptchaService;
+use App\Service\PasswordPolicyService;
+use App\Service\UsernameChangeService;
 
 class SecurityController extends AbstractController
 {
     public function __construct(
-        private CaptchaService $captchaService
+        private CaptchaService $captchaService,
+        private PasswordPolicyService $passwordPolicyService,
+        private UsernameChangeService $usernameChangeService
     ) {}
 
     #[Route('/login', name: 'app_login')]
@@ -106,10 +110,22 @@ class SecurityController extends AbstractController
             $username = $request->request->get('username');
             $email = $request->request->get('email');
 
-            // Check if username already exists
-            $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
-            if ($existingUserByUsername) {
-                $this->addFlash('error', $translator->trans('This username is already taken', [], 'validators', $locale));
+            // Validate username using UsernameChangeService
+            $usernameValidation = $this->usernameChangeService->validateUsername($username, null);
+            if (!$usernameValidation['valid']) {
+                foreach ($usernameValidation['errors'] as $error) {
+                    $this->addFlash('error', $translator->trans($error, [], 'validators', $locale));
+                }
+                
+                // Get suggestions if username is taken
+                if (in_array('This username is already taken', $usernameValidation['errors'])) {
+                    $suggestions = $this->usernameChangeService->suggestAlternatives($username);
+                    if (!empty($suggestions)) {
+                        $suggestionText = $translator->trans('Try these alternatives', [], 'validators', $locale) . ': ' . implode(', ', array_slice($suggestions, 0, 3));
+                        $this->addFlash('info', $suggestionText);
+                    }
+                }
+                
                 $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_student.html.twig', [
                     'formData' => $request->request->all(),
@@ -133,8 +149,22 @@ class SecurityController extends AbstractController
             $user->setUsername($username);
             $user->setEmail($email);
             
-            // Hash password
+            // Validate password strength
             $plaintextPassword = $request->request->get('password');
+            $passwordValidation = $this->passwordPolicyService->validatePassword($plaintextPassword);
+            
+            if (!$passwordValidation['valid']) {
+                foreach ($passwordValidation['errors'] as $error) {
+                    $this->addFlash('error', $translator->trans($error, [], 'validators', $locale));
+                }
+                $this->captchaService->generateCaptcha();
+                return $this->render('security/signup_student.html.twig', [
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
+                ]);
+            }
+            
+            // Hash password
             $hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
             $user->setPassword($hashedPassword);
             
@@ -226,10 +256,22 @@ class SecurityController extends AbstractController
             $username = $request->request->get('username');
             $email = $request->request->get('email');
 
-            // Check if username already exists
-            $existingUserByUsername = $userRepository->findOneBy(['username' => $username]);
-            if ($existingUserByUsername) {
-                $this->addFlash('error', $translator->trans('This username is already taken', [], 'validators', $locale));
+            // Validate username using UsernameChangeService
+            $usernameValidation = $this->usernameChangeService->validateUsername($username, null);
+            if (!$usernameValidation['valid']) {
+                foreach ($usernameValidation['errors'] as $error) {
+                    $this->addFlash('error', $translator->trans($error, [], 'validators', $locale));
+                }
+                
+                // Get suggestions if username is taken
+                if (in_array('This username is already taken', $usernameValidation['errors'])) {
+                    $suggestions = $this->usernameChangeService->suggestAlternatives($username);
+                    if (!empty($suggestions)) {
+                        $suggestionText = $translator->trans('Try these alternatives', [], 'validators', $locale) . ': ' . implode(', ', array_slice($suggestions, 0, 3));
+                        $this->addFlash('info', $suggestionText);
+                    }
+                }
+                
                 $this->captchaService->generateCaptcha();
                 return $this->render('security/signup_tutor.html.twig', [
                     'formData' => $request->request->all(),
@@ -253,8 +295,22 @@ class SecurityController extends AbstractController
             $user->setUsername($username);
             $user->setEmail($email);
             
-            // Hash password
+            // Validate password strength
             $plaintextPassword = $request->request->get('password');
+            $passwordValidation = $this->passwordPolicyService->validatePassword($plaintextPassword);
+            
+            if (!$passwordValidation['valid']) {
+                foreach ($passwordValidation['errors'] as $error) {
+                    $this->addFlash('error', $translator->trans($error, [], 'validators', $locale));
+                }
+                $this->captchaService->generateCaptcha();
+                return $this->render('security/signup_tutor.html.twig', [
+                    'formData' => $request->request->all(),
+                    'captchaQuestion' => $this->captchaService->getCurrentQuestion(),
+                ]);
+            }
+            
+            // Hash password
             $hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
             $user->setPassword($hashedPassword);
             
@@ -477,14 +533,19 @@ class SecurityController extends AbstractController
             $password = $request->request->get('password');
             $confirmPassword = $request->request->get('confirmPassword');
 
-            // Validate passwords
-            if (empty($password) || strlen($password) < 8) {
-                $this->addFlash('error', $locale === 'fr' 
-                    ? 'Le mot de passe doit contenir au moins 8 caractères.' 
-                    : 'Password must be at least 8 characters.');
+            // Validate password strength
+            $passwordValidation = $this->passwordPolicyService->validatePassword($password);
+            
+            if (!$passwordValidation['valid']) {
+                foreach ($passwordValidation['errors'] as $error) {
+                    $this->addFlash('error', $locale === 'fr' 
+                        ? $error // You can add French translations later
+                        : $error);
+                }
                 return $this->render('security/reset_password.html.twig', ['token' => $token]);
             }
 
+            // Validate passwords match
             if ($password !== $confirmPassword) {
                 $this->addFlash('error', $locale === 'fr' 
                     ? 'Les mots de passe ne correspondent pas.' 

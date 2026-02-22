@@ -137,47 +137,33 @@
             <div class="col-xl-9">
 
                 {% if student %}
-                    <div class="row mb-4">
-                        <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
-                            <div class="d-flex justify-content-center align-items-center p-4 bg-orange bg-opacity-15 rounded-3">
-                                <span class="display-6 lh-1 text-orange mb-0"><i class="fas fa-bolt fa-fw"></i></span>
-                                <div class="ms-4">
-                                    <div class="d-flex">
-                                        <h5 class="mb-0 fw-bold">{{ student.totalXP }}</h5>
+                    <div class="row g-4">
+                        <!-- Left Column - Main Content -->
+                        <div class="col-lg-8">
+                            <div class="row mb-4">
+                                <div class="col-sm-6 col-lg-6 mb-3 mb-lg-0">
+                                    <div class="d-flex justify-content-center align-items-center p-4 bg-orange bg-opacity-15 rounded-3">
+                                        <span class="display-6 lh-1 text-orange mb-0"><i class="fas fa-bolt fa-fw"></i></span>
+                                        <div class="ms-4">
+                                            <div class="d-flex">
+                                                <h5 class="mb-0 fw-bold">{{ student.totalXP }}</h5>
+                                            </div>
+                                            <p class="mb-0 h6 fw-light">Total XP</p>
+                                        </div>
                                     </div>
-                                    <p class="mb-0 h6 fw-light">Total XP</p>
+                                </div>
+                                <div class="col-sm-6 col-lg-6 mb-3 mb-lg-0">
+                                    <div class="d-flex justify-content-center align-items-center p-4 bg-purple bg-opacity-15 rounded-3">
+                                        <span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-coins fa-fw"></i></span>
+                                        <div class="ms-4">
+                                            <div class="d-flex">
+                                                <h5 class="mb-0 fw-bold">{{ student.totalTokens }}</h5>
+                                            </div>
+                                            <p class="mb-0 h6 fw-light">Total Tokens</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
-                            <div class="d-flex justify-content-center align-items-center p-4 bg-purple bg-opacity-15 rounded-3">
-                                <span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-coins fa-fw"></i></span>
-                                <div class="ms-4">
-                                    <div class="d-flex">
-                                        <h5 class="mb-0 fw-bold">{{ student.totalTokens }}</h5>
-                                    </div>
-                                    <p class="mb-0 h6 fw-light">Total Tokens</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
-                            <div class="d-flex justify-content-center align-items-center p-4 bg-success bg-opacity-10 rounded-3">
-                                {% set levelData = calculate_level(student.totalXP) %}
-                                <span class="display-6 lh-1 text-success mb-0">
-                                    <i class="{{ get_level_icon(student.level) }} fa-fw"></i>
-                                </span>
-                                <div class="ms-4">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <h5 class="mb-0 fw-bold me-2">Level {{ student.level }}</h5>
-                                    </div>
-                                    <span class="badge bg-{{ get_level_badge_color(student.level) }} rank-badge-large">
-                                        <i class="{{ get_level_icon(student.level) }} me-1"></i>
-                                        {{ levelData.name }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="card bg-transparent border rounded-3 mb-4">
                         <div class="card-header bg-transparent border-bottom">
                             <h3 class="mb-0">Quick Actions</h3>
@@ -302,6 +288,16 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column - Login History Widget -->
+                        <div class="col-lg-4">
+                            {% include 'components/login_history_widget.html.twig' with {
+                                'recentLogins': recentLogins,
+                                'limit': 5
+                            } %}
                         </div>
                     </div>
                     {% else %}

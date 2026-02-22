@@ -6,6 +6,7 @@ use App\Entity\users\TutorProfile;
 use App\Entity\users\User; // Make sure this path matches your User entity
 use App\Repository\TutorProfileRepository;
 use App\Service\ProfileCompletionService;
+use App\Service\LoginHistoryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +20,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final class TutorController extends AbstractController
 {
     public function __construct(
-        private ProfileCompletionService $profileCompletionService
+        private ProfileCompletionService $profileCompletionService,
+        private LoginHistoryService $loginHistoryService
     ) {}
 
     #[Route('/profile', name: 'app_tutor_profile', methods: ['GET'])]
@@ -154,10 +156,14 @@ final class TutorController extends AbstractController
 
         $tutor = $user->getTutorProfile();
         $completion = $this->profileCompletionService->calculateTutorCompletion($tutor);
+        
+        // Get recent login history
+        $recentLogins = $this->loginHistoryService->getRecentLogins($user, 5);
 
         return $this->render('front/users/tutor/dashboard.html.twig', [
             'tutor' => $tutor,
             'completion' => $completion,
+            'recentLogins' => $recentLogins,
         ]);
     }
 
