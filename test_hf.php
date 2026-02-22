@@ -12,7 +12,7 @@ foreach ($models as $model) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer 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',
+        'Authorization: Bearer hf_your_token_here',
         'Content-Type: application/json'
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([

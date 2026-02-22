@@ -116,7 +116,7 @@ Loaded custom questions: (5) [{…}, {…}, {…}, {…}, {…}]
 
 Here's what's happening:
 
-1. **Your API key is required and working**: `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`
+1. **Your API key is required and working**: `hf_your_token_here`
 
 2. **Novita is just a router/proxy**:
    - Old URL: `https://api-inference.huggingface.co/...` (dead, returns 410)
@@ -130,7 +130,7 @@ Here's what's happening:
    - Still backed by Hugging Face infrastructure
 
 4. **Your key is properly configured**:
-   - `.env`: `HUGGING_FACE_API_KEY=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`
+   - `.env`: `HUGGING_FACE_API_KEY=hf_your_token_here`
    - `config/services.yaml`: Binds key to service
    - `HuggingFaceService`: Receives and uses key
 

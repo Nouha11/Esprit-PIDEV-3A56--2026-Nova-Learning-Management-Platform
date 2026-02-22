@@ -7,7 +7,7 @@ The AI Question Generator uses Hugging Face's Mistral-7B-Instruct model to autom
 
 ### 1. API Key Configuration
 - **Location**: `.env` file
-- **Key**: `HUGGING_FACE_API_KEY=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`
+- **Key**: `HUGGING_FACE_API_KEY=hf_your_token_here`
 - **Status**: ✓ Configured and fixed (typo in closing comment was corrected)
 
 ### 2. Service Configuration

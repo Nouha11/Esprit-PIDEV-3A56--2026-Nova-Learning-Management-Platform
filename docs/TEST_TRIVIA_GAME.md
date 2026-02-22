@@ -148,7 +148,7 @@ correctAnswer: q.correctAnswer !== undefined ? q.correctAnswer : q.correct
 
 1. **You're using Novita's router** which proxies to Hugging Face models
 2. **The router requires authentication** via your HF API key
-3. **The key is in your .env**: `HUGGING_FACE_API_KEY=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`
+3. **The key is in your .env**: `HUGGING_FACE_API_KEY=hf_your_token_here`
 4. **It's properly injected** via `config/services.yaml`
 
 The Novita router is just a different endpoint that provides better reliability than the old HF Inference API, but it still uses your HF credentials.
