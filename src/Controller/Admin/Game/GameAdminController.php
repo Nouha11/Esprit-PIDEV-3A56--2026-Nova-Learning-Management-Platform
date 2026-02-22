@@ -40,14 +40,23 @@ class GameAdminController extends AbstractController
         $type = $request->query->get('type', '');
         $difficulty = $request->query->get('difficulty', '');
         $status = $request->query->get('status', ''); // active/inactive
+        $category = $request->query->get('category', ''); // FULL_GAME or MINI_GAME
         $isAjax = $request->isXmlHttpRequest();
 
         $queryBuilder = $this->gameRepository->createQueryBuilder('g');
 
+        // Apply category filter if provided (for Ajax requests)
+        if (!empty($category)) {
+            $queryBuilder
+                ->where('g.category = :category')
+                ->setParameter('category', $category);
+        }
+
         // Apply search filter
         if (!empty($search)) {
+            $andWhere = !empty($category) ? 'andWhere' : 'where';
             $queryBuilder
-                ->where('g.name LIKE :search OR g.description LIKE :search')
+                ->$andWhere('g.name LIKE :search OR g.description LIKE :search')
                 ->setParameter('search', '%' . $search . '%');
         }
 
@@ -87,8 +96,32 @@ class GameAdminController extends AbstractController
             ]);
         }
 
+        // For non-Ajax requests, get both full games and mini games
+        $fullGamesQb = $this->gameRepository->createQueryBuilder('g')
+            ->where('g.category = :category')
+            ->setParameter('category', 'FULL_GAME')
+            ->orderBy('g.createdAt', 'DESC');
+
+        $fullGames = $this->paginator->paginate(
+            $fullGamesQb,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        $miniGamesQb = $this->gameRepository->createQueryBuilder('g')
+            ->where('g.category = :category')
+            ->setParameter('category', 'MINI_GAME')
+            ->orderBy('g.createdAt', 'DESC');
+
+        $miniGames = $this->paginator->paginate(
+            $miniGamesQb,
+            $request->query->getInt('page', 1),
+            10
+        );
+
         return $this->render('admin/game/index.html.twig', [
-            'games' => $pagination,
+            'fullGames' => $fullGames,
+            'miniGames' => $miniGames,
             'search' => $search,
             'type' => $type,
             'difficulty' => $difficulty,
@@ -321,9 +354,8 @@ class GameAdminController extends AbstractController
             'settings' => $config['settings'] ?? [],
         ];
         
-        // Don't append engine tag to description - the play controller has a fallback
-        // that determines engine from game type automatically
-        $game->setDescription($config['description']);
+        // Store engine in description so the play controller can extract it
+        $game->setDescription($config['description'] . ' [Engine: ' . $config['engine'] . ']');
 
         $em->persist($game);
         $em->flush();

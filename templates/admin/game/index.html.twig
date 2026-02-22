@@ -3,113 +3,210 @@
 {% block title %}Manage Games{% endblock %}
 
 {% block admin_content %}
+<div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1>Games Management</h1>
-            <p class="text-muted mb-0">Manage all games and their rewards</p>
-        </div>
-        <div class="btn-group">
-            <a href="{{ path('admin_game_templates') }}" class="btn btn-success">
-                <i class="bi bi-magic me-1"></i>Game Templates
-            </a>
-            <a href="{{ path('admin_game_new') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-1"></i>Create New Game
-            </a>
+            <p class="text-muted mb-0">Manage full games and mini games</p>
         </div>
     </div>
 
     <!-- Flash Messages Container for Ajax -->
     <div id="ajax-flash-messages"></div>
 
-    <!-- Ajax Filters -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <!-- Search Input -->
-                <div class="col-md-4">
-                    <label for="search-input" class="form-label">
-                        <i class="bi bi-search"></i> Search Games
-                    </label>
-                    <input type="text" 
-                           class="form-control" 
-                           id="search-input" 
-                           placeholder="Search by name or description..."
-                           value="{{ search }}">
-                </div>
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="gameTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {{ app.request.get('tab') == 'mini' ? '' : 'active' }}" id="full-games-tab" data-bs-toggle="tab" data-bs-target="#full-games" type="button" role="tab">
+                <i class="bi bi-controller me-2"></i>Full Games
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {{ app.request.get('tab') == 'mini' ? 'active' : '' }}" id="mini-games-tab" data-bs-toggle="tab" data-bs-target="#mini-games" type="button" role="tab">
+                <i class="bi bi-lightning-charge me-2"></i>Mini Games
+            </button>
+        </li>
+    </ul>
 
-                <!-- Type Filter -->
-                <div class="col-md-2">
-                    <label for="type-filter" class="form-label">
-                        <i class="bi bi-controller"></i> Type
-                    </label>
-                    <select class="form-select" id="type-filter">
-                        <option value="">All Types</option>
-                        <option value="PUZZLE" {{ type == 'PUZZLE' ? 'selected' : '' }}>Puzzle</option>
-                        <option value="MEMORY" {{ type == 'MEMORY' ? 'selected' : '' }}>Memory</option>
-                        <option value="TRIVIA" {{ type == 'TRIVIA' ? 'selected' : '' }}>Trivia</option>
-                        <option value="ARCADE" {{ type == 'ARCADE' ? 'selected' : '' }}>Arcade</option>
-                    </select>
-                </div>
+    <div class="tab-content" id="gameTabsContent">
+        <!-- Full Games Tab -->
+        <div class="tab-pane fade {{ app.request.get('tab') == 'mini' ? '' : 'show active' }}" id="full-games" role="tabpanel">
+            <div class="d-flex justify-content-end mb-3 gap-2">
+                <a href="{{ path('admin_game_templates') }}" class="btn btn-success">
+                    <i class="bi bi-magic me-1"></i>Game Templates
+                </a>
+                <a href="{{ path('admin_game_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Create New Game
+                </a>
+            </div>
 
-                <!-- Difficulty Filter -->
-                <div class="col-md-2">
-                    <label for="difficulty-filter" class="form-label">
-                        <i class="bi bi-speedometer"></i> Difficulty
-                    </label>
-                    <select class="form-select" id="difficulty-filter">
-                        <option value="">All Levels</option>
-                        <option value="EASY" {{ difficulty == 'EASY' ? 'selected' : '' }}>Easy</option>
-                        <option value="MEDIUM" {{ difficulty == 'MEDIUM' ? 'selected' : '' }}>Medium</option>
-                        <option value="HARD" {{ difficulty == 'HARD' ? 'selected' : '' }}>Hard</option>
-                    </select>
-                </div>
+            <!-- Ajax Filters -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Search Input -->
+                        <div class="col-md-4">
+                            <label for="search-input-full" class="form-label">
+                                <i class="bi bi-search"></i> Search Games
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="search-input-full" 
+                                   placeholder="Search by name or description..."
+                                   value="{{ search }}">
+                        </div>
 
-                <!-- Status Filter -->
-                <div class="col-md-2">
-                    <label for="status-filter" class="form-label">
-                        <i class="bi bi-toggle-on"></i> Status
-                    </label>
-                    <select class="form-select" id="status-filter">
-                        <option value="">All Status</option>
-                        <option value="active" {{ status == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ status == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                    </select>
-                </div>
+                        <!-- Type Filter -->
+                        <div class="col-md-2">
+                            <label for="type-filter-full" class="form-label">
+                                <i class="bi bi-controller"></i> Type
+                            </label>
+                            <select class="form-select" id="type-filter-full">
+                                <option value="">All Types</option>
+                                <option value="PUZZLE" {{ type == 'PUZZLE' ? 'selected' : '' }}>Puzzle</option>
+                                <option value="MEMORY" {{ type == 'MEMORY' ? 'selected' : '' }}>Memory</option>
+                                <option value="TRIVIA" {{ type == 'TRIVIA' ? 'selected' : '' }}>Trivia</option>
+                                <option value="ARCADE" {{ type == 'ARCADE' ? 'selected' : '' }}>Arcade</option>
+                            </select>
+                        </div>
 
-                <!-- Clear Button -->
-                <div class="col-md-2">
-                    <label class="form-label d-block">&nbsp;</label>
-                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
-                        <i class="bi bi-x-circle"></i> Clear
-                    </button>
+                        <!-- Difficulty Filter -->
+                        <div class="col-md-2">
+                            <label for="difficulty-filter-full" class="form-label">
+                                <i class="bi bi-speedometer"></i> Difficulty
+                            </label>
+                            <select class="form-select" id="difficulty-filter-full">
+                                <option value="">All Levels</option>
+                                <option value="EASY" {{ difficulty == 'EASY' ? 'selected' : '' }}>Easy</option>
+                                <option value="MEDIUM" {{ difficulty == 'MEDIUM' ? 'selected' : '' }}>Medium</option>
+                                <option value="HARD" {{ difficulty == 'HARD' ? 'selected' : '' }}>Hard</option>
+                            </select>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="col-md-2">
+                            <label for="status-filter-full" class="form-label">
+                                <i class="bi bi-toggle-on"></i> Status
+                            </label>
+                            <select class="form-select" id="status-filter-full">
+                                <option value="">All Status</option>
+                                <option value="active" {{ status == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Clear Button -->
+                        <div class="col-md-2">
+                            <label class="form-label d-block">&nbsp;</label>
+                            <button class="btn btn-outline-secondary w-100" onclick="clearFilters('full')">
+                                <i class="bi bi-x-circle"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <span class="text-muted">
+                                <i class="bi bi-funnel"></i> <span id="results-count-full">{{ fullGames.getTotalItemCount }}</span> game(s) found
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Filter Status -->
-            <div class="row mt-3">
-                <div class="col-12">
-                    <span class="text-muted">
-                        <i class="bi bi-funnel"></i> <span id="results-count">{{ games.getTotalItemCount }}</span> game(s) found
-                    </span>
+            <!-- Loading Indicator -->
+            <div id="loading-indicator-full" class="text-center py-4 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading games...</p>
+            </div>
+
+            <!-- Games Table Container -->
+            <div class="card">
+                <div class="card-body" id="full-games-container">
+                    {% include 'admin/game/_games_table.html.twig' with {'games': fullGames} %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini Games Tab -->
+        <div class="tab-pane fade {{ app.request.get('tab') == 'mini' ? 'show active' : '' }}" id="mini-games" role="tabpanel">
+            <div class="d-flex justify-content-end mb-3 gap-2">
+                <a href="{{ path('admin_game_templates') }}" class="btn btn-success">
+                    <i class="bi bi-magic me-1"></i>Game Templates
+                </a>
+                <a href="{{ path('admin_game_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Create New Game
+                </a>
+            </div>
+
+            <!-- Ajax Filters -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Search Input -->
+                        <div class="col-md-6">
+                            <label for="search-input-mini" class="form-label">
+                                <i class="bi bi-search"></i> Search Mini Games
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="search-input-mini" 
+                                   placeholder="Search by name or description..."
+                                   value="{{ search }}">
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="col-md-3">
+                            <label for="status-filter-mini" class="form-label">
+                                <i class="bi bi-toggle-on"></i> Status
+                            </label>
+                            <select class="form-select" id="status-filter-mini">
+                                <option value="">All Status</option>
+                                <option value="active" {{ status == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Clear Button -->
+                        <div class="col-md-3">
+                            <label class="form-label d-block">&nbsp;</label>
+                            <button class="btn btn-outline-secondary w-100" onclick="clearFilters('mini')">
+                                <i class="bi bi-x-circle"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <span class="text-muted">
+                                <i class="bi bi-funnel"></i> <span id="results-count-mini">{{ miniGames.getTotalItemCount }}</span> mini game(s) found
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading-indicator-mini" class="text-center py-4 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading mini games...</p>
+            </div>
+
+            <!-- Mini Games Table Container -->
+            <div class="card">
+                <div class="card-body" id="mini-games-container">
+                    {% include 'admin/game/_games_table.html.twig' with {'games': miniGames} %}
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Loading Indicator -->
-    <div id="loading-indicator" class="text-center py-4 d-none">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-2 text-muted">Loading games...</p>
-    </div>
-
-    <!-- Games Table Container -->
-    <div class="card" id="games-container">
-        <div class="card-body">
-            {% include 'admin/game/_games_table.html.twig' %}
-        </div>
-    </div>
+</div>
 
 {% block javascripts %}
     {{ parent() }}
@@ -117,22 +214,30 @@
         let searchTimeout = null;
 
         // Load games with filters
-        function loadGames() {
-            const search = document.getElementById('search-input').value;
-            const type = document.getElementById('type-filter').value;
-            const difficulty = document.getElementById('difficulty-filter').value;
-            const status = document.getElementById('status-filter').value;
+        function loadGames(category) {
+            const searchId = category === 'full' ? 'search-input-full' : 'search-input-mini';
+            const typeId = category === 'full' ? 'type-filter-full' : null;
+            const difficultyId = category === 'full' ? 'difficulty-filter-full' : null;
+            const statusId = category === 'full' ? 'status-filter-full' : 'status-filter-mini';
+            const containerId = category === 'full' ? 'full-games-container' : 'mini-games-container';
+            const loadingId = category === 'full' ? 'loading-indicator-full' : 'loading-indicator-mini';
+
+            const search = document.getElementById(searchId).value;
+            const type = typeId ? document.getElementById(typeId).value : '';
+            const difficulty = difficultyId ? document.getElementById(difficultyId).value : '';
+            const status = document.getElementById(statusId).value;
 
             // Build query string
             const params = new URLSearchParams();
+            params.append('category', category === 'full' ? 'FULL_GAME' : 'MINI_GAME');
             if (search) params.append('search', search);
             if (type) params.append('type', type);
             if (difficulty) params.append('difficulty', difficulty);
             if (status) params.append('status', status);
 
             // Show loading indicator
-            document.getElementById('loading-indicator').classList.remove('d-none');
-            const container = document.getElementById('games-container');
+            document.getElementById(loadingId).classList.remove('d-none');
+            const container = document.getElementById(containerId);
             container.style.opacity = '0.5';
 
             // Fetch filtered games
@@ -143,97 +248,124 @@
             })
             .then(response => response.text())
             .then(html => {
-                container.querySelector('.card-body').innerHTML = html;
-                document.getElementById('loading-indicator').classList.add('d-none');
+                container.innerHTML = html;
+                document.getElementById(loadingId).classList.add('d-none');
                 container.style.opacity = '1';
                 
                 // Update URL without reload
-                const newUrl = '{{ path('admin_game_index') }}?' + params.toString();
+                const newUrl = '{{ path('admin_game_index') }}?tab=' + (category === 'mini' ? 'mini' : 'full') + '&' + params.toString();
                 window.history.pushState({}, '', newUrl);
             })
             .catch(error => {
                 console.error('Error loading games:', error);
-                document.getElementById('loading-indicator').classList.add('d-none');
+                document.getElementById(loadingId).classList.add('d-none');
                 container.style.opacity = '1';
             });
         }
 
         // Clear all filters
-        function clearFilters() {
-            document.getElementById('search-input').value = '';
-            document.getElementById('type-filter').value = '';
-            document.getElementById('difficulty-filter').value = '';
-            document.getElementById('status-filter').value = '';
-            loadGames();
+        function clearFilters(category) {
+            if (category === 'full') {
+                document.getElementById('search-input-full').value = '';
+                document.getElementById('type-filter-full').value = '';
+                document.getElementById('difficulty-filter-full').value = '';
+                document.getElementById('status-filter-full').value = '';
+            } else {
+                document.getElementById('search-input-mini').value = '';
+                document.getElementById('status-filter-mini').value = '';
+            }
+            loadGames(category);
         }
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
-            // Search input with debounce
-            document.getElementById('search-input').addEventListener('input', function() {
+            // Full Games filters
+            document.getElementById('search-input-full').addEventListener('input', function() {
                 clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(loadGames, 500);
+                searchTimeout = setTimeout(() => loadGames('full'), 500);
             });
+            document.getElementById('type-filter-full').addEventListener('change', () => loadGames('full'));
+            document.getElementById('difficulty-filter-full').addEventListener('change', () => loadGames('full'));
+            document.getElementById('status-filter-full').addEventListener('change', () => loadGames('full'));
 
-            // Dropdown filters
-            document.getElementById('type-filter').addEventListener('change', loadGames);
-            document.getElementById('difficulty-filter').addEventListener('change', loadGames);
-            document.getElementById('status-filter').addEventListener('change', loadGames);
+            // Mini Games filters
+            document.getElementById('search-input-mini').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => loadGames('mini'), 500);
+            });
+            document.getElementById('status-filter-mini').addEventListener('change', () => loadGames('mini'));
             
-            // Handle pagination clicks with event delegation
-            document.getElementById('games-container').addEventListener('click', function(e) {
-                const paginationLink = e.target.closest('.pagination a.page-link');
-                if (paginationLink) {
-                    e.preventDefault();
-                    const url = new URL(paginationLink.href);
-                    const page = url.searchParams.get('page') || 1;
-                    
-                    // Get current filters
-                    const search = document.getElementById('search-input').value;
-                    const type = document.getElementById('type-filter').value;
-                    const difficulty = document.getElementById('difficulty-filter').value;
-                    const status = document.getElementById('status-filter').value;
-                    
-                    // Build query string with page
-                    const params = new URLSearchParams();
-                    params.append('page', page);
-                    if (search) params.append('search', search);
-                    if (type) params.append('type', type);
-                    if (difficulty) params.append('difficulty', difficulty);
-                    if (status) params.append('status', status);
-                    
-                    // Show loading indicator
-                    document.getElementById('loading-indicator').classList.remove('d-none');
-                    const container = document.getElementById('games-container');
-                    container.style.opacity = '0.5';
-                    
-                    // Fetch page
-                    fetch('{{ path('admin_game_index') }}?' + params.toString(), {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.text())
-                    .then(html => {
-                        container.querySelector('.card-body').innerHTML = html;
-                        document.getElementById('loading-indicator').classList.add('d-none');
-                        container.style.opacity = '1';
-                        
-                        // Update URL without reload
-                        const newUrl = '{{ path('admin_game_index') }}?' + params.toString();
-                        window.history.pushState({}, '', newUrl);
-                        
-                        // Scroll to top of table
-                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    })
-                    .catch(error => {
-                        console.error('Error loading page:', error);
-                        document.getElementById('loading-indicator').classList.add('d-none');
-                        container.style.opacity = '1';
-                    });
-                }
+            // Handle pagination clicks for full games
+            document.getElementById('full-games-container').addEventListener('click', function(e) {
+                handlePaginationClick(e, 'full');
+            });
+            
+            // Handle pagination clicks for mini games
+            document.getElementById('mini-games-container').addEventListener('click', function(e) {
+                handlePaginationClick(e, 'mini');
             });
         });
+
+        function handlePaginationClick(e, category) {
+            const paginationLink = e.target.closest('.pagination a.page-link');
+            if (paginationLink) {
+                e.preventDefault();
+                const url = new URL(paginationLink.href);
+                const page = url.searchParams.get('page') || 1;
+                
+                const searchId = category === 'full' ? 'search-input-full' : 'search-input-mini';
+                const typeId = category === 'full' ? 'type-filter-full' : null;
+                const difficultyId = category === 'full' ? 'difficulty-filter-full' : null;
+                const statusId = category === 'full' ? 'status-filter-full' : 'status-filter-mini';
+                const containerId = category === 'full' ? 'full-games-container' : 'mini-games-container';
+                const loadingId = category === 'full' ? 'loading-indicator-full' : 'loading-indicator-mini';
+                
+                // Get current filters
+                const search = document.getElementById(searchId).value;
+                const type = typeId ? document.getElementById(typeId).value : '';
+                const difficulty = difficultyId ? document.getElementById(difficultyId).value : '';
+                const status = document.getElementById(statusId).value;
+                
+                // Build query string with page
+                const params = new URLSearchParams();
+                params.append('page', page);
+                params.append('category', category === 'full' ? 'FULL_GAME' : 'MINI_GAME');
+                if (search) params.append('search', search);
+                if (type) params.append('type', type);
+                if (difficulty) params.append('difficulty', difficulty);
+                if (status) params.append('status', status);
+                
+                // Show loading indicator
+                document.getElementById(loadingId).classList.remove('d-none');
+                const container = document.getElementById(containerId);
+                container.style.opacity = '0.5';
+                
+                // Fetch page
+                fetch('{{ path('admin_game_index') }}?' + params.toString(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                    document.getElementById(loadingId).classList.add('d-none');
+                    container.style.opacity = '1';
+                    
+                    // Update URL without reload
+                    const newUrl = '{{ path('admin_game_index') }}?tab=' + (category === 'mini' ? 'mini' : 'full') + '&' + params.toString();
+                    window.history.pushState({}, '', newUrl);
+                    
+                    // Scroll to top of table
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                })
+                .catch(error => {
+                    console.error('Error loading page:', error);
+                    document.getElementById(loadingId).classList.add('d-none');
+                    container.style.opacity = '1';
+                });
+            }
+        }
 
         // Toggle game status function (from previous implementation)
         function toggleGameStatus(gameId, csrfToken) {

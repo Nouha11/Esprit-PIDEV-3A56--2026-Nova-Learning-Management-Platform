@@ -66,6 +66,12 @@
                             <p>Click on cards to flip them. Match all pairs before time runs out!</p>
                         {% elseif gameEngine == 'breathing' %}
                             <p>Follow the breathing circle. Breathe in when it expands, hold, then breathe out when it contracts.</p>
+                        {% elseif gameEngine == 'stretch' %}
+                            <p>Follow along with simple stretching exercises. Each exercise lasts 10 seconds.</p>
+                        {% elseif gameEngine == 'eye_rest' %}
+                            <p>Look away from your screen at something 20 feet away for 20 seconds to reduce eye strain.</p>
+                        {% elseif gameEngine == 'hydration' %}
+                            <p>Take a water break! Click the button as you drink to fill the glass.</p>
                         {% elseif gameEngine == 'quick_quiz' %}
                             <p>Answer the multiple choice questions correctly within the time limit.</p>
                         {% elseif gameEngine == 'reaction_clicker' %}
