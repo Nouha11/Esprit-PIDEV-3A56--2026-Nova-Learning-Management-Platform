@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Service\Forum\CensorshipService;
 use App\Service\Forum\AiSummaryService;
+use App\Service\Forum\OpenGraphFetcher; // <-- Added the OG Fetcher!
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +27,8 @@ class ForumController extends AbstractController
         Request $request, 
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
-        CensorshipService $censorship
+        CensorshipService $censorship,
+        OpenGraphFetcher $ogFetcher // <-- Injected it here!
     ): Response
     {
         $post = new Post();
@@ -50,6 +52,16 @@ class ForumController extends AbstractController
             $post->setAuthor($user);
             $post->setIsLocked(false);
 
+            // --- FETCH OPENGRAPH DATA FOR GLOBAL FEED POSTS ---
+            if ($post->getLink()) {
+                $ogData = $ogFetcher->fetch($post->getLink());
+                if ($ogData) {
+                    $post->setLinkTitle($ogData['title']);
+                    $post->setLinkDescription($ogData['description']);
+                    $post->setLinkImage($ogData['image']);
+                }
+            }
+
             $entityManager->persist($post);
             $entityManager->flush();
 
@@ -60,7 +72,6 @@ class ForumController extends AbstractController
         $searchQuery = $request->query->get('q');
         $filter = $request->query->get('filter');
         $spaceId = $request->query->get('space'); 
-        // CHANGED 'sort' to 'sortBy' to prevent KnpPaginator errors
         $sortBy = $request->query->get('sortBy', 'hot'); 
 
         /** @var User $user */
@@ -78,7 +89,6 @@ class ForumController extends AbstractController
             $query = $postRepository->findByFilter($filter);
         }
 
-        // Apply Custom Sorting (if we are using the QueryBuilder)
         if (isset($qb) && !$filter) {
             if ($sortBy === 'new') {
                 $qb->orderBy('p.createdAt', 'DESC');
@@ -410,7 +420,8 @@ class ForumController extends AbstractController
         Request $request, 
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
-        CensorshipService $censorship
+        CensorshipService $censorship,
+        OpenGraphFetcher $ogFetcher // <-- Injected it here too!
     ): Response
     {
         $post = new Post();
@@ -432,6 +443,16 @@ class ForumController extends AbstractController
             $post->setAuthor($user);
             $post->setIsLocked(false);
 
+            // --- FETCH OPENGRAPH DATA FOR SPACE POSTS ---
+            if ($post->getLink()) {
+                $ogData = $ogFetcher->fetch($post->getLink());
+                if ($ogData) {
+                    $post->setLinkTitle($ogData['title']);
+                    $post->setLinkDescription($ogData['description']);
+                    $post->setLinkImage($ogData['image']);
+                }
+            }
+
             $entityManager->persist($post);
             $entityManager->flush();
 
@@ -439,8 +460,6 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_space', ['id' => $space->getId()]);
         }
 
-        // --- SPACE SORTING LOGIC (FIXED) ---
-        // CHANGED 'sort' to 'sortBy'
         $sortBy = $request->query->get('sortBy', 'hot');
 
         $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
@@ -465,7 +484,7 @@ class ForumController extends AbstractController
             'posts' => $posts,       
             'spaces' => $allSpaces,  
             'form' => $form->createView(),
-            'currentSort' => $sortBy, // Passed as currentSort to Twig
+            'currentSort' => $sortBy, 
         ]);
     }
 }

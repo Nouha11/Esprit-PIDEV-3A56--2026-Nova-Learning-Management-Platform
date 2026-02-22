@@ -79,6 +79,15 @@ class Post
 
     #[ORM\ManyToOne(inversedBy: 'posts')]
     private ?Space $space = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $linkTitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $linkDescription = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $linkImage = null;
     // ==========================================
 
     public function __construct()
@@ -309,6 +318,42 @@ class Post
     public function setSpace(?Space $space): static
     {
         $this->space = $space;
+
+        return $this;
+    }
+
+    public function getLinkTitle(): ?string
+    {
+        return $this->linkTitle;
+    }
+
+    public function setLinkTitle(?string $linkTitle): static
+    {
+        $this->linkTitle = $linkTitle;
+
+        return $this;
+    }
+
+    public function getLinkDescription(): ?string
+    {
+        return $this->linkDescription;
+    }
+
+    public function setLinkDescription(?string $linkDescription): static
+    {
+        $this->linkDescription = $linkDescription;
+
+        return $this;
+    }
+
+    public function getLinkImage(): ?string
+    {
+        return $this->linkImage;
+    }
+
+    public function setLinkImage(?string $linkImage): static
+    {
+        $this->linkImage = $linkImage;
 
         return $this;
     }
