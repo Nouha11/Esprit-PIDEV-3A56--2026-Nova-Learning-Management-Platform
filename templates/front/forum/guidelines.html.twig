@@ -34,46 +34,52 @@
     <div class="container-fluid px-xl-5">
         <div class="row justify-content-center">
             
-            {# --- 1. LEFT COLUMN: NAVIGATION --- #}
+             {# --- 1. LEFT COLUMN: NAVIGATION --- #}
             <div class="col-xl-2 col-lg-3 d-none d-lg-block">
-                <div class="sticky-sidebar pe-2">
-                    <div class="left-nav-section-title">Feeds</div>
-                    <a href="{{ path('app_forum') }}" class="left-nav-link">
-                        <i class="bi bi-house-door"></i> Home
-                    </a>
-                    <a href="{{ path('app_forum', {'filter': 'popular'}) }}" class="left-nav-link">
-                        <i class="bi bi-fire text-danger"></i> Popular
-                    </a>
-                    <a href="{{ path('app_forum', {'filter': 'unanswered'}) }}" class="left-nav-link">
-                        <i class="bi bi-patch-question text-warning"></i> Unanswered
-                    </a>
-
-                    <div class="left-nav-section-title mt-3 border-top pt-3" style="border-color: var(--nova-border) !important;">My NOVA</div>
-                    <a href="{{ path('app_forum', {'filter': 'history'}) }}" class="left-nav-link">
-                        <i class="bi bi-clock-history text-secondary"></i> History
-                    </a>
-                    {% if app.user %}
-                        <a href="{{ path('app_forum', {'filter': 'bookmarks'}) }}" class="left-nav-link">
-                            <i class="bi bi-bookmark-fill text-info"></i> Saved Posts
+                <div class="sticky-sidebar">
+                    {# --- NEW ENCLOSED CARD DESIGN --- #}
+                    <div class="p-3 shadow-sm rounded-4" style="background-color: var(--nova-card-bg); border: 1px solid var(--nova-border);">
+                        
+                        <div class="left-nav-section-title pt-0">Feeds</div>
+                        <a href="{{ path('app_forum') }}" class="left-nav-link {{ currentFilter is defined and currentFilter is null and currentSpace is defined and currentSpace is null ? 'active' : '' }}">
+                            <i class="bi bi-house-door"></i> Home
                         </a>
-                    {% endif %}
-
-                    <div class="left-nav-section-title mt-3 border-top pt-3" style="border-color: var(--nova-border) !important;">Study Spaces</div>
-                    {% for s in spaces|default([]) %}
-                        {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
-                        {% set color = colors[s.id % colors|length] %}
-                        <a href="{{ path('app_forum_space', {'id': s.id}) }}" class="left-nav-link d-flex align-items-center">
-                            <div class="rounded-circle me-3" style="width: 14px; height: 14px; background-color: {{ color }}; margin-left: 5px;"></div>
-                            <span class="text-truncate">{{ s.name }}</span>
+                        <a href="{{ path('app_forum', {'filter': 'popular'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'popular' ? 'active' : '' }}">
+                            <i class="bi bi-fire text-danger"></i> Popular
                         </a>
-                    {% endfor %}
+                        <a href="{{ path('app_forum', {'filter': 'unanswered'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'unanswered' ? 'active' : '' }}">
+                            <i class="bi bi-patch-question text-warning"></i> Unanswered
+                        </a>
 
-                    <div class="left-nav-section-title mt-3 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
-                    <a href="#" class="left-nav-link"><i class="bi bi-info-circle"></i> About NOVA</a>
-                    <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link active"><i class="bi bi-shield-check text-success"></i> Guidelines</a>
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">My NOVA</div>
+                        <a href="{{ path('app_forum', {'filter': 'history'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'history' ? 'active' : '' }}">
+                            <i class="bi bi-clock-history text-secondary"></i> History
+                        </a>
+                        {% if app.user %}
+                            <a href="{{ path('app_forum', {'filter': 'bookmarks'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'bookmarks' ? 'active' : '' }}">
+                                <i class="bi bi-bookmark-fill text-info"></i> Saved Posts
+                            </a>
+                        {% endif %}
+
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Study Spaces</div>
+                        {% for s in spaces|default([]) %}
+                            {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
+                            {% set color = colors[s.id % colors|length] %}
+                            <a href="{{ path('app_forum_space', {'id': s.id}) }}" class="left-nav-link d-flex align-items-center {{ currentSpace is defined and currentSpace == s.id ? 'active' : (space is defined and space.id == s.id ? 'active' : (post is defined and post.space and post.space.id == s.id ? 'active' : '')) }}">
+                                <div class="rounded-circle me-3" style="width: 14px; height: 14px; background-color: {{ color }}; margin-left: 5px;"></div>
+                                <span class="text-truncate">{{ s.name }}</span>
+                            </a>
+                        {% endfor %}
+
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
+                        <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'guidelines' ? 'active' : '' }}"><i class="bi bi-shield-check"></i> Guidelines</a>
+                        <a href="{{ path('app_forum_about') }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'about' ? 'active' : '' }}"><i class="bi bi-info-circle"></i> About NOVA</a>
+
+                    </div>
                 </div>
             </div>
 
+            
             {# --- 2. MIDDLE COLUMN: GUIDELINES CONTENT --- #}
             <div class="col-xl-7 col-lg-6 col-md-12">
                 <div class="nova-card shadow-sm mb-4">

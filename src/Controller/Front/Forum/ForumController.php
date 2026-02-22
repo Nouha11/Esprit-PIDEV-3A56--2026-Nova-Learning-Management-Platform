@@ -52,7 +52,6 @@ class ForumController extends AbstractController
             $post->setAuthor($user);
             $post->setIsLocked(false);
 
-            // --- FETCH OPENGRAPH DATA FOR GLOBAL FEED POSTS ---
             if ($post->getLink()) {
                 $ogData = $ogFetcher->fetch($post->getLink());
                 if ($ogData) {
@@ -72,12 +71,14 @@ class ForumController extends AbstractController
         $searchQuery = $request->query->get('q');
         $filter = $request->query->get('filter');
         $spaceId = $request->query->get('space'); 
-        $sortBy = $request->query->get('sortBy', 'hot'); 
+        $sortBy = $request->query->get('sortBy', 'hot'); // Default to 'hot'
 
         /** @var User $user */
         $user = $this->getUser();
 
-        // --- NEW: HISTORY AND FILTER LOGIC ---
+        // ==========================================
+        // --- FIXED: QUERY AND SORTING LOGIC ---
+        // ==========================================
         if ($searchQuery) {
             $query = $postRepository->adminSearch($searchQuery);
         } elseif ($filter === 'bookmarks' && $user) {
@@ -95,28 +96,28 @@ class ForumController extends AbstractController
             $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
                 ->where('p.space = :spaceId')
                 ->setParameter('spaceId', $spaceId);
-        } else {
+        } elseif (in_array($filter, ['popular', 'unanswered'])) {
+            // Keep your existing custom filters logic
             $query = $postRepository->findByFilter($filter);
+        } else {
+            // MAIN FEED: Apply QueryBuilder so sorting buttons work!
+            $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p');
         }
 
-        if (isset($qb) && !in_array($filter, ['popular', 'unanswered'])) {
+        // Apply Sorting (Only if $qb is set, meaning we are on a feed that supports sorting)
+        if (isset($qb)) {
             if ($sortBy === 'new') {
                 $qb->orderBy('p.createdAt', 'DESC');
             } elseif ($sortBy === 'top') {
                 $qb->orderBy('p.upvotes', 'DESC');
             } else {
-                $qb->orderBy('p.upvotes', 'DESC')
-                   ->addOrderBy('p.createdAt', 'DESC');
+                // 'hot': Prioritize score, use date as tie-breaker to keep feed fresh
+                $qb->orderBy('p.upvotes', 'DESC')->addOrderBy('p.createdAt', 'DESC');
             }
             $query = $qb->getQuery();
         }
 
-        $posts = $paginator->paginate(
-            $query, 
-            $request->query->getInt('page', 1), 
-            5 
-        );
-
+        $posts = $paginator->paginate($query, $request->query->getInt('page', 1), 5);
         $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
 
         return $this->render('front/forum/index.html.twig', [
@@ -130,7 +131,32 @@ class ForumController extends AbstractController
         ]);
     }
 
-    // Notice the requirements limit to prevent conflicts with /forum/ai/enhance
+    #[Route('/forum/guidelines', name: 'app_forum_guidelines')]
+    public function guidelines(EntityManagerInterface $entityManager): Response
+    {
+        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+
+        return $this->render('front/forum/guidelines.html.twig', [
+            'spaces' => $spaces,
+            'currentFilter' => 'guidelines',
+            'currentSpace' => null,
+            'searchQuery' => null
+        ]);
+    }
+
+    #[Route('/forum/about', name: 'app_forum_about')]
+    public function about(EntityManagerInterface $entityManager): Response
+    {
+        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+
+        return $this->render('front/forum/about.html.twig', [
+            'spaces' => $spaces,
+            'currentFilter' => 'about',
+            'currentSpace' => null,
+            'searchQuery' => null
+        ]);
+    }
+
     #[Route('/forum/{id}', name: 'app_forum_show', requirements: ['id' => '\d+'])]
     public function show(
         ?Post $post,
@@ -143,14 +169,12 @@ class ForumController extends AbstractController
             return $this->render('front/forum/deleted.html.twig');
         }
 
-        // --- NEW: RECORD POST VIEW IN HISTORY ---
         $session = $request->getSession();
         $history = $session->get('post_history', []);
         array_unshift($history, $post->getId()); 
         $history = array_unique($history); 
-        $history = array_slice($history, 0, 30); // Keep only last 30 posts
+        $history = array_slice($history, 0, 30);
         $session->set('post_history', $history);
-        // ----------------------------------------
 
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
@@ -183,13 +207,12 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
-        // --- NEW: FETCH ALL SPACES FOR THE SIDEBAR ---
         $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
 
         return $this->render('front/forum/show.html.twig', [
             'post' => $post,
             'form' => $form->createView(),
-            'spaces' => $spaces, // Passing spaces to the twig!
+            'spaces' => $spaces,
         ]);
     }
 
@@ -253,9 +276,6 @@ class ForumController extends AbstractController
         ]);
     }
 
-    // ==============================================================
-    // --- REPLACED: NEW UNIFIED POST VOTE (UPVOTE & DOWNVOTE) ---
-    // ==============================================================
     #[Route('/forum/post/{id}/vote/{type}', name: 'app_forum_post_vote', methods: ['POST'])]
     public function votePost(Post $post, string $type, EntityManagerInterface $entityManager): JsonResponse
     {
@@ -285,7 +305,7 @@ class ForumController extends AbstractController
         $entityManager->flush();
 
         return $this->json([
-            'score' => $post->getUpvotes(), // upvotes property acts as the total score
+            'score' => $post->getUpvotes(),
             'upvoted' => $post->isUpvotedBy($user),
             'downvoted' => $post->isDownvotedBy($user)
         ]);
@@ -540,21 +560,4 @@ class ForumController extends AbstractController
             return $this->json(['error' => 'AI is currently resting. Please try again.'], 500);
         }
     }
-
-
-    #[Route('/forum/guidelines', name: 'app_forum_guidelines')]
-    public function guidelines(EntityManagerInterface $entityManager): Response
-    {
-        // We fetch spaces just to keep the left sidebar populated
-        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
-
-        return $this->render('front/forum/guidelines.html.twig', [
-            'spaces' => $spaces,
-            'currentFilter' => 'guidelines', // Helps highlight the active link in the sidebar
-            'currentSpace' => null,
-            'searchQuery' => null
-        ]);
-    }
-
-
 }
