@@ -1,7 +1,6 @@
 {% extends 'base.html.twig' %}
 
 {# --- 1. ENABLE BOOTSTRAP 5 FORM THEME --- #}
-{# This automatically styles errors red and adds 'is-invalid' classes #}
 {% form_theme form 'bootstrap_5_layout.html.twig' %}
 
 {% block title %}{{ post.title }}{% endblock %}
@@ -23,11 +22,23 @@
                                     <nav aria-label="breadcrumb">
                                         <ol class="breadcrumb breadcrumb-dots mb-1">
                                             <li class="breadcrumb-item"><a href="{{ path('app_forum') }}">Forum</a></li>
+                                            
+                                            {# --- NEW: Dynamic Space Breadcrumb --- #}
+                                            {% if post.space %}
+                                                <li class="breadcrumb-item"><a href="{{ path('app_forum', {'space': post.space.id}) }}">{{ post.space.name }}</a></li>
+                                            {% endif %}
+                                            
                                             <li class="breadcrumb-item active" aria-current="page">Discussion Details</li>
                                         </ol>
                                     </nav>
-                                    <div class="d-flex align-items-center">
-                                        <h1 class="h3 mb-0">{{ post.title }}</h1>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <h1 class="h3 mb-0">
+                                            {# --- NEW: Space Badge next to Title --- #}
+                                            {% if post.space %}
+                                                <span class="badge bg-info text-white me-2 fs-6 align-middle">{{ post.space.name }}</span>
+                                            {% endif %}
+                                            {{ post.title }}
+                                        </h1>
                                         {% if post.isLocked %}
                                             <span class="badge bg-danger ms-3">
                                                 <i class="bi bi-lock-fill me-1"></i>Locked
@@ -76,7 +87,6 @@
                             {# --- NEW: IMAGE RENDERER --- #}
                             {% if post.imageName %}
                                 <div class="mb-4 text-center bg-light p-3 rounded-3 shadow-sm">
-                                    {# vich_uploader_asset automatically finds the /uploads/posts/ path! #}
                                     <img src="{{ vich_uploader_asset(post, 'imageFile') }}" 
                                          alt="Attachment for {{ post.title }}" 
                                          class="img-fluid rounded" 
@@ -111,7 +121,7 @@
                                     <span class="btn-text">{{ is_upvoted ? 'Upvoted' : 'Upvote' }}</span>
                                 </button>
                                 
-                                {# --- NEW: BOOKMARK BUTTON --- #}
+                                {# BOOKMARK BUTTON #}
                                 {% set is_bookmarked = app.user and app.user.hasBookmarkedPost(post) %}
                                 <button class="btn btn-sm mb-0 bookmark-btn {{ is_bookmarked ? 'btn-warning text-dark' : 'btn-light' }}" 
                                         data-id="{{ post.id }}">
@@ -125,7 +135,7 @@
                                 {% endif %}
                                 
                                 <div class="ms-auto d-flex gap-2">
-                                    {# --- MODAL TRIGGER: REPORT BUTTON --- #}
+                                    {# MODAL TRIGGER: REPORT BUTTON #}
                                     {% if app.user and app.user != post.author %}
                                         <button type="button" class="btn btn-sm btn-outline-danger mb-0" data-bs-toggle="modal" data-bs-target="#reportModal-{{ post.id }}">
                                             <i class="bi bi-flag-fill me-1"></i> Report
@@ -185,7 +195,7 @@
                             {% for comment in post.comments %}
                                 <div class="d-flex mb-4 p-3 rounded-3 {{ comment.isSolution ? 'bg-success bg-opacity-10 border border-success' : '' }}" id="comment-{{ comment.id }}">
                                     
-                                    {# --- LEFT SIDE: AVATAR + VOTE CONTROLS --- #}
+                                    {# LEFT SIDE: AVATAR + VOTE CONTROLS #}
                                     <div class="me-3 text-center d-flex flex-column align-items-center" style="min-width: 50px;">
                                         <div class="avatar avatar-sm mb-2">
                                             <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][comment.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
@@ -193,7 +203,6 @@
                                             </div>
                                         </div>
                                         
-                                        {# Voting Arrows #}
                                         <div class="d-flex flex-column align-items-center comment-vote-box" data-id="{{ comment.id }}">
                                             <a href="#" class="vote-action text-secondary {{ app.user and comment.isUpvotedBy(app.user) ? 'text-success' : '' }}" data-type="up" style="text-decoration: none;">
                                                 <i class="bi bi-caret-up-fill fs-4"></i>
@@ -207,7 +216,7 @@
                                         </div>
                                     </div>
 
-                                    {# --- RIGHT SIDE: CONTENT --- #}
+                                    {# RIGHT SIDE: CONTENT #}
                                     <div class="w-100">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
@@ -265,9 +274,7 @@
                             <div class="card-body">
                                 {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                                     <div class="mb-3">
-                                        {# The Theme handles the 'is-invalid' class automatically now #}
                                         {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': '4', 'placeholder': 'Type your answer here...'}}) }}
-                                        
                                         <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
                                     </div>
                                     <div class="text-end">
@@ -412,7 +419,7 @@
             });
         }
 
-        // 1.5. BOOKMARK LOGIC (NEW)
+        // 1.5. BOOKMARK LOGIC
         const bookmarkBtn = document.querySelector('.bookmark-btn');
         if (bookmarkBtn) {
             bookmarkBtn.addEventListener('click', function (e) {

@@ -11,7 +11,7 @@ use App\Entity\users\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Service\Forum\CensorshipService;
-use App\Service\Forum\AiSummaryService; // <-- Added the AI Service here!
+use App\Service\Forum\AiSummaryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,7 +42,6 @@ class ForumController extends AbstractController
                 return $this->redirectToRoute('app_login');
             }
 
-            // Clean bad words
             $post->setTitle($censorship->purify($post->getTitle()));
             $post->setContent($censorship->purify($post->getContent()));
             
@@ -58,9 +57,11 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum');
         }
 
-        // --- FILTERING LOGIC ---
         $searchQuery = $request->query->get('q');
-        $filter = $request->query->get('filter'); // Get 'popular', 'unanswered', or 'bookmarks'
+        $filter = $request->query->get('filter');
+        $spaceId = $request->query->get('space'); 
+        // CHANGED 'sort' to 'sortBy' to prevent KnpPaginator errors
+        $sortBy = $request->query->get('sortBy', 'hot'); 
 
         /** @var User $user */
         $user = $this->getUser();
@@ -68,12 +69,26 @@ class ForumController extends AbstractController
         if ($searchQuery) {
             $query = $postRepository->adminSearch($searchQuery);
         } elseif ($filter === 'bookmarks' && $user) {
-            // --- NEW: Handle the Bookmarks Filter ---
-            // If the user clicked "My Bookmarks", fetch their saved posts collection
             $query = $user->getBookmarkedPosts(); 
+        } elseif ($spaceId) {
+            $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
+                ->where('p.space = :spaceId')
+                ->setParameter('spaceId', $spaceId);
         } else {
-            // If no search and not bookmarks, use the existing filters (popular/unanswered)
             $query = $postRepository->findByFilter($filter);
+        }
+
+        // Apply Custom Sorting (if we are using the QueryBuilder)
+        if (isset($qb) && !$filter) {
+            if ($sortBy === 'new') {
+                $qb->orderBy('p.createdAt', 'DESC');
+            } elseif ($sortBy === 'top') {
+                $qb->orderBy('p.upvotes', 'DESC');
+            } else {
+                $qb->orderBy('p.upvotes', 'DESC')
+                   ->addOrderBy('p.createdAt', 'DESC');
+            }
+            $query = $qb->getQuery();
         }
 
         $posts = $paginator->paginate(
@@ -82,26 +97,28 @@ class ForumController extends AbstractController
             5 
         );
 
+        $spaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+
         return $this->render('front/forum/index.html.twig', [
             'form' => $form->createView(),
             'posts' => $posts,
+            'spaces' => $spaces,
             'searchQuery' => $searchQuery,
-            'currentFilter' => $filter, // Pass filter to Twig for "Active" class
+            'currentFilter' => $filter,
+            'currentSpace' => $spaceId,
+            'currentSort' => $sortBy,
         ]);
     }
 
-
     #[Route('/forum/{id}', name: 'app_forum_show')]
     public function show(
-        ?Post $post, // <-- Notice the '?' makes this nullable!
+        ?Post $post,
         Request $request, 
         EntityManagerInterface $entityManager,
         CensorshipService $censorship
     ): Response
     {
-        // 1. Check if the post was deleted (or never existed)
         if (!$post) {
-            // Render our brand new "Deleted" page!
             return $this->render('front/forum/deleted.html.twig');
         }
 
@@ -123,9 +140,7 @@ class ForumController extends AbstractController
                 return $this->redirectToRoute('app_login');
             }
 
-            // Clean bad words
             $comment->setContent($censorship->purify($comment->getContent()));
-
             $comment->setCreatedAt(new \DateTimeImmutable());
             $comment->setIsSolution(false);
             $comment->setPost($post);
@@ -323,34 +338,29 @@ class ForumController extends AbstractController
         ]);
     }
 
-
     #[Route('/post/{id}/report', name: 'app_forum_report', methods: ['POST'])]
     public function report(\App\Entity\Forum\Post $post, \Symfony\Component\HttpFoundation\Request $request, \Doctrine\ORM\EntityManagerInterface $entityManager): \Symfony\Component\HttpFoundation\Response
     {
         $user = $this->getUser();
         
-        // 1. Security Check
         if (!$user) {
             $this->addFlash('error', 'You must be logged in to report a post.');
             return $this->redirectToRoute('app_login');
         }
 
-        // 2. Prevent the author from reporting their own post
         if ($user === $post->getAuthor()) {
             $this->addFlash('warning', 'You cannot report your own post.');
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
         }
 
-        // 3. Create the Report
         $reason = $request->request->get('reason', 'Inappropriate content');
         
         $report = new \App\Entity\Forum\Report();
         $report->setPost($post);
-        $report->setReporter($user); // The person clicking the button
+        $report->setReporter($user); 
         $report->setReason($reason);
         $report->setCreatedAt(new \DateTimeImmutable());
 
-        // 4. Save to Database
         $entityManager->persist($report);
         $entityManager->flush();
 
@@ -358,31 +368,26 @@ class ForumController extends AbstractController
         return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
     }
 
-    // --- NEW: AI SUMMARY ROUTE --- //
     #[Route('/forum/post/{id}/summary', name: 'app_forum_summary', methods: ['POST'])]
     public function summarize(Post $post, AiSummaryService $aiSummaryService): JsonResponse
     {
-        // Call our new Gemini service!
         $summary = $aiSummaryService->generateSummary($post);
 
-        // Return the text as JSON so our JavaScript can put it on the screen
         return $this->json([
             'summary' => $summary
         ]);
     }
 
-#[Route('/forum/post/{id}/bookmark', name: 'app_forum_post_bookmark', methods: ['POST'])]
+    #[Route('/forum/post/{id}/bookmark', name: 'app_forum_post_bookmark', methods: ['POST'])]
     public function toggleBookmark(Post $post, EntityManagerInterface $entityManager): JsonResponse
     {
         /** @var \App\Entity\users\User $user */
         $user = $this->getUser();
 
-        // 1. Security Check: Are they logged in?
         if (!$user) {
             return $this->json(['error' => 'You must be logged in to bookmark posts.'], 403);
         }
 
-        // 2. Toggle Logic: If it's already saved, remove it. If not, save it.
         if ($user->hasBookmarkedPost($post)) {
             $user->removeBookmarkedPost($post);
             $isBookmarked = false;
@@ -391,14 +396,76 @@ class ForumController extends AbstractController
             $isBookmarked = true;
         }
 
-        // 3. Save to the database
         $entityManager->flush();
 
-        // 4. Send the result back to the browser instantly
         return $this->json([
             'isBookmarked' => $isBookmarked,
             'message' => $isBookmarked ? 'Post saved to your reading list!' : 'Post removed from your reading list.'
         ]);
     }
 
+    #[Route('/forum/space/{id}', name: 'app_forum_space')]
+    public function space(
+        \App\Entity\Forum\Space $space, 
+        Request $request, 
+        EntityManagerInterface $entityManager,
+        PaginatorInterface $paginator,
+        CensorshipService $censorship
+    ): Response
+    {
+        $post = new Post();
+        $post->setSpace($space); 
+        $form = $this->createForm(PostType::class, $post);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getUser();
+            if (!$user) {
+                $this->addFlash('error', 'You must be logged in to create a post.');
+                return $this->redirectToRoute('app_login');
+            }
+
+            $post->setTitle($censorship->purify($post->getTitle()));
+            $post->setContent($censorship->purify($post->getContent()));
+            $post->setCreatedAt(new \DateTimeImmutable());
+            $post->setUpvotes(0);
+            $post->setAuthor($user);
+            $post->setIsLocked(false);
+
+            $entityManager->persist($post);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Post created in ' . $space->getName() . '!');
+            return $this->redirectToRoute('app_forum_space', ['id' => $space->getId()]);
+        }
+
+        // --- SPACE SORTING LOGIC (FIXED) ---
+        // CHANGED 'sort' to 'sortBy'
+        $sortBy = $request->query->get('sortBy', 'hot');
+
+        $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
+            ->where('p.space = :space')
+            ->setParameter('space', $space);
+
+        if ($sortBy === 'new') {
+            $qb->orderBy('p.createdAt', 'DESC');
+        } elseif ($sortBy === 'top') {
+            $qb->orderBy('p.upvotes', 'DESC');
+        } else {
+            $qb->orderBy('p.upvotes', 'DESC')
+               ->addOrderBy('p.createdAt', 'DESC');
+        }
+
+        $posts = $paginator->paginate($qb->getQuery(), $request->query->getInt('page', 1), 5);
+
+        $allSpaces = $entityManager->getRepository(\App\Entity\Forum\Space::class)->findAll();
+
+        return $this->render('front/forum/space.html.twig', [
+            'space' => $space,       
+            'posts' => $posts,       
+            'spaces' => $allSpaces,  
+            'form' => $form->createView(),
+            'currentSort' => $sortBy, // Passed as currentSort to Twig
+        ]);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Forum\Space; // <-- NEW
 use Vich\UploaderBundle\Form\Type\VichImageType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use App\Entity\Forum\Post;
@@ -16,23 +17,28 @@ class PostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            // --- NEW: Space Selection Dropdown ---
+            ->add('space', EntityType::class, [
+                'class' => Space::class,
+                'choice_label' => 'name',
+                'placeholder' => 'Choose a Study Space...',
+                'required' => true,
+                'label' => 'Study Space',
+                'attr' => ['class' => 'form-select mb-3']
+            ])
             ->add('title', null, [
                 'empty_data' => '',
             ])
             ->add('content', null, [
                 'empty_data' => '',
             ])
-            // --- NEW: Link Field ---
             ->add('link', UrlType::class, [
-                'required' => false, // Users don't HAVE to provide a link
+                'required' => false,
                 'label' => 'Attach a Link (Optional)',
-                'attr' => [
-                    'placeholder' => 'https://example.com...',
-                ],
+                'attr' => ['placeholder' => 'https://example.com...'],
             ])
-            // --- NEW: Image Upload Field ---
             ->add('imageFile', VichImageType::class, [
-                'required' => false, // Users don't HAVE to upload an image
+                'required' => false,
                 'allow_delete' => true,
                 'delete_label' => 'Remove Image',
                 'download_uri' => false,
