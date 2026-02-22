@@ -562,5 +562,56 @@ class ForumController extends AbstractController
         }
     }
 
-    
+    #[Route('/forum/comment/{id}/reply', name: 'app_forum_comment_reply', methods: ['POST'])]
+    public function replyToComment(Comment $parent, Request $request, EntityManagerInterface $entityManager, CensorshipService $censorship): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'You must be logged in to reply.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        $content = $request->request->get('content');
+        if (empty(trim($content))) {
+            $this->addFlash('error', 'Reply cannot be empty.');
+            return $this->redirectToRoute('app_forum_show', ['id' => $parent->getPost()->getId()]);
+        }
+
+        $reply = new Comment();
+        $reply->setContent($censorship->purify($content));
+        $reply->setCreatedAt(new \DateTimeImmutable());
+        $reply->setIsSolution(false);
+        $reply->setPost($parent->getPost());
+        $reply->setAuthor($user);
+        $reply->setParent($parent);
+
+        $entityManager->persist($reply);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Reply added!');
+        return $this->redirectToRoute('app_forum_show', ['id' => $parent->getPost()->getId()]);
+    }
+
+    //new function for the comment replying system
+
+    #[Route('/forum/comment/{id}/report', name: 'app_forum_comment_report', methods: ['POST'])]
+    public function reportComment(Comment $comment, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user) return $this->redirectToRoute('app_login');
+
+        $reason = $request->request->get('reason', 'Inappropriate content');
+        
+        $report = new \App\Entity\Forum\Report();
+        $report->setComment($comment);
+        $report->setReporter($user); 
+        $report->setReason($reason);
+        $report->setCreatedAt(new \DateTimeImmutable());
+
+        $entityManager->persist($report);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Thank you. The comment has been reported to moderators.');
+        return $this->redirectToRoute('app_forum_show', ['id' => $comment->getPost()->getId()]);
+    }
 }

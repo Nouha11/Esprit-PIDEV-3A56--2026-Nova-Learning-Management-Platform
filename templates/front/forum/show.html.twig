@@ -22,40 +22,131 @@
         .left-nav-link:hover, .left-nav-link.active { background-color: var(--nova-hover-bg); }
         .left-nav-section-title { font-size: 11px; font-weight: 700; color: var(--nova-text-muted); text-transform: uppercase; padding: 16px 16px 8px 16px; letter-spacing: 0.5px; }
 
-        /* POST UI HORIZONTAL PILL */
-        .vote-pill { display: inline-flex; align-items: center; background: var(--nova-input-bg); border: 1px solid var(--nova-border); border-radius: 20px; overflow: hidden; }
-        .vote-pill .vote-arrow { padding: 4px 8px; color: var(--nova-text-muted); text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; transition: 0.2s; }
-        .vote-pill .vote-arrow:hover { background: var(--nova-hover-bg); }
-        .vote-pill .vote-arrow.up.active, .vote-pill .vote-arrow.up:hover { color: #ff4500; }
-        .vote-pill .vote-arrow.down.active, .vote-pill .vote-arrow.down:hover { color: #7193ff; }
-        .vote-pill .vote-score { padding: 0 8px; font-weight: 700; font-size: 13px; color: var(--nova-text-main); }
-
-        /* COMMENT VERTICAL SIDEBAR */
-        .vote-sidebar { background-color: transparent; width: 40px; display: flex; flex-direction: column; align-items: center; padding-top: 4px;}
-        .vote-sidebar .vote-arrow { color: var(--nova-text-muted); font-size: 1.3rem; cursor: pointer; border-radius: 4px; padding: 0px; line-height: 1; transition: all 0.2s; text-decoration: none;}
-        .vote-sidebar .vote-arrow:hover { background-color: var(--nova-hover-bg); }
-        .vote-sidebar .vote-arrow.up.active, .vote-sidebar .vote-arrow.up:hover { color: #ff4500; }
-        .vote-sidebar .vote-arrow.down.active, .vote-sidebar .vote-arrow.down:hover { color: #7193ff; }
-        .vote-sidebar .vote-score { font-size: 12px; font-weight: 700; color: var(--nova-text-main); margin: 4px 0; }
+        /* POST VOTE SIDEBAR */
+        .vote-sidebar { background-color: var(--nova-vote-bg); width: 45px; border-right: 1px solid var(--nova-border); display: flex; flex-direction: column; align-items: center; padding-top: 8px; border-top-left-radius: 6px; border-bottom-left-radius: 6px;}
+        .vote-arrow { color: var(--nova-text-muted); font-size: 1.4rem; cursor: pointer; border-radius: 4px; padding: 2px; line-height: 1; transition: all 0.1s; text-decoration: none; }
+        .vote-arrow:hover { background-color: var(--nova-hover-bg); }
+        .vote-arrow.up.active, .vote-arrow.up:hover { color: #ff4500; }
+        .vote-arrow.down.active, .vote-arrow.down:hover { color: #7193ff; }
+        .vote-score { font-size: 13px; font-weight: 700; color: var(--nova-text-main); margin: 4px 0; }
 
         .action-pill { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 4px; color: var(--nova-text-muted); font-size: 13px; font-weight: 600; text-decoration: none; transition: background-color 0.2s; background: transparent; border: none; }
         .action-pill i { font-size: 18px; margin-right: 6px; }
         .action-pill:hover { background-color: var(--nova-hover-bg); color: var(--nova-text-main); }
         .action-pill.saved { color: #eab308; }
 
-        .comment-box { background: var(--nova-card-bg) !important; border-color: var(--nova-border) !important; }
+        .comment-box { background: var(--nova-card-bg) !important; border-color: var(--nova-border) !important; transition: background 0.2s; }
+        .comment-action { color: var(--nova-text-muted); font-size: 12px; font-weight: 600; text-decoration: none; margin-right: 16px; transition: 0.2s; cursor: pointer; background: none; border: none; padding: 0; }
+        .comment-action:hover { color: var(--nova-text-main); }
+        
+        .thread-line { border-left: 2px solid var(--nova-border); margin-left: 20px; padding-left: 15px; margin-top: -10px; }
     </style>
 {% endblock %}
+
+{# --- MACRO FOR RECURSIVE COMMENTS --- #}
+{% macro render_comment(comment, post, app) %}
+    <div class="mb-3 rounded-3 comment-box border p-3 {{ comment.isSolution ? 'border-success' : '' }}" id="comment-{{ comment.id }}">
+        <div class="d-flex">
+            <div class="me-3 text-center d-flex flex-column align-items-center" style="min-width: 40px;">
+                <div class="avatar avatar-sm mb-2">
+                    <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][comment.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; font-size: 13px;">
+                        <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
+                    </div>
+                </div>
+                <div class="d-flex flex-column align-items-center comment-vote-box" data-id="{{ comment.id }}">
+                    <a href="#" class="vote-action text-secondary {{ app.user and comment.isUpvotedBy(app.user) ? 'text-success' : '' }}" data-type="up" style="text-decoration: none;"><i class="bi bi-caret-up-fill fs-5"></i></a>
+                    <span class="fw-bold small score-count my-1 nova-text-main">{{ comment.score }}</span>
+                    <a href="#" class="vote-action text-secondary {{ app.user and comment.isDownvotedBy(app.user) ? 'text-danger' : '' }}" data-type="down" style="text-decoration: none;"><i class="bi bi-caret-down-fill fs-5"></i></a>
+                </div>
+            </div>
+            <div class="w-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 nova-text-main" style="font-size: 14px;">{{ comment.author.username }} {% if comment.author.id == post.author.id %}<span class="badge bg-primary ms-1" style="font-size: 0.6em;">OP</span>{% endif %}</h6>
+                        <small class="nova-text-muted" style="font-size: 11px;">{{ comment.createdAt|date('M d, Y H:i') }}</small>
+                    </div>
+                    <div class="solution-badge {{ comment.isSolution ? '' : 'd-none' }}">
+                        <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Solution</span>
+                    </div>
+                </div>
+                <p class="mt-2 mb-2 nova-text-main" style="white-space: pre-wrap; font-size: 14px;">{{ comment.content }}</p>
+                
+                <div class="d-flex align-items-center mt-2">
+                    {% if not post.isLocked %}
+                        <button class="comment-action" data-bs-toggle="collapse" data-bs-target="#reply-form-{{ comment.id }}"><i class="bi bi-chat-left-text me-1"></i> Reply</button>
+                    {% endif %}
+                    
+                    {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
+                        <button class="comment-action solution-btn {{ comment.isSolution ? 'text-success' : '' }}" data-url="{{ path('app_forum_solution', {'id': comment.id}) }}" data-id="{{ comment.id }}">
+                            <i class="bi bi-check-lg me-1"></i> <span class="btn-text">{{ comment.isSolution ? 'Unmark' : 'Mark Solution' }}</span>
+                        </button>
+                    {% endif %}
+                    
+                    {% if app.user and app.user != comment.author %}
+                        <button class="comment-action ms-auto text-danger opacity-75 hover-opacity-100" data-bs-toggle="modal" data-bs-target="#reportCommentModal-{{ comment.id }}"><i class="bi bi-flag"></i> Report</button>
+                    {% endif %}
+                </div>
+
+                {# INLINE REPLY FORM #}
+                <div class="collapse mt-3" id="reply-form-{{ comment.id }}">
+                    <form action="{{ path('app_forum_comment_reply', {'id': comment.id}) }}" method="POST">
+                        <textarea name="content" class="form-control mb-2" rows="2" placeholder="What are your thoughts?" required style="background: var(--nova-input-bg); border-color: var(--nova-border); color: var(--nova-text-main); font-size: 14px;"></textarea>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-sm btn-light rounded-pill px-3 me-2" data-bs-toggle="collapse" data-bs-target="#reply-form-{{ comment.id }}">Cancel</button>
+                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">Reply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# RENDER NESTED REPLIES #}
+    {% if comment.replies|length > 0 %}
+        <div class="thread-line">
+            {% for reply in comment.replies %}
+                {{ _self.render_comment(reply, post, app) }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {# REPORT COMMENT MODAL #}
+    {% if app.user and app.user != comment.author %}
+    <div class="modal fade" id="reportCommentModal-{{ comment.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--nova-card-bg); color: var(--nova-text-main); border-color: var(--nova-border);">
+                <div class="modal-header border-bottom" style="border-color: var(--nova-border) !important;">
+                    <h5 class="modal-title"><i class="bi bi-flag-fill text-danger me-2"></i>Report Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ path('app_forum_comment_report', {id: comment.id}) }}" method="POST">
+                    <div class="modal-body">
+                        <p class="mb-3 nova-text-muted">Why are you reporting this comment by u/{{ comment.author.username }}?</p>
+                        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="reason" value="Spam or Advertising" required><label class="form-check-label">Spam or Advertising</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="reason" value="Harassment or Hate Speech"><label class="form-check-label">Harassment or Hate Speech</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="reason" value="Inappropriate"><label class="form-check-label">Inappropriate</label></div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+{% endmacro %}
+{# --- END MACRO --- #}
 
 {% block body %}
 <main style="min-height: 100vh; padding-top: 20px; padding-bottom: 40px;">
     <div class="container-fluid px-xl-5">
         <div class="row justify-content-center">
             
-             {# --- 1. LEFT COLUMN: NAVIGATION --- #}
+            {# --- 1. LEFT COLUMN --- #}
             <div class="col-xl-2 col-lg-3 d-none d-lg-block">
                 <div class="sticky-sidebar">
-                    {# --- NEW ENCLOSED CARD DESIGN --- #}
                     <div class="p-3 shadow-sm rounded-4" style="background-color: var(--nova-card-bg); border: 1px solid var(--nova-border);">
                         
                         <div class="left-nav-section-title pt-0">Feeds</div>
@@ -90,9 +181,9 @@
                         {% endfor %}
 
                         <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
-                        <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'guidelines' ? 'active' : '' }}"><i class="bi bi-shield-check"></i> Guidelines</a>
                         <a href="{{ path('app_forum_about') }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'about' ? 'active' : '' }}"><i class="bi bi-info-circle"></i> About NOVA</a>
-
+                        <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'guidelines' ? 'active' : '' }}"><i class="bi bi-shield-check"></i> Guidelines</a>
+                        
                     </div>
                 </div>
             </div>
@@ -100,36 +191,41 @@
             {# --- 2. MIDDLE COLUMN: POST DETAILS --- #}
             <div class="col-xl-7 col-lg-6 col-md-12">
                 
-                <div class="nova-card mb-4 shadow-sm pb-2">
-                    <div class="card-header border-bottom p-3" style="background: transparent; border-color: var(--nova-border) !important;">
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb breadcrumb-dots mb-2">
-                                <li class="breadcrumb-item"><a href="{{ path('app_forum') }}" class="nova-text-muted">Forum</a></li>
-                                {% if post.space %}
-                                    <li class="breadcrumb-item"><a href="{{ path('app_forum_space', {'id': post.space.id}) }}" class="nova-text-muted">{{ post.space.name }}</a></li>
-                                {% endif %}
-                            </ol>
-                        </nav>
-                        <h1 class="h4 mb-0 nova-text-main fw-bold">
+                <div class="nova-card mb-4 shadow-sm d-flex">
+                    <div class="vote-sidebar post-vote-box" data-id="{{ post.id }}">
+                        {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
+                        {% set is_downvoted = app.user and post.isDownvotedBy(app.user) %}
+                        <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-type="up" onclick="event.stopPropagation();">
+                            <i class="bi bi-arrow-up-short"></i>
+                        </a>
+                        <span class="vote-score post-score-count">{{ post.upvotes }}</span>
+                        <a href="#" class="vote-arrow down {{ is_downvoted ? 'active' : '' }}" data-type="down" onclick="event.stopPropagation();">
+                            <i class="bi bi-arrow-down-short"></i>
+                        </a>
+                    </div>
+
+                    <div class="p-3 p-md-4 w-100">
+                        <div class="d-flex align-items-center mb-2">
+                            {% if post.space %}
+                                {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
+                                {% set color = colors[post.space.id % colors|length] %}
+                                <a href="{{ path('app_forum_space', {'id': post.space.id}) }}" class="fw-bold text-decoration-none me-2 d-flex align-items-center nova-text-main" style="font-size: 13px;">
+                                    <div class="rounded-circle me-1" style="width: 14px; height: 14px; background-color: {{ color }};"></div>
+                                    NOVA/{{ post.space.name }}
+                                </a>
+                                <span class="nova-text-muted me-2">•</span>
+                            {% endif %}
+                            <span class="nova-text-muted small">Posted by <a href="#" class="nova-text-muted text-decoration-none fw-bold">u/{{ post.author.username }}</a></span>
+                            <span class="nova-text-muted mx-1 small">•</span>
+                            <span class="nova-text-muted small">{{ post.createdAt|date('F d, Y') }}</span>
+                        </div>
+
+                        <h1 class="h4 mb-3 nova-text-main fw-bold">
                             {{ post.title }}
                             {% if post.isLocked %}
                                 <span class="badge bg-danger ms-2" style="font-size: 0.5em; vertical-align: middle;"><i class="bi bi-lock-fill me-1"></i>Locked</span>
                             {% endif %}
                         </h1>
-                    </div>
-
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="avatar avatar-md me-3">
-                                <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][post.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 16px;">
-                                    <span class="fw-bold">{{ post.author.username|slice(0, 2)|upper }}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 nova-text-main">{{ post.author.username }}</h6>
-                                <small class="nova-text-muted">{{ post.createdAt|date('F d, Y') }}</small>
-                            </div>
-                        </div>
 
                         <p class="mb-4 nova-text-main" style="white-space: pre-wrap; font-size: 15px;">{{ post.content }}</p>
 
@@ -139,7 +235,6 @@
                             </div>
                         {% endif %}
 
-                        {# --- FILE ATTACHMENT CARD --- #}
                         {% if post.attachmentName %}
                             <div class="mb-4 p-3 rounded-3 border d-flex align-items-center" style="background: var(--nova-input-bg); border-color: var(--nova-border) !important;">
                                 <div class="bg-primary bg-opacity-10 text-primary rounded d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
@@ -189,7 +284,6 @@
                             {% endif %}
                         {% endif %}
 
-                        {# --- REDESIGNED AI SUMMARY INLINE WIDGET --- #}
                         <div class="d-flex justify-content-between align-items-center p-3 mb-4 rounded-3" style="background: rgba(111, 66, 193, 0.05); border: 1px solid rgba(111, 66, 193, 0.2);">
                             <div class="d-flex align-items-center">
                                 <i class="bi bi-stars fs-4 me-3" style="color: #6f42c1;"></i>
@@ -203,20 +297,9 @@
                             </button>
                         </div>
 
-                        {# --- REDESIGNED ACTION FOOTER --- #}
                         <div class="d-flex flex-wrap gap-2 align-items-center mt-2 pt-3 border-top" style="border-color: var(--nova-border) !important;">
-                            
-                            {# THE VOTE PILL #}
-                            <div class="vote-pill vote-container me-2">
-                                {% set is_upvoted = app.user and post.isUpvotedBy(app.user) %}
-                                {% set is_downvoted = app.user and post.isDownvotedBy(app.user) %}
-                                <a href="#" class="vote-arrow up {{ is_upvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'up'}) }}"><i class="bi bi-arrow-up-short"></i></a>
-                                <span class="vote-score">{{ post.upvotes }}</span>
-                                <a href="#" class="vote-arrow down {{ is_downvoted ? 'active' : '' }}" data-url="{{ path('app_forum_post_vote', {'id': post.id, 'type': 'down'}) }}"><i class="bi bi-arrow-down-short"></i></a>
-                            </div>
-                            
                             <a href="#replyForm" class="action-pill"><i class="bi bi-chat-square"></i> {{ post.comments|length }} Comments</a>
-                            <button class="action-pill share-btn" data-url="{{ url('app_forum_show', {'id': post.id}) }}"><i class="bi bi-share"></i> Share</button>
+                            <button class="action-pill share-btn ms-2" data-url="{{ url('app_forum_show', {'id': post.id}) }}"><i class="bi bi-share"></i> Share</button>
                             
                             {% if app.user and app.user.hasBookmarkedPost(post) %}
                                 <button class="action-pill saved bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}"><i class="bi bi-bookmark-fill"></i> Saved</button>
@@ -226,7 +309,7 @@
                             
                             <div class="ms-auto d-flex align-items-center">
                                 {% if app.user and app.user != post.author %}
-                                    <button class="action-pill" data-bs-toggle="modal" data-bs-target="#reportModal-{{ post.id }}"><i class="bi bi-flag"></i> Report</button>
+                                    <button class="action-pill" data-bs-toggle="modal" data-bs-target="#reportPostModal"><i class="bi bi-flag"></i> Report</button>
                                 {% endif %}
                                 {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
                                     <div class="dropdown">
@@ -255,39 +338,10 @@
                     </div>
                     <div class="card-body">
                         {% for comment in post.comments %}
-                            <div class="d-flex mb-4 p-3 rounded-3 comment-box border {{ comment.isSolution ? 'border-success' : '' }}" id="comment-{{ comment.id }}">
-                                <div class="me-3 text-center d-flex flex-column align-items-center" style="min-width: 50px;">
-                                    <div class="avatar avatar-sm mb-2">
-                                        <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][comment.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
-                                            <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="vote-sidebar vote-container">
-                                        <a href="#" class="vote-arrow up {{ app.user and comment.isUpvotedBy(app.user) ? 'active' : '' }}" data-url="{{ path('app_forum_comment_vote', {'id': comment.id, 'type': 'up'}) }}"><i class="bi bi-arrow-up-short"></i></a>
-                                        <span class="vote-score">{{ comment.score }}</span>
-                                        <a href="#" class="vote-arrow down {{ app.user and comment.isDownvotedBy(app.user) ? 'active' : '' }}" data-url="{{ path('app_forum_comment_vote', {'id': comment.id, 'type': 'down'}) }}"><i class="bi bi-arrow-down-short"></i></a>
-                                    </div>
-                                </div>
-                                <div class="w-100">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="mb-0 nova-text-main">{{ comment.author.username }} {% if comment.author.id == post.author.id %}<span class="badge bg-secondary ms-1" style="font-size: 0.6em;">AUTHOR</span>{% endif %}</h6>
-                                            <small class="nova-text-muted">{{ comment.createdAt|date('M d, Y H:i') }}</small>
-                                        </div>
-                                        <div class="solution-badge {{ comment.isSolution ? '' : 'd-none' }}">
-                                            <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Solution</span>
-                                        </div>
-                                    </div>
-                                    <p class="mt-2 mb-2 nova-text-main" style="white-space: pre-wrap;">{{ comment.content }}</p>
-                                    {% if app.user and (app.user.id == post.author.id or is_granted('ROLE_ADMIN')) %}
-                                        <div class="d-flex justify-content-end mt-2 pt-2 border-top" style="border-color: var(--nova-border) !important;">
-                                            <button class="btn btn-sm solution-btn {{ comment.isSolution ? 'btn-outline-success active' : 'btn-outline-secondary' }}" data-url="{{ path('app_forum_solution', {'id': comment.id}) }}" data-id="{{ comment.id }}">
-                                                <i class="bi bi-check-lg"></i> <span class="btn-text">{{ comment.isSolution ? 'Unmark Solution' : 'Mark as Solution' }}</span>
-                                            </button>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
+                            {# ONLY RENDER TOP LEVEL COMMENTS HERE. MACRO HANDLES CHILDREN #}
+                            {% if comment.parent is null %}
+                                {{ _self.render_comment(comment, post, app) }}
+                            {% endif %}
                         {% else %}
                             <div class="text-center py-4">
                                 <i class="bi bi-chat-square-dots display-6 text-secondary mb-3"></i>
@@ -313,7 +367,7 @@
                         <div class="card-body p-4">
                             {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                                 <div class="mb-3">
-                                    {{ form_widget(form.content, {'attr': {'class': 'form-control nova-text-main', 'rows': '4', 'placeholder': 'Type your answer here...', 'style': 'background: var(--nova-input-bg); border-color: var(--nova-border);'}}) }}
+                                    {{ form_widget(form.content, {'attr': {'class': 'form-control nova-text-main', 'rows': '4', 'placeholder': 'Add a top-level reply...', 'style': 'background: var(--nova-input-bg); border-color: var(--nova-border);'}}) }}
                                     <div class="form-text text-danger">{{ form_errors(form.content) }}</div>
                                 </div>
                                 <div class="text-end">
@@ -339,20 +393,6 @@
                             </ul>
                         </div>
                     </div>
-
-                    <div class="nova-card shadow-sm">
-                        <div class="card-header border-bottom p-3" style="background: transparent; border-color: var(--nova-border) !important;">
-                            <h3 class="mb-0 h6 fw-bold nova-text-main">Forum Rules</h3>
-                        </div>
-                        <div class="card-body p-3">
-                            <ul class="list-unstyled nova-text-muted mb-0 small">
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Be respectful to others</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>No spamming</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Stay on topic</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Provide helpful answers</li>
-                            </ul>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -360,9 +400,9 @@
     </div>
 </main>
 
-{# --- REPORT MODAL --- #}
+{# --- REPORT POST MODAL --- #}
 {% if app.user and app.user != post.author %}
-<div class="modal fade" id="reportModal-{{ post.id }}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="reportPostModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background-color: var(--nova-card-bg); color: var(--nova-text-main); border-color: var(--nova-border);">
             <div class="modal-header border-bottom" style="border-color: var(--nova-border) !important;">
@@ -388,29 +428,25 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // ROBUST VOTE LOGIC (Handles both Vertical Sidebar and Horizontal Pill)
-        document.querySelectorAll('.vote-arrow').forEach(arrow => {
+        // Post Upvote/Downvote
+        document.querySelectorAll('.post-vote-box .vote-arrow').forEach(arrow => {
             arrow.addEventListener('click', function(e) {
                 e.preventDefault(); e.stopPropagation();
-                const url = this.dataset.url;
-                if(!url) return;
-                
-                const container = this.closest('.vote-container');
-                const scoreDisplay = container.querySelector('.vote-score');
-                
-                fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                const type = this.dataset.type;
+                const container = this.closest('.post-vote-box');
+                const scoreDisplay = container.querySelector('.post-score-count');
+                fetch(`/forum/post/${container.dataset.id}/vote/${type}`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(async r => {
-                    if (r.status === 403) { alert('You must be logged in to vote.'); throw new Error('Auth'); }
-                    if (!r.ok) { alert('Database error. Did you run the migration for downvoters?'); throw new Error('Server'); }
+                    if (r.status === 403) { alert('You must be logged in.'); throw new Error('Auth'); }
                     return r.json();
                 }).then(data => {
                     if(data.error) return alert(data.error);
-                    if(scoreDisplay) scoreDisplay.textContent = data.score ?? data.upvotes;
-                    
-                    const upBtn = container.querySelector('.vote-arrow.up');
-                    const downBtn = container.querySelector('.vote-arrow.down');
-                    if(upBtn) { upBtn.classList.remove('active'); if(data.upvoted) upBtn.classList.add('active'); }
-                    if(downBtn) { downBtn.classList.remove('active'); if(data.downvoted) downBtn.classList.add('active'); }
+                    scoreDisplay.textContent = data.score;
+                    const upBtn = container.querySelector('[data-type="up"]');
+                    const downBtn = container.querySelector('[data-type="down"]');
+                    upBtn.classList.remove('active'); downBtn.classList.remove('active');
+                    if(data.upvoted) upBtn.classList.add('active');
+                    if(data.downvoted) downBtn.classList.add('active');
                 }).catch(err => {});
             });
         });
@@ -431,7 +467,7 @@
             });
         });
 
-        // Share Button
+        // Share
         document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault(); e.stopPropagation();
@@ -444,7 +480,7 @@
             });
         });
 
-        // Mark Solution
+        // Solution Mark
         document.querySelectorAll('.solution-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault(); 
@@ -452,10 +488,25 @@
                 const container = document.getElementById('comment-' + this.dataset.id);
                 fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(r => r.json()).then(data => {
-                    document.querySelectorAll('.solution-btn').forEach(b => { b.classList.replace('btn-outline-success', 'btn-outline-secondary'); b.classList.remove('active'); b.querySelector('.btn-text').textContent = 'Mark as Solution'; });
+                    document.querySelectorAll('.solution-btn').forEach(b => { b.classList.replace('text-success', 'text-muted'); b.querySelector('.btn-text').textContent = 'Mark Solution'; });
                     document.querySelectorAll('.solution-badge').forEach(b => b.classList.add('d-none'));
                     document.querySelectorAll('[id^="comment-"]').forEach(c => c.classList.remove('border-success'));
-                    if (data.isSolution) { container.classList.add('border-success'); container.querySelector('.solution-badge').classList.remove('d-none'); this.classList.replace('btn-outline-secondary', 'btn-outline-success'); this.classList.add('active'); this.querySelector('.btn-text').textContent = 'Unmark Solution'; }
+                    if (data.isSolution) { container.classList.add('border-success'); container.querySelector('.solution-badge').classList.remove('d-none'); this.classList.replace('text-muted', 'text-success'); this.querySelector('.btn-text').textContent = 'Unmark'; }
+                });
+            });
+        });
+
+        // Comment Votes
+        document.querySelectorAll('.vote-action').forEach(action => {
+            action.addEventListener('click', function(e) {
+                e.preventDefault(); const cId = this.closest('.comment-vote-box').dataset.id; const type = this.dataset.type;
+                fetch(`/forum/comment/${cId}/vote/${type}`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json()).then(data => {
+                    const box = this.closest('.comment-vote-box'); box.querySelector('.score-count').textContent = data.score;
+                    const u = box.querySelector('[data-type="up"]'); const d = box.querySelector('[data-type="down"]');
+                    u.classList.replace('text-success', 'text-secondary'); d.classList.replace('text-danger', 'text-secondary');
+                    if (data.upvoted) u.classList.replace('text-secondary', 'text-success');
+                    if (data.downvoted) d.classList.replace('text-secondary', 'text-danger');
                 });
             });
         });

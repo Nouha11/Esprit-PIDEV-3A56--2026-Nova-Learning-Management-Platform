@@ -4,8 +4,8 @@ namespace App\Entity\Forum;
 
 use App\Entity\users\User;
 use App\Repository\Forum\CommentRepository;
-use Doctrine\Common\Collections\ArrayCollection; // <--- NEEDED
-use Doctrine\Common\Collections\Collection;      // <--- NEEDED
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert; 
@@ -37,7 +37,7 @@ class Comment
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
-    // --- NEW VOTING FIELDS ---
+    // --- VOTING FIELDS ---
     #[ORM\ManyToMany(targetEntity: User::class)]
     #[ORM\JoinTable(name: 'comment_upvoters')]
     private Collection $upvoters;
@@ -46,10 +46,19 @@ class Comment
     #[ORM\JoinTable(name: 'comment_downvoters')]
     private Collection $downvoters;
 
+    // --- NEW: NESTED REPLIES (THREADS) ---
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'replies')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    private ?self $parent = null;
+
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent')]
+    private Collection $replies;
+
     public function __construct()
     {
         $this->upvoters = new ArrayCollection();
         $this->downvoters = new ArrayCollection();
+        $this->replies = new ArrayCollection(); // Initialize the replies collection
     }
 
     // --- LOGIC METHODS (For Twig & Controller) ---
@@ -172,6 +181,45 @@ class Comment
     public function removeDownvoter(User $downvoter): static
     {
         $this->downvoters->removeElement($downvoter);
+        return $this;
+    }
+
+    // --- NEW: PARENT / REPLY GETTERS AND SETTERS ---
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): static
+    {
+        $this->parent = $parent;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getReplies(): Collection
+    {
+        return $this->replies;
+    }
+
+    public function addReply(self $reply): static
+    {
+        if (!$this->replies->contains($reply)) {
+            $this->replies->add($reply);
+            $reply->setParent($this);
+        }
+        return $this;
+    }
+
+    public function removeReply(self $reply): static
+    {
+        if ($this->replies->removeElement($reply)) {
+            if ($reply->getParent() === $this) {
+                $reply->setParent(null);
+            }
+        }
         return $this;
     }
 }

@@ -20,9 +20,15 @@ class Report
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    // CHANGED: nullable is now true (A report can be for a post OR a comment)
     #[ORM\ManyToOne(inversedBy: 'reports')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Post $post = null;
+
+    // NEW: Allow reports on comments
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?Comment $comment = null;
 
     #[ORM\ManyToOne(inversedBy: 'reports')]
     #[ORM\JoinColumn(nullable: false)]
@@ -41,7 +47,6 @@ class Report
     public function setReason(string $reason): static
     {
         $this->reason = $reason;
-
         return $this;
     }
 
@@ -53,7 +58,6 @@ class Report
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -65,7 +69,17 @@ class Report
     public function setPost(?Post $post): static
     {
         $this->post = $post;
+        return $this;
+    }
 
+    public function getComment(): ?Comment
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?Comment $comment): static
+    {
+        $this->comment = $comment;
         return $this;
     }
 
@@ -77,7 +91,6 @@ class Report
     public function setReporter(?User $reporter): static
     {
         $this->reporter = $reporter;
-
         return $this;
     }
 }
