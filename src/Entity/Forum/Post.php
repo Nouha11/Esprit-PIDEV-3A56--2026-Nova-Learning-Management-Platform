@@ -76,6 +76,9 @@ class Post
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $link = null;
+
+    #[ORM\ManyToOne(inversedBy: 'posts')]
+    private ?Space $space = null;
     // ==========================================
 
     public function __construct()
@@ -295,6 +298,18 @@ class Post
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function getSpace(): ?Space
+    {
+        return $this->space;
+    }
+
+    public function setSpace(?Space $space): static
+    {
+        $this->space = $space;
+
         return $this;
     }
 }
