@@ -123,7 +123,7 @@ class StudyBuddyController extends AbstractController
             'avgSessionDuration' => $avgSessionDuration,
             'completedSessions' => $completedSessions,
             'courses' => array_map(fn($c) => [
-                'name' => $c->getName(),
+                'name' => $c->getCourseName(),
                 'description' => $c->getDescription()
             ], $courses),
             'recentSessions' => array_map(fn($s) => [
