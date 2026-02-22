@@ -110,10 +110,11 @@ class ForumController extends AbstractController
                 $qb->orderBy('p.createdAt', 'DESC');
             } elseif ($sortBy === 'top') {
                 $qb->orderBy('p.upvotes', 'DESC');
-            } else {
-                // 'hot': Prioritize score, use date as tie-breaker to keep feed fresh
-                $qb->orderBy('p.upvotes', 'DESC')->addOrderBy('p.createdAt', 'DESC');
+          } else {
+                // THE TRUE REDDIT HOTNESS SORT!
+                $qb->orderBy('p.hotScore', 'DESC');
             }
+
             $query = $qb->getQuery();
         }
 
@@ -526,9 +527,9 @@ class ForumController extends AbstractController
         } elseif ($sortBy === 'top') {
             $qb->orderBy('p.upvotes', 'DESC');
         } else {
-            $qb->orderBy('p.upvotes', 'DESC')
-               ->addOrderBy('p.createdAt', 'DESC');
-        }
+                // THE TRUE REDDIT HOTNESS SORT!
+                $qb->orderBy('p.hotScore', 'DESC');
+            }
 
         $posts = $paginator->paginate($qb->getQuery(), $request->query->getInt('page', 1), 5);
 
@@ -560,4 +561,6 @@ class ForumController extends AbstractController
             return $this->json(['error' => 'AI is currently resting. Please try again.'], 500);
         }
     }
+
+    
 }

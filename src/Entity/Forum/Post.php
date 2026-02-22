@@ -86,6 +86,9 @@ class Post
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $attachmentName = null;
 
+    #[ORM\Column(type: Types::FLOAT)]
+    private float $hotScore = 0.0;
+
     #[Vich\UploadableField(mapping: 'forum_attachments', fileNameProperty: 'attachmentName')]
     private ?File $attachmentFile = null;
 
@@ -106,8 +109,15 @@ class Post
     public function getUpvotes(): ?int { return $this->upvotes; }
     public function setUpvotes(int $upvotes): static { $this->upvotes = $upvotes; return $this; }
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static { $this->createdAt = $createdAt; return $this; }
-    public function getAuthor(): ?User { return $this->author; }
+    
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        $this->updateHotScore(); // Calculate initial hotness
+        return $this;
+    }    public function getAuthor(): ?User { return $this->author; }
+
+
     public function setAuthor(?User $author): static { $this->author = $author; return $this; }
 
     public function getComments(): Collection { return $this->comments; }
@@ -137,16 +147,20 @@ class Post
         if (!$this->upvoters->contains($upvoter)) {
             $this->upvoters->add($upvoter);
             $this->upvotes++; 
+            $this->updateHotScore(); // Recalibrate!
         }
         return $this;
     }
-    public function removeUpvoter(User $upvoter): static
+
+   public function removeUpvoter(User $upvoter): static
     {
         if ($this->upvoters->removeElement($upvoter)) {
             $this->upvotes--; 
+            $this->updateHotScore(); // Recalibrate!
         }
         return $this;
     }
+
     public function isUpvotedBy(User $user): bool { return $this->upvoters->contains($user); }
 
     // --- DOWNVOTER METHODS ---
@@ -156,13 +170,15 @@ class Post
         if (!$this->downvoters->contains($downvoter)) {
             $this->downvoters->add($downvoter);
             $this->upvotes--; 
+            $this->updateHotScore(); // Recalibrate!
         }
         return $this;
     }
-    public function removeDownvoter(User $downvoter): static
+   public function removeDownvoter(User $downvoter): static
     {
         if ($this->downvoters->removeElement($downvoter)) {
             $this->upvotes++; 
+            $this->updateHotScore(); // Recalibrate!
         }
         return $this;
     }
@@ -205,4 +221,33 @@ class Post
         $this->attachmentFile = $attachmentFile;
         if (null !== $attachmentFile && property_exists($this, 'updatedAt')) { $this->updatedAt = new \DateTimeImmutable(); }
     }
+
+    public function getHotScore(): float
+    {
+        return $this->hotScore;
+    }
+
+    public function setHotScore(float $hotScore): static
+    {
+        $this->hotScore = $hotScore;
+        return $this;
+    }
+
+    public function updateHotScore(): void
+    {
+        $score = $this->upvotes; // Note: upvotes represents the Net Score (Up - Down)
+        
+        // 1. Logarithmic scale for votes
+        $order = log10(max(abs($score), 1));
+        
+        // 2. Sign (1 for positive, -1 for negative, 0 for zero)
+        $sign = $score > 0 ? 1 : ($score < 0 ? -1 : 0);
+        
+        // 3. Seconds since epoch (Use post creation time, or current time if brand new)
+        $seconds = $this->createdAt ? $this->createdAt->getTimestamp() : time();
+        
+        // 4. Reddit Formula (45000 seconds = 12.5 hours)
+        $this->hotScore = round($order + ($sign * $seconds) / 45000, 7);
+    }
+
 }
