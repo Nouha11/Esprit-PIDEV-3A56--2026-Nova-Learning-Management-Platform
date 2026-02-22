@@ -215,6 +215,8 @@
                             <th>Started At</th>
                             <th>Duration (min)</th>
                             <th>XP Earned</th>
+                            <th>Notes</th>
+                            <th>Tags</th>
                             <th>Mood</th>
                             <th>Energy</th>
                             <th>Burnout Risk</th>
@@ -231,6 +233,31 @@
                                 <td>{{ session.startedAt|date('Y-m-d H:i') }}</td>
                                 <td>{{ session.duration }}</td>
                                 <td>{{ session.xpEarned ?? 0 }}</td>
+                                <td>
+                                    {% if session.notes|length > 0 %}
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#notesModal{{ session.id }}"
+                                                title="View {{ session.notes|length }} note(s)">
+                                            <i class="fas fa-sticky-note"></i> {{ session.notes|length }}
+                                        </button>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if session.tags|length > 0 %}
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for tag in session.tags %}
+                                                <span class="badge bg-info" title="{{ tag.name }}">
+                                                    <i class="fas fa-tag"></i> {{ tag.name }}
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if session.mood %}
                                         {% if session.mood == 'positive' %}
@@ -281,7 +308,7 @@
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="11" class="text-center">No study sessions found</td>
+                                <td colspan="13" class="text-center">No study sessions found</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -289,4 +316,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Notes Modals -->
+    {% for session in study_sessions %}
+        {% if session.notes|length > 0 %}
+            <div class="modal fade" id="notesModal{{ session.id }}" tabindex="-1" aria-labelledby="notesModalLabel{{ session.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="notesModalLabel{{ session.id }}">
+                                <i class="fas fa-sticky-note"></i> Notes for Session #{{ session.id }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <strong>Session:</strong> {{ session.planning.title }}<br>
+                                <strong>User:</strong> {{ session.user.email }}<br>
+                                <strong>Date:</strong> {{ session.startedAt|date('Y-m-d H:i') }}
+                            </div>
+                            <hr>
+                            {% for note in session.notes %}
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-file-alt text-primary"></i> Note #{{ note.id }}
+                                        </h6>
+                                        <p class="card-text">{{ note.content }}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i> Created: {{ note.createdAt|date('Y-m-d H:i:s') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
 {% endblock %}

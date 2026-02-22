@@ -173,4 +173,56 @@ class CourseSessionController extends AbstractController
 
         return $this->redirectToRoute('course_index');
     }
+
+    /**
+     * Download a course resource (PDF)
+     */
+    #[Route('/{courseId}/resource/{resourceId}/download', name: 'course_resource_download', methods: ['GET'])]
+    public function downloadResource(int $courseId, int $resourceId): Response
+    {
+        $user = $this->getUser();
+        
+        // Load course entity
+        $course = $this->courseRepository->find($courseId);
+        if (!$course) {
+            throw $this->createNotFoundException('Course not found');
+        }
+
+        // Verify user is enrolled
+        if (!$this->enrollmentService->isEnrolled($user, $course)) {
+            $this->addFlash('error', 'You must be enrolled in this course to download resources.');
+            return $this->redirectToRoute('course_index');
+        }
+
+        // Find the resource
+        $resource = null;
+        foreach ($course->getResources() as $res) {
+            if ($res->getId() === $resourceId) {
+                $resource = $res;
+                break;
+            }
+        }
+
+        if (!$resource) {
+            throw $this->createNotFoundException('Resource not found for this course');
+        }
+
+        // Get file path
+        $filePath = $this->courseResourceService->getResourcePath($resource);
+        
+        if (!file_exists($filePath)) {
+            $this->addFlash('error', 'Resource file not found.');
+            return $this->redirectToRoute('course_session_view', ['courseId' => $courseId]);
+        }
+
+        // Serve the PDF with correct headers
+        $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($filePath);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->setContentDisposition(
+            \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $resource->getFilename()
+        );
+
+        return $response;
+    }
 }

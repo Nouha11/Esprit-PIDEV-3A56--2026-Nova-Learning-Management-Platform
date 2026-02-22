@@ -450,19 +450,26 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({ question: message })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error('Server ' + response.status + ': ' + text.substring(0, 200));
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             hideTyping();
             if (data.success) {
                 addMessage(data.message, 'study');
             } else {
-                addMessage(data.message || 'Sorry, something went wrong.', 'study');
+                addMessage('Error: ' + (data.message || 'Unknown error'), 'study');
             }
         })
         .catch(error => {
             hideTyping();
-            addMessage('Sorry, I couldn\'t process your request. Please try again.', 'study');
             console.error('Chat error:', error);
+            addMessage('Error: ' + error.message, 'study');
         });
     }
 
