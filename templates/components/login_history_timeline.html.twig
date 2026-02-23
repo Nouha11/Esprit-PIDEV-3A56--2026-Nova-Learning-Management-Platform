@@ -64,7 +64,7 @@
                                         <i class="bi bi-geo-alt"></i>
                                         <strong>IP:</strong> {{ login.ipAddress }}
                                         {% if login.location %}
-                                            <span class="badge bg-light text-dark ms-1">{{ login.location }}</span>
+                                            <span class="badge bg-body-secondary text-body ms-1">{{ login.location }}</span>
                                         {% endif %}
                                     </div>
                                 {% endif %}
@@ -122,7 +122,7 @@
     top: 0;
     bottom: 0;
     width: 2px;
-    background: linear-gradient(to bottom, #e9ecef 0%, #e9ecef 100%);
+    background: var(--bs-border-color);
 }
 
 .timeline-item {
@@ -136,7 +136,7 @@
     top: 8px;
     width: 24px;
     height: 24px;
-    background: white;
+    background: var(--bs-body-bg);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -178,16 +178,20 @@
     font-size: 0.875rem;
 }
 
-/* Dark mode support */
-[data-bs-theme="dark"] .timeline::before {
-    background: linear-gradient(to bottom, #495057 0%, #495057 100%);
+/* Dark mode enhancements */
+[data-bs-theme="dark"] .bg-success-soft {
+    background-color: rgba(25, 135, 84, 0.2);
 }
 
-[data-bs-theme="dark"] .timeline-marker {
-    background: var(--bs-dark);
+[data-bs-theme="dark"] .bg-danger-soft {
+    background-color: rgba(220, 53, 69, 0.2);
 }
 
-[data-bs-theme="dark"] .timeline-content {
-    background: var(--bs-dark);
+[data-bs-theme="dark"] .bg-warning-soft {
+    background-color: rgba(255, 193, 7, 0.2);
+}
+
+[data-bs-theme="dark"] .bg-primary-soft {
+    background-color: rgba(13, 110, 253, 0.2);
 }
 </style>

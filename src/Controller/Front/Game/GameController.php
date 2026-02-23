@@ -601,6 +601,8 @@ class GameController extends AbstractController
         // Store level milestone data in session for celebration modal
         if (!empty($levelRewards)) {
             $session->set('milestone_unlocked', $levelRewards);
+            // Also add a flash message as backup
+            $this->addFlash('info', 'Milestone unlocked! Check your achievements.');
         }
 
         // Log activity
