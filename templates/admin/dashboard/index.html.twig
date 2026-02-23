@@ -269,49 +269,4 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <a href="{{ path('admin_game_index') }}" class="btn btn-primary btn-block">
-                            <i class="fas fa-gamepad mr-2"></i>Manage Games
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <a href="{{ path('admin_reward_index') }}" class="btn btn-success btn-block">
-                            <i class="fas fa-trophy mr-2"></i>Manage Rewards
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <a href="{{ path('app_admin_users_list') }}" class="btn btn-info btn-block">
-                            <i class="fas fa-users mr-2"></i>Manage Users
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <a href="{{ path('app_admin_students_list') }}" class="btn btn-warning btn-block">
-                            <i class="fas fa-user-graduate mr-2"></i>View Students
-                        </a>
-                    </div>
-
-                    <div class="col-md-3 mb-3">
-                        <a href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}" class="btn btn-secondary btn-block">
-                            <i class="fas fa-question-circle mr-2"></i>Manage Quizzes
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <a href="{{ path('app_admin_forum_index') }}" class="btn btn-danger btn-block">
-                            <i class="fas fa-comments mr-2"></i>Moderate Forum
-                        </a>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}

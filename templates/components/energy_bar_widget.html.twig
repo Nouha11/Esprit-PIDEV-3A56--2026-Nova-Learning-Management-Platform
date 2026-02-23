@@ -15,11 +15,6 @@
             <span class="badge energy-badge">
                 <span id="energy-value">{{ currentEnergy }}</span>/100
             </span>
-            {% if currentEnergy < 100 and timeUntilRefill > 0 %}
-            <span class="badge bg-info" id="refill-timer" data-seconds="{{ timeUntilRefill }}">
-                <i class="bi bi-clock"></i> <span id="refill-countdown">{{ (timeUntilRefill / 60)|number_format(0) }}m</span>
-            </span>
-            {% endif %}
         </div>
     </div>
     {% endif %}
@@ -37,15 +32,36 @@
         </div>
     </div>
     
-    {% if currentEnergy <= 20 %}
+    <!-- Energy Regeneration Info -->
+    <div class="energy-regen-info mt-2" id="energy-regen-info">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2" id="regen-status">
+                {% if currentEnergy >= 100 %}
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <small class="text-success"><strong>Energy Full!</strong> Ready to study</small>
+                {% else %}
+                    <i class="bi bi-arrow-clockwise text-success"></i>
+                    <small class="text-muted">Regenerating: <strong class="text-success">+1 energy</strong> every 5 minutes</small>
+                {% endif %}
+            </div>
+            {% if timeUntilRefill > 0 and currentEnergy < 100 %}
+            <div class="refill-timer-display" id="refill-timer" data-seconds="{{ timeUntilRefill }}">
+                <i class="bi bi-clock-fill text-info"></i>
+                <span class="fw-bold text-info" id="refill-countdown">{{ (timeUntilRefill / 60)|number_format(0) }}m</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if currentEnergy <= 20 and currentEnergy > 0 %}
     <div class="alert alert-warning alert-sm mt-2 mb-0 py-2 px-3">
         <i class="bi bi-exclamation-triangle-fill me-1"></i>
-        <small>Low energy! Play a mini game to restore it.</small>
+        <small>Low energy! Play a mini game to restore it faster.</small>
     </div>
     {% elseif currentEnergy <= 0 %}
     <div class="alert alert-danger alert-sm mt-2 mb-0 py-2 px-3">
         <i class="bi bi-battery-charging me-1"></i>
-        <small>Energy depleted! Take a break or play a mini game.</small>
+        <small>Energy depleted! Play mini games or wait for regeneration.</small>
     </div>
     {% endif %}
 </div>
@@ -214,6 +230,49 @@
     font-size: 0.875rem;
 }
 
+/* Energy regeneration info */
+.energy-regen-info {
+    padding: 0.5rem;
+    background: rgba(var(--bs-success-rgb), 0.1);
+    border-radius: 0.375rem;
+    border: 1px solid rgba(var(--bs-success-rgb), 0.2);
+}
+
+[data-bs-theme="dark"] .energy-regen-info {
+    background: rgba(var(--bs-success-rgb), 0.15);
+    border-color: rgba(var(--bs-success-rgb), 0.3);
+}
+
+.refill-timer-display {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(var(--bs-info-rgb), 0.1);
+    border-radius: 1rem;
+    border: 1px solid rgba(var(--bs-info-rgb), 0.3);
+}
+
+[data-bs-theme="dark"] .refill-timer-display {
+    background: rgba(var(--bs-info-rgb), 0.2);
+    border-color: rgba(var(--bs-info-rgb), 0.4);
+}
+
+.refill-timer-display i {
+    animation: pulse-clock 2s ease-in-out infinite;
+}
+
+@keyframes pulse-clock {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
 /* Animation for energy restoration */
 @keyframes energy-restore {
     0% {
@@ -236,6 +295,15 @@
     .energy-bar-text {
         font-size: 0.75rem;
     }
+    
+    .energy-regen-info {
+        font-size: 0.75rem;
+    }
+    
+    .refill-timer-display {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.75rem;
+    }
 }
 </style>
 
@@ -247,6 +315,7 @@ window.updateEnergyBar = function(newEnergy) {
     const energyValue = document.getElementById('energy-value');
     const energyPercentage = document.getElementById('energy-percentage');
     const container = energyBar?.closest('.energy-bar-container');
+    const regenStatus = document.getElementById('regen-status');
     
     if (!energyBar || !energyFill) return;
     
@@ -262,6 +331,21 @@ window.updateEnergyBar = function(newEnergy) {
     // Update text values
     if (energyValue) energyValue.textContent = newEnergy;
     if (energyPercentage) energyPercentage.textContent = newEnergy + '%';
+    
+    // Update regeneration status text
+    if (regenStatus) {
+        if (newEnergy >= 100) {
+            regenStatus.innerHTML = `
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <small class="text-success"><strong>Energy Full!</strong> Ready to study</small>
+            `;
+        } else {
+            regenStatus.innerHTML = `
+                <i class="bi bi-arrow-clockwise text-success"></i>
+                <small class="text-muted">Regenerating: <strong class="text-success">+1 energy</strong> every 5 minutes</small>
+            `;
+        }
+    }
     
     // Add restoration animation
     if (container) {

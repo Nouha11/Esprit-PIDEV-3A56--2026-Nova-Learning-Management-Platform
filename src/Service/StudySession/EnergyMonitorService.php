@@ -28,7 +28,7 @@ class EnergyMonitorService
     }
 
     /**
-     * Apply auto-refill: 10 energy points every 5 minutes
+     * Apply auto-refill: 1 energy point every 5 minutes
      */
     private function applyAutoRefill($studentProfile): void
     {
@@ -50,8 +50,8 @@ class EnergyMonitorService
         $now = new \DateTime();
         $minutesPassed = ($now->getTimestamp() - $lastUpdate->getTimestamp()) / 60;
         
-        // Calculate energy to refill (10 points per 5 minutes = 2 points per minute)
-        $energyToRefill = floor($minutesPassed / 5) * 10;
+        // Calculate energy to refill (1 point per 5 minutes)
+        $energyToRefill = floor($minutesPassed / 5);
         
         if ($energyToRefill > 0) {
             $newEnergy = min(100, $currentEnergy + $energyToRefill);

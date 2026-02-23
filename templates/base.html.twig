@@ -126,6 +126,34 @@
             padding: 0.5rem 1rem !important;
             font-size: 0.9rem !important;
         }
+        
+        /* Active nav link styling */
+        .navbar-nav .nav-link.active {
+            color: var(--bs-primary) !important;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0.75rem;
+            right: 0.75rem;
+            height: 2px;
+            background-color: var(--bs-primary);
+        }
+        
+        /* Hover effect for nav links */
+        .navbar-nav .nav-link:hover:not(.active) {
+            color: var(--bs-primary) !important;
+            opacity: 0.8;
+        }
+        
+        /* Dark mode support */
+        [data-bs-theme="dark"] .navbar-nav .nav-link.active {
+            color: var(--bs-primary) !important;
+        }
     </style>
     {% endblock %}
 </head>
@@ -196,12 +224,11 @@
                     {% include 'components/language_switcher.html.twig' %}
                 </li>
 
-                <!-- Notification Bell -->
-                {% include 'components/notification_bell.html.twig' %}
 
-                <!-- Dark/Light mode toggle -->
+                <!-- Dark/Light mode toggle - Only show when not logged in -->
+                {% if not app.user %}
                 <li class="nav-item me-2 d-none d-sm-block">
-                    <div class="mode-switch theme-icon-active d-flex align-items-center">
+                    <div class="mode-switch theme-icon-active d-flex align-items-center gap-2">
                         <button type="button" class="btn btn-link nav-link mb-0 p-0" data-bs-theme-value="light">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sun fa-fw mode-switch" viewBox="0 0 16 16">
                                 <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
@@ -215,14 +242,9 @@
                                 <use href="#"></use>
                             </svg>
                         </button>
-                        <button type="button" class="btn btn-link nav-link mb-0 p-0 active" data-bs-theme-value="auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-circle-half fa-fw mode-switch" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
-                                <use href="#"></use>
-                            </svg>
-                        </button>
                     </div>
                 </li>
+                {% endif %}
 
                 {% if app.user %}
                 <li class="nav-item ms-2 dropdown">
@@ -289,7 +311,8 @@
                         </div>
                     </div>
                     </li>
-                <li class="nav-item ms-2 ms-sm-3 dropdown d-none d-sm-block">
+
+<!--                 <li class="nav-item ms-2 ms-sm-3 dropdown d-none d-sm-block">
                     <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                         <i class="bi bi-bell fa-fw"></i>
                     </a>
@@ -324,7 +347,11 @@
                             </div>
                         </div>
                     </div>
-                    </li>
+                </li> -->
+                    <!-- Notification Bell -->
+                    {% include 'components/notification_bell.html.twig' %}
+
+                    
                 <li class="nav-item ms-3 dropdown">
                     <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
                         <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
@@ -392,6 +419,7 @@
             </div>
     </nav>
 </header>
+
 <div class="container mt-3">
     {% for label, messages in app.flashes %}
         {% for message in messages %}
@@ -813,6 +841,41 @@
     <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
 
     <script src="{{ asset('assets/js/functions.js') }}"></script>
+    
+    <!-- Active nav link highlighter -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get current path
+            const currentPath = window.location.pathname;
+            
+            // Get all nav links
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            
+            // Remove active class from all links first
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Add active class to matching link
+            navLinks.forEach(link => {
+                const linkPath = new URL(link.href).pathname;
+                
+                // Exact match or starts with (for sub-pages)
+                if (currentPath === linkPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Special case: if no match found and we're on home page, activate home link
+            const hasActive = Array.from(navLinks).some(link => link.classList.contains('active'));
+            if (!hasActive && (currentPath === '/' || currentPath === '')) {
+                const homeLink = document.querySelector('.navbar-nav .nav-link[href*="app_home"]');
+                if (homeLink) {
+                    homeLink.classList.add('active');
+                }
+            }
+        });
+    </script>
     {% endblock %}
 </body>
 </html>

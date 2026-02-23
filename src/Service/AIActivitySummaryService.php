@@ -265,7 +265,7 @@ PROMPT;
         }
 
         $recommendations = [
-            ['icon' => 'bi-lightning-charge', 'color' => 'purple', 'text' => 'Try taking more quizzes', 'action' => 'Take Quiz', 'link' => '/quiz'],
+            ['icon' => 'bi-lightning-charge', 'color' => 'purple', 'text' => 'Try taking more quizzes', 'action' => 'Take Quiz', 'link' => '/game/quiz'],
             ['icon' => 'bi-controller', 'color' => 'primary', 'text' => 'Play educational games', 'action' => 'Play Games', 'link' => '/games'],
         ];
 

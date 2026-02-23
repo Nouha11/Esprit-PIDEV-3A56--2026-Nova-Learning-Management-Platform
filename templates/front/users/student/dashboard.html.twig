@@ -146,6 +146,7 @@
                     <div class="row g-4">
                         <!-- Left Column - Main Content -->
                         <div class="col-lg-8">
+                            <!-- XP and Tokens Stats -->
                             <div class="row mb-4">
                                 <div class="col-sm-6 col-lg-6 mb-3 mb-lg-0">
                                     <div class="d-flex justify-content-center align-items-center p-4 bg-orange bg-opacity-15 rounded-3">
@@ -170,168 +171,171 @@
                                     </div>
                                 </div>
                             </div>
-                    <div class="card bg-transparent border rounded-3 mb-4">
-                        <div class="card-header bg-transparent border-bottom">
-                            <h3 class="mb-0">Quick Actions</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-sm-6 col-lg-4">
-                                    <a href="{{ path('front_game_index') }}" class="card card-body bg-primary bg-opacity-10 text-center h-100">
-                                        <div class="icon-lg bg-primary bg-opacity-10 rounded-circle text-primary mb-2 mx-auto">
-                                            <i class="fas fa-gamepad fs-4"></i>
-                                        </div>
-                                        <h6 class="mb-0">Play Games</h6>
-                                    </a>
+
+                            <!-- Quick Actions Card -->
+                            <div class="card bg-transparent border rounded-3 mb-4">
+                                <div class="card-header bg-transparent border-bottom">
+                                    <h3 class="mb-0">Quick Actions</h3>
                                 </div>
-                                
-                                <div class="col-sm-6 col-lg-4">
-                                    <a href="{{ path('front_game_favorites') }}" class="card card-body bg-danger bg-opacity-10 text-center h-100">
-                                        <div class="icon-lg bg-danger bg-opacity-10 rounded-circle text-danger mb-2 mx-auto">
-                                            <i class="bi bi-heart-fill fs-4"></i>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-sm-6 col-lg-4">
+                                            <a href="{{ path('front_game_index') }}" class="card card-body bg-primary bg-opacity-10 text-center h-100">
+                                                <div class="icon-lg bg-primary bg-opacity-10 rounded-circle text-primary mb-2 mx-auto">
+                                                    <i class="fas fa-gamepad fs-4"></i>
+                                                </div>
+                                                <h6 class="mb-0">Play Games</h6>
+                                            </a>
                                         </div>
-                                        <h6 class="mb-0">My Favorites</h6>
-                                    </a>
-                                </div>
-                                
-                                <div class="col-sm-6 col-lg-4">
-                                    <a href="{{ path('front_reward_browse') }}" class="card card-body bg-success bg-opacity-10 text-center h-100">
-                                        <div class="icon-lg bg-success bg-opacity-10 rounded-circle text-success mb-2 mx-auto">
-                                            <i class="fas fa-gift fs-4"></i>
+                                        
+                                        <div class="col-sm-6 col-lg-4">
+                                            <a href="{{ path('front_game_favorites') }}" class="card card-body bg-danger bg-opacity-10 text-center h-100">
+                                                <div class="icon-lg bg-danger bg-opacity-10 rounded-circle text-danger mb-2 mx-auto">
+                                                    <i class="bi bi-heart-fill fs-4"></i>
+                                                </div>
+                                                <h6 class="mb-0">My Favorites</h6>
+                                            </a>
                                         </div>
-                                        <h6 class="mb-0">Browse Rewards</h6>
-                                    </a>
-                                </div>
-                                
-                                <div class="col-sm-6 col-lg-4">
-                                    <a href="{{ path('front_reward_my_rewards') }}" class="card card-body bg-warning bg-opacity-10 text-center h-100">
-                                        <div class="icon-lg bg-warning bg-opacity-10 rounded-circle text-warning mb-2 mx-auto">
-                                            <i class="fas fa-trophy fs-4"></i>
+                                        
+                                        <div class="col-sm-6 col-lg-4">
+                                            <a href="{{ path('front_reward_browse') }}" class="card card-body bg-success bg-opacity-10 text-center h-100">
+                                                <div class="icon-lg bg-success bg-opacity-10 rounded-circle text-success mb-2 mx-auto">
+                                                    <i class="fas fa-gift fs-4"></i>
+                                                </div>
+                                                <h6 class="mb-0">Browse Rewards</h6>
+                                            </a>
                                         </div>
-                                        <h6 class="mb-0">My Rewards</h6>
-                                    </a>
-                                </div>
-                                
-                                <div class="col-sm-6 col-lg-4">
-                                    <a href="{{ path('course_index') }}" class="card card-body bg-info bg-opacity-10 text-center h-100">
-                                        <div class="icon-lg bg-info bg-opacity-10 rounded-circle text-info mb-2 mx-auto">
-                                            <i class="fas fa-book fs-4"></i>
+                                        
+                                        <div class="col-sm-6 col-lg-4">
+                                            <a href="{{ path('front_reward_my_rewards') }}" class="card card-body bg-warning bg-opacity-10 text-center h-100">
+                                                <div class="icon-lg bg-warning bg-opacity-10 rounded-circle text-warning mb-2 mx-auto">
+                                                    <i class="fas fa-trophy fs-4"></i>
+                                                </div>
+                                                <h6 class="mb-0">My Rewards</h6>
+                                            </a>
                                         </div>
-                                        <h6 class="mb-0">My Courses</h6>
-                                    </a>
-                                </div>
-                                
-                                <div class="col-sm-6 col-lg-4">
-                                    <a href="{{ path('app_front_quiz_index') }}" class="card card-body bg-purple bg-opacity-10 text-center h-100">
-                                        <div class="icon-lg bg-purple bg-opacity-10 rounded-circle text-purple mb-2 mx-auto">
-                                            <i class="fas fa-question-circle fs-4"></i>
+                                        
+                                        <div class="col-sm-6 col-lg-4">
+                                            <a href="{{ path('course_index') }}" class="card card-body bg-info bg-opacity-10 text-center h-100">
+                                                <div class="icon-lg bg-info bg-opacity-10 rounded-circle text-info mb-2 mx-auto">
+                                                    <i class="fas fa-book fs-4"></i>
+                                                </div>
+                                                <h6 class="mb-0">My Courses</h6>
+                                            </a>
                                         </div>
-                                        <h6 class="mb-0">Take Quiz</h6>
-                                    </a>
+                                        
+                                        <div class="col-sm-6 col-lg-4">
+                                            <a href="{{ path('app_front_quiz_index') }}" class="card card-body bg-purple bg-opacity-10 text-center h-100">
+                                                <div class="icon-lg bg-purple bg-opacity-10 rounded-circle text-purple mb-2 mx-auto">
+                                                    <i class="fas fa-question-circle fs-4"></i>
+                                                </div>
+                                                <h6 class="mb-0">Take Quiz</h6>
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Security Card -->
-                    <div class="card bg-transparent border border-primary rounded-3 mb-4">
-                        <div class="card-header bg-primary bg-opacity-10 border-bottom">
-                            <h5 class="mb-0">
-                                <i class="bi bi-shield-lock text-primary me-2"></i>Account Security
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    {% if app.user.totpEnabled %}
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-check-circle-fill text-success fs-2 me-3"></i>
-                                            <div>
-                                                <h6 class="mb-1">Two-Factor Authentication is Enabled</h6>
-                                                <p class="text-muted mb-0 small">Your account is protected with an additional layer of security.</p>
-                                            </div>
+                            <!-- Security Card -->
+                            <div class="card bg-transparent border border-primary rounded-3 mb-4">
+                                <div class="card-header bg-primary bg-opacity-10 border-bottom">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-shield-lock text-primary me-2"></i>Account Security
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            {% if app.user.totpEnabled %}
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill text-success fs-2 me-3"></i>
+                                                    <div>
+                                                        <h6 class="mb-1">Two-Factor Authentication is Enabled</h6>
+                                                        <p class="text-muted mb-0 small">Your account is protected with an additional layer of security.</p>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-exclamation-triangle-fill text-warning fs-2 me-3"></i>
+                                                    <div>
+                                                        <h6 class="mb-1">Two-Factor Authentication is Not Enabled</h6>
+                                                        <p class="text-muted mb-0 small">Protect your account by enabling 2FA for enhanced security.</p>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-4 text-end mt-3 mt-md-0">
+                                            <a href="{{ path('app_2fa_manage') }}" class="btn btn-{{ app.user.totpEnabled ? 'outline-primary' : 'primary' }}">
+                                                <i class="bi bi-shield-{{ app.user.totpEnabled ? 'check' : 'plus' }} me-2"></i>
+                                                {{ app.user.totpEnabled ? 'Manage 2FA' : 'Enable 2FA' }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AI Activity Summary -->
+                            {% include 'components/ai_activity_summary.html.twig' with {
+                                'activitySummary': activitySummary
+                            } %}
+
+                            <!-- Recent Activity Card -->
+                            <div class="card bg-transparent border rounded-3 mb-4">
+                                <div class="card-header bg-transparent border-bottom">
+                                    <div class="d-sm-flex justify-content-between align-items-center">
+                                        <h3 class="mb-2 mb-sm-0">Recent Activity</h3>
+                                        <a href="{{ path('app_user_activities') }}" class="btn btn-sm btn-primary-soft mb-0">View All</a>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    {% if recentActivities is empty %}
+                                        <div class="text-center py-4">
+                                            <i class="bi bi-inbox display-4 text-muted"></i>
+                                            <p class="text-muted mt-3 mb-0">No recent activities yet</p>
+                                            <p class="text-muted small">Start exploring to see your activity history!</p>
                                         </div>
                                     {% else %}
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-exclamation-triangle-fill text-warning fs-2 me-3"></i>
-                                            <div>
-                                                <h6 class="mb-1">Two-Factor Authentication is Not Enabled</h6>
-                                                <p class="text-muted mb-0 small">Protect your account by enabling 2FA for enhanced security.</p>
-                                            </div>
+                                        <div class="list-group list-group-flush">
+                                            {% for activity in recentActivities|slice(0, 5) %}
+                                                <div class="list-group-item px-0 py-3">
+                                                    <div class="d-flex align-items-start">
+                                                        <div class="avatar avatar-sm flex-shrink-0">
+                                                            <div class="avatar-img rounded-circle bg-{{ activity.color }} bg-opacity-10">
+                                                                <i class="{{ activity.icon }} text-{{ activity.color }} position-absolute top-50 start-50 translate-middle"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="ms-3 flex-grow-1">
+                                                            <h6 class="mb-1">{{ activity.description }}</h6>
+                                                            <p class="mb-0 small text-muted">
+                                                                <i class="bi bi-clock me-1"></i>
+                                                                {{ activity.createdAt|date('M d, Y \\a\\t h:i A') }}
+                                                            </p>
+                                                            {% if activity.metadata %}
+                                                                <div class="mt-2">
+                                                                    {% if activity.metadata.xp is defined %}
+                                                                        <span class="badge bg-success-soft text-success me-1">
+                                                                            <i class="bi bi-star me-1"></i>+{{ activity.metadata.xp }} XP
+                                                                        </span>
+                                                                    {% endif %}
+                                                                    {% if activity.metadata.tokens is defined %}
+                                                                        <span class="badge bg-warning-soft text-warning me-1">
+                                                                            <i class="bi bi-coin me-1"></i>+{{ activity.metadata.tokens }} Tokens
+                                                                        </span>
+                                                                    {% endif %}
+                                                                    {% if activity.metadata.level is defined %}
+                                                                        <span class="badge bg-primary-soft text-primary me-1">
+                                                                            <i class="bi bi-arrow-up-circle me-1"></i>Level {{ activity.metadata.level }}
+                                                                        </span>
+                                                                    {% endif %}
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
                                         </div>
                                     {% endif %}
                                 </div>
-                                <div class="col-md-4 text-end">
-                                    <a href="{{ path('app_2fa_manage') }}" class="btn btn-{{ app.user.totpEnabled ? 'outline-primary' : 'primary' }}">
-                                        <i class="bi bi-shield-{{ app.user.totpEnabled ? 'check' : 'plus' }} me-2"></i>
-                                        {{ app.user.totpEnabled ? 'Manage 2FA' : 'Enable 2FA' }}
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- AI Activity Summary -->
-                    {% include 'components/ai_activity_summary.html.twig' with {
-                        'activitySummary': activitySummary
-                    } %}
-
-                    <div class="card bg-transparent border rounded-3">
-                        <div class="card-header bg-transparent border-bottom">
-                            <div class="d-sm-flex justify-content-between align-items-center">
-                                <h3 class="mb-2 mb-sm-0">Recent Activity</h3>
-                                <a href="{{ path('app_user_activities') }}" class="btn btn-sm btn-primary-soft mb-0">View All</a>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            {% if recentActivities is empty %}
-                                <div class="text-center py-4">
-                                    <i class="bi bi-inbox display-4 text-muted"></i>
-                                    <p class="text-muted mt-3 mb-0">No recent activities yet</p>
-                                    <p class="text-muted small">Start exploring to see your activity history!</p>
-                                </div>
-                            {% else %}
-                                <div class="list-group list-group-flush">
-                                    {% for activity in recentActivities|slice(0, 5) %}
-                                        <div class="list-group-item px-0 py-3">
-                                            <div class="d-flex align-items-start">
-                                                <div class="avatar avatar-sm flex-shrink-0">
-                                                    <div class="avatar-img rounded-circle bg-{{ activity.color }} bg-opacity-10">
-                                                        <i class="{{ activity.icon }} text-{{ activity.color }} position-absolute top-50 start-50 translate-middle"></i>
-                                                    </div>
-                                                </div>
-                                                <div class="ms-3 flex-grow-1">
-                                                    <h6 class="mb-1">{{ activity.description }}</h6>
-                                                    <p class="mb-0 small text-muted">
-                                                        <i class="bi bi-clock me-1"></i>
-                                                        {{ activity.createdAt|date('M d, Y \\a\\t h:i A') }}
-                                                    </p>
-                                                    {% if activity.metadata %}
-                                                        <div class="mt-2">
-                                                            {% if activity.metadata.xp is defined %}
-                                                                <span class="badge bg-success-soft text-success me-1">
-                                                                    <i class="bi bi-star me-1"></i>+{{ activity.metadata.xp }} XP
-                                                                </span>
-                                                            {% endif %}
-                                                            {% if activity.metadata.tokens is defined %}
-                                                                <span class="badge bg-warning-soft text-warning me-1">
-                                                                    <i class="bi bi-coin me-1"></i>+{{ activity.metadata.tokens }} Tokens
-                                                                </span>
-                                                            {% endif %}
-                                                            {% if activity.metadata.level is defined %}
-                                                                <span class="badge bg-primary-soft text-primary me-1">
-                                                                    <i class="bi bi-arrow-up-circle me-1"></i>Level {{ activity.metadata.level }}
-                                                                </span>
-                                                            {% endif %}
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
                             </div>
                         </div>
                         

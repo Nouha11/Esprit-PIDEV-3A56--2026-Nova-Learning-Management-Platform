@@ -9,6 +9,7 @@ use App\Service\game\LevelCalculatorService;
 use App\Service\game\TokenService;
 use App\Service\game\LevelRewardService;
 use App\Service\StudySession\EnergyMonitorService;
+use App\Service\UserActivityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,7 +31,8 @@ class GameController extends AbstractController
         private GameRatingRepository $ratingRepository,
         private PaginatorInterface $paginator,
         private EntityManagerInterface $entityManager,
-        private EnergyMonitorService $energyMonitorService
+        private EnergyMonitorService $energyMonitorService,
+        private UserActivityService $userActivityService
     ) {
     }
 
@@ -599,6 +601,52 @@ class GameController extends AbstractController
         // Store level milestone data in session for celebration modal
         if (!empty($levelRewards)) {
             $session->set('milestone_unlocked', $levelRewards);
+        }
+
+        // Log activity
+        $this->userActivityService->logActivity(
+            $user,
+            'game_played',
+            sprintf('Completed %s game', $game->getName()),
+            [
+                'game_id' => $game->getId(),
+                'game_name' => $game->getName(),
+                'tokens_earned' => $rewardTokens,
+                'xp_earned' => $rewardXP,
+                'energy_restored' => $energyRestored,
+                'level_up' => $newLevel > $previousLevel,
+                'new_level' => $newLevel,
+            ]
+        );
+
+        // Log XP earned activity
+        if ($rewardXP > 0) {
+            $this->userActivityService->logActivity(
+                $user,
+                'xp_earned',
+                sprintf('Earned %d XP from %s', $rewardXP, $game->getName()),
+                ['xp' => $rewardXP, 'source' => 'game', 'game_name' => $game->getName()]
+            );
+        }
+
+        // Log tokens earned activity
+        if ($rewardTokens > 0) {
+            $this->userActivityService->logActivity(
+                $user,
+                'tokens_earned',
+                sprintf('Earned %d tokens from %s', $rewardTokens, $game->getName()),
+                ['tokens' => $rewardTokens, 'source' => 'game', 'game_name' => $game->getName()]
+            );
+        }
+
+        // Log level up activity
+        if ($newLevel > $previousLevel) {
+            $this->userActivityService->logActivity(
+                $user,
+                'level_up',
+                sprintf('Leveled up to Level %d!', $newLevel),
+                ['level' => $newLevel, 'previous_level' => $previousLevel, 'xp' => $xpAfter]
+            );
         }
 
         return $this->json([

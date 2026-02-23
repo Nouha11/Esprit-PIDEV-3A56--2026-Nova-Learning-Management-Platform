@@ -3,9 +3,7 @@
 <li class="nav-item ms-2 dropdown">
     <a class="btn btn-light btn-round mb-0 position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" id="notificationBell">
         <i class="bi bi-bell fa-fw"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-bell-badge" style="display: none;">
-            0
-        </span>
+        <span class="notif-badge animation-blink notification-bell-badge"></span>
     </a>
 
     <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0" style="min-width: 350px;">
@@ -32,6 +30,52 @@
     </div>
 </li>
 
+<style>
+/* Notification badge - simple red dot */
+.notification-bell-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background-color: #dc3545;
+    border-radius: 50%;
+    border: 2px solid var(--bs-body-bg, #fff);
+    display: none;
+    z-index: 10;
+}
+
+.notification-bell-badge.show {
+    display: block;
+}
+
+/* Blinking animation */
+@keyframes blink-animation {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(1.1);
+    }
+}
+
+.animation-blink.show {
+    animation: blink-animation 1.5s ease-in-out infinite;
+}
+
+/* Ensure proper positioning context */
+#notificationBell {
+    position: relative;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .notification-bell-badge {
+    border-color: #1a1d20;
+}
+</style>
+
 <script>
 // Load notifications on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -43,24 +87,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadNotifications() {
     fetch('/notifications/unread')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Notifications loaded:', data);
             updateNotificationBadge(data.count);
             renderNotifications(data.notifications);
         })
-        .catch(error => console.error('Error loading notifications:', error));
+        .catch(error => {
+            console.error('Error loading notifications:', error);
+            // Show badge anyway for testing
+            // Remove this line in production
+            updateNotificationBadge(1);
+        });
 }
 
 function updateNotificationBadge(count) {
     const badge = document.querySelector('.notification-bell-badge');
     if (badge) {
         if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count;
-            badge.style.display = 'inline-block';
+            badge.classList.add('show');
         } else {
-            badge.style.display = 'none';
+            badge.classList.remove('show');
         }
     }
+    console.log('Notification badge updated. Count:', count);
 }
 
 function renderNotifications(notifications) {

@@ -177,7 +177,7 @@ class ActivitySummaryService
                 'color' => 'purple',
                 'text' => 'Try taking more quizzes to test your knowledge',
                 'action' => 'Take a Quiz',
-                'link' => '/quiz',
+                'link' => '/game/quiz',
             ];
         }
 
