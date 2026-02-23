@@ -7,6 +7,7 @@ use App\Form\CommentType;
 use App\Entity\Forum\Post;
 use App\Entity\Forum\Report;
 use App\Entity\Forum\Space;
+use App\Entity\Forum\Tag;
 use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
 use App\Entity\users\User;
@@ -38,20 +39,20 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var User $user */
+            /** @var User|null $user */
             $user = $this->getUser();
             
-            if (!$user) {
+            if (!$user instanceof User) {
                 $this->addFlash('error', 'You must be logged in to create a post.');
                 return $this->redirectToRoute('app_login');
             }
 
             $post->setTitle($censorship->purify($post->getTitle()));
-            $post->setContent($censorship->purify($post->getContent()));
+            $post->setContent($censorship->purify($post->getContent() ?? ''));
             
             $post->setCreatedAt(new \DateTimeImmutable());
             $post->setUpvotes(0);
-            $post->setHotScore(0.0); // Initialize hot score
+            $post->setHotScore(0.0);
             $post->setAuthor($user);
             $post->setIsLocked(false);
 
@@ -61,6 +62,28 @@ class ForumController extends AbstractController
                     $post->setLinkTitle($ogData['title']);
                     $post->setLinkDescription($ogData['description']);
                     $post->setLinkImage($ogData['image']);
+                }
+            }
+
+            // --- TAG PROCESSING LOGIC ---
+            if ($form->has('tagsInput')) {
+                $tagsInput = $form->get('tagsInput')->getData();
+                if ($tagsInput) {
+                    $tagsArray = json_decode($tagsInput, true);
+                    if (is_array($tagsArray)) {
+                        foreach ($tagsArray as $tagItem) {
+                            $tagName = strtolower(trim($tagItem['value']));
+                            if (empty($tagName)) continue;
+
+                            $tag = $entityManager->getRepository(Tag::class)->findOneBy(['name' => $tagName]);
+                            if (!$tag) {
+                                $tag = new Tag();
+                                $tag->setName($tagName);
+                                $entityManager->persist($tag);
+                            }
+                            $post->addTag($tag);
+                        }
+                    }
                 }
             }
 
@@ -74,14 +97,20 @@ class ForumController extends AbstractController
         $searchQuery = $request->query->get('q');
         $filter = $request->query->get('filter');
         $spaceId = $request->query->get('space'); 
-        $sortBy = $request->query->get('sortBy', 'hot'); // Default to 'hot'
+        $tagFilter = $request->query->get('tag'); // Get tag from URL
+        $sortBy = $request->query->get('sortBy', 'hot'); 
 
         /** @var User|null $user */
         $user = $this->getUser();
 
         if ($searchQuery) {
             $query = $postRepository->adminSearch($searchQuery);
-        } elseif ($filter === 'bookmarks' && $user) {
+        } elseif ($tagFilter) {
+            $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
+                ->join('p.tags', 't')
+                ->where('t.name = :tagName')
+                ->setParameter('tagName', $tagFilter);
+        } elseif ($filter === 'bookmarks' && $user instanceof User) {
             $query = $user->getBookmarkedPosts(); 
         } elseif ($filter === 'history') {
             $historyIds = $request->getSession()->get('post_history', []);
@@ -108,7 +137,6 @@ class ForumController extends AbstractController
             } elseif ($sortBy === 'top') {
                 $qb->orderBy('p.upvotes', 'DESC');
             } else {
-                // THE TRUE REDDIT HOTNESS SORT
                 $qb->orderBy('p.hotScore', 'DESC');
             }
             $query = $qb->getQuery();
@@ -124,6 +152,7 @@ class ForumController extends AbstractController
             'searchQuery' => $searchQuery,
             'currentFilter' => $filter,
             'currentSpace' => $spaceId,
+            'currentTag' => $tagFilter,
             'currentSort' => $sortBy,
         ]);
     }
@@ -183,10 +212,10 @@ class ForumController extends AbstractController
                 return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
             }
 
-            /** @var User $user */
+            /** @var User|null $user */
             $user = $this->getUser();
             
-            if (!$user) {
+            if (!$user instanceof User) {
                 $this->addFlash('error', 'You must be logged in to comment.');
                 return $this->redirectToRoute('app_login');
             }
@@ -216,10 +245,10 @@ class ForumController extends AbstractController
     #[Route('/forum/delete/{id}', name: 'app_forum_delete', methods: ['POST'])]
     public function delete(Post $post, EntityManagerInterface $entityManager): Response
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof User) {
             $this->addFlash('error', 'You must be logged in.');
             return $this->redirectToRoute('app_login');
         }
@@ -240,12 +269,12 @@ class ForumController extends AbstractController
     }
 
     #[Route('/forum/edit/{id}', name: 'app_forum_edit')]
-    public function edit(Post $post, Request $request, EntityManagerInterface $entityManager): Response
+    public function edit(Post $post, Request $request, EntityManagerInterface $entityManager, CensorshipService $censorship): Response
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof User) {
             $this->addFlash('error', 'You must be logged in.');
             return $this->redirectToRoute('app_login');
         }
@@ -262,6 +291,29 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            
+            // TAG PROCESSING LOGIC FOR EDIT
+            if ($form->has('tagsInput')) {
+                $tagsInput = $form->get('tagsInput')->getData();
+                if ($tagsInput) {
+                    $tagsArray = json_decode($tagsInput, true);
+                    if (is_array($tagsArray)) {
+                        foreach ($tagsArray as $tagItem) {
+                            $tagName = strtolower(trim($tagItem['value']));
+                            if (empty($tagName)) continue;
+
+                            $tag = $entityManager->getRepository(Tag::class)->findOneBy(['name' => $tagName]);
+                            if (!$tag) {
+                                $tag = new Tag();
+                                $tag->setName($tagName);
+                                $entityManager->persist($tag);
+                            }
+                            $post->addTag($tag);
+                        }
+                    }
+                }
+            }
+
             $entityManager->flush();
             $this->addFlash('success', 'Post updated successfully!');
             return $this->redirectToRoute('app_forum_show', ['id' => $post->getId()]);
@@ -276,10 +328,10 @@ class ForumController extends AbstractController
     #[Route('/forum/post/{id}/vote/{type}', name: 'app_forum_post_vote', methods: ['POST'])]
     public function votePost(Post $post, string $type, EntityManagerInterface $entityManager): JsonResponse
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
 
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['error' => 'You must be logged in to vote.'], 403);
         }
 
@@ -311,12 +363,12 @@ class ForumController extends AbstractController
     #[Route('/forum/comment/{id}/solution', name: 'app_forum_solution', methods: ['POST'])]
     public function markAsSolution(Comment $comment, EntityManagerInterface $entityManager): JsonResponse
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
         $post = $comment->getPost();
 
-        $isAuthor = $user && $post->getAuthor()->getId() === $user->getId();
-        $isAdmin = $user && in_array('ROLE_ADMIN', $user->getRoles());
+        $isAuthor = $user instanceof User && $post->getAuthor()->getId() === $user->getId();
+        $isAdmin = $user instanceof User && in_array('ROLE_ADMIN', $user->getRoles());
 
         if (!$isAuthor && !$isAdmin) {
             return $this->json(['error' => 'Unauthorized'], 403);
@@ -341,10 +393,10 @@ class ForumController extends AbstractController
     #[Route('/forum/post/{id}/lock', name: 'app_forum_toggle_lock')]
     public function toggleLock(Post $post, EntityManagerInterface $entityManager): Response
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
 
-        if (!$user) {
+        if (!$user instanceof User) {
             $this->addFlash('error', 'You must be logged in.');
             return $this->redirectToRoute('app_login');
         }
@@ -369,10 +421,10 @@ class ForumController extends AbstractController
     #[Route('/forum/comment/{id}/vote/{type}', name: 'app_forum_comment_vote', methods: ['POST'])]
     public function voteComment(Comment $comment, string $type, EntityManagerInterface $entityManager): JsonResponse
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
 
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['error' => 'Login required'], 403);
         }
 
@@ -404,9 +456,10 @@ class ForumController extends AbstractController
     #[Route('/post/{id}/report', name: 'app_forum_report', methods: ['POST'])]
     public function report(Post $post, Request $request, EntityManagerInterface $entityManager): Response
     {
+        /** @var User|null $user */
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof User) {
             $this->addFlash('error', 'You must be logged in to report a post.');
             return $this->redirectToRoute('app_login');
         }
@@ -444,10 +497,10 @@ class ForumController extends AbstractController
     #[Route('/forum/post/{id}/bookmark', name: 'app_forum_post_bookmark', methods: ['POST'])]
     public function toggleBookmark(Post $post, EntityManagerInterface $entityManager): JsonResponse
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
 
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['error' => 'You must be logged in to bookmark posts.'], 403);
         }
 
@@ -483,14 +536,15 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var User|null $user */
             $user = $this->getUser();
-            if (!$user) {
+            if (!$user instanceof User) {
                 $this->addFlash('error', 'You must be logged in to create a post.');
                 return $this->redirectToRoute('app_login');
             }
 
             $post->setTitle($censorship->purify($post->getTitle()));
-            $post->setContent($censorship->purify($post->getContent()));
+            $post->setContent($censorship->purify($post->getContent() ?? ''));
             $post->setCreatedAt(new \DateTimeImmutable());
             $post->setUpvotes(0);
             $post->setHotScore(0.0);
@@ -506,6 +560,28 @@ class ForumController extends AbstractController
                 }
             }
 
+            // --- TAG PROCESSING LOGIC ---
+            if ($form->has('tagsInput')) {
+                $tagsInput = $form->get('tagsInput')->getData();
+                if ($tagsInput) {
+                    $tagsArray = json_decode($tagsInput, true);
+                    if (is_array($tagsArray)) {
+                        foreach ($tagsArray as $tagItem) {
+                            $tagName = strtolower(trim($tagItem['value']));
+                            if (empty($tagName)) continue;
+
+                            $tag = $entityManager->getRepository(Tag::class)->findOneBy(['name' => $tagName]);
+                            if (!$tag) {
+                                $tag = new Tag();
+                                $tag->setName($tagName);
+                                $entityManager->persist($tag);
+                            }
+                            $post->addTag($tag);
+                        }
+                    }
+                }
+            }
+
             $entityManager->persist($post);
             $entityManager->flush();
 
@@ -513,11 +589,18 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_space', ['id' => $space->getId()]);
         }
 
+        $tagFilter = $request->query->get('tag');
         $sortBy = $request->query->get('sortBy', 'hot');
 
         $qb = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
             ->where('p.space = :space')
             ->setParameter('space', $space);
+
+        if ($tagFilter) {
+            $qb->join('p.tags', 't')
+               ->andWhere('t.name = :tagName')
+               ->setParameter('tagName', $tagFilter);
+        }
 
         if ($sortBy === 'new') {
             $qb->orderBy('p.createdAt', 'DESC');
@@ -536,7 +619,8 @@ class ForumController extends AbstractController
             'posts' => $posts,       
             'spaces' => $allSpaces,  
             'form' => $form->createView(),
-            'currentSort' => $sortBy, 
+            'currentSort' => $sortBy,
+            'currentTag' => $tagFilter 
         ]);
     }
 
@@ -565,8 +649,9 @@ class ForumController extends AbstractController
     #[Route('/forum/comment/{id}/reply', name: 'app_forum_comment_reply', methods: ['POST'])]
     public function replyToComment(Comment $parent, Request $request, EntityManagerInterface $entityManager, CensorshipService $censorship): Response
     {
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             $this->addFlash('error', 'You must be logged in to reply.');
             return $this->redirectToRoute('app_login');
         }
@@ -602,8 +687,9 @@ class ForumController extends AbstractController
     #[Route('/forum/comment/{id}/report', name: 'app_forum_comment_report', methods: ['POST'])]
     public function reportComment(Comment $comment, Request $request, EntityManagerInterface $entityManager): Response
     {
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) return $this->redirectToRoute('app_login');
+        if (!$user instanceof User) return $this->redirectToRoute('app_login');
 
         $reason = $request->request->get('reason', 'Inappropriate content');
         
@@ -623,8 +709,9 @@ class ForumController extends AbstractController
     #[Route('/forum/comment/{id}/delete', name: 'app_forum_comment_delete', methods: ['POST'])]
     public function deleteComment(Comment $comment, EntityManagerInterface $entityManager): Response
     {
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) return $this->redirectToRoute('app_login');
+        if (!$user instanceof User) return $this->redirectToRoute('app_login');
 
         $isAuthor = $comment->getAuthor()->getId() === $user->getId();
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
@@ -645,8 +732,9 @@ class ForumController extends AbstractController
     #[Route('/forum/comment/{id}/edit', name: 'app_forum_comment_edit')]
     public function editComment(Comment $comment, Request $request, EntityManagerInterface $entityManager, CensorshipService $censorship): Response
     {
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) return $this->redirectToRoute('app_login');
+        if (!$user instanceof User) return $this->redirectToRoute('app_login');
 
         $isAuthor = $comment->getAuthor()->getId() === $user->getId();
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
@@ -663,9 +751,11 @@ class ForumController extends AbstractController
             $comment->setContent($censorship->purify($comment->getContent() ?? ''));
             
             // Handle image upload if a new one is provided
-            $imageFile = $form->get('imageFile')->getData();
-            if ($imageFile) {
-                $comment->setImageFile($imageFile);
+            if ($form->has('imageFile')) {
+                $imageFile = $form->get('imageFile')->getData();
+                if ($imageFile) {
+                    $comment->setImageFile($imageFile);
+                }
             }
 
             $entityManager->flush();

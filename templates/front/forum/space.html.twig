@@ -5,6 +5,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
     <style>
         :root { --nova-bg: #dae0e6; --nova-card-bg: #ffffff; --nova-border: #cccccc; --nova-border-hover: #898989; --nova-text-main: #1a1a1b; --nova-text-muted: #787c7e; --nova-vote-bg: #f8f9fa; --nova-hover-bg: rgba(0,0,0,0.05); --nova-input-bg: #f6f7f8; }
         [data-bs-theme="dark"], body.dark-mode, .dark-mode { --nova-bg: #030303; --nova-card-bg: #1a1a1b; --nova-border: #343536; --nova-border-hover: #d7dadc; --nova-text-main: #d7dadc; --nova-text-muted: #818384; --nova-vote-bg: #1a1a1b; --nova-hover-bg: rgba(255,255,255,0.1); --nova-input-bg: #272729; }
@@ -61,6 +62,11 @@
         .widget-card { background: var(--nova-card-bg); border: 1px solid var(--nova-border); border-radius: 4px; margin-bottom: 16px; overflow: hidden; color: var(--nova-text-main); }
         .widget-rule-item { transition: background-color 0.2s; cursor: pointer; }
         .widget-rule-item:hover { background-color: var(--nova-hover-bg) !important; }
+
+        /* Custom Tagify Styles */
+        .tagify { --tags-border-color: var(--nova-border); --tags-hover-border-color: #0d6efd; --tags-focus-border-color: #0d6efd; background: var(--nova-input-bg); color: var(--nova-text-main); border-radius: 4px; padding: 2px 8px; border: none; border-bottom: 1px dashed var(--nova-border); }
+        .tagify__tag > div { background: rgba(13, 110, 253, 0.1); color: #0d6efd; font-weight: 600; border-radius: 4px; }
+        .tagify__input::before { color: var(--nova-text-muted) !important; }
     </style>
 {% endblock %}
 
@@ -72,7 +78,6 @@
             {# --- 1. LEFT COLUMN: NAVIGATION --- #}
             <div class="col-xl-2 col-lg-3 d-none d-lg-block">
                 <div class="sticky-sidebar">
-                    {# --- NEW ENCLOSED CARD DESIGN --- #}
                     <div class="p-3 shadow-sm rounded-4" style="background-color: var(--nova-card-bg); border: 1px solid var(--nova-border);">
                         
                         <div class="left-nav-section-title pt-0">Feeds</div>
@@ -170,6 +175,11 @@
 
                             <div class="nova-form-footer">
                                 <div class="row gx-2 mb-3">
+                                    {# --- NEW: TAGS FIELD --- #}
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label fw-bold nova-text-muted mb-1" style="font-size: 11px; text-transform: uppercase;"><i class="bi bi-tags"></i> Tags</label>
+                                        {{ form_widget(form.tagsInput) }}
+                                    </div>
                                     <div class="col-md-4 mb-3 mb-md-0">
                                         <label class="form-label fw-bold nova-text-muted mb-1" style="font-size: 11px; text-transform: uppercase;"><i class="bi bi-link-45deg"></i> Link</label>
                                         {{ form_widget(form.link, {'attr': {'class': 'form-control form-control-sm target-link-input', 'style': 'background: var(--nova-card-bg); border: 1px solid var(--nova-border); color: var(--nova-text-main);'}}) }}
@@ -193,10 +203,17 @@
                 </div>
 
                 <div class="sort-bar shadow-sm">
-                    <a href="{{ path('app_forum_space', {'id': space.id, 'sortBy': 'hot'}) }}" class="sort-btn {{ currentSort == 'hot' ? 'active' : '' }}"><i class="bi bi-fire fs-5"></i> Hot</a>
-                    <a href="{{ path('app_forum_space', {'id': space.id, 'sortBy': 'new'}) }}" class="sort-btn {{ currentSort == 'new' ? 'active' : '' }}"><i class="bi bi-stars fs-5"></i> New</a>
-                    <a href="{{ path('app_forum_space', {'id': space.id, 'sortBy': 'top'}) }}" class="sort-btn {{ currentSort == 'top' ? 'active' : '' }}"><i class="bi bi-bar-chart-line-fill fs-5"></i> Top</a>
+                    <a href="{{ path('app_forum_space', {'id': space.id, 'sortBy': 'hot', 'tag': currentTag}) }}" class="sort-btn {{ currentSort == 'hot' ? 'active' : '' }}"><i class="bi bi-fire fs-5"></i> Hot</a>
+                    <a href="{{ path('app_forum_space', {'id': space.id, 'sortBy': 'new', 'tag': currentTag}) }}" class="sort-btn {{ currentSort == 'new' ? 'active' : '' }}"><i class="bi bi-stars fs-5"></i> New</a>
+                    <a href="{{ path('app_forum_space', {'id': space.id, 'sortBy': 'top', 'tag': currentTag}) }}" class="sort-btn {{ currentSort == 'top' ? 'active' : '' }}"><i class="bi bi-bar-chart-line-fill fs-5"></i> Top</a>
                 </div>
+
+                {% if currentTag %}
+                <div class="d-flex align-items-center mb-3">
+                    <h4 class="mb-0 me-3 nova-text-main"><i class="bi bi-tag-fill text-primary me-2"></i>#{{ currentTag }}</h4>
+                    <a href="{{ path('app_forum_space', {'id': space.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill ms-auto">Clear Filter</a>
+                </div>
+                {% endif %}
 
                 <div class="d-flex flex-column gap-3 mb-4">
                     {% for post in posts %}
@@ -225,6 +242,17 @@
                                 <div class="nova-text-main mb-3" style="font-size: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-height: 22px;">
                                     {{ post.content }}
                                 </div>
+                                
+                                {# NEW: RENDER TAGS #}
+                                {% if post.tags|length > 0 %}
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        {% for tag in post.tags %}
+                                            <a href="{{ path('app_forum_space', {'id': space.id, 'tag': tag.name}) }}" class="badge rounded-pill text-decoration-none" style="background: rgba(13, 110, 253, 0.1); color: #0d6efd; border: 1px solid rgba(13, 110, 253, 0.2); font-weight: 600; font-size: 12px; padding: 5px 10px; transition: 0.2s;" onclick="event.stopPropagation();">
+                                                #{{ tag.name }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
 
                                 {% if post.imageName %}
                                     <div class="mb-3 rounded overflow-hidden border" style="border-color: var(--nova-border) !important; max-height: 400px; text-align: center; background-color: var(--nova-input-bg);">
@@ -350,8 +378,18 @@
     </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // --- INITIALIZE TAGIFY ---
+        const tagInputs = document.querySelectorAll('.tagify-input');
+        tagInputs.forEach(input => {
+            new Tagify(input, {
+                maxTags: 5,
+                dropdown: { enabled: 0 } // Show suggestions immediately
+            });
+        });
+
         document.getElementById('quick-image-btn')?.addEventListener('click', () => setTimeout(() => document.querySelector('.target-image-input').focus(), 300));
         document.getElementById('quick-link-btn')?.addEventListener('click', () => setTimeout(() => document.querySelector('.target-link-input').focus(), 300));
         document.getElementById('quick-file-btn')?.addEventListener('click', () => setTimeout(() => document.querySelector('.target-file-input').focus(), 300));

@@ -270,7 +270,18 @@
                             {% endif %}
                         </h1>
 
-                        <p class="mb-4 nova-text-main" style="white-space: pre-wrap; font-size: 15px;">{{ post.content }}</p>
+                        <p class="mb-3 nova-text-main" style="white-space: pre-wrap; font-size: 15px;">{{ post.content }}</p>
+
+                        {# NEW: DISPLAY TAGS #}
+                        {% if post.tags|length > 0 %}
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                {% for tag in post.tags %}
+                                    <a href="{{ path('app_forum', {'tag': tag.name}) }}" class="badge rounded-pill text-decoration-none" style="background: rgba(13, 110, 253, 0.1); color: #0d6efd; border: 1px solid rgba(13, 110, 253, 0.2); font-weight: 600; font-size: 12px; padding: 5px 10px; transition: 0.2s;" onclick="event.stopPropagation();">
+                                        #{{ tag.name }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
 
                         {% if post.imageName %}
                             <div class="mb-4 text-center p-3 rounded-3 border" style="background: var(--nova-input-bg); border-color: var(--nova-border) !important;">
@@ -327,16 +338,17 @@
                             {% endif %}
                         {% endif %}
 
-                        {# --- FIXED: AI SUMMARY INLINE WIDGET --- #}
                         <div class="d-flex justify-content-between align-items-center p-3 mb-4 rounded-3" style="background: rgba(111, 66, 193, 0.08); border: 1px solid rgba(111, 66, 193, 0.3);">
                             <div class="d-flex align-items-start me-3">
                                 <i class="bi bi-stars fs-4 me-3 mt-1" style="color: #6f42c1;"></i>
                                 <div>
                                     <h6 class="mb-1 fw-bold" style="color: #6f42c1;">AI Summary</h6>
-                                    <div class="nova-text-main" id="ai-summary-content" style="font-size: 14px; line-height: 1.5;">Get a quick TL;DR of this discussion.</div>
+                                    <div class="nova-text-main" id="ai-summary-content" style="font-size: 14px; line-height: 1.5; opacity: 0.9;">
+                                        Get a quick TL;DR of this discussion.
+                                    </div>
                                 </div>
                             </div>
-                            <button id="btn-summarize" class="btn btn-sm rounded-pill text-white fw-bold px-3 flex-shrink-0" style="background-color: #6f42c1; box-shadow: 0 2px 4px rgba(111,66,193,0.3);" data-url="{{ path('app_forum_summary', {id: post.id}) }}">
+                            <button id="btn-summarize" class="btn btn-sm rounded-pill text-white fw-bold px-3 flex-shrink-0 text-nowrap" style="background-color: #6f42c1; box-shadow: 0 2px 4px rgba(111,66,193,0.3); min-width: 125px;" data-url="{{ path('app_forum_summary', {id: post.id}) }}">
                                 <i class="bi bi-magic me-1"></i> Summarize
                             </button>
                         </div>
@@ -351,7 +363,6 @@
                             
                             <a href="#replyForm" class="action-pill"><i class="bi bi-chat-square"></i> {{ post.comments|length }} Comments</a>
                             
-                            {# FIXED SHARE BUTTON #}
                             <button class="action-pill share-btn ms-2" data-url="{{ url('app_forum_show', {'id': post.id}) }}">
                                 <i class="bi bi-share"></i> <span class="share-text">Share</span>
                             </button>
@@ -569,7 +580,7 @@
             });
         });
 
-        // Share Button (FIXED)
+        // Share Button 
         document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault(); e.stopPropagation();
@@ -617,7 +628,7 @@
             });
         });
 
-        // AI Summary (FIXED)
+        // AI Summary 
         const btnSum = document.getElementById('btn-summarize');
         const summaryContent = document.getElementById('ai-summary-content');
         if (btnSum) {

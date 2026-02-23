@@ -89,6 +89,10 @@ class Post
     #[ORM\Column(type: Types::FLOAT)]
     private float $hotScore = 0.0;
 
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'posts', cascade: ['persist'])]
+    #[ORM\JoinTable(name: 'post_tags')]
+    private Collection $tags;
+
     #[Vich\UploadableField(mapping: 'forum_attachments', fileNameProperty: 'attachmentName')]
     private ?File $attachmentFile = null;
 
@@ -99,6 +103,7 @@ class Post
         $this->downvoters = new ArrayCollection(); // Initialize downvoters
         $this->reports = new ArrayCollection();
         $this->upvotes = 0;
+        $this->tags = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -248,6 +253,29 @@ class Post
         
         // 4. Reddit Formula (45000 seconds = 12.5 hours)
         $this->hotScore = round($order + ($sign * $seconds) / 45000, 7);
+    }
+
+
+    /**
+     * @return Collection<int, Tag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): static
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): static
+    {
+        $this->tags->removeElement($tag);
+        return $this;
     }
 
 }
