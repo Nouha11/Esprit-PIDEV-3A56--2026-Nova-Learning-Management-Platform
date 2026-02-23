@@ -16,15 +16,15 @@ class LevelRewardService
 
     /**
      * Check and award level-based achievements when a student levels up
-     * Only awards milestones for the exact level just reached
+     * Awards ALL milestones between previous level and current level (including surpassed ones)
      */
     public function checkAndAwardLevelRewards(StudentProfile $student, int $previousLevel): array
     {
         $awardedRewards = [];
         $currentLevel = $student->getLevel();
 
-        // Only check for milestones between previous level and current level
-        // This ensures we only award milestones that were just reached
+        // Get ALL milestones between previous level and current level
+        // This ensures we award milestones even if user surpasses them (e.g., goes from level 3 to 11)
         $levelRewards = $this->rewardRepository->createQueryBuilder('r')
             ->where('r.type = :type')
             ->andWhere('r.isActive = :active')

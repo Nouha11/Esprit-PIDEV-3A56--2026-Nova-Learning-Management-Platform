@@ -738,13 +738,23 @@
             
             // Check for milestone unlock on page load
             {% if app.session.get('milestone_unlocked') %}
+                console.log('Milestone data found in session');
                 const milestones = {{ app.session.get('milestone_unlocked')|json_encode|raw }};
+                console.log('Milestones:', milestones);
                 if (milestones && milestones.length > 0) {
-                    // Show celebration modal for first milestone (can be extended for multiple)
-                    showMilestoneCelebration(milestones[0]);
+                    // Show celebration modal for each milestone with delay
+                    console.log('Showing milestone celebrations for', milestones.length, 'milestone(s)');
+                    milestones.forEach((milestone, index) => {
+                        setTimeout(() => {
+                            console.log('Showing milestone:', milestone);
+                            showMilestoneCelebration(milestone);
+                        }, index * 3000); // 3 second delay between each milestone
+                    });
                 }
                 // Clear the session data
                 {% do app.session.remove('milestone_unlocked') %}
+            {% else %}
+                console.log('No milestone data in session');
             {% endif %}
             
             if (playBtn) {
