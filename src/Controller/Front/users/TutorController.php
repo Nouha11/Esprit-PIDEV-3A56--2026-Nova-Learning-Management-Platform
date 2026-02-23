@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted; // Added for security
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/tutor')]
 #[IsGranted('ROLE_TUTOR')] // Restrict this whole controller to Tutors only
@@ -46,7 +47,7 @@ final class TutorController extends AbstractController
     }
 
     #[Route('/profile/edit', name: 'app_tutor_profile_edit', methods: ['GET', 'POST'])]
-    public function editProfile(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
+    public function editProfile(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator, UserPasswordHasherInterface $passwordHasher): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -104,6 +105,37 @@ final class TutorController extends AbstractController
                 $errors[] = $translator->trans('Years of experience is required', [], 'validators', $locale);
             } elseif ($yearsOfExperience < 0 || $yearsOfExperience > 50) {
                 $errors[] = $translator->trans('Years of experience must be between {{ min }} and {{ max }}', ['{{ min }}' => 0, '{{ max }}' => 50], 'validators', $locale);
+            }
+            
+            // Handle password change if provided
+            $currentPassword = $request->request->get('current_password');
+            $newPassword = $request->request->get('new_password');
+            $confirmPassword = $request->request->get('confirm_password');
+            
+            if (!empty($currentPassword) || !empty($newPassword) || !empty($confirmPassword)) {
+                if (empty($currentPassword)) {
+                    $errors[] = $translator->trans('Current password is required to change password', [], 'validators', $locale);
+                } elseif (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+                    $errors[] = $translator->trans('Current password is incorrect', [], 'validators', $locale);
+                } elseif (empty($newPassword)) {
+                    $errors[] = $translator->trans('New password is required', [], 'validators', $locale);
+                } elseif (strlen($newPassword) < 8) {
+                    $errors[] = $translator->trans('New password must be at least {{ limit }} characters', ['{{ limit }}' => 8], 'validators', $locale);
+                } elseif ($newPassword !== $confirmPassword) {
+                    $errors[] = $translator->trans('Passwords do not match', [], 'validators', $locale);
+                }
+                
+                if (empty($errors)) {
+                    // Update password
+                    $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+                    $user->setPassword($hashedPassword);
+                    
+                    // Clear any password reset tokens
+                    $user->setResetToken(null);
+                    $user->setResetTokenExpiresAt(null);
+                    
+                    $this->addFlash('success', $translator->trans('Password changed successfully', [], 'validators', $locale));
+                }
             }
             
             if (!empty($errors)) {

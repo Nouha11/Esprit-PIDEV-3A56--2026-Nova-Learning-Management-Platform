@@ -45,7 +45,12 @@ final class StudentController extends AbstractController
     }
 
     #[Route('/profile/edit', name: 'app_student_profile_edit', methods: ['GET', 'POST'])]
-    public function editProfile(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
+    public function editProfile(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        TranslatorInterface $translator,
+        \Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface $passwordHasher
+    ): Response
     {
         $user = $this->getUser();
         
@@ -65,6 +70,42 @@ final class StudentController extends AbstractController
         if ($request->isMethod('POST')) {
             // Get current locale for translations
             $locale = $request->getSession()->get('_locale', 'en');
+            
+            // Handle password change if provided
+            $currentPassword = $request->request->get('current_password');
+            $newPassword = $request->request->get('new_password');
+            $confirmPassword = $request->request->get('confirm_password');
+            
+            if ($currentPassword || $newPassword || $confirmPassword) {
+                // Validate password change
+                if (!$currentPassword) {
+                    $this->addFlash('error', $translator->trans('Current password is required', [], 'validators', $locale));
+                } elseif (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+                    $this->addFlash('error', $translator->trans('Current password is incorrect', [], 'validators', $locale));
+                } elseif (!$newPassword) {
+                    $this->addFlash('error', $translator->trans('New password is required', [], 'validators', $locale));
+                } elseif (strlen($newPassword) < 8) {
+                    $this->addFlash('error', $translator->trans('Password must be at least 8 characters', [], 'validators', $locale));
+                } elseif ($newPassword !== $confirmPassword) {
+                    $this->addFlash('error', $translator->trans('Passwords do not match', [], 'validators', $locale));
+                } else {
+                    // Update password
+                    $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+                    $user->setPassword($hashedPassword);
+                    $entityManager->flush();
+                    
+                    $this->addFlash('success', $translator->trans('Password updated successfully', [], 'validators', $locale));
+                    return $this->redirectToRoute('app_student_profile');
+                }
+                
+                // If password validation failed, return early
+                if ($this->container->get('session')->getFlashBag()->has('error')) {
+                    return $this->render('front/users/student/edit.html.twig', [
+                        'student' => $student,
+                        'completion' => $completion,
+                    ]);
+                }
+            }
             
             // Handle avatar upload
             $avatarFile = $request->files->get('avatarFile');

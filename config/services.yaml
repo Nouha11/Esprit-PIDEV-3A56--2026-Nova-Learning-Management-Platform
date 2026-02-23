@@ -1,5 +1,6 @@
 parameters:
     admin_notification_email: 'oussamastudy2@gmail.com'
+    from_email: 'oussamastudy2@gmail.com'
     openai_api_key: '%env(OPENAI_API_KEY)%'
     gemini_api_key: '%env(GEMINI_API_KEY)%'
     youtube_api_key: '%env(YOUTUBE_API_KEY)%'
@@ -16,6 +17,7 @@ services:
             $openaiApiKey: '%openai_api_key%'
             $geminiApiKey: '%gemini_api_key%'
             $huggingFaceApiKey: '%hugging_face_api_key%'
+            $fromEmail: '%from_email%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

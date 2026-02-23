@@ -18,7 +18,7 @@ class NotificationService
         private NotificationRepository $notificationRepository,
         private MailerInterface $mailer,
         private LoggerInterface $logger,
-        private string $fromEmail = 'noreply@nova-platform.com'
+        private string $fromEmail
     ) {}
 
     /**
