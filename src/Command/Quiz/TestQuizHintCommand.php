@@ -107,7 +107,7 @@ class TestQuizHintCommand extends Command
             [
                 ['Questions Tested', count($questions)],
                 ['XP Penalty', '50%'],
-                ['AI Model', 'Mistral-7B-Instruct (Hugging Face)'],
+                ['AI Model', 'Google Gemini 2.5 Flash'],
                 ['Max Tokens', '150'],
             ]
         );

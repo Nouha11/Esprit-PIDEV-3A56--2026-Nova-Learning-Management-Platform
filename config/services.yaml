@@ -50,7 +50,7 @@ services:
 
     App\Service\Quiz\QuizHintService:
         arguments:
-            $huggingFaceApiKey: '%env(HUGGING_FACE_API_KEY)%'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
 
 when@test:
     services:

@@ -10,13 +10,13 @@ class QuizHintService
 {
     public function __construct(
         private HttpClientInterface $httpClient,
-        private string $huggingFaceApiKey,
+        private string $geminiApiKey,
         private LoggerInterface $logger
     ) {
     }
 
     /**
-     * Generate a hint for a quiz question using Hugging Face
+     * Generate a hint for a quiz question using Google Gemini
      * 
      * @param Question $question
      * @return string The generated hint
@@ -27,20 +27,43 @@ class QuizHintService
         try {
             $prompt = $this->buildPrompt($question);
             
-            // Using Mistral-7B-Instruct model for text generation
-            $response = $this->httpClient->request('POST', 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', [
+            // Using Gemini 2.5 Flash API for text generation
+            $response = $this->httpClient->request('POST', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->huggingFaceApiKey,
                     'Content-Type' => 'application/json',
+                    'X-goog-api-key' => $this->geminiApiKey,
                 ],
                 'json' => [
-                    'inputs' => $prompt,
-                    'parameters' => [
-                        'max_new_tokens' => 150,
+                    'contents' => [
+                        [
+                            'parts' => [
+                                ['text' => $prompt]
+                            ]
+                        ]
+                    ],
+                    'generationConfig' => [
                         'temperature' => 0.7,
-                        'top_p' => 0.9,
-                        'do_sample' => true,
-                        'return_full_text' => false
+                        'topK' => 40,
+                        'topP' => 0.95,
+                        'maxOutputTokens' => 150,
+                    ],
+                    'safetySettings' => [
+                        [
+                            'category' => 'HARM_CATEGORY_HARASSMENT',
+                            'threshold' => 'BLOCK_NONE'
+                        ],
+                        [
+                            'category' => 'HARM_CATEGORY_HATE_SPEECH',
+                            'threshold' => 'BLOCK_NONE'
+                        ],
+                        [
+                            'category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+                            'threshold' => 'BLOCK_NONE'
+                        ],
+                        [
+                            'category' => 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                            'threshold' => 'BLOCK_NONE'
+                        ]
                     ]
                 ],
                 'timeout' => 15,
@@ -48,15 +71,15 @@ class QuizHintService
 
             $data = $response->toArray();
             
-            // Hugging Face returns array of results
-            if (isset($data[0]['generated_text'])) {
-                $hint = trim($data[0]['generated_text']);
-                // Clean up the hint - remove any prompt repetition
+            // Gemini returns response in candidates array
+            if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                $hint = trim($data['candidates'][0]['content']['parts'][0]['text']);
+                // Clean up the hint
                 $hint = $this->cleanHintText($hint);
                 return $hint;
             }
             
-            throw new \Exception('Invalid response from Hugging Face API');
+            throw new \Exception('Invalid response from Gemini API');
             
         } catch (\Exception $e) {
             $this->logger->error('Failed to generate quiz hint', [
@@ -70,7 +93,7 @@ class QuizHintService
     }
 
     /**
-     * Build the prompt for Hugging Face based on the question
+     * Build the prompt for Gemini based on the question
      */
     private function buildPrompt(Question $question): string
     {
@@ -84,9 +107,9 @@ class QuizHintService
         }
         $choicesText = implode(', ', $choices);
         
-        // Format prompt for instruction-following model
+        // Format prompt for Gemini
         return sprintf(
-            "[INST] You are a helpful tutor. Provide a subtle hint (2-3 sentences max) for this %s difficulty quiz question. Guide the student without revealing the answer.\n\nQuestion: %s\nChoices: %s\n\nHint: [/INST]",
+            "You are a helpful tutor. Provide a subtle hint (2-3 sentences max) for this %s difficulty quiz question. Guide the student without revealing the answer directly.\n\nQuestion: %s\nChoices: %s\n\nProvide only the hint, nothing else:",
             strtolower($difficulty),
             $questionText,
             $choicesText
