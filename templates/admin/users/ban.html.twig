@@ -1,0 +1,77 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Ban User - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-2">Ban User</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ path('app_admin_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ path('app_admin_users_list') }}">Users</a></li>
+                        <li class="breadcrumb-item active">Ban User</li>
+                    </ol>
+                </nav>
+            </div>
+            <div>
+                <a href="{{ path('app_admin_users_list') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mx-auto">
+        <div class="card border-warning">
+            <div class="card-header bg-warning bg-opacity-10 border-bottom">
+                <h5 class="mb-0 text-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Ban User: {{ user.username }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Warning:</strong> Banning this user will immediately deactivate their account and prevent them from logging in.
+                </div>
+
+                <form method="post" action="{{ path('app_admin_users_ban', {'id': user.id}) }}">
+                    <div class="mb-3">
+                        <label for="ban_reason" class="form-label">Reason for Ban <span class="text-danger">*</span></label>
+                        <textarea class="form-control" 
+                                  id="ban_reason" 
+                                  name="ban_reason" 
+                                  rows="4" 
+                                  required
+                                  placeholder="Enter the reason for banning this user..."></textarea>
+                        <div class="form-text">This reason will be stored in the system for record-keeping.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="mb-2">User Information:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Username:</strong> {{ user.username }}</li>
+                            <li><strong>Email:</strong> {{ user.email }}</li>
+                            <li><strong>Role:</strong> {{ user.role }}</li>
+                            <li><strong>Joined:</strong> {{ user.createdAt|date('M d, Y') }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{{ path('app_admin_users_list') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-ban me-2"></i>Ban User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

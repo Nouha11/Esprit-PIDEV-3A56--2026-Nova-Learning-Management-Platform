@@ -25,20 +25,70 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/new', name: 'app_admin_users_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository): Response
     {
         if ($request->isMethod('POST')) {
+            $username = trim($request->request->get('username'));
+            $email = trim($request->request->get('email'));
+            $password = $request->request->get('password');
+            $confirmPassword = $request->request->get('confirmPassword');
+            $role = $request->request->get('role');
+            
+            $errors = [];
+            
+            // Validate required fields
+            if (empty($username)) {
+                $errors[] = 'Username is required';
+            } elseif (strlen($username) < 3) {
+                $errors[] = 'Username must be at least 3 characters';
+            } elseif ($userRepository->findOneBy(['username' => $username])) {
+                $errors[] = 'Username already exists';
+            }
+            
+            if (empty($email)) {
+                $errors[] = 'Email is required';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Invalid email format';
+            } elseif ($userRepository->findOneBy(['email' => $email])) {
+                $errors[] = 'Email already exists';
+            }
+            
+            if (empty($password)) {
+                $errors[] = 'Password is required';
+            } elseif (strlen($password) < 8) {
+                $errors[] = 'Password must be at least 8 characters';
+            }
+            
+            if ($password !== $confirmPassword) {
+                $errors[] = 'Passwords do not match';
+            }
+            
+            if (empty($role)) {
+                $errors[] = 'Role is required';
+            } elseif (!in_array($role, ['ROLE_STUDENT', 'ROLE_TUTOR', 'ROLE_ADMIN'])) {
+                $errors[] = 'Invalid role selected';
+            }
+            
+            if (!empty($errors)) {
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error);
+                }
+                return $this->render('admin/users/admin/new.html.twig', [
+                    'formData' => $request->request->all()
+                ]);
+            }
+            
             $user = new User();
-            $user->setUsername($request->request->get('username'));
-            $user->setEmail($request->request->get('email'));
+            $user->setUsername($username);
+            $user->setEmail($email);
             
             // Hash password
-            $plaintextPassword = $request->request->get('password');
-            $hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
+            $hashedPassword = $passwordHasher->hashPassword($user, $password);
             $user->setPassword($hashedPassword);
             
-            $user->setRole($request->request->get('role'));
+            $user->setRole($role);
             $user->setIsActive($request->request->get('isActive') === '1');
+            $user->setIsVerified(false); // Require email verification
 
             $entityManager->persist($user);
             $entityManager->flush();
@@ -98,9 +148,61 @@ final class AdminController extends AbstractController
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($user);
-            $entityManager->flush();
-            $this->addFlash('success', 'User deleted successfully.');
+            try {
+                // Manually remove related entities that don't have cascade delete
+                
+                // Remove study streak if exists
+                $studyStreak = $entityManager->getRepository(\App\Entity\StudySession\StudyStreak::class)
+                    ->findOneBy(['user' => $user]);
+                if ($studyStreak) {
+                    $entityManager->remove($studyStreak);
+                }
+                
+                // Remove enrollment requests
+                $enrollmentRequests = $entityManager->getRepository(\App\Entity\StudySession\EnrollmentRequest::class)
+                    ->findBy(['student' => $user]);
+                foreach ($enrollmentRequests as $request) {
+                    $entityManager->remove($request);
+                }
+                
+                // Remove quiz reports
+                $quizReports = $entityManager->getRepository(\App\Entity\Quiz\QuizReport::class)
+                    ->findBy(['reportedBy' => $user]);
+                foreach ($quizReports as $report) {
+                    $entityManager->remove($report);
+                }
+                
+                // Remove library loans
+                $loans = $entityManager->getRepository(\App\Entity\Library\Loan::class)
+                    ->findBy(['user' => $user]);
+                foreach ($loans as $loan) {
+                    $entityManager->remove($loan);
+                }
+                
+                // Remove digital purchases
+                $purchases = $entityManager->getRepository(\App\Entity\Library\DigitalPurchase::class)
+                    ->findBy(['user' => $user]);
+                foreach ($purchases as $purchase) {
+                    $entityManager->remove($purchase);
+                }
+                
+                // Remove user library entries
+                $userLibraries = $entityManager->getRepository(\App\Entity\Library\UserLibrary::class)
+                    ->findBy(['user' => $user]);
+                foreach ($userLibraries as $userLibrary) {
+                    $entityManager->remove($userLibrary);
+                }
+                
+                // Finally remove the user (cascade will handle profiles, sessions, activities, notifications, login history)
+                $entityManager->remove($user);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'User deleted successfully.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Failed to delete user: ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Invalid CSRF token.');
         }
 
         return $this->redirectToRoute('app_admin_users_list');
@@ -114,6 +216,14 @@ final class AdminController extends AbstractController
 
         $this->addFlash('success', 'User status updated successfully.');
         return $this->redirectToRoute('app_admin_users_list');
+    }
+
+    #[Route('/{id}/ban', name: 'app_admin_users_ban_form', methods: ['GET'])]
+    public function banForm(User $user): Response
+    {
+        return $this->render('admin/users/ban.html.twig', [
+            'user' => $user,
+        ]);
     }
 
     #[Route('/{id}/ban', name: 'app_admin_users_ban', methods: ['POST'])]

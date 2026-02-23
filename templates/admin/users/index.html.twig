@@ -72,7 +72,7 @@
                 <!-- Card body START -->
                 <div class="card-body">
                     <!-- Users table START -->
-                    <div class="table-responsive border-0">
+                    <div class="table-responsive border-0" style="overflow: visible;">
                         <table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
                             <!-- Table head -->
                             <thead>
@@ -101,15 +101,23 @@
                                     
                                     <!-- User info -->
                                     <td>
-                                        <div class="d-flex align-items-center position-relative">
+                                        <div class="d-flex align-items-center">
                                             <!-- Avatar -->
                                             <div class="avatar avatar-md mb-2 mb-md-0">
-                                                <img src="{{ asset('assets/images/avatar/0' ~ (loop.index % 9 + 1) ~ '.jpg') }}" class="rounded-circle" alt="">
+                                                {% if user.studentProfile and user.studentProfile.profilePicture %}
+                                                    <img src="{{ vich_uploader_asset(user.studentProfile, 'avatarFile') }}" class="rounded-circle" alt="{{ user.username }}">
+                                                {% elseif user.tutorProfile and user.tutorProfile.profilePicture %}
+                                                    <img src="{{ vich_uploader_asset(user.tutorProfile, 'avatarFile') }}" class="rounded-circle" alt="{{ user.username }}">
+                                                {% else %}
+                                                    <div class="avatar-img rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center">
+                                                        <span class="text-primary fs-5">{{ user.username|first|upper }}</span>
+                                                    </div>
+                                                {% endif %}
                                             </div>
                                             <div class="mb-0 ms-2">
                                                 <!-- Title -->
                                                 <h6 class="mb-0">
-                                                    <a href="{{ path('app_admin_users_show', {'id': user.id}) }}" class="stretched-link">
+                                                    <a href="{{ path('app_admin_users_show', {'id': user.id}) }}">
                                                         {{ user.username }}
                                                     </a>
                                                 </h6>
@@ -197,7 +205,7 @@
                                                 <li><hr class="dropdown-divider"></li>
                                                 {% if user.isBanned %}
                                                     <li>
-                                                        <form method="post" action="{{ path('app_admin_users_unban', {'id': user.id}) }}" style="display: inline;">
+                                                        <form method="post" action="{{ path('app_admin_users_unban', {'id': user.id}) }}">
                                                             <button type="submit" class="dropdown-item text-success">
                                                                 <i class="bi bi-check-circle fa-fw me-2"></i>Unban User
                                                             </button>
@@ -205,65 +213,21 @@
                                                     </li>
                                                 {% else %}
                                                     <li>
-                                                        <button type="button" class="dropdown-item text-warning" data-bs-toggle="modal" data-bs-target="#banModal{{ user.id }}">
+                                                        <a class="dropdown-item text-warning" href="{{ path('app_admin_users_ban_form', {'id': user.id}) }}">
                                                             <i class="bi bi-ban fa-fw me-2"></i>Ban User
-                                                        </button>
+                                                        </a>
                                                     </li>
                                                 {% endif %}
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li>
-                                                    <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.id }}">
-                                                        <i class="bi bi-trash fa-fw me-2"></i>Delete
-                                                    </button>
+                                                    <form method="post" action="{{ path('app_admin_users_delete', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to delete user {{ user.username }}? This action cannot be undone.');">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                                        <button type="submit" class="dropdown-item text-danger">
+                                                            <i class="bi bi-trash fa-fw me-2"></i>Delete
+                                                        </button>
+                                                    </form>
                                                 </li>
                                             </ul>
-                                        </div>
-
-                                        <!-- Delete Modal -->
-                                        <div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ user.id }}" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="deleteModalLabel{{ user.id }}">Confirm Delete</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Are you sure you want to delete user <strong>{{ user.username }}</strong>? This action cannot be undone.
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <form method="post" action="{{ path('app_admin_users_delete', {'id': user.id}) }}" style="display: inline;">
-                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-                                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Ban Modal -->
-                                        <div class="modal fade" id="banModal{{ user.id }}" tabindex="-1" aria-labelledby="banModalLabel{{ user.id }}" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="banModalLabel{{ user.id }}">Ban User</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <form method="post" action="{{ path('app_admin_users_ban', {'id': user.id}) }}">
-                                                        <div class="modal-body">
-                                                            <p>Are you sure you want to ban <strong>{{ user.username }}</strong>?</p>
-                                                            <div class="mb-3">
-                                                                <label for="banReason{{ user.id }}" class="form-label">Reason for ban:</label>
-                                                                <textarea class="form-control" id="banReason{{ user.id }}" name="ban_reason" rows="3" placeholder="Enter reason for banning this user..." required></textarea>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                            <button type="submit" class="btn btn-warning">Ban User</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -308,6 +272,33 @@
                 <!-- Card footer END -->
             </div>
             <!-- Card END -->
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* Fix dropdown menu overflow */
+.card-body {
+    overflow: visible !important;
+}
+
+.table-responsive {
+    overflow: visible !important;
+}
+
+/* Ensure dropdown appears above other content */
+.dropdown-menu {
+    position: absolute !important;
+    z-index: 1050 !important;
+}
+
+/* Fix table overflow on small screens while keeping dropdown visible */
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+    }
+}
+</style>
 {% endblock %}
 
 {% block javascripts %}
