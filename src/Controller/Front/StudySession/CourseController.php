@@ -223,6 +223,9 @@ class CourseController extends AbstractController
             $user = $this->getUser();
             $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
         }
+        
+        // Get course resources
+        $resources = $course->getResources();
 
         return $this->render('front/course/detail.html.twig', [
             'course' => $course,
@@ -233,7 +236,8 @@ class CourseController extends AbstractController
             'total_sessions' => $totalSessions,
             'total_xp' => $totalXP,
             'avg_duration' => $avgDuration,
-            'currentEnergy' => $currentEnergy
+            'currentEnergy' => $currentEnergy,
+            'resources' => $resources
         ]);
     }
 
@@ -341,5 +345,96 @@ class CourseController extends AbstractController
         }
 
         return $this->redirectToRoute('course_index');
+    }
+    
+    #[Route('/{id}/resource/upload', name: 'course_resource_upload', methods: ['POST'])]
+    #[IsGranted('ROLE_TUTOR')]
+    public function uploadResource(
+        Course $course,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        $file = $request->files->get('resource_file');
+        
+        if (!$file) {
+            $this->addFlash('error', 'Please select a file to upload.');
+            return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
+        }
+        
+        // Validate file type (PDF only)
+        if ($file->getMimeType() !== 'application/pdf') {
+            $this->addFlash('error', 'Only PDF files are allowed.');
+            return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
+        }
+        
+        // Validate file size (max 10MB)
+        if ($file->getSize() > 10 * 1024 * 1024) {
+            $this->addFlash('error', 'File size must not exceed 10MB.');
+            return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
+        }
+        
+        try {
+            // Generate unique filename
+            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+            $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+            
+            // Move file to uploads directory
+            $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/course_resources';
+            if (!is_dir($uploadsDir)) {
+                mkdir($uploadsDir, 0777, true);
+            }
+            $file->move($uploadsDir, $newFilename);
+            
+            // Create resource entity
+            $resource = new \App\Entity\StudySession\Resource();
+            $resource->setFilename($file->getClientOriginalName());
+            $resource->setStoredFilename($newFilename);
+            $resource->setFileSize($file->getSize());
+            $resource->setMimeType($file->getMimeType());
+            $resource->setCourse($course);
+            
+            $em->persist($resource);
+            $em->flush();
+            
+            $this->addFlash('success', 'Resource uploaded successfully.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Failed to upload resource: ' . $e->getMessage());
+        }
+        
+        return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
+    }
+    
+    #[Route('/resource/{id}/delete', name: 'course_resource_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_TUTOR')]
+    public function deleteResource(
+        \App\Entity\StudySession\Resource $resource,
+        EntityManagerInterface $em
+    ): Response {
+        $course = $resource->getCourse();
+        
+        if (!$course) {
+            $this->addFlash('error', 'Course not found.');
+            return $this->redirectToRoute('course_index');
+        }
+        
+        try {
+            // Delete physical file
+            $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/course_resources';
+            $filePath = $uploadsDir . '/' . $resource->getStoredFilename();
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            
+            // Delete database record
+            $em->remove($resource);
+            $em->flush();
+            
+            $this->addFlash('success', 'Resource deleted successfully.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Failed to delete resource: ' . $e->getMessage());
+        }
+        
+        return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
     }
 }

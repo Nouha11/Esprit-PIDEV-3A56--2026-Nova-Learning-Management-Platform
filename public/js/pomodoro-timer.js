@@ -110,6 +110,9 @@ class PomodoroTimer {
         
         this.hideBreakSuggestion();
         
+        // Stop energy regeneration when timer starts
+        this.stopEnergyRegeneration();
+        
         this.intervalId = setInterval(() => this.tick(), 1000);
     }
     
@@ -129,6 +132,9 @@ class PomodoroTimer {
         
         clearInterval(this.intervalId);
         
+        // Resume energy regeneration when paused
+        this.resumeEnergyRegeneration();
+        
         // Save state when paused
         this.saveState();
     }
@@ -146,6 +152,9 @@ class PomodoroTimer {
         
         this.pauseBtn.style.display = 'inline-block';
         this.resumeBtn.style.display = 'none';
+        
+        // Stop energy regeneration when resuming
+        this.stopEnergyRegeneration();
         
         this.intervalId = setInterval(() => this.tick(), 1000);
     }
@@ -168,6 +177,9 @@ class PomodoroTimer {
         clearInterval(this.intervalId);
         this.updateDisplay();
         this.hideBreakSuggestion();
+        
+        // Resume energy regeneration when reset
+        this.resumeEnergyRegeneration();
         
         // Clear saved state when reset
         this.clearState();
@@ -659,6 +671,79 @@ class PomodoroTimer {
         
         const key = `pomodoro_state_course_${this.courseId}`;
         localStorage.removeItem(key);
+    }
+    
+    /**
+     * Stop energy regeneration display when timer is running
+     */
+    stopEnergyRegeneration() {
+        const regenInfo = document.getElementById('energy-regen-info');
+        const regenStatus = document.getElementById('regen-status');
+        
+        if (!regenInfo || !regenStatus) {
+            console.warn('⚠️ Energy regeneration elements not found');
+            return;
+        }
+        
+        console.log('⏸️ Stopping energy regeneration display');
+        
+        // Update status to show regeneration is paused
+        regenStatus.innerHTML = `
+            <i class="bi bi-pause-circle-fill text-warning"></i>
+            <small class="text-warning"><strong>Regeneration Paused</strong> - Timer is running</small>
+        `;
+        
+        // Hide the refill countdown timer
+        const refillTimer = document.getElementById('refill-timer');
+        if (refillTimer) {
+            refillTimer.style.display = 'none';
+        }
+        
+        // Add visual indicator that regeneration is paused
+        regenInfo.style.background = 'rgba(var(--bs-warning-rgb), 0.1)';
+        regenInfo.style.borderColor = 'rgba(var(--bs-warning-rgb), 0.2)';
+    }
+    
+    /**
+     * Resume energy regeneration display when timer is paused/stopped
+     */
+    resumeEnergyRegeneration() {
+        const regenInfo = document.getElementById('energy-regen-info');
+        const regenStatus = document.getElementById('regen-status');
+        
+        if (!regenInfo || !regenStatus) {
+            console.warn('⚠️ Energy regeneration elements not found');
+            return;
+        }
+        
+        console.log('▶️ Resuming energy regeneration display');
+        
+        // Get current energy level
+        const energyBar = document.getElementById('energy-bar');
+        const currentEnergy = parseInt(energyBar?.getAttribute('data-energy') || 100);
+        
+        // Update status based on energy level
+        if (currentEnergy >= 100) {
+            regenStatus.innerHTML = `
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <small class="text-success"><strong>Energy Full!</strong> Ready to study</small>
+            `;
+        } else {
+            regenStatus.innerHTML = `
+                <i class="bi bi-arrow-clockwise text-success"></i>
+                <small class="text-muted">Regenerating: <strong class="text-success">+1 energy</strong> every 5 minutes</small>
+            `;
+        }
+        
+        // Show the refill countdown timer again
+        const refillTimer = document.getElementById('refill-timer');
+        if (refillTimer && currentEnergy < 100) {
+            refillTimer.style.display = 'flex';
+        }
+        
+        // Restore original styling
+        regenInfo.style.background = 'rgba(var(--bs-success-rgb), 0.1)';
+        regenInfo.style.borderColor = 'rgba(var(--bs-success-rgb), 0.2)';
     }
 }
 

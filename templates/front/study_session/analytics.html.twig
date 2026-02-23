@@ -158,8 +158,10 @@
     </div>
 </div>
 
-{# Include Study Buddy AI Widget #}
-{% include 'components/study_buddy_widget.html.twig' %}
+{# Include Study Buddy AI Widget - Students Only #}
+{% if is_granted('ROLE_STUDENT') %}
+    {% include 'components/study_buddy_widget.html.twig' %}
+{% endif %}
 
 {% endblock %}
 

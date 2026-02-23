@@ -110,6 +110,8 @@ final class TutorController extends AbstractController
                 foreach ($errors as $error) {
                     $this->addFlash('error', $error);
                 }
+                // Clear the file from entity to prevent serialization issues
+                $tutor->setAvatarFile(null);
                 return $this->render('front/users/tutor/edit.html.twig', [
                     'tutor' => $tutor,
                     'completion' => $completion,
@@ -134,6 +136,9 @@ final class TutorController extends AbstractController
             $tutor->setIsAvailable($request->request->get('isAvailable') === '1');
             
             $entityManager->flush();
+            
+            // Clear the file from entity after flush to prevent serialization issues
+            $tutor->setAvatarFile(null);
 
             $successMessage = $translator->trans('Tutor profile updated successfully.', [], 'validators', $locale);
             $this->addFlash('success', $successMessage);

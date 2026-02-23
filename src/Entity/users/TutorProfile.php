@@ -219,7 +219,7 @@ class TutorProfile
 
         if (null !== $avatarFile) {
             // Update the updatedAt property to force Doctrine to update
-            $this->updatedAt = new \DateTimeImmutable();
+            $this->updatedAt = new \DateTime();
         }
     }
 

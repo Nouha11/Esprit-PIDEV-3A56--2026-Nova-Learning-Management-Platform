@@ -15,7 +15,7 @@
                         <div class="row">
                             <div class="col-md-3 text-center">
                                 {% if student.profilePicture %}
-                                    <img src="{{ student.profilePicture }}" class="img-fluid rounded-circle mb-3" alt="Profile Picture" style="max-width: 150px;">
+                                    <img src="{{ vich_uploader_asset(student, 'avatarFile') }}" class="img-fluid rounded-circle mb-3" alt="Profile Picture" style="max-width: 150px; height: 150px; object-fit: cover;">
                                 {% else %}
                                     <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
                                         <h1 class="mb-0">{{ student.firstName|slice(0, 1) }}{{ student.lastName|slice(0, 1) }}</h1>

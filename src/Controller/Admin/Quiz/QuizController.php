@@ -53,7 +53,8 @@ final class QuizController extends AbstractController
             'pagination' => $pagination,
             'statistics' => $statistics,
             'currentFilters' => $filters,
-            'currentSort' => ['by' => $sortBy, 'order' => $sortOrder]
+            'currentSort' => ['by' => $sortBy, 'order' => $sortOrder],
+            'current_prefix' => $prefix
         ]);
     }
 

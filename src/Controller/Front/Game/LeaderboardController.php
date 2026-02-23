@@ -58,6 +58,12 @@ class LeaderboardController extends AbstractController
         foreach ($students as $student) {
             $levelInfo = $this->levelCalculator->calculateLevel($student->getTotalXP());
             
+            // Get profile picture URL or null
+            $profilePictureUrl = null;
+            if ($student->getProfilePicture()) {
+                $profilePictureUrl = '/uploads/avatars/' . $student->getProfilePicture();
+            }
+            
             $leaderboardData[] = [
                 'rank' => $rank++,
                 'id' => $student->getId(),
@@ -71,6 +77,7 @@ class LeaderboardController extends AbstractController
                 'progress' => $levelInfo['progress'],
                 'badgeColor' => $this->levelCalculator->getLevelBadgeColor($levelInfo['level']),
                 'icon' => $this->levelCalculator->getLevelIcon($levelInfo['level']),
+                'profilePicture' => $profilePictureUrl,
             ];
         }
 

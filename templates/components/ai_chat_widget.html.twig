@@ -348,7 +348,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const send = document.getElementById('ai-chat-send');
     const quickActions = document.querySelectorAll('[data-action]');
 
-    const STORAGE_KEY = 'ai_chat_history';
+    // User-specific storage key
+    const userId = {{ app.user ? app.user.id : 'guest' }};
+    const STORAGE_KEY = 'ai_chat_history_' + userId;
     const MAX_HISTORY = 50; // Keep last 50 messages
 
     // Load chat history from localStorage

@@ -101,6 +101,8 @@ final class StudentController extends AbstractController
                 foreach ($errors as $error) {
                     $this->addFlash('error', $error);
                 }
+                // Clear the file from entity to prevent serialization issues
+                $student->setAvatarFile(null);
                 return $this->render('front/users/student/edit.html.twig', [
                     'student' => $student,
                     'completion' => $completion,
@@ -124,6 +126,9 @@ final class StudentController extends AbstractController
             }
             
             $entityManager->flush();
+            
+            // Clear the file from entity after flush to prevent serialization issues
+            $student->setAvatarFile(null);
 
             $successMessage = $translator->trans('Student profile updated successfully.', [], 'validators', $locale);
             $this->addFlash('success', $successMessage);

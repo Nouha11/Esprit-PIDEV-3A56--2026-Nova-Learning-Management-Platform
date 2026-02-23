@@ -61,6 +61,32 @@ class StudyBuddyController extends AbstractController
             // Get AI response using HuggingFaceService chat method
             $response = $this->huggingFaceService->chat($question, $systemPrompt);
             
+            // Check if response mentions external platforms (fallback protection)
+            $externalPlatforms = ['coursera', 'edx', 'udemy', 'khan academy', 'linkedin learning', 'udacity', 'pluralsight'];
+            $responseLower = strtolower($response);
+            $mentionsExternal = false;
+            
+            foreach ($externalPlatforms as $platform) {
+                if (strpos($responseLower, $platform) !== false) {
+                    $mentionsExternal = true;
+                    break;
+                }
+            }
+            
+            // If AI mentioned external platforms, provide fallback response with actual courses
+            if ($mentionsExternal || (stripos($question, 'course') !== false && stripos($question, 'best') !== false)) {
+                if (!empty($studyData['availableCourses'])) {
+                    $courseNames = array_slice(array_map(fn($c) => $c['name'], $studyData['availableCourses']), 0, 3);
+                    $response = "Hey {$studentName}! 📚 Check out '" . implode("', '", $courseNames) . "' on our NOVA platform. These are great courses to get you started! ✨";
+                }
+            }
+            
+            // Ensure response starts with student's name
+            if (!preg_match('/^(Hey|Hi|Hello)\s+' . preg_quote($studentName, '/') . '/i', $response)) {
+                // If response doesn't start with greeting + name, prepend it
+                $response = "Hey {$studentName}! " . $response;
+            }
+            
             // Clean up response: remove markdown formatting and truncate if too long
             $response = $this->cleanResponse($response);
 
@@ -91,8 +117,15 @@ class StudyBuddyController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        // Get enrolled courses
-        $courses = $this->courseRepository->createQueryBuilder('c')
+        // Get ALL available courses in the platform (not just user's courses)
+        $allCourses = $this->courseRepository->createQueryBuilder('c')
+            ->orderBy('c.createdAt', 'DESC')
+            ->setMaxResults(20) // Get top 20 courses
+            ->getQuery()
+            ->getResult();
+
+        // Get user's enrolled courses
+        $enrolledCourses = $this->courseRepository->createQueryBuilder('c')
             ->where('c.createdBy = :user')
             ->setParameter('user', $user)
             ->orderBy('c.createdAt', 'DESC')
@@ -101,7 +134,7 @@ class StudyBuddyController extends AbstractController
             ->getResult();
 
         $sessionCount = count($recentSessions);
-        $courseCount = count($courses);
+        $courseCount = count($enrolledCourses);
 
         $totalStudyTime = 0;
         $completedSessions = 0;
@@ -122,10 +155,15 @@ class StudyBuddyController extends AbstractController
             'totalStudyTime' => $totalStudyTime,
             'avgSessionDuration' => $avgSessionDuration,
             'completedSessions' => $completedSessions,
-            'courses' => array_map(fn($c) => [
+            'enrolledCourses' => array_map(fn($c) => [
                 'name' => $c->getCourseName(),
                 'description' => $c->getDescription()
-            ], $courses),
+            ], $enrolledCourses),
+            'availableCourses' => array_map(fn($c) => [
+                'name' => $c->getCourseName(),
+                'description' => $c->getDescription(),
+                'category' => $c->getCategory() ?? 'General'
+            ], $allCourses),
             'recentSessions' => array_map(fn($s) => [
                 'duration' => $s->getDuration(),
                 'completed' => $s->getCompletedAt() !== null,
@@ -140,17 +178,31 @@ class StudyBuddyController extends AbstractController
      */
     private function buildStudyBuddyPrompt(array $studyData, string $studentName): string
     {
-        $coursesInfo = '';
-        if (!empty($studyData['courses'])) {
-            $coursesInfo = "\n\nStudent's Courses:\n";
-            foreach ($studyData['courses'] as $course) {
-                $coursesInfo .= "- {$course['name']}: {$course['description']}\n";
+        $enrolledCoursesInfo = '';
+        if (!empty($studyData['enrolledCourses'])) {
+            $enrolledCoursesInfo = "\n\n=== STUDENT'S ENROLLED COURSES ===\n";
+            foreach ($studyData['enrolledCourses'] as $course) {
+                $enrolledCoursesInfo .= "✓ {$course['name']}: {$course['description']}\n";
             }
+        }
+
+        $availableCoursesInfo = '';
+        $coursesList = '';
+        if (!empty($studyData['availableCourses'])) {
+            $availableCoursesInfo = "\n\n=== AVAILABLE COURSES ON NOVA PLATFORM (USE THESE ONLY!) ===\n";
+            foreach ($studyData['availableCourses'] as $idx => $course) {
+                $category = $course['category'] ?? 'General';
+                $availableCoursesInfo .= ($idx + 1) . ". {$course['name']} [{$category}]: {$course['description']}\n";
+                $coursesList .= "- {$course['name']}\n";
+            }
+            $availableCoursesInfo .= "\n⚠️ CRITICAL: When asked about courses, you MUST recommend ONLY from the list above.\n";
+            $availableCoursesInfo .= "⚠️ NEVER mention: Coursera, edX, Udemy, Khan Academy, or any external platform.\n";
+            $availableCoursesInfo .= "⚠️ If asked for 'best courses', mention 2-3 courses from the NOVA platform list above.\n";
         }
 
         $sessionsInfo = '';
         if (!empty($studyData['recentSessions'])) {
-            $sessionsInfo = "\n\nRecent Study Sessions:\n";
+            $sessionsInfo = "\n\n=== RECENT STUDY SESSIONS ===\n";
             foreach ($studyData['recentSessions'] as $idx => $session) {
                 $sessionsInfo .= sprintf(
                     "Session %d: %d min, Completed: %s, Mood: %s, Energy: %s\n",
@@ -164,7 +216,7 @@ class StudyBuddyController extends AbstractController
         }
 
         return <<<PROMPT
-You are Study Buddy AI, a friendly and knowledgeable learning companion designed to help students with their studies.
+You are Study Buddy AI for the NOVA learning platform. You help students with courses available ON THIS PLATFORM ONLY.
 
 === STUDENT INFO ===
 Name: {$studentName}
@@ -173,48 +225,45 @@ Name: {$studentName}
 - Total Study Time: {$studyData['totalStudyTime']} minutes
 - Average Session Duration: {$studyData['avgSessionDuration']} minutes
 - Active Courses: {$studyData['courseCount']}
-{$coursesInfo}{$sessionsInfo}
+{$enrolledCoursesInfo}{$availableCoursesInfo}{$sessionsInfo}
+
+=== CRITICAL RULES FOR COURSE RECOMMENDATIONS ===
+1. You can ONLY recommend courses from the "AVAILABLE COURSES ON NOVA PLATFORM" list above
+2. NEVER mention external platforms (Coursera, edX, Udemy, Khan Academy, LinkedIn Learning, etc.)
+3. When asked about "best courses" or course recommendations, pick 2-3 from the NOVA list
+4. Use the actual course names from the list above
+5. If no courses match the request, say "We don't have that specific course yet, but check out [course from list]"
 
 === YOUR ROLE ===
-- Provide study tips, learning strategies, and academic advice
-- Help with note summarization and quiz generation concepts
-- Suggest effective study schedules and time management
+- Recommend courses from NOVA platform only
+- Provide study tips and learning strategies
 - Offer motivation and encouragement
-- Answer questions about courses and study sessions
-- Give personalized recommendations based on their study data
+- Answer questions about study sessions
 - Address the student by their name ({$studentName}) when appropriate
 
-=== CRITICAL RESPONSE FORMAT ===
-YOU MUST RESPOND IN EXACTLY 2-3 SHORT SENTENCES. NO MORE.
-- Start with a friendly greeting using their name when appropriate
-- Add relevant emojis (💡 📚 ⏰ 📝 ✨ 🎯 💪 🌟) to make responses engaging
-- NO numbered lists (#1, #2, etc.)
-- NO bullet points
-- NO step-by-step guides
-- NO markdown formatting (###, **, etc.)
-- Just 2-3 plain sentences with practical advice
-- Maximum 60 words total
+=== RESPONSE FORMAT ===
+- ALWAYS start with "Hey {$studentName}!" or "Hi {$studentName}!" 
+- Respond in 2-3 SHORT sentences (maximum 60 words)
+- Use emojis naturally (💡 📚 ⏰ 📝 ✨ 🎯 💪 🌟)
+- NO numbered lists, NO bullet points, NO markdown
+- Just plain conversational sentences
 
-EXAMPLE GOOD RESPONSES:
+=== EXAMPLE RESPONSES ===
+Q: "What are the best courses?"
+A: "Hey {$studentName}! 📚 I recommend checking out 'php' for programming or 'first course' to get started. Both are popular on NOVA and great for building skills ✨"
+
+Q: "Recommend a course"
+A: "Hi {$studentName}! 💡 Try 'test' or 'php rocks' - they're both excellent choices on our platform. Pick one that matches your interests! 🎯"
+
 Q: "Give me study tips"
-A: "Hey {$studentName}! 💡 Based on your {$studyData['sessionCount']} study sessions, try the Pomodoro technique with 25-minute focused blocks. Take short breaks between sessions to maintain your energy levels ⏰"
-
-Q: "How do I create a study schedule?"
-A: "Hi {$studentName}! 📅 Start by blocking out your most productive hours for difficult subjects. Schedule shorter sessions for easier topics and always include 5-10 minute breaks ✨"
+A: "Hey {$studentName}! 💡 Try the Pomodoro technique with 25-minute focused blocks. Take short breaks to maintain your energy levels ⏰"
 
 Q: "I'm feeling overwhelmed"
-A: "{$studentName}, you're doing great with {$studyData['completedSessions']} completed sessions! 💪 Break your work into smaller chunks and celebrate small wins. Remember, consistent progress beats perfection 🌟"
+A: "Hey {$studentName}! 💪 You're doing great with {$studyData['completedSessions']} completed sessions. Break your work into smaller chunks and celebrate small wins 🌟"
 
-=== RULES ===
-- Keep responses under 60 words
-- Use simple, conversational language
-- Be encouraging but brief
-- Reference their actual data when relevant
-- Use emojis naturally (1-2 per response)
-- Address them by name occasionally
-- NO lists, NO formatting, just plain helpful sentences
+Remember: ONLY recommend courses from the NOVA platform list above. Never mention external platforms.
 
-Respond naturally and helpfully to the student's question in 2-3 sentences only.
+Respond naturally in 2-3 sentences.
 PROMPT;
     }
 

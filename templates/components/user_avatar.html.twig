@@ -1,0 +1,47 @@
+{# User Avatar Component - Displays user profile picture or initials #}
+{# Parameters:
+   - user: User entity (required)
+   - size: 'xs', 'sm', 'md', 'lg', 'xl' (default: 'md')
+   - class: Additional CSS classes (optional)
+#}
+
+{% set size = size|default('md') %}
+{% set additionalClass = class|default('') %}
+
+{% set sizeClasses = {
+    'xs': 'avatar-xs',
+    'sm': 'avatar-sm',
+    'md': 'avatar-md',
+    'lg': 'avatar-lg',
+    'xl': 'avatar-xl'
+} %}
+
+{% set profile = null %}
+{% set initials = '' %}
+{% set bgColor = 'bg-primary' %}
+
+{# Determine profile and initials #}
+{% if user.studentProfile %}
+    {% set profile = user.studentProfile %}
+    {% set initials = (profile.firstName|first|upper) ~ (profile.lastName|first|upper) %}
+    {% set bgColor = 'bg-primary' %}
+{% elseif user.tutorProfile %}
+    {% set profile = user.tutorProfile %}
+    {% set initials = (profile.firstName|first|upper) ~ (profile.lastName|first|upper) %}
+    {% set bgColor = 'bg-info' %}
+{% else %}
+    {% set initials = user.username|first|upper %}
+    {% set bgColor = 'bg-secondary' %}
+{% endif %}
+
+<div class="avatar {{ sizeClasses[size] }} {{ additionalClass }}">
+    {% if profile and profile.profilePicture %}
+        <img class="avatar-img rounded-circle" 
+             src="{{ vich_uploader_asset(profile, 'avatarFile') }}" 
+             alt="{{ profile.firstName ?? user.username }}">
+    {% else %}
+        <div class="avatar-img rounded-circle {{ bgColor }} text-white d-flex align-items-center justify-content-center">
+            <span class="fw-bold">{{ initials }}</span>
+        </div>
+    {% endif %}
+</div>

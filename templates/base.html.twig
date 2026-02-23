@@ -354,14 +354,30 @@
                     
                 <li class="nav-item ms-3 dropdown">
                     <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+                        {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and app.user.studentProfile.profilePicture %}
+                            <img class="avatar-img rounded-circle" src="{{ vich_uploader_asset(app.user.studentProfile, 'avatarFile') }}" alt="avatar">
+                        {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and app.user.tutorProfile.profilePicture %}
+                            <img class="avatar-img rounded-circle" src="{{ vich_uploader_asset(app.user.tutorProfile, 'avatarFile') }}" alt="avatar">
+                        {% else %}
+                            <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <span class="fw-bold">{{ app.user.username|first|upper }}</span>
+                            </div>
+                        {% endif %}
                     </a>
 
                     <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
                         <li class="px-3 mb-3">
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-3">
-                                    <img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+                                    {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and app.user.studentProfile.profilePicture %}
+                                        <img class="avatar-img rounded-circle shadow" src="{{ vich_uploader_asset(app.user.studentProfile, 'avatarFile') }}" alt="avatar">
+                                    {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and app.user.tutorProfile.profilePicture %}
+                                        <img class="avatar-img rounded-circle shadow" src="{{ vich_uploader_asset(app.user.tutorProfile, 'avatarFile') }}" alt="avatar">
+                                    {% else %}
+                                        <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow" style="width: 50px; height: 50px;">
+                                            <span class="fw-bold fs-5">{{ app.user.username|first|upper }}</span>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div>
                                     <a class="h6" href="#">{{ app.user.username }}</a>
@@ -390,13 +406,13 @@
                         
                         <li>
                             <div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center gap-2 p-2 rounded mt-2">
-                                <button type="button" class="btn btn-sm btn-light mb-0 flex-fill" data-bs-theme-value="light">
+                                <button type="button" class="btn btn-sm mb-0 flex-fill theme-btn" data-bs-theme-value="light">
                                     <i class="bi bi-sun me-1"></i> {{ t.t('Light') }}
                                 </button>
-                                <button type="button" class="btn btn-sm btn-light mb-0 flex-fill" data-bs-theme-value="dark">
+                                <button type="button" class="btn btn-sm mb-0 flex-fill theme-btn" data-bs-theme-value="dark">
                                     <i class="bi bi-moon-stars me-1"></i> {{ t.t('Dark') }}
                                 </button>
-                                <button type="button" class="btn btn-sm btn-primary mb-0 flex-fill active" data-bs-theme-value="auto">
+                                <button type="button" class="btn btn-sm mb-0 flex-fill theme-btn" data-bs-theme-value="auto">
                                     <i class="bi bi-circle-half me-1"></i> {{ t.t('Auto') }}
                                 </button>
                             </div>
@@ -466,7 +482,7 @@
                                 <div class="d-flex align-items-center {{ loop.last ? '' : 'mb-3' }}">
                                     <div class="avatar avatar-xl">
                                         {% if data.student.profilePicture %}
-                                            <img class="avatar-img rounded-circle" src="{{ asset(data.student.profilePicture) }}" alt="{{ data.student.firstName }}">
+                                            <img class="avatar-img rounded-circle" src="{{ vich_uploader_asset(data.student, 'avatarFile') }}" alt="{{ data.student.firstName }}">
                                         {% else %}
                                             <div class="avatar-img rounded-circle bg-{{ get_level_badge_color(data.levelInfo.level) }} text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">
                                                 {{ data.student.firstName|slice(0, 1) }}{{ data.student.lastName|slice(0, 1) }}
@@ -874,6 +890,44 @@
                     homeLink.classList.add('active');
                 }
             }
+            
+            // Theme switcher for dropdown buttons
+            const updateThemeButtons = (theme) => {
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    const btnTheme = btn.getAttribute('data-bs-theme-value');
+                    if (btnTheme === theme) {
+                        btn.classList.remove('btn-light');
+                        btn.classList.add('btn-primary', 'active');
+                    } else {
+                        btn.classList.remove('btn-primary', 'active');
+                        btn.classList.add('btn-light');
+                    }
+                });
+            };
+            
+            // Initialize theme buttons on page load
+            const storedTheme = localStorage.getItem('theme') || 'auto';
+            updateThemeButtons(storedTheme);
+            
+            // Add click handlers to theme buttons
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-bs-theme-value');
+                    localStorage.setItem('theme', theme);
+                    
+                    // Set theme
+                    if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        document.documentElement.setAttribute('data-bs-theme', 'dark');
+                    } else if (theme === 'auto') {
+                        document.documentElement.setAttribute('data-bs-theme', 'light');
+                    } else {
+                        document.documentElement.setAttribute('data-bs-theme', theme);
+                    }
+                    
+                    // Update button states
+                    updateThemeButtons(theme);
+                });
+            });
         });
     </script>
     {% endblock %}

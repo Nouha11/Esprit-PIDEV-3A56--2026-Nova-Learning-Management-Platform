@@ -64,8 +64,10 @@
     }
 </style>
 
-{# Include AI Chat Widget #}
-{% include 'components/ai_chat_widget.html.twig' %}
+{# Include AI Chat Widget - Students Only #}
+{% if is_granted('ROLE_STUDENT') %}
+    {% include 'components/ai_chat_widget.html.twig' %}
+{% endif %}
 
 {% endblock %}
 

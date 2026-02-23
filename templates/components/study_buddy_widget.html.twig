@@ -348,7 +348,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const send = document.getElementById('study-buddy-send');
     const quickActions = document.querySelectorAll('.study-quick-actions [data-action]');
 
-    const STORAGE_KEY = 'study_buddy_chat_history';
+    // User-specific storage key
+    const userId = {{ app.user ? app.user.id : 'guest' }};
+    const STORAGE_KEY = 'study_buddy_chat_history_' + userId;
     const MAX_HISTORY = 50;
 
     // Load chat history

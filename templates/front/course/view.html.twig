@@ -90,7 +90,7 @@
                         <h4 class="mb-0"><i class="bi bi-graph-up"></i> Course Progress</h4>
                     </div>
                     <div class="card-body">
-                        <div class="progress mb-2" style="height: 30px;">
+                        <div class="progress mb-3" style="height: 30px;">
                             <div id="course-progress-bar" class="progress-bar progress-bar-striped bg-success" 
                                  role="progressbar" 
                                  style="width: {{ course.progress ?? 0 }}%"
@@ -100,9 +100,12 @@
                                 <strong>{{ course.progress ?? 0 }}%</strong>
                             </div>
                         </div>
-                        <p class="text-muted mb-0 text-center">
-                            <small>You've completed {{ course.progress ?? 0 }}% of this course</small>
-                        </p>
+                        <div class="text-center">
+                            <small class="text-body-secondary">
+                                <i class="bi bi-check-circle me-1"></i>
+                                You've completed <strong>{{ course.progress ?? 0 }}%</strong> of this course
+                            </small>
+                        </div>
                     </div>
                 </div>
 
@@ -420,21 +423,11 @@ window.energyData = {
 <script>
 // Initialize energy monitoring - the widget already has updateEnergyBar function
 document.addEventListener('DOMContentLoaded', function() {
-<<<<<<< Updated upstream
-    if (window.energyData) {
-        const energyBar = new EnergyBar(
-            window.energyData.initialEnergy,
-            window.energyData.checkUrl
-        );
-        energyBar.startMonitoring();
-    }
+    console.log('Energy bar initialized with value:', {{ currentEnergy }});
     
     // Load existing notes and tags
     loadNotes();
     loadTags();
-=======
-    console.log('Energy bar initialized with value:', {{ currentEnergy }});
->>>>>>> Stashed changes
 });
 
 // Notes Management
@@ -616,7 +609,9 @@ function escapeHtml(text) {
 }
 </script>
 
-{# Study Buddy AI Widget #}
-{% include 'components/study_buddy_widget.html.twig' %}
+{# Study Buddy AI Widget - Students Only #}
+{% if is_granted('ROLE_STUDENT') %}
+    {% include 'components/study_buddy_widget.html.twig' %}
+{% endif %}
 
 {% endblock %}

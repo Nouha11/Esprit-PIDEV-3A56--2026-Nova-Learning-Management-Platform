@@ -55,7 +55,7 @@
             </a>
         </div>
 
-        {% for quiz in quizzes %}
+        {% for quiz in pagination %}
             <div class="col-sm-6 col-lg-4 col-xl-3">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-header bg-light border-bottom-0 pt-4 pb-0">
@@ -106,5 +106,12 @@
         {% endfor %}
 
     </div>
+
+    {# Pagination #}
+    {% if pagination.getTotalItemCount > 0 %}
+        <div class="d-flex justify-content-center mt-4">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

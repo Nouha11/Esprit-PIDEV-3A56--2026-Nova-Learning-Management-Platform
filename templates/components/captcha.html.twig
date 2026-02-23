@@ -76,6 +76,7 @@ function refreshCaptcha(containerId) {
 </script>
 
 <style>
+/* Light theme styles */
 .captcha-container .card {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
@@ -83,9 +84,42 @@ function refreshCaptcha(containerId) {
 .captcha-container .alert-info {
     background: linear-gradient(135deg, #cfe2ff 0%, #e7f1ff 100%);
     border-color: #b6d4fe;
+    color: #084298;
 }
 
 .captcha-image-container img {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Dark theme styles */
+[data-bs-theme="dark"] .captcha-container .card {
+    background: linear-gradient(135deg, #2b3035 0%, #1a1d20 100%);
+    border-color: var(--bs-primary) !important;
+}
+
+[data-bs-theme="dark"] .captcha-container .alert-info {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c4a6f 100%);
+    border-color: #4a7ba7;
+    color: #9ec5fe;
+}
+
+[data-bs-theme="dark"] .captcha-container .form-control {
+    background-color: #2b3035;
+    border-color: #495057;
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .captcha-container .form-control:focus {
+    background-color: #2b3035;
+    border-color: var(--bs-primary);
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .captcha-container .text-muted {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .captcha-image-container img {
+    box-shadow: 0 2px 4px rgba(255,255,255,0.1);
 }
 </style>

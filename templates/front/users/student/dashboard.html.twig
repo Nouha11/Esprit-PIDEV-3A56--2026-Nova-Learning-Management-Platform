@@ -18,9 +18,11 @@
                         <div class="col-auto">
                             <div class="avatar avatar-xxl position-relative mt-n3">
                                 {% if student and student.profilePicture %}
-                                    <img class="avatar-img rounded-circle border border-white border-3 shadow" src="{{ asset('uploads/profiles/' ~ student.profilePicture) }}" alt="avatar">
+                                    <img class="avatar-img rounded-circle border border-white border-3 shadow" src="{{ vich_uploader_asset(student, 'avatarFile') }}" alt="avatar">
                                 {% else %}
-                                    <img class="avatar-img rounded-circle border border-white border-3 shadow" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="avatar">
+                                    <div class="avatar-img rounded-circle border border-white border-3 shadow bg-primary text-white d-flex align-items-center justify-content-center" style="width: 100%; height: 100%; font-size: 3rem; font-weight: bold;">
+                                        {{ student.firstName|first|upper }}{{ student.lastName|first|upper }}
+                                    </div>
                                 {% endif %}
                                 <span class="badge text-bg-success rounded-pill position-absolute top-50 start-100 translate-middle mt-4 mt-md-5 ms-n3 px-md-3">Pro</span>
                             </div>
@@ -364,8 +366,10 @@
             </div></div>  
 </section>
 
-{# Include AI Chat Widget #}
-{% include 'components/ai_chat_widget.html.twig' %}
+{# Include AI Chat Widget - Students Only #}
+{% if is_granted('ROLE_STUDENT') %}
+    {% include 'components/ai_chat_widget.html.twig' %}
+{% endif %}
 
 {% endblock %}
 

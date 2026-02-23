@@ -3,119 +3,148 @@
 {% block title %}Dashboard - NOVA Admin{% endblock %}
 
 {% block admin_content %}
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-</div>
-
-<div class="row">
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Total Users
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalUsers }}</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-users fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="d-sm-flex align-items-center justify-content-between mb-5">
+    <div>
+        <h1 class="h3 mb-1 text-gray-800">
+            <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+        </h1>
+        <p class="text-muted mb-0">Welcome back! Here's what's happening with your platform.</p>
     </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            Students
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalStudents }}</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-info shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                            Tutors
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalTutors }}</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-chalkboard-teacher fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                            Admins
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ adminCount }}</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-user-shield fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div>
+        <span class="badge bg-primary fs-6 px-3 py-2">
+            <i class="bi bi-calendar3 me-1"></i>{{ "now"|date("F d, Y") }}
+        </span>
     </div>
 </div>
 
-<div class="row">
+{# Statistics Cards #}
+<div class="row g-4 mb-5">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-start border-primary border-4 shadow-sm h-100 hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase text-primary fw-bold small mb-2">
+                            <i class="bi bi-people-fill me-1"></i>Total Users
+                        </div>
+                        <div class="h2 mb-0 fw-bold">{{ totalUsers }}</div>
+                    </div>
+                    <div class="text-primary opacity-25">
+                        <i class="bi bi-people-fill" style="font-size: 3rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-start border-success border-4 shadow-sm h-100 hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase text-success fw-bold small mb-2">
+                            <i class="bi bi-mortarboard-fill me-1"></i>Students
+                        </div>
+                        <div class="h2 mb-0 fw-bold">{{ totalStudents }}</div>
+                    </div>
+                    <div class="text-success opacity-25">
+                        <i class="bi bi-mortarboard-fill" style="font-size: 3rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-start border-info border-4 shadow-sm h-100 hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase text-info fw-bold small mb-2">
+                            <i class="bi bi-person-video3 me-1"></i>Tutors
+                        </div>
+                        <div class="h2 mb-0 fw-bold">{{ totalTutors }}</div>
+                    </div>
+                    <div class="text-info opacity-25">
+                        <i class="bi bi-person-video3" style="font-size: 3rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-start border-warning border-4 shadow-sm h-100 hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase text-warning fw-bold small mb-2">
+                            <i class="bi bi-shield-fill-check me-1"></i>Admins
+                        </div>
+                        <div class="h2 mb-0 fw-bold">{{ adminCount }}</div>
+                    </div>
+                    <div class="text-warning opacity-25">
+                        <i class="bi bi-shield-fill-check" style="font-size: 3rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# User Distribution and Recent Users #}
+<div class="row g-4 mb-5">
     <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">User Role Distribution</h6>
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="mb-0 fw-bold text-primary">
+                    <i class="bi bi-pie-chart-fill me-2"></i>User Role Distribution
+                </h5>
             </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Students</span>
-                        <span class="font-weight-bold">{{ studentCount }}</span>
+            <div class="card-body p-4">
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold">
+                            <i class="bi bi-mortarboard-fill text-success me-2"></i>Students
+                        </span>
+                        <span class="badge bg-success">{{ studentCount }}</span>
                     </div>
-                    <div class="progress mb-3">
+                    <div class="progress" style="height: 12px;">
                         <div class="progress-bar bg-success" role="progressbar" 
-                             style="width: {{ totalUsers > 0 ? (studentCount / totalUsers * 100) : 0 }}%"></div>
+                             style="width: {{ totalUsers > 0 ? (studentCount / totalUsers * 100) : 0 }}%"
+                             aria-valuenow="{{ studentCount }}" aria-valuemin="0" aria-valuemax="{{ totalUsers }}">
+                            {{ totalUsers > 0 ? ((studentCount / totalUsers * 100)|round) : 0 }}%
+                        </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Tutors</span>
-                        <span class="font-weight-bold">{{ tutorCount }}</span>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold">
+                            <i class="bi bi-person-video3 text-info me-2"></i>Tutors
+                        </span>
+                        <span class="badge bg-info">{{ tutorCount }}</span>
                     </div>
-                    <div class="progress mb-3">
+                    <div class="progress" style="height: 12px;">
                         <div class="progress-bar bg-info" role="progressbar" 
-                             style="width: {{ totalUsers > 0 ? (tutorCount / totalUsers * 100) : 0 }}%"></div>
+                             style="width: {{ totalUsers > 0 ? (tutorCount / totalUsers * 100) : 0 }}%"
+                             aria-valuenow="{{ tutorCount }}" aria-valuemin="0" aria-valuemax="{{ totalUsers }}">
+                            {{ totalUsers > 0 ? ((tutorCount / totalUsers * 100)|round) : 0 }}%
+                        </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Admins</span>
-                        <span class="font-weight-bold">{{ adminCount }}</span>
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold">
+                            <i class="bi bi-shield-fill-check text-warning me-2"></i>Admins
+                        </span>
+                        <span class="badge bg-warning">{{ adminCount }}</span>
                     </div>
-                    <div class="progress">
+                    <div class="progress" style="height: 12px;">
                         <div class="progress-bar bg-warning" role="progressbar" 
-                             style="width: {{ totalUsers > 0 ? (adminCount / totalUsers * 100) : 0 }}%"></div>
+                             style="width: {{ totalUsers > 0 ? (adminCount / totalUsers * 100) : 0 }}%"
+                             aria-valuenow="{{ adminCount }}" aria-valuemin="0" aria-valuemax="{{ totalUsers }}">
+                            {{ totalUsers > 0 ? ((adminCount / totalUsers * 100)|round) : 0 }}%
+                        </div>
                     </div>
                 </div>
             </div>
@@ -123,31 +152,49 @@
     </div>
 
     <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Recent Users</h6>
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="mb-0 fw-bold text-primary">
+                    <i class="bi bi-clock-history me-2"></i>Recent Users
+                </h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 {% if recentUsers is empty %}
-                    <p class="text-muted text-center">No users yet</p>
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2 mb-0">No users yet</p>
+                    </div>
                 {% else %}
                     <div class="list-group list-group-flush">
                         {% for user in recentUsers %}
-                            <div class="list-group-item px-0">
+                            <div class="list-group-item px-0 border-0 {% if not loop.last %}border-bottom{% endif %}">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-0">{{ user.getUsername() }}</h6>
-                                        <small class="text-muted">{{ user.getEmail() }}</small>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-primary bg-opacity-10 text-primary me-3">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-semibold">{{ user.getUsername() }}</h6>
+                                            <small class="text-muted">
+                                                <i class="bi bi-envelope me-1"></i>{{ user.getEmail() }}
+                                            </small>
+                                        </div>
                                     </div>
                                     <div>
                                         {% if user.getRole() == 'ROLE_ADMIN' %}
-                                            <span class="badge badge-warning">Admin</span>
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-shield-fill-check me-1"></i>Admin
+                                            </span>
                                         {% elseif user.getRole() == 'ROLE_STUDENT' %}
-                                            <span class="badge badge-success">Student</span>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-mortarboard-fill me-1"></i>Student
+                                            </span>
                                         {% elseif user.getRole() == 'ROLE_TUTOR' %}
-                                            <span class="badge badge-info">Tutor</span>
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-person-video3 me-1"></i>Tutor
+                                            </span>
                                         {% else %}
-                                            <span class="badge badge-secondary">User</span>
+                                            <span class="badge bg-secondary">User</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -160,37 +207,65 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-xl-12 col-lg-12">
-        <div class="card shadow mb-4 border-left-primary">
-            <div class="card-header py-3 bg-primary bg-opacity-10">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="bi bi-shield-lock me-2"></i>Account Security
-                </h6>
+{# Recent Activities Section #}
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="mb-0 fw-bold text-primary">
+                    <i class="bi bi-activity me-2"></i>Recent Activities
+                </h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
+                <div id="recentActivitiesContainer">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Security Alert #}
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card shadow-sm border-start border-{{ app.user.totpEnabled ? 'success' : 'warning' }} border-4">
+            <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         {% if app.user.totpEnabled %}
                             <div class="d-flex align-items-center">
-                                <i class="bi bi-check-circle-fill text-success fs-2 me-3"></i>
+                                <div class="text-success me-3" style="font-size: 2.5rem;">
+                                    <i class="bi bi-shield-fill-check"></i>
+                                </div>
                                 <div>
-                                    <h5 class="mb-1">Two-Factor Authentication is Enabled</h5>
+                                    <h5 class="mb-1 fw-bold">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        Two-Factor Authentication is Enabled
+                                    </h5>
                                     <p class="text-muted mb-0">Your admin account is protected with an additional layer of security.</p>
                                 </div>
                             </div>
                         {% else %}
                             <div class="d-flex align-items-center">
-                                <i class="bi bi-exclamation-triangle-fill text-warning fs-2 me-3"></i>
+                                <div class="text-warning me-3" style="font-size: 2.5rem;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                </div>
                                 <div>
-                                    <h5 class="mb-1">Two-Factor Authentication is Not Enabled</h5>
+                                    <h5 class="mb-1 fw-bold">
+                                        <i class="bi bi-exclamation-circle-fill text-warning me-2"></i>
+                                        Two-Factor Authentication is Not Enabled
+                                    </h5>
                                     <p class="text-muted mb-0">Protect your admin account by enabling 2FA. This adds an extra layer of security to prevent unauthorized access.</p>
                                 </div>
                             </div>
                         {% endif %}
                     </div>
-                    <div class="col-md-4 text-end">
-                        <a href="{{ path('app_2fa_manage') }}" class="btn btn-{{ app.user.totpEnabled ? 'outline-primary' : 'primary' }} btn-lg">
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <a href="{{ path('app_2fa_manage') }}" class="btn btn-{{ app.user.totpEnabled ? 'outline-success' : 'warning' }} btn-lg px-4">
                             <i class="bi bi-shield-{{ app.user.totpEnabled ? 'check' : 'plus' }} me-2"></i>
                             {{ app.user.totpEnabled ? 'Manage 2FA' : 'Enable 2FA Now' }}
                         </a>
@@ -201,72 +276,464 @@
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-12">
-        <h4 class="mb-3 text-gray-800">
-            <i class="fas fa-graduation-cap"></i> StudySession Management
-        </h4>
+{# Course & Study Session Statistics Section #}
+<div class="row mb-5">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-1">
+                    <i class="bi bi-book-fill text-success me-2"></i>Learning Statistics
+                </h4>
+                <p class="text-muted mb-0">Course and session metrics</p>
+            </div>
+            <a href="{{ path('admin_study_session_analytics') }}" class="btn btn-success btn-lg">
+                <i class="bi bi-graph-up-arrow me-2"></i>View Session Analytics
+            </a>
+        </div>
     </div>
     
-    <div class="col-md-4 mb-3">
-        <div class="card border-left-primary shadow h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title text-primary mb-0">
-                        <i class="fas fa-book"></i> Courses
-                    </h5>
-                </div>
-                <p class="card-text text-muted">Manage all courses, create new courses, edit existing ones, and control publication status.</p>
-                <div class="d-grid gap-2">
-                    <a href="{{ path('admin_course_index') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-list"></i> View All Courses
-                    </a>
-                    <a href="{{ path('admin_course_new') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-plus"></i> Create New Course
-                    </a>
-                </div>
+    {# Learning Stats Cards #}
+    <div class="col-md-3 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-book-fill text-success" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsCourses">-</h3>
+                <p class="text-muted small mb-0">Total Courses</p>
             </div>
         </div>
     </div>
-
-    <div class="col-md-4 mb-3">
-        <div class="card border-left-success shadow h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title text-success mb-0">
-                        <i class="fas fa-calendar-alt"></i> Planning Sessions
-                    </h5>
-                </div>
-                <p class="card-text text-muted">View and manage all planning sessions, update statuses, and cancel sessions when needed.</p>
-                <div class="d-grid gap-2">
-                    <a href="{{ path('admin_planning_index') }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-list"></i> View All Planning
-                    </a>
-                </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-calendar-check-fill text-info" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsPlanningSessions">-</h3>
+                <p class="text-muted small mb-0">Planning Sessions</p>
             </div>
         </div>
     </div>
-
-    <div class="col-md-4 mb-3">
-        <div class="card border-left-info shadow h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title text-info mb-0">
-                        <i class="fas fa-chart-line"></i> Study Sessions
-                    </h5>
-                </div>
-                <p class="card-text text-muted">Monitor study sessions, track student progress, and view detailed analytics and burnout risk.</p>
-                <div class="d-grid gap-2">
-                    <a href="{{ path('admin_study_session_index') }}" class="btn btn-info btn-sm">
-                        <i class="fas fa-list"></i> View All Sessions
-                    </a>
-                    <a href="{{ path('admin_study_session_analytics') }}" class="btn btn-outline-info btn-sm">
-                        <i class="fas fa-chart-bar"></i> View Analytics
-                    </a>
-                </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-journal-check text-primary" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsStudySessions">-</h3>
+                <p class="text-muted small mb-0">Completed Sessions</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-people-fill text-warning" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsEnrollments">-</h3>
+                <p class="text-muted small mb-0">Total Enrollments</p>
             </div>
         </div>
     </div>
 </div>
 
+{# Games Statistics Section #}
+<div class="row mb-5">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-1">
+                    <i class="bi bi-graph-up-arrow text-primary me-2"></i>Games Statistics
+                </h4>
+                <p class="text-muted mb-0">Gamification metrics and performance indicators</p>
+            </div>
+            <a href="{{ path('admin_statistics_dashboard') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-bar-chart-line-fill me-2"></i>View Full Statistics Dashboard
+            </a>
+        </div>
+    </div>
+    
+    {# Summary Stats Cards #}
+    <div class="col-md-2 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-people-fill text-primary" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsStudents">-</h3>
+                <p class="text-muted small mb-0">Total Students</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-controller text-success" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsGames">-</h3>
+                <p class="text-muted small mb-0">Active Games</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-trophy-fill text-warning" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsRewards">-</h3>
+                <p class="text-muted small mb-0">Active Rewards</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-star-fill text-info" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsXP">-</h3>
+                <p class="text-muted small mb-0">Total XP</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-coin text-warning" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsTokens">-</h3>
+                <p class="text-muted small mb-0">Total Tokens</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="card text-center summary-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <i class="bi bi-star-half text-warning" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-3 mb-1 fw-bold" id="statsAvgRating">-</h3>
+                <p class="text-muted small mb-0">Avg Rating</p>
+            </div>
+        </div>
+    </div>
+    
+    {# Charts Row #}
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="mb-0 fw-bold text-primary">
+                    <i class="bi bi-bar-chart-fill me-2"></i>Top 10 Users by XP
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div id="dashboardTopUsersChart" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="mb-0 fw-bold text-primary">
+                    <i class="bi bi-pie-chart-fill me-2"></i>Game Types
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div id="dashboardGameTypesChart" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .hover-lift {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.2rem;
+    }
+    
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .summary-stat-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .summary-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+    }
+    
+    /* Dark mode support */
+    [data-bs-theme="dark"] .card {
+        background-color: #1a1d20;
+        border-color: #2b3035;
+    }
+    
+    [data-bs-theme="dark"] .card-header {
+        background-color: #2b3035 !important;
+        border-color: #3a3f44;
+    }
+    
+    [data-bs-theme="dark"] .text-gray-800 {
+        color: #e9ecef !important;
+    }
+    
+    [data-bs-theme="dark"] .bg-white {
+        background-color: #1a1d20 !important;
+    }
+    
+    [data-bs-theme="dark"] .list-group-item {
+        background-color: transparent;
+        border-color: #2b3035;
+    }
+    
+    [data-bs-theme="dark"] .summary-stat-card {
+        background-color: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.1);
+    }
+    
+    [data-bs-theme="dark"] .summary-stat-card:hover {
+        box-shadow: 0 8px 20px rgba(255,255,255,0.1) !important;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    // Load Google Charts
+    google.charts.load('current', {'packages':['corechart', 'bar']});
+    google.charts.setOnLoadCallback(loadDashboardStats);
+
+    function isDarkMode() {
+        return document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    }
+
+    function getChartColors() {
+        const dark = isDarkMode();
+        return {
+            backgroundColor: dark ? '#1a1d20' : '#ffffff',
+            textColor: dark ? '#e9ecef' : '#212529',
+            gridColor: dark ? '#495057' : '#e9ecef',
+            primaryColor: '#667eea',
+            colors: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a']
+        };
+    }
+
+    function loadDashboardStats() {
+        // Load learning statistics
+        loadLearningStats();
+        
+        // Load games summary statistics
+        fetch('{{ path('admin_statistics_summary') }}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('statsStudents').textContent = data.totalStudents.toLocaleString();
+                document.getElementById('statsGames').textContent = data.totalGames.toLocaleString();
+                document.getElementById('statsRewards').textContent = data.totalRewards.toLocaleString();
+                document.getElementById('statsXP').textContent = data.totalXP.toLocaleString();
+                document.getElementById('statsTokens').textContent = data.totalTokens.toLocaleString();
+                document.getElementById('statsAvgRating').textContent = data.avgRating.toFixed(1);
+            })
+            .catch(error => console.error('Error loading summary:', error));
+
+        // Load Top Users Chart
+        loadTopUsersChart();
+        
+        // Load Game Types Chart
+        loadGameTypesChart();
+        
+        // Load Recent Activities
+        loadRecentActivities();
+
+        // Listen for theme changes
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'data-bs-theme') {
+                    loadTopUsersChart();
+                    loadGameTypesChart();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-bs-theme']
+        });
+    }
+
+    function loadLearningStats() {
+        // Fetch learning statistics from API
+        fetch('{{ path('admin_api_learning_stats') }}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('statsCourses').textContent = data.totalCourses.toLocaleString();
+                document.getElementById('statsPlanningSessions').textContent = data.totalPlanningSessions.toLocaleString();
+                document.getElementById('statsStudySessions').textContent = data.totalStudySessions.toLocaleString();
+                document.getElementById('statsEnrollments').textContent = data.totalEnrollments.toLocaleString();
+            })
+            .catch(error => {
+                console.error('Error loading learning stats:', error);
+                document.getElementById('statsCourses').textContent = '0';
+                document.getElementById('statsPlanningSessions').textContent = '0';
+                document.getElementById('statsStudySessions').textContent = '0';
+                document.getElementById('statsEnrollments').textContent = '0';
+            });
+    }
+
+    function loadRecentActivities() {
+        // Simulate recent activities - in production, this would fetch from an API
+        const activities = [
+            {
+                icon: 'bi-person-plus-fill',
+                color: 'success',
+                title: 'New User Registration',
+                description: 'A new user has joined the platform',
+                time: '5 minutes ago'
+            },
+            {
+                icon: 'bi-trophy-fill',
+                color: 'warning',
+                title: 'Reward Claimed',
+                description: 'Student earned "Quiz Master" badge',
+                time: '15 minutes ago'
+            },
+            {
+                icon: 'bi-controller',
+                color: 'danger',
+                title: 'Game Completed',
+                description: 'Student completed "Math Challenge" game',
+                time: '30 minutes ago'
+            },
+            {
+                icon: 'bi-book-fill',
+                color: 'primary',
+                title: 'Course Enrollment',
+                description: 'New enrollment in "Introduction to PHP"',
+                time: '1 hour ago'
+            },
+            {
+                icon: 'bi-patch-question-fill',
+                color: 'info',
+                title: 'Quiz Submitted',
+                description: 'Student completed "JavaScript Basics" quiz',
+                time: '2 hours ago'
+            }
+        ];
+
+        const container = document.getElementById('recentActivitiesContainer');
+        let html = '<div class="list-group list-group-flush">';
+        
+        activities.forEach((activity, index) => {
+            html += `
+                <div class="list-group-item px-0 ${index !== activities.length - 1 ? 'border-bottom' : 'border-0'}">
+                    <div class="d-flex align-items-start">
+                        <div class="bg-${activity.color} bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="bi ${activity.icon} text-${activity.color}" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 fw-semibold">${activity.title}</h6>
+                                    <p class="text-muted mb-0 small">${activity.description}</p>
+                                </div>
+                                <small class="text-muted">${activity.time}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function loadTopUsersChart() {
+        fetch('{{ path('admin_statistics_top_users_xp') }}')
+            .then(response => response.json())
+            .then(data => {
+                const chartData = google.visualization.arrayToDataTable(data);
+                const colors = getChartColors();
+
+                const options = {
+                    chartArea: {width: '70%', height: '80%'},
+                    colors: [colors.primaryColor],
+                    hAxis: {
+                        title: 'Total XP',
+                        minValue: 0,
+                        textStyle: { color: colors.textColor },
+                        titleTextStyle: { color: colors.textColor },
+                        gridlines: { color: colors.gridColor }
+                    },
+                    vAxis: {
+                        textStyle: { color: colors.textColor }
+                    },
+                    legend: { position: 'none' },
+                    backgroundColor: colors.backgroundColor,
+                    titleTextStyle: { color: colors.textColor }
+                };
+
+                const chart = new google.visualization.BarChart(document.getElementById('dashboardTopUsersChart'));
+                chart.draw(chartData, options);
+            })
+            .catch(error => {
+                console.error('Error loading top users chart:', error);
+                document.getElementById('dashboardTopUsersChart').innerHTML = 
+                    '<div class="alert alert-warning m-3">Error loading chart data</div>';
+            });
+    }
+
+    function loadGameTypesChart() {
+        fetch('{{ path('admin_statistics_game_types') }}')
+            .then(response => response.json())
+            .then(data => {
+                const chartData = google.visualization.arrayToDataTable(data);
+                const colors = getChartColors();
+
+                const options = {
+                    pieHole: 0.4,
+                    colors: colors.colors,
+                    legend: { 
+                        position: 'bottom',
+                        textStyle: { color: colors.textColor }
+                    },
+                    backgroundColor: colors.backgroundColor,
+                    chartArea: {width: '90%', height: '75%'},
+                    pieSliceTextStyle: { color: colors.textColor }
+                };
+
+                const chart = new google.visualization.PieChart(document.getElementById('dashboardGameTypesChart'));
+                chart.draw(chartData, options);
+            })
+            .catch(error => {
+                console.error('Error loading game types chart:', error);
+                document.getElementById('dashboardGameTypesChart').innerHTML = 
+                    '<div class="alert alert-warning m-3">Error loading chart data</div>';
+            });
+    }
+
+    // Responsive charts - redraw on window resize
+    window.addEventListener('resize', function() {
+        if (typeof google !== 'undefined' && google.visualization) {
+            loadTopUsersChart();
+            loadGameTypesChart();
+        }
+    });
+</script>
 {% endblock %}

@@ -347,9 +347,10 @@
                 </td>
                 <td>
                     <div class="d-flex align-items-center">
-                        <div class="avatar-circle bg-${player.badgeColor} text-white me-3">
-                            ${player.firstName.charAt(0)}${player.lastName.charAt(0)}
-                        </div>
+                        ${player.profilePicture 
+                            ? `<img src="${player.profilePicture}" class="avatar-circle me-3" alt="${player.fullName}" style="width: 50px; height: 50px; object-fit: cover;">`
+                            : `<div class="avatar-circle bg-${player.badgeColor} text-white me-3">${player.firstName.charAt(0)}${player.lastName.charAt(0)}</div>`
+                        }
                         <div>
                             <div class="fw-bold">${player.fullName}</div>
                             <small class="text-muted">ID: ${player.id}</small>

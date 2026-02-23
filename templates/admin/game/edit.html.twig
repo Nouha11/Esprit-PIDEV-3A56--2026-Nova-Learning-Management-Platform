@@ -295,12 +295,12 @@
                                         <textarea class="form-control font-monospace" 
                                                   id="content-questions" 
                                                   rows="10" 
-                                                  placeholder='[&#10;  {&#10;    "question": "What year did World War II end?",&#10;    "choices": ["1943", "1944", "1945", "1946"],&#10;    "correct": 2&#10;  }&#10;]'>{{ existingContent.questions|default([])|json_encode(constant('JSON_PRETTY_PRINT')) }}</textarea>
+                                                  placeholder='[&#10;  {&#10;    "question": "What year did World War II end?",&#10;    "choices": ["1943", "1944", "1945", "1946"],&#10;    "correct": 2&#10;  }&#10;]'>{{ (existingContent.questions is defined ? existingContent.questions : [])|json_encode(constant('JSON_PRETTY_PRINT')) }}</textarea>
                                         <small class="text-muted">Enter questions in JSON format. The AI generator will fill this automatically.</small>
                                     </div>
                                     
                                     {# Show default questions if no custom content #}
-                                    {% if not existingContent or not existingContent.questions or existingContent.questions is empty %}
+                                    {% if not existingContent or (existingContent.questions is not defined) or not existingContent.questions or existingContent.questions is empty %}
                                         <div class="alert alert-warning">
                                             <i class="bi bi-info-circle me-2"></i>
                                             <strong>No custom questions configured.</strong> The game will use default questions based on difficulty.
@@ -390,7 +390,7 @@
                                         <textarea class="form-control" 
                                                   id="content-sentences" 
                                                   rows="5" 
-                                                  placeholder="The quick brown fox jumps over the lazy dog.&#10;Practice makes perfect.&#10;Typing speed improves with time.">{{ existingContent.sentences|default([])|join('\n') }}</textarea>
+                                                  placeholder="The quick brown fox jumps over the lazy dog.&#10;Practice makes perfect.&#10;Typing speed improves with time.">{{ (existingContent.sentences is defined ? existingContent.sentences : [])|join('\n') }}</textarea>
                                         <small class="text-muted">Enter 3-5 sentences (one per line) for the typing challenge</small>
                                     </div>
                                 </div>
