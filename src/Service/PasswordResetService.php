@@ -13,7 +13,8 @@ class PasswordResetService
     public function __construct(
         private MailerInterface $mailer,
         private UrlGeneratorInterface $urlGenerator,
-        private Environment $twig
+        private Environment $twig,
+        private string $fromEmail
     ) {
     }
 
@@ -52,7 +53,7 @@ class PasswordResetService
 
         // Create and send email
         $email = (new Email())
-            ->from('noreply@nova-platform.com')
+            ->from($this->fromEmail)
             ->to($user->getEmail())
             ->subject($subject)
             ->html($htmlContent);

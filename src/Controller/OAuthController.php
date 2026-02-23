@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\users\User;
 use App\Entity\users\StudentProfile;
 use App\Repository\UserRepository;
+use App\Service\EmailVerificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -22,7 +23,8 @@ class OAuthController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserRepository $userRepository,
-        private EventDispatcherInterface $eventDispatcher
+        private EventDispatcherInterface $eventDispatcher,
+        private EmailVerificationService $emailVerificationService
     ) {
     }
 
@@ -66,7 +68,7 @@ class OAuthController extends AbstractController
                 $user->setPassword(bin2hex(random_bytes(32))); // Random password
                 $user->setRole('ROLE_STUDENT');
                 $user->setIsActive(true);
-                $user->setIsVerified(true); // Auto-verify OAuth users
+                $user->setIsVerified(false); // Require email verification even for OAuth users
                 
                 // Create student profile
                 $studentProfile = new StudentProfile();
@@ -79,11 +81,15 @@ class OAuthController extends AbstractController
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
                 
+                // Send verification email
+                $this->emailVerificationService->sendVerificationEmail($user, $locale);
+                $this->entityManager->flush();
+                
                 $isNewUser = true;
                 
                 $this->addFlash('success', $locale === 'fr' 
-                    ? 'Compte créé avec succès via Google ! Veuillez compléter votre profil.' 
-                    : 'Account created successfully via Google! Please complete your profile.');
+                    ? 'Compte créé avec succès via Google ! Un email de vérification a été envoyé à votre adresse.' 
+                    : 'Account created successfully via Google! A verification email has been sent to your address.');
             } else {
                 $this->addFlash('success', $locale === 'fr' 
                     ? 'Connexion réussie via Google !' 
@@ -157,7 +163,7 @@ class OAuthController extends AbstractController
                 $user->setPassword(bin2hex(random_bytes(32))); // Random password
                 $user->setRole('ROLE_STUDENT');
                 $user->setIsActive(true);
-                $user->setIsVerified(true); // Auto-verify OAuth users
+                $user->setIsVerified(false); // Require email verification even for OAuth users
                 
                 // Create student profile
                 $studentProfile = new StudentProfile();
@@ -170,11 +176,15 @@ class OAuthController extends AbstractController
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
                 
+                // Send verification email
+                $this->emailVerificationService->sendVerificationEmail($user, $locale);
+                $this->entityManager->flush();
+                
                 $isNewUser = true;
                 
                 $this->addFlash('success', $locale === 'fr' 
-                    ? 'Compte créé avec succès via LinkedIn ! Veuillez compléter votre profil.' 
-                    : 'Account created successfully via LinkedIn! Please complete your profile.');
+                    ? 'Compte créé avec succès via LinkedIn ! Un email de vérification a été envoyé à votre adresse.' 
+                    : 'Account created successfully via LinkedIn! A verification email has been sent to your address.');
             } else {
                 $this->addFlash('success', $locale === 'fr' 
                     ? 'Connexion réussie via LinkedIn !' 

@@ -17,7 +17,8 @@ class NotificationService
         private MessageBusInterface $messageBus,
         private AnalyticsService $analyticsService,
         private StreakService $streakService,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private string $fromEmail
     ) {
     }
 
@@ -46,7 +47,7 @@ class NotificationService
             $course = $planning?->getCourse();
             
             $email = (new Email())
-                ->from('noreply@studysession.com')
+                ->from($this->fromEmail)
                 ->to($user->getEmail())
                 ->subject('Study Session Reminder')
                 ->html($this->renderSessionReminderTemplate(
@@ -104,7 +105,7 @@ class NotificationService
             $completionRate = $this->analyticsService->getCompletionRate($user, $start, $end);
 
             $email = (new Email())
-                ->from('noreply@studysession.com')
+                ->from($this->fromEmail)
                 ->to($user->getEmail())
                 ->subject('Your Weekly Study Progress Report')
                 ->html($this->renderWeeklyReportTemplate(
@@ -168,7 +169,7 @@ class NotificationService
             }
 
             $email = (new Email())
-                ->from('noreply@studysession.com')
+                ->from($this->fromEmail)
                 ->to($user->getEmail())
                 ->subject("🎉 Achievement Unlocked: {$streakDays}-Day Study Streak!")
                 ->html($this->renderAchievementTemplate(
