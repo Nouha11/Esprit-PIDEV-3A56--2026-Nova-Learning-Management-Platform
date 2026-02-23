@@ -7,11 +7,23 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             
-            {# 1. Game Header (XP and Progress) #}
+            {# 1. Game Header (XP, Timer, and Progress) #}
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill" id="xp-badge">
                     <i class="bi bi-lightning-fill"></i> +{{ question.xpValue }} XP
                 </span>
+                
+                {# Countdown Timer #}
+                <div class="timer-container">
+                    <div class="timer-display" id="timer-display">
+                        <i class="bi bi-clock-fill me-1"></i>
+                        <span id="timer-seconds">20</span>s
+                    </div>
+                    <div class="timer-progress">
+                        <div class="timer-progress-bar" id="timer-progress-bar"></div>
+                    </div>
+                </div>
+                
                 <span class="text-muted small fw-bold text-uppercase">
                     Difficulty: {{ question.difficulty }}
                 </span>
@@ -57,7 +69,7 @@
             </div>
 
             {# 3. The Answer Form #}
-            <form method="POST" class="mt-4">
+            <form method="POST" class="mt-4" id="quiz-form">
                 <div class="row g-3">
                     {% for choice in question.choices %}
                         <div class="col-md-6">
@@ -70,7 +82,7 @@
                 </div>
 
                 <div class="d-grid mt-5">
-                    <button type="submit" class="btn btn-primary btn-lg rounded-pill py-3 fw-bold shadow-sm">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill py-3 fw-bold shadow-sm" id="submit-btn">
                         Submit Answer <i class="bi bi-arrow-right-circle ms-2"></i>
                     </button>
                 </div>
@@ -108,16 +120,164 @@
         pointer-events: none;
         opacity: 0.6;
     }
+    
+    /* Timer Styles */
+    .timer-container {
+        position: relative;
+        text-align: center;
+    }
+    
+    .timer-display {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #28a745;
+        padding: 0.5rem 1.5rem;
+        background: rgba(40, 167, 69, 0.1);
+        border-radius: 50px;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .timer-display.warning {
+        color: #ffc107;
+        background: rgba(255, 193, 7, 0.1);
+        animation: pulse-warning 1s infinite;
+    }
+    
+    .timer-display.danger {
+        color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+        animation: pulse-danger 0.5s infinite;
+    }
+    
+    .timer-progress {
+        width: 200px;
+        height: 4px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 2px;
+        margin: 0.5rem auto 0;
+        overflow: hidden;
+    }
+    
+    .timer-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        width: 100%;
+        transition: width 1s linear, background 0.3s ease;
+    }
+    
+    .timer-progress-bar.warning {
+        background: linear-gradient(90deg, #ffc107, #fd7e14);
+    }
+    
+    .timer-progress-bar.danger {
+        background: linear-gradient(90deg, #dc3545, #c82333);
+    }
+    
+    @keyframes pulse-warning {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    @keyframes pulse-danger {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .form-disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const hintBtn = document.getElementById('hint-btn');
+    // ===== COUNTDOWN TIMER =====
+    const TIMER_DURATION = 20; // seconds
+    let timeRemaining = TIMER_DURATION;
+    let timerInterval = null;
+    let timerPaused = false;
     
+    const timerDisplay = document.getElementById('timer-display');
+    const timerSeconds = document.getElementById('timer-seconds');
+    const timerProgressBar = document.getElementById('timer-progress-bar');
+    const quizForm = document.getElementById('quiz-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    function updateTimerDisplay() {
+        timerSeconds.textContent = timeRemaining;
+        
+        // Update progress bar
+        const percentage = (timeRemaining / TIMER_DURATION) * 100;
+        timerProgressBar.style.width = percentage + '%';
+        
+        // Update colors based on time remaining
+        if (timeRemaining <= 5) {
+            timerDisplay.classList.remove('warning');
+            timerDisplay.classList.add('danger');
+            timerProgressBar.classList.remove('warning');
+            timerProgressBar.classList.add('danger');
+        } else if (timeRemaining <= 10) {
+            timerDisplay.classList.add('warning');
+            timerProgressBar.classList.add('warning');
+        }
+    }
+    
+    function startTimer() {
+        timerInterval = setInterval(function() {
+            if (!timerPaused) {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }
+        }, 1000);
+    }
+    
+    function handleTimeOut() {
+        // Disable form
+        quizForm.classList.add('form-disabled');
+        
+        // Show timeout message
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <i class="bi bi-clock-history me-2"></i>
+            <strong>Time's up!</strong> Moving to next question...
+        `;
+        document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+        
+        // Auto-submit form after 2 seconds
+        setTimeout(function() {
+            // If no answer selected, select a random one
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (!selectedAnswer) {
+                const allAnswers = document.querySelectorAll('input[name="answer"]');
+                if (allAnswers.length > 0) {
+                    // Select random answer
+                    const randomIndex = Math.floor(Math.random() * allAnswers.length);
+                    allAnswers[randomIndex].checked = true;
+                }
+            }
+            quizForm.submit();
+        }, 2000);
+    }
+    
+    // Start the timer
+    startTimer();
+    
+    // Pause timer when hint is being requested
+    const hintBtn = document.getElementById('hint-btn');
     if (hintBtn) {
         hintBtn.addEventListener('click', async function() {
             const questionId = this.dataset.questionId;
             const xpBadge = document.getElementById('xp-badge');
+            
+            // Pause timer while getting hint
+            timerPaused = true;
             
             // Show loading state
             this.classList.add('loading');
@@ -168,9 +328,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Failed to generate hint. Please try again.');
                 this.classList.remove('loading');
                 this.innerHTML = '<i class="bi bi-lightbulb"></i> Get AI Hint (-50% XP)';
+            } finally {
+                // Resume timer
+                timerPaused = false;
             }
         });
     }
+    
+    // Stop timer when form is submitted
+    quizForm.addEventListener('submit', function() {
+        clearInterval(timerInterval);
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
+    });
 });
 </script>
 {% endblock %}

@@ -70,4 +70,7 @@ return [
     'preact/hooks' => [
         'version' => '10.12.1',
     ],
+    '@symfony/ux-chartjs' => [
+        'version' => '2.32.0',
+    ],
 ];

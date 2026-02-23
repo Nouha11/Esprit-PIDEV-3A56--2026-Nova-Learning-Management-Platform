@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Quiz;
 
 use App\Repository\Quiz\QuizReportRepository;
 use App\Service\Quiz\QuizReportNotificationService;

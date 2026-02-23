@@ -12,6 +12,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 #[Route(path: '/{prefix}/quiz', requirements: ['prefix' => 'admin|tutor'])]
 final class QuizController extends AbstractController
@@ -85,7 +87,11 @@ final class QuizController extends AbstractController
     }
 
     #[Route('/statistics', name: 'app_quiz_statistics', methods: ['GET'])]
-    public function statistics(QuizStatisticsService $statisticsService, string $prefix): Response
+    public function statistics(
+        QuizStatisticsService $statisticsService, 
+        ChartBuilderInterface $chartBuilder,
+        string $prefix
+    ): Response
     {
         $templatePrefix = $prefix === 'admin' ? 'admin/' : '';
         
@@ -93,10 +99,133 @@ final class QuizController extends AbstractController
         $difficultyDistribution = $statisticsService->getDifficultyDistribution();
         $reportStatusDistribution = $statisticsService->getReportStatusDistribution();
         
+        // Create Difficulty Distribution Doughnut Chart
+        $difficultyChart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+        $difficultyChart->setData([
+            'labels' => ['Easy', 'Medium', 'Hard'],
+            'datasets' => [
+                [
+                    'label' => 'Questions',
+                    'data' => [
+                        $difficultyDistribution['Easy'],
+                        $difficultyDistribution['Medium'],
+                        $difficultyDistribution['Hard']
+                    ],
+                    'backgroundColor' => [
+                        'rgba(40, 167, 69, 0.8)',   // Green for Easy
+                        'rgba(255, 193, 7, 0.8)',   // Yellow for Medium
+                        'rgba(220, 53, 69, 0.8)'    // Red for Hard
+                    ],
+                    'borderColor' => [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    'borderWidth' => 2,
+                ],
+            ],
+        ]);
+        
+        $difficultyChart->setOptions([
+            'responsive' => true,
+            'maintainAspectRatio' => false,
+            'plugins' => [
+                'legend' => [
+                    'position' => 'bottom',
+                    'labels' => [
+                        'padding' => 20,
+                        'font' => [
+                            'size' => 14
+                        ]
+                    ]
+                ],
+                'tooltip' => [
+                    'callbacks' => [
+                        'label' => 'function(context) {
+                            const label = context.label || "";
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return label + ": " + value + " (" + percentage + "%)";
+                        }'
+                    ]
+                ]
+            ]
+        ]);
+        
+        // Create Report Status Bar Chart
+        $reportChart = $chartBuilder->createChart(Chart::TYPE_BAR);
+        $reportChart->setData([
+            'labels' => ['Pending', 'Resolved', 'Dismissed'],
+            'datasets' => [
+                [
+                    'label' => 'Reports',
+                    'data' => [
+                        $reportStatusDistribution['pending'],
+                        $reportStatusDistribution['resolved'],
+                        $reportStatusDistribution['dismissed']
+                    ],
+                    'backgroundColor' => [
+                        'rgba(255, 193, 7, 0.8)',   // Yellow for Pending
+                        'rgba(40, 167, 69, 0.8)',   // Green for Resolved
+                        'rgba(108, 117, 125, 0.8)'  // Gray for Dismissed
+                    ],
+                    'borderColor' => [
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(108, 117, 125, 1)'
+                    ],
+                    'borderWidth' => 2,
+                    'borderRadius' => 8,
+                ],
+            ],
+        ]);
+        
+        $reportChart->setOptions([
+            'responsive' => true,
+            'maintainAspectRatio' => false,
+            'scales' => [
+                'y' => [
+                    'beginAtZero' => true,
+                    'ticks' => [
+                        'stepSize' => 1,
+                        'font' => [
+                            'size' => 12
+                        ]
+                    ],
+                    'grid' => [
+                        'color' => 'rgba(0, 0, 0, 0.05)'
+                    ]
+                ],
+                'x' => [
+                    'ticks' => [
+                        'font' => [
+                            'size' => 12
+                        ]
+                    ],
+                    'grid' => [
+                        'display' => false
+                    ]
+                ]
+            ],
+            'plugins' => [
+                'legend' => [
+                    'display' => false
+                ],
+                'tooltip' => [
+                    'callbacks' => [
+                        'label' => 'function(context) {
+                            return context.label + ": " + context.parsed.y + " report(s)";
+                        }'
+                    ]
+                ]
+            ]
+        ]);
+        
         return $this->render($templatePrefix . 'quiz/statistics.html.twig', [
             'stats' => $stats,
-            'difficultyDistribution' => $difficultyDistribution,
-            'reportStatusDistribution' => $reportStatusDistribution,
+            'difficultyChart' => $difficultyChart,
+            'reportChart' => $reportChart,
         ]);
     }
 

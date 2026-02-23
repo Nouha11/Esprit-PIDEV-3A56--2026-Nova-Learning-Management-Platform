@@ -103,7 +103,7 @@
                 </div>
                 <div class="card-body">
                     <div class="chart-container">
-                        <canvas id="difficultyChart"></canvas>
+                        {{ render_chart(difficultyChart) }}
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@
                 </div>
                 <div class="card-body">
                     <div class="chart-container">
-                        <canvas id="reportStatusChart"></canvas>
+                        {{ render_chart(reportChart) }}
                     </div>
                 </div>
             </div>
@@ -334,139 +334,3 @@
 
 {% endblock %}
 
-{% block javascripts %}
-    {{ parent() }}
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Difficulty Distribution Pie Chart
-            const difficultyCtx = document.getElementById('difficultyChart');
-            if (difficultyCtx) {
-                new Chart(difficultyCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Easy', 'Medium', 'Hard'],
-                        datasets: [{
-                            label: 'Questions',
-                            data: [
-                                {{ difficultyDistribution.Easy }},
-                                {{ difficultyDistribution.Medium }},
-                                {{ difficultyDistribution.Hard }}
-                            ],
-                            backgroundColor: [
-                                'rgba(40, 167, 69, 0.8)',   // Green for Easy
-                                'rgba(255, 193, 7, 0.8)',   // Yellow for Medium
-                                'rgba(220, 53, 69, 0.8)'    // Red for Hard
-                            ],
-                            borderColor: [
-                                'rgba(40, 167, 69, 1)',
-                                'rgba(255, 193, 7, 1)',
-                                'rgba(220, 53, 69, 1)'
-                            ],
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
-                                    font: {
-                                        size: 14
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                        return label + ': ' + value + ' (' + percentage + '%)';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Report Status Bar Chart
-            const reportStatusCtx = document.getElementById('reportStatusChart');
-            if (reportStatusCtx) {
-                new Chart(reportStatusCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Pending', 'Resolved', 'Dismissed'],
-                        datasets: [{
-                            label: 'Reports',
-                            data: [
-                                {{ reportStatusDistribution.pending }},
-                                {{ reportStatusDistribution.resolved }},
-                                {{ reportStatusDistribution.dismissed }}
-                            ],
-                            backgroundColor: [
-                                'rgba(255, 193, 7, 0.8)',   // Yellow for Pending
-                                'rgba(40, 167, 69, 0.8)',   // Green for Resolved
-                                'rgba(108, 117, 125, 0.8)'  // Gray for Dismissed
-                            ],
-                            borderColor: [
-                                'rgba(255, 193, 7, 1)',
-                                'rgba(40, 167, 69, 1)',
-                                'rgba(108, 117, 125, 1)'
-                            ],
-                            borderWidth: 2,
-                            borderRadius: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1,
-                                    font: {
-                                        size: 12
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        size: 12
-                                    }
-                                },
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.label + ': ' + context.parsed.y + ' report(s)';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    </script>
-{% endblock %}

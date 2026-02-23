@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Quiz;
 
 use App\Repository\QuizRepository;
 use Knp\Component\Pager\PaginatorInterface;

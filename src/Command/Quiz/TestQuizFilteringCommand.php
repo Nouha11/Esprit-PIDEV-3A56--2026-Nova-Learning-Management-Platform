@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Quiz;
 
 use App\Repository\QuizRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -29,7 +29,7 @@ class TestQuizFilteringCommand extends Command
 
         // Test 1: Get all quizzes
         $io->section('Test 1: All Quizzes (No Filters)');
-        $allQuizzes = $this->quizRepository->findWithFiltersAndSort();
+        $allQuizzes = $this->quizRepository->findWithFiltersAndSort()->getQuery()->getResult();
         $io->text(sprintf('Found %d quizzes', count($allQuizzes)));
         foreach ($allQuizzes as $quiz) {
             $io->text(sprintf('  - %s (%d questions)', $quiz->getTitle(), $quiz->getQuestions()->count()));
@@ -37,14 +37,14 @@ class TestQuizFilteringCommand extends Command
 
         // Test 2: Sort by question count
         $io->section('Test 2: Sort by Question Count (DESC)');
-        $sortedQuizzes = $this->quizRepository->findWithFiltersAndSort([], 'questionCount', 'DESC');
+        $sortedQuizzes = $this->quizRepository->findWithFiltersAndSort([], 'questionCount', 'DESC')->getQuery()->getResult();
         foreach ($sortedQuizzes as $quiz) {
             $io->text(sprintf('  - %s (%d questions)', $quiz->getTitle(), $quiz->getQuestions()->count()));
         }
 
         // Test 3: Filter by minimum questions
         $io->section('Test 3: Filter by Min Questions (>= 3)');
-        $filteredQuizzes = $this->quizRepository->findWithFiltersAndSort(['minQuestions' => 3]);
+        $filteredQuizzes = $this->quizRepository->findWithFiltersAndSort(['minQuestions' => 3])->getQuery()->getResult();
         $io->text(sprintf('Found %d quizzes with >= 3 questions', count($filteredQuizzes)));
         foreach ($filteredQuizzes as $quiz) {
             $io->text(sprintf('  - %s (%d questions)', $quiz->getTitle(), $quiz->getQuestions()->count()));
@@ -54,7 +54,7 @@ class TestQuizFilteringCommand extends Command
         $io->section('Test 4: Search by Title');
         $searchTerm = $io->ask('Enter search term (or press Enter to skip)', '');
         if ($searchTerm) {
-            $searchResults = $this->quizRepository->findWithFiltersAndSort(['search' => $searchTerm]);
+            $searchResults = $this->quizRepository->findWithFiltersAndSort(['search' => $searchTerm])->getQuery()->getResult();
             $io->text(sprintf('Found %d quizzes matching "%s"', count($searchResults), $searchTerm));
             foreach ($searchResults as $quiz) {
                 $io->text(sprintf('  - %s', $quiz->getTitle()));
