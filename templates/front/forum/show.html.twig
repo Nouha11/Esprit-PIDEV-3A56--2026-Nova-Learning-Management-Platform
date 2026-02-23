@@ -64,7 +64,11 @@
     <div class="mb-3 rounded-3 comment-box border p-3 {{ comment.isSolution ? 'border-success' : '' }}" id="comment-{{ comment.id }}">
         <div class="d-flex">
             <div class="me-3 text-center d-flex flex-column align-items-center" style="min-width: 40px;">
-                {% include 'components/user_avatar.html.twig' with {'user': comment.author, 'size': 'sm', 'class': 'mb-2'} %}
+                <div class="avatar avatar-sm mb-2">
+                    <div class="rounded-circle bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][comment.author.id % 5] }} text-white d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; font-size: 13px;">
+                        <span class="fw-bold">{{ comment.author.username|slice(0, 2)|upper }}</span>
+                    </div>
+                </div>
                 <div class="d-flex flex-column align-items-center comment-vote-box comment-sidebar" data-id="{{ comment.id }}">
                     <a href="#" class="vote-action text-secondary {{ app.user and comment.isUpvotedBy(app.user) ? 'text-success' : '' }}" data-type="up" style="text-decoration: none;"><i class="bi bi-caret-up-fill fs-5"></i></a>
                     <span class="fw-bold small vote-score score-count my-1">{{ comment.score }}</span>
@@ -197,6 +201,12 @@
                         </a>
                         <a href="{{ path('app_forum', {'filter': 'unanswered'}) }}" class="left-nav-link">
                             <i class="bi bi-patch-question text-warning"></i> Unanswered
+                        </a>
+
+                        {# --- NEW NOVA AI ASSIST LINK --- #}
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Tutor</div>
+                        <a href="{{ path('app_forum_ai_assist') }}" class="left-nav-link" style="background: rgba(111, 66, 193, 0.1); color: #6f42c1; border: 1px solid rgba(111, 66, 193, 0.2);">
+                            <i class="bi bi-stars"></i> <span class="fw-bold">NOVA AI</span>
                         </a>
 
                         <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">My NOVA</div>

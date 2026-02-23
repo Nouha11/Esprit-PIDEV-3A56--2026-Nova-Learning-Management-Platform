@@ -10,6 +10,7 @@ use App\Entity\Forum\Space;
 use App\Entity\Forum\Tag;
 use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
+use App\Repository\Forum\TagRepository; // <-- NEEDED THIS IMPORT
 use App\Entity\users\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -26,7 +27,8 @@ class ForumController extends AbstractController
 {
     #[Route('/forum', name: 'app_forum')]
     public function index(
-        PostRepository $postRepository, 
+        PostRepository $postRepository,
+        TagRepository $tagRepository, // <-- INJECTED HERE
         Request $request, 
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
@@ -144,11 +146,15 @@ class ForumController extends AbstractController
 
         $posts = $paginator->paginate($query, $request->query->getInt('page', 1), 5);
         $spaces = $entityManager->getRepository(Space::class)->findAll();
+        
+        // --- FETCH TRENDING TAGS ---
+        $trendingTags = $tagRepository->findTrendingTags(7);
 
         return $this->render('front/forum/index.html.twig', [
             'form' => $form->createView(),
             'posts' => $posts,
             'spaces' => $spaces,
+            'trendingTags' => $trendingTags, // <-- PASSED TO TWIG
             'searchQuery' => $searchQuery,
             'currentFilter' => $filter,
             'currentSpace' => $spaceId,
@@ -523,6 +529,7 @@ class ForumController extends AbstractController
     #[Route('/forum/space/{id}', name: 'app_forum_space')]
     public function space(
         Space $space, 
+        TagRepository $tagRepository, // <-- INJECTED HERE
         Request $request, 
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
@@ -613,11 +620,15 @@ class ForumController extends AbstractController
         $posts = $paginator->paginate($qb->getQuery(), $request->query->getInt('page', 1), 5);
 
         $allSpaces = $entityManager->getRepository(Space::class)->findAll();
+        
+        // --- FETCH TRENDING TAGS ---
+        $trendingTags = $tagRepository->findTrendingTags(7);
 
         return $this->render('front/forum/space.html.twig', [
             'space' => $space,       
             'posts' => $posts,       
             'spaces' => $allSpaces,  
+            'trendingTags' => $trendingTags, // <-- PASSED TO TWIG
             'form' => $form->createView(),
             'currentSort' => $sortBy,
             'currentTag' => $tagFilter 
@@ -641,6 +652,41 @@ class ForumController extends AbstractController
             return $this->json(['error' => 'AI is currently resting. Please try again.'], 500);
         }
     }
+
+
+    
+#[Route('/forum/ai/assist', name: 'app_forum_ai_assist')]
+    public function aiAssist(EntityManagerInterface $entityManager): Response
+    {
+        // We still need spaces for the left sidebar!
+        $spaces = $entityManager->getRepository(Space::class)->findAll();
+
+        return $this->render('front/forum/ai_assist.html.twig', [
+            'spaces' => $spaces,
+            'currentFilter' => 'ai_assist',
+            'currentSpace' => null,
+            'searchQuery' => null
+        ]);
+    }
+
+    #[Route('/forum/ai/chat', name: 'app_forum_ai_chat', methods: ['POST'])]
+    public function processAiChat(Request $request, AiSummaryService $aiService): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $message = $data['message'] ?? '';
+
+        if (empty(trim($message))) {
+            return $this->json(['error' => 'Message cannot be empty.'], 400);
+        }
+
+        // Call our new Service method
+        $aiResponseHtml = $aiService->chatWithNova($message);
+
+        return $this->json([
+            'response' => $aiResponseHtml
+        ]);
+    }
+
 
     // ==========================================
     // --- NEW METHODS: COMMENT REPLIES & EDIT ---

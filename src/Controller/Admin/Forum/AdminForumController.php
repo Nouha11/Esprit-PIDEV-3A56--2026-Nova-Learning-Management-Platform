@@ -3,9 +3,10 @@
 namespace App\Controller\Admin\Forum;
 
 use App\Entity\Forum\Post;
-use App\Entity\Forum\Report; // <-- ADDED
+use App\Entity\Forum\Comment;
+use App\Entity\Forum\Report;
 use App\Repository\Forum\PostRepository;
-use App\Repository\Forum\ReportRepository; // <-- ADDED
+use App\Repository\Forum\ReportRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,29 +20,24 @@ class AdminForumController extends AbstractController
     #[Route('/', name: 'app_admin_forum_index', methods: ['GET'])]
     public function index(PostRepository $postRepository, Request $request): Response
     {
-        // 1. Get the search query from the URL (e.g. ?q=spam)
         $searchQuery = $request->query->get('q');
 
-        // 2. Fetch data based on search
         if ($searchQuery) {
-            // Ensure you added the 'adminSearch' method to your PostRepository!
             $posts = $postRepository->adminSearch($searchQuery);
         } else {
-            // Default: Show all, newest first
             $posts = $postRepository->findBy([], ['createdAt' => 'DESC']);
         }
 
         return $this->render('admin/forum/index.html.twig', [
             'posts' => $posts,
-            'searchQuery' => $searchQuery // Pass back to view to keep input filled
+            'searchQuery' => $searchQuery 
         ]);
     }
 
-    // --- NEW: LIST ALL REPORTS ---
+    // LIST ALL REPORTS (Posts & Comments)
     #[Route('/reports', name: 'app_admin_forum_reports', methods: ['GET'])]
     public function reports(ReportRepository $reportRepository): Response
     {
-        // Fetch all reports, newest first
         $reports = $reportRepository->findBy([], ['createdAt' => 'DESC']);
 
         return $this->render('admin/forum/reports.html.twig', [
@@ -49,18 +45,14 @@ class AdminForumController extends AbstractController
         ]);
     }
 
-    // --- NEW: DISMISS A REPORT (Keep the post, delete the report) ---
+    // DISMISS ANY REPORT (Keep content, delete report)
     #[Route('/report/{id}/dismiss', name: 'app_admin_forum_report_dismiss', methods: ['POST'])]
     public function dismissReport(Request $request, Report $report, EntityManagerInterface $entityManager): Response
     {
-        // CSRF Security Check
         if ($this->isCsrfTokenValid('dismiss'.$report->getId(), $request->request->get('_token'))) {
-            
-            // We remove the report entity, NOT the post!
             $entityManager->remove($report);
             $entityManager->flush();
-            
-            $this->addFlash('success', 'The report was dismissed. The post was not deleted.');
+            $this->addFlash('success', 'The report was dismissed.');
         }
 
         return $this->redirectToRoute('app_admin_forum_reports');
@@ -70,48 +62,65 @@ class AdminForumController extends AbstractController
     #[Route('/{id}/toggle-lock', name: 'app_admin_forum_toggle_lock', methods: ['POST'])]
     public function toggleLock(Request $request, Post $post, EntityManagerInterface $entityManager): Response
     {
-        // CSRF Security Check (uses the same 'lock' token name we will put in the form)
         if ($this->isCsrfTokenValid('lock'.$post->getId(), $request->request->get('_token'))) {
-            
-            // Flip the boolean: If true -> false. If false -> true.
             $post->setIsLocked(!$post->isLocked());
-            
             $entityManager->flush();
             
-            // Nice message for the admin
             $status = $post->isLocked() ? 'locked' : 'unlocked';
             $this->addFlash('success', "Discussion has been $status.");
         }
 
-        // Stay on the same page
         return $this->redirectToRoute('app_admin_forum_index');
     }
 
-    // DELETE POST (Admin Power)
+    // DELETE POST
     #[Route('/{id}/delete', name: 'app_admin_forum_delete', methods: ['POST'])]
     public function delete(Request $request, Post $post, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$post->getId(), $request->request->get('_token'))) {
             
-            // --- FIX: Delete attached reports first to satisfy Foreign Key Constraints ---
+            // Delete attached reports first
             $reports = $entityManager->getRepository(Report::class)->findBy(['post' => $post]);
             foreach ($reports as $report) {
                 $entityManager->remove($report);
             }
-            // -------------------------------------------------------------------------
-
-            // Now it is safe to delete the post!
+            
             $entityManager->remove($post);
             $entityManager->flush();
             $this->addFlash('success', 'Discussion deleted by Moderator.');
         }
 
-        // If we are deleting from the reports page, redirect back to reports
         $referer = $request->headers->get('referer');
         if ($referer && str_contains($referer, '/reports')) {
             return $this->redirectToRoute('app_admin_forum_reports');
         }
 
         return $this->redirectToRoute('app_admin_forum_index');
+    }
+
+    // --- DELETE COMMENT ---
+    // --- UPDATED: SCRUB COMMENT (TOMBSTONE) INSTEAD OF HARD DELETE ---
+    #[Route('/comment/{id}/delete', name: 'app_admin_forum_comment_delete', methods: ['POST'])]
+    public function deleteComment(Request $request, Comment $comment, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete_comment'.$comment->getId(), $request->request->get('_token'))) {
+            
+            // 1. Delete attached reports first so it clears from the admin dashboard
+            $reports = $entityManager->getRepository(Report::class)->findBy(['comment' => $comment]);
+            foreach ($reports as $report) {
+                $entityManager->remove($report);
+            }
+
+            // 2. SCRUB THE COMMENT (Reddit Style) instead of hard removing it
+            $comment->setContent('🚫 *[This comment was removed by a moderator for violating community guidelines]*');
+            $comment->setImageName(null); // Removes the image if there is one
+            
+            // Notice we are NOT calling $entityManager->remove($comment) anymore!
+            
+            $entityManager->flush();
+            $this->addFlash('success', 'Comment scrubbed! The replies to it have been preserved.');
+        }
+
+        return $this->redirectToRoute('app_admin_forum_reports');
     }
 }

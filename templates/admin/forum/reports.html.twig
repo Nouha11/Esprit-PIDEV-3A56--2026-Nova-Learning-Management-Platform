@@ -17,81 +17,209 @@
 
     <p class="mb-4 text-gray-600">Review content flagged by the community for rule violations.</p>
 
-    {# --- REPORTS TABLE --- #}
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Reported Discussions</h6>
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <ul class="nav nav-pills" id="customReportTabs">
+                <li class="nav-item">
+                    <button class="nav-link active custom-tab-btn" data-target="posts-content" style="cursor: pointer; font-weight: bold; border-radius: 4px; padding: 8px 16px; border: none; background: transparent;">
+                        Reported Posts
+                        {% set postReports = reports|filter(r => r.post is not null) %}
+                        <span class="badge badge-light bg-secondary text-white ml-1">{{ postReports|length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item ml-2">
+                    <button class="nav-link custom-tab-btn text-secondary" data-target="comments-content" style="cursor: pointer; font-weight: bold; border-radius: 4px; padding: 8px 16px; border: none; background: transparent;">
+                        Reported Comments
+                        {% set commentReports = reports|filter(r => r.comment is not null) %}
+                        <span class="badge badge-light bg-secondary text-white ml-1">{{ commentReports|length }}</span>
+                    </button>
+                </li>
+            </ul>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" width="100%" cellspacing="0">
-                    <thead class="thead-light">
-                        <tr>
-                            <th style="width: 15%; color: #4e73df !important;">Date</th>
-                            <th style="width: 15%; color: #4e73df !important;">Reporter</th>
-                            <th style="width: 20%; color: #4e73df !important;">Reason</th>
-                            <th style="width: 35%; color: #4e73df !important;">Reported Content</th>
-                            <th style="width: 15%; color: #4e73df !important;" class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for report in reports %}
-                        <tr>
-                            <td class="align-middle" style="color: #6e707e !important;">
-                                {{ report.createdAt|date('M d, Y') }}<br>
-                                <small style="color: #858796 !important;">{{ report.createdAt|date('H:i') }}</small>
-                            </td>
-                            <td class="align-middle">
-                                <span class="badge badge-secondary" style="background-color: #858796;">
-                                    <i class="fas fa-user mr-1"></i>{{ report.reporter.username }}
-                                </span>
-                            </td>
-                            <td class="align-middle font-weight-bold" style="color: #e74a3b !important;">
-                                <i class="fas fa-exclamation-triangle mr-1"></i>{{ report.reason }}
-                            </td>
-                            <td class="align-middle">
-                                <a href="{{ path('app_forum_show', {id: report.post.id}) }}" target="_blank" class="font-weight-bold text-decoration-none" style="color: #4e73df !important;">
-                                    {{ report.post.title|slice(0, 40) }}{% if report.post.title|length > 40 %}...{% endif %}
-                                </a>
-                                <br>
-                                <small class="d-inline-block text-truncate" style="max-width: 300px; color: #858796 !important;">
-                                    {{ report.post.content }}
-                                </small>
-                            </td>
-                            <td class="align-middle text-center">
-                                
-                                {# DISMISS BUTTON #}
-                                <form action="{{ path('app_admin_forum_report_dismiss', {id: report.id}) }}" method="POST" class="d-inline-block mb-1">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('dismiss' ~ report.id) }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Dismiss this report? The post will NOT be deleted.')" title="Dismiss Report">
-                                        <i class="fas fa-times mr-1"></i> Dismiss
-                                    </button>
-                                </form>
-                                
-                                {# DELETE POST BUTTON #}
-                                <form action="{{ path('app_admin_forum_delete', {id: report.post.id}) }}" method="POST" class="d-inline-block">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ report.post.id) }}">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this entire discussion permanently? This cannot be undone.')" title="Delete Post">
-                                        <i class="fas fa-trash mr-1"></i> Delete Post
-                                    </button>
-                                </form>
-
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <div class="mb-3" style="color: #1cc88a;"><i class="fas fa-check-circle fa-3x"></i></div>
-                                <h5 class="text-gray-800">The community is clean!</h5>
-                                <p class="mb-0" style="color: #858796 !important;">There are no pending reports to review.</p>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+        
+        <div class="card-body p-0">
+            
+            {# ============================== #}
+            {# TAB 1: REPORTED POSTS          #}
+            {# ============================== #}
+            <div id="posts-content" class="custom-tab-pane" style="display: block;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 15%; color: #4e73df !important;" class="px-4 py-3">Date</th>
+                                <th style="width: 15%; color: #4e73df !important;" class="py-3">Reporter</th>
+                                <th style="width: 20%; color: #4e73df !important;" class="py-3">Reason</th>
+                                <th style="width: 35%; color: #4e73df !important;" class="py-3">Reported Discussion</th>
+                                <th style="width: 15%; color: #4e73df !important;" class="text-center py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for report in postReports %}
+                            <tr>
+                                <td class="align-middle px-4 py-3" style="color: #6e707e !important;">
+                                    {{ report.createdAt|date('M d, Y') }}<br>
+                                    <small style="color: #858796 !important;">{{ report.createdAt|date('H:i') }}</small>
+                                </td>
+                                <td class="align-middle py-3">
+                                    <span class="badge badge-secondary p-2" style="background-color: #858796;">
+                                        <i class="fas fa-user mr-1"></i>{{ report.reporter.username }}
+                                    </span>
+                                </td>
+                                <td class="align-middle font-weight-bold py-3" style="color: #e74a3b !important;">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>{{ report.reason }}
+                                </td>
+                                <td class="align-middle py-3">
+                                    <a href="{{ path('app_forum_show', {id: report.post.id}) }}" target="_blank" class="font-weight-bold text-decoration-none d-block mb-1" style="color: #4e73df !important;">
+                                        {{ report.post.title|slice(0, 40) }}{% if report.post.title|length > 40 %}...{% endif %}
+                                    </a>
+                                    <small class="d-inline-block text-truncate" style="max-width: 300px; color: #858796 !important;">
+                                        {{ report.post.content }}
+                                    </small>
+                                </td>
+                                <td class="align-middle text-center py-3 text-nowrap">
+                                    {# FIXED: Removed w-100, set to d-inline-block side by side #}
+                                    <form action="{{ path('app_admin_forum_report_dismiss', {id: report.id}) }}" method="POST" class="d-inline-block mr-1">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('dismiss' ~ report.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary font-weight-bold" onclick="return confirm('Dismiss this report? The post will NOT be deleted.')" title="Dismiss Report">
+                                            <i class="fas fa-times mr-1"></i> Dismiss
+                                        </button>
+                                    </form>
+                                    
+                                    <form action="{{ path('app_admin_forum_delete', {id: report.post.id}) }}" method="POST" class="d-inline-block">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ report.post.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Delete this entire discussion permanently? This cannot be undone.')" title="Delete Post">
+                                            <i class="fas fa-trash mr-1"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="mb-3" style="color: #1cc88a;"><i class="fas fa-check-circle fa-3x"></i></div>
+                                    <h5 class="text-gray-800">No reported posts!</h5>
+                                    <p class="mb-0" style="color: #858796 !important;">The community is following the rules.</p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            {# ============================== #}
+            {# TAB 2: REPORTED COMMENTS       #}
+            {# ============================== #}
+            <div id="comments-content" class="custom-tab-pane" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 15%; color: #4e73df !important;" class="px-4 py-3">Date</th>
+                                <th style="width: 15%; color: #4e73df !important;" class="py-3">Reporter</th>
+                                <th style="width: 20%; color: #4e73df !important;" class="py-3">Reason</th>
+                                <th style="width: 35%; color: #4e73df !important;" class="py-3">Reported Comment</th>
+                                <th style="width: 15%; color: #4e73df !important;" class="text-center py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for report in commentReports %}
+                            <tr>
+                                <td class="align-middle px-4 py-3" style="color: #6e707e !important;">
+                                    {{ report.createdAt|date('M d, Y') }}<br>
+                                    <small style="color: #858796 !important;">{{ report.createdAt|date('H:i') }}</small>
+                                </td>
+                                <td class="align-middle py-3">
+                                    <span class="badge badge-secondary p-2" style="background-color: #858796;">
+                                        <i class="fas fa-user mr-1"></i>{{ report.reporter.username }}
+                                    </span>
+                                </td>
+                                <td class="align-middle font-weight-bold py-3" style="color: #e74a3b !important;">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>{{ report.reason }}
+                                </td>
+                                <td class="align-middle py-3">
+                                    <small class="text-primary font-weight-bold d-block mb-1">
+                                        <i class="fas fa-reply fa-rotate-180 mr-1"></i> On Post: {{ report.comment.post.title|slice(0, 30) }}...
+                                    </small>
+                                    <a href="{{ path('app_forum_show', {id: report.comment.post.id}) }}#comment-{{ report.comment.id }}" target="_blank" class="text-decoration-none d-inline-block text-truncate" style="color: #5a5c69 !important; max-width: 300px; font-size: 14px;">
+                                        "{{ report.comment.content }}"
+                                    </a>
+                                </td>
+                                <td class="align-middle text-center py-3 text-nowrap">
+                                    {# FIXED: Removed w-100, set to d-inline-block side by side #}
+                                    <form action="{{ path('app_admin_forum_report_dismiss', {id: report.id}) }}" method="POST" class="d-inline-block mr-1">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('dismiss' ~ report.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary font-weight-bold" onclick="return confirm('Dismiss this report? The comment will NOT be deleted.')" title="Dismiss Report">
+                                            <i class="fas fa-times mr-1"></i> Dismiss
+                                        </button>
+                                    </form>
+                                    
+                                    <form action="{{ path('app_admin_forum_comment_delete', {id: report.comment.id}) }}" method="POST" class="d-inline-block">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_comment' ~ report.comment.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-danger font-weight-bold" onclick="return confirm('Delete this comment permanently? This cannot be undone.')" title="Delete Comment">
+                                            <i class="fas fa-trash mr-1"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="mb-3" style="color: #1cc88a;"><i class="fas fa-check-circle fa-3x"></i></div>
+                                    <h5 class="text-gray-800">No reported comments!</h5>
+                                    <p class="mb-0" style="color: #858796 !important;">The community is behaving well.</p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
-
 </div>
+
+{# --- FOOLPROOF VANILLA JS TAB SWITCHER --- #}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const tabs = document.querySelectorAll('.custom-tab-btn');
+        const panes = document.querySelectorAll('.custom-tab-pane');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 1. Reset all tabs styling
+                tabs.forEach(t => {
+                    t.classList.remove('active', 'text-primary');
+                    t.classList.add('text-secondary');
+                    t.style.backgroundColor = 'transparent';
+                    t.style.color = '#6c757d';
+                });
+                
+                // 2. Hide all panes
+                panes.forEach(p => p.style.display = 'none');
+                
+                // 3. Highlight clicked tab
+                this.classList.add('active', 'text-primary');
+                this.classList.remove('text-secondary');
+                this.style.backgroundColor = '#4e73df'; // SB Admin Primary Blue
+                this.style.color = '#ffffff';
+                
+                // 4. Show target pane
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).style.display = 'block';
+            });
+        });
+        
+        // Ensure the first tab is visually active on load
+        if(tabs.length > 0) {
+            tabs[0].classList.add('active');
+            tabs[0].style.backgroundColor = '#4e73df';
+            tabs[0].style.color = '#ffffff';
+        }
+    });
+</script>
 {% endblock %}

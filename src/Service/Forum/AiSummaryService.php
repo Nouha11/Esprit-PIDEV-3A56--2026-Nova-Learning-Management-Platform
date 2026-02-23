@@ -75,7 +75,6 @@ class AiSummaryService
         Here is the text to enhance:\n\n" . $rawText;
 
         try {
-            // Using the exact same HTTP Client structure as the summary method!
             $response = $this->client->request(
                 'POST',
                 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $this->apiKey,
@@ -106,6 +105,60 @@ class AiSummaryService
         } catch (\Exception $e) {
             // Throw the error so the Controller can catch it and send it to the UI alert
             throw new \Exception('System Error: ' . $e->getMessage());
+        }
+    }
+
+    // ==========================================
+    // --- NEW: CHATBOT TUTOR LOGIC ---
+    // ==========================================
+    public function chatWithNova(string $userMessage): string
+    {
+        // Secret instructions telling Gemini how to behave
+        $systemPrompt = "You are 'NOVA AI Assist', an expert tutor on a university peer-to-peer forum. 
+        Your goal is to help students learn, NOT just give them the answers. 
+        If they ask a coding or math question, guide them step-by-step. Ask Socratic questions. 
+        Format your response cleanly using Markdown (bolding, code blocks, bullet points).
+        Here is the student's question:\n\n" . $userMessage;
+
+        try {
+            $response = $this->client->request(
+                'POST',
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $this->apiKey,
+                [
+                    'verify_peer' => false,
+                    'verify_host' => false,
+                    'json' => [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    ['text' => $systemPrompt]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            );
+
+            if ($response->getStatusCode() !== 200) {
+                return "I'm sorry, I'm having trouble connecting to my brain right now. Please try again later.";
+            }
+
+            $data = $response->toArray();
+            
+            // Format line breaks for HTML display before returning
+            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? 'I could not process that request.';
+            
+            // Basic Markdown to HTML parsing for the chat window
+            $text = preg_replace('/```(.*?)```/s', '<pre class="bg-dark text-light p-3 rounded mt-2 mb-2"><code>$1</code></pre>', $text); // Code blocks
+            $text = preg_replace('/`([^`]+)`/', '<code class="bg-light text-danger px-1 rounded">$1</code>', $text); // Inline code
+            $text = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $text); // Bold
+            $text = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $text); // Italic
+            $text = nl2br($text); // Line breaks
+
+            return $text;
+            
+        } catch (\Exception $e) {
+            return "Connection error: " . $e->getMessage();
         }
     }
 }

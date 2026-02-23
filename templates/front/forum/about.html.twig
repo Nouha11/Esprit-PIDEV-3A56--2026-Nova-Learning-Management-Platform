@@ -34,7 +34,6 @@
              {# --- 1. LEFT COLUMN: NAVIGATION --- #}
             <div class="col-xl-2 col-lg-3 d-none d-lg-block">
                 <div class="sticky-sidebar">
-                    {# --- NEW ENCLOSED CARD DESIGN --- #}
                     <div class="p-3 shadow-sm rounded-4" style="background-color: var(--nova-card-bg); border: 1px solid var(--nova-border);">
                         
                         <div class="left-nav-section-title pt-0">Feeds</div>
@@ -46,6 +45,12 @@
                         </a>
                         <a href="{{ path('app_forum', {'filter': 'unanswered'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'unanswered' ? 'active' : '' }}">
                             <i class="bi bi-patch-question text-warning"></i> Unanswered
+                        </a>
+
+                        {# --- NEW NOVA AI ASSIST LINK --- #}
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Tutor</div>
+                        <a href="{{ path('app_forum_ai_assist') }}" class="left-nav-link" style="background: rgba(111, 66, 193, 0.1); color: #6f42c1; border: 1px solid rgba(111, 66, 193, 0.2);">
+                            <i class="bi bi-stars"></i> <span class="fw-bold">NOVA AI</span>
                         </a>
 
                         <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">My NOVA</div>
@@ -115,7 +120,7 @@
                                         <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 60px; height: 60px;">T2</div>
                                     </div>
                                     <div>
-                                        <h6 class="mb-1 fw-bold">Radhouani Oumeyma</h6>
+                                        <h6 class="mb-1 fw-bold">Oumeyma Radhouani</h6>
                                     </div>
                                 </div>
                             </div>

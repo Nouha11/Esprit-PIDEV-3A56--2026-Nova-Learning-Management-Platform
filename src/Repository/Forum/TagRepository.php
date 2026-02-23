@@ -38,4 +38,19 @@ class TagRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    /**
+     * Get the most popular tags based on the number of posts they have.
+     */
+    public function findTrendingTags(int $limit = 7): array
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t.name', 'COUNT(p.id) AS postCount')
+            ->join('t.posts', 'p') // Join the posts relation
+            ->groupBy('t.id')
+            ->orderBy('postCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }
