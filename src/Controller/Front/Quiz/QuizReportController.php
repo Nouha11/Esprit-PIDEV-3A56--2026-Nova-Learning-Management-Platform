@@ -5,7 +5,7 @@ namespace App\Controller\Front\Quiz;
 use App\Entity\Quiz;
 use App\Entity\Quiz\QuizReport;
 use App\Form\Quiz\QuizReportType;
-use App\Service\QuizReportNotificationService;
+use App\Service\Quiz\QuizReportNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Quiz;
 
 use App\Entity\Quiz\QuizReport;
 use App\Repository\UserRepository;

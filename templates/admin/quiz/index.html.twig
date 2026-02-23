@@ -11,6 +11,9 @@
             <p class="text-muted">Manage your assessments and questions.</p>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ path('app_quiz_statistics', {'prefix': 'admin'}) }}" class="btn btn-outline-info">
+                <i class="bi bi-graph-up me-1"></i> Statistics
+            </a>
             <a href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}" class="btn btn-outline-danger">
                 <i class="bi bi-flag me-1"></i> Reports
             </a>

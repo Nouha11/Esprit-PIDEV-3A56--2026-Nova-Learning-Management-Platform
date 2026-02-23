@@ -6,10 +6,12 @@ use App\Entity\Quiz;
 use App\Repository\QuizRepository;
 use App\Repository\Quiz\QuestionRepository;
 use App\Repository\Quiz\ChoiceRepository;
+use App\Service\Quiz\QuizHintService;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/game/quiz')]
@@ -117,15 +119,32 @@ final class QuizGameController extends AbstractController
             $submittedChoiceId = $request->request->get('answer');
             $selectedChoice = $choiceRepository->find($submittedChoiceId);
 
+            // Check if hint was used for this question
+            $hintUsed = $session->get('hint_used_' . $currentQuestionId, false);
+            $xpToAward = $question->getXpValue();
+            
+            // Apply hint penalty if hint was used
+            if ($hintUsed) {
+                $xpToAward = (int) ceil($xpToAward / 2);
+            }
+
             if ($selectedChoice && $selectedChoice->isCorrect()) {
                 // CORRECT
                 $currentScore = $session->get('quiz_score');
-                $session->set('quiz_score', $currentScore + $question->getXpValue());
-                $this->addFlash('success', '✅ Correct! +' . $question->getXpValue() . ' XP');
+                $session->set('quiz_score', $currentScore + $xpToAward);
+                
+                if ($hintUsed) {
+                    $this->addFlash('success', '✅ Correct! +' . $xpToAward . ' XP (hint penalty applied)');
+                } else {
+                    $this->addFlash('success', '✅ Correct! +' . $xpToAward . ' XP');
+                }
             } else {
                 // WRONG
                 $this->addFlash('danger', '❌ Wrong answer!');
             }
+
+            // Clear hint flag for this question
+            $session->remove('hint_used_' . $currentQuestionId);
 
             // Remove played question and save
             array_shift($queue); 
@@ -134,10 +153,82 @@ final class QuizGameController extends AbstractController
             return $this->redirectToRoute('app_quiz_play');
         }
 
+        // Check if hint was already used for this question
+        $hintUsed = $session->get('hint_used_' . $currentQuestionId, false);
+        $currentHint = $session->get('hint_text_' . $currentQuestionId, null);
+
         // Render the "Play" template
         return $this->render('front/quiz/game/play.html.twig', [
-            'question' => $question
+            'question' => $question,
+            'hintUsed' => $hintUsed,
+            'currentHint' => $currentHint
         ]);
+    }
+
+    // ---------------------------------------------------
+    // 3. AI HINT ENDPOINT
+    // ---------------------------------------------------
+    #[Route('/hint/{questionId}', name: 'app_quiz_hint', methods: ['POST'])]
+    public function getHint(
+        int $questionId,
+        QuestionRepository $questionRepository,
+        QuizHintService $hintService,
+        Request $request
+    ): JsonResponse 
+    {
+        $session = $request->getSession();
+        
+        // Check if this is the current question
+        $queue = $session->get('quiz_queue', []);
+        if (empty($queue) || $queue[0] !== $questionId) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Invalid question'
+            ], 400);
+        }
+
+        // Check if hint already used for this question
+        if ($session->get('hint_used_' . $questionId, false)) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Hint already used for this question'
+            ], 400);
+        }
+
+        $question = $questionRepository->find($questionId);
+        if (!$question) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Question not found'
+            ], 404);
+        }
+
+        try {
+            // Generate hint using AI
+            $hint = $hintService->generateHint($question);
+            
+            // Calculate XP with penalty
+            $originalXp = $question->getXpValue();
+            $reducedXp = $hintService->calculateXpWithHintPenalty($originalXp);
+            
+            // Mark hint as used
+            $session->set('hint_used_' . $questionId, true);
+            $session->set('hint_text_' . $questionId, $hint);
+            
+            return new JsonResponse([
+                'success' => true,
+                'hint' => $hint,
+                'originalXp' => $originalXp,
+                'reducedXp' => $reducedXp,
+                'penalty' => $originalXp - $reducedXp
+            ]);
+            
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Failed to generate hint. Please try again.'
+            ], 500);
+        }
     }
 
     #[Route('/restart', name: 'app_quiz_restart')]

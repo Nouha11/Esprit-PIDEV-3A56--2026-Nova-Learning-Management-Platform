@@ -5,6 +5,7 @@ namespace App\Controller\Admin\Quiz;
 use App\Entity\Quiz;
 use App\Form\Admin\Quiz\QuizType;
 use App\Repository\QuizRepository;
+use App\Service\Quiz\QuizStatisticsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -80,6 +81,22 @@ final class QuizController extends AbstractController
         return $this->render($templatePrefix . 'quiz/new.html.twig', [
             'quiz' => $quiz,
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/statistics', name: 'app_quiz_statistics', methods: ['GET'])]
+    public function statistics(QuizStatisticsService $statisticsService, string $prefix): Response
+    {
+        $templatePrefix = $prefix === 'admin' ? 'admin/' : '';
+        
+        $stats = $statisticsService->getStatistics();
+        $difficultyDistribution = $statisticsService->getDifficultyDistribution();
+        $reportStatusDistribution = $statisticsService->getReportStatusDistribution();
+        
+        return $this->render($templatePrefix . 'quiz/statistics.html.twig', [
+            'stats' => $stats,
+            'difficultyDistribution' => $difficultyDistribution,
+            'reportStatusDistribution' => $reportStatusDistribution,
         ]);
     }
 

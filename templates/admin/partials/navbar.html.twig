@@ -72,41 +72,70 @@
                         <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
                             <div class="card bg-transparent">
                                 <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
-                                    <h6 class="m-0">Quiz Reports 
-                                        {% if pendingCount > 0 %}
-                                            <span class="badge bg-danger bg-opacity-10 text-danger ms-2">{{ pendingCount }} new</span>
-                                        {% endif %}
-                                    </h6>
+                                    <h6 class="m-0">Notifications</h6>
                                     <a class="small" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">View all</a>
                                 </div>
                                 <div class="card-body p-0">
-                                    {% if pendingCount > 0 %}
+                                    <!-- Quiz Reports Section -->
+                                    <div class="border-bottom">
+                                        <div class="px-3 pt-3 pb-2">
+                                            <h6 class="mb-2">
+                                                <i class="bi bi-flag-fill text-danger me-2"></i>Quiz Reports
+                                            </h6>
+                                        </div>
+                                        {% if pendingCount > 0 %}
+                                            <ul class="list-group list-unstyled list-group-flush">
+                                                <li>
+                                                    <a href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}" class="list-group-item-action border-0 border-bottom d-flex p-3">
+                                                        <div class="me-3">
+                                                            <div class="avatar avatar-md bg-danger bg-opacity-10">
+                                                                <i class="bi bi-flag-fill text-danger fs-5"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-1">{{ pendingCount }} Quiz Report{{ pendingCount > 1 ? 's' : '' }} Pending</h6>
+                                                            <p class="small text-body m-0">Review and take action on reported quizzes</p>
+                                                            <u class="small">Review now</u>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        {% else %}
+                                            <div class="text-center py-3 text-muted">
+                                                <i class="bi bi-check-circle fs-4"></i>
+                                                <p class="small mt-2 mb-0">No pending reports</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Quiz Statistics Section -->
+                                    <div>
+                                        <div class="px-3 pt-3 pb-2">
+                                            <h6 class="mb-2">
+                                                <i class="bi bi-graph-up text-info me-2"></i>Quiz Statistics
+                                            </h6>
+                                        </div>
                                         <ul class="list-group list-unstyled list-group-flush">
                                             <li>
-                                                <a href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}" class="list-group-item-action border-0 border-bottom d-flex p-3">
+                                                <a href="{{ path('app_quiz_statistics', {'prefix': 'admin'}) }}" class="list-group-item-action border-0 d-flex p-3">
                                                     <div class="me-3">
-                                                        <div class="avatar avatar-md bg-danger bg-opacity-10">
-                                                            <i class="bi bi-flag-fill text-danger fs-5"></i>
+                                                        <div class="avatar avatar-md bg-info bg-opacity-10">
+                                                            <i class="bi bi-bar-chart-fill text-info fs-5"></i>
                                                         </div>
                                                     </div>
                                                     <div>
-                                                        <h6 class="mb-1">{{ pendingCount }} Quiz Report{{ pendingCount > 1 ? 's' : '' }} Pending</h6>
-                                                        <p class="small text-body m-0">Review and take action on reported quizzes</p>
-                                                        <u class="small">Review now</u>
+                                                        <h6 class="mb-1">View Quiz Analytics</h6>
+                                                        <p class="small text-body m-0">Comprehensive statistics and insights</p>
+                                                        <u class="small">View dashboard</u>
                                                     </div>
                                                 </a>
                                             </li>
                                         </ul>
-                                    {% else %}
-                                        <div class="text-center py-5 text-muted">
-                                            <i class="bi bi-check-circle display-4"></i>
-                                            <p class="mt-3">No pending reports</p>
-                                        </div>
-                                    {% endif %}
+                                    </div>
                                 </div>
                                 <!-- Button -->
                                 <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
-                                    <a href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}" class="stretched-link">View all reports</a>
+                                    <a href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}" class="stretched-link">Manage Quiz System</a>
                                 </div>
                             </div>
                         </div>
@@ -180,4 +209,4 @@
         </div>
     </div>
 </nav>
-<!-- Top bar END -->
+<!-- Top bar END -->    

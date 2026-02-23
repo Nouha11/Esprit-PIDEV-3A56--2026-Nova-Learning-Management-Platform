@@ -374,3 +374,907 @@ All backend services, database tables, event subscribers, controllers, templates
 **Status**: ✅ COMPLETE AND READY FOR USE
 
 **Next Action**: Test the system by logging in/out and visiting `/admin/login-history`
+<nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
+
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
+            <img class="navbar-brand-item" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA" style="height: 90px;">
+        </a>
+    </div>
+    <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+
+            <ul class="navbar-nav flex-column" id="navbar-sidebar">
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_admin_dashboard') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_admin_dashboard' %} active{% endif %}">
+                        <i class="bi bi-house fa-fw me-2"></i>Dashboard
+                    </a>
+                </li>
+                
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Learning Management</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_course' %} active{% endif %}" href="{{ path('admin_course_index') }}">
+                        <i class="bi bi-basket fa-fw me-2"></i>Courses
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_planning' %} active{% endif %}" href="{{ path('admin_planning_index') }}">
+                        <i class="bi bi-calendar-check fa-fw me-2"></i>Planning Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_study_session' %} active{% endif %}" href="{{ path('admin_study_session_index') }}">
+                        <i class="bi bi-journal-check fa-fw me-2"></i>Completed Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_quiz_index' or app.request.attributes.get('_route') starts with 'app_quiz_' %} active{% endif %}" href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">
+                        <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4 d-flex justify-content-between align-items-center{% if app.request.attributes.get('_route') starts with 'app_quiz_reports' %} active{% endif %}" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">
+                        <span>
+                            <i class="fas fa-flag fa-fw me-2"></i>Quiz Reports
+                        </span>
+                        {% set pendingCount = pending_reports_count() %}
+                        {% if pendingCount > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-2 pulse-badge">{{ pendingCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') == 'app_quiz_statistics' %} active{% endif %}" href="{{ path('app_quiz_statistics', {'prefix': 'admin'}) }}">
+                        <i class="bi bi-bar-chart fa-fw me-2"></i>Quiz Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_books' %} active{% endif %}" href="{{ path('admin_books_index') }}">
+                        <i class="fas fa-book fa-fw me-2"></i>Library
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Gamification</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_game_index') }}">
+                        <i class="fas fa-gamepad fa-fw me-2"></i>Games
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_reward_index') }}">
+                        <i class="fas fa-trophy fa-fw me-2"></i>Rewards
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_statistics' %} active{% endif %}" href="{{ path('admin_statistics_dashboard') }}">
+                        <i class="bi bi-graph-up fa-fw me-2"></i>Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Community</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_forum_index') }}">
+                        <i class="fas fa-comments fa-fw me-2"></i>Forum Moderation
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Security</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_login_history' %} active{% endif %}" href="{{ path('admin_login_history_index') }}">
+                        <i class="bi bi-clock-history fa-fw me-2"></i>Login History
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_users_list') }}">
+                        <i class="bi bi-people fa-fw me-2"></i>User Management
+                    </a>
+                </li>
+
+            </ul>
+            <div class="px-3 mt-auto pt-3">
+                <div class="d-flex align-items-center justify-content-between text-primary-hover">
+                    <a class="h5 mb-0 text-body" href="{{ path('app_2fa_manage') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Security (2FA)">
+                        <i class="bi bi-shield-lock"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Settings">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Go to Website">
+                        <i class="bi bi-globe"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+                        <i class="bi bi-power"></i>
+                    </a>
+                </div>
+            </div>
+            </div>
+    </div>
+</nav><nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
+
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
+            <img class="navbar-brand-item" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA" style="height: 90px;">
+        </a>
+    </div>
+    <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+
+            <ul class="navbar-nav flex-column" id="navbar-sidebar">
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_admin_dashboard') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_admin_dashboard' %} active{% endif %}">
+                        <i class="bi bi-house fa-fw me-2"></i>Dashboard
+                    </a>
+                </li>
+                
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Learning Management</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_course' %} active{% endif %}" href="{{ path('admin_course_index') }}">
+                        <i class="bi bi-basket fa-fw me-2"></i>Courses
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_planning' %} active{% endif %}" href="{{ path('admin_planning_index') }}">
+                        <i class="bi bi-calendar-check fa-fw me-2"></i>Planning Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_study_session' %} active{% endif %}" href="{{ path('admin_study_session_index') }}">
+                        <i class="bi bi-journal-check fa-fw me-2"></i>Completed Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_quiz_index' or app.request.attributes.get('_route') starts with 'app_quiz_' %} active{% endif %}" href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">
+                        <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4 d-flex justify-content-between align-items-center{% if app.request.attributes.get('_route') starts with 'app_quiz_reports' %} active{% endif %}" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">
+                        <span>
+                            <i class="fas fa-flag fa-fw me-2"></i>Quiz Reports
+                        </span>
+                        {% set pendingCount = pending_reports_count() %}
+                        {% if pendingCount > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-2 pulse-badge">{{ pendingCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') == 'app_quiz_statistics' %} active{% endif %}" href="{{ path('app_quiz_statistics', {'prefix': 'admin'}) }}">
+                        <i class="bi bi-bar-chart fa-fw me-2"></i>Quiz Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_books' %} active{% endif %}" href="{{ path('admin_books_index') }}">
+                        <i class="fas fa-book fa-fw me-2"></i>Library
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Gamification</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_game_index') }}">
+                        <i class="fas fa-gamepad fa-fw me-2"></i>Games
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_reward_index') }}">
+                        <i class="fas fa-trophy fa-fw me-2"></i>Rewards
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_statistics' %} active{% endif %}" href="{{ path('admin_statistics_dashboard') }}">
+                        <i class="bi bi-graph-up fa-fw me-2"></i>Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Community</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_forum_index') }}">
+                        <i class="fas fa-comments fa-fw me-2"></i>Forum Moderation
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Security</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_login_history' %} active{% endif %}" href="{{ path('admin_login_history_index') }}">
+                        <i class="bi bi-clock-history fa-fw me-2"></i>Login History
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_users_list') }}">
+                        <i class="bi bi-people fa-fw me-2"></i>User Management
+                    </a>
+                </li>
+
+            </ul>
+            <div class="px-3 mt-auto pt-3">
+                <div class="d-flex align-items-center justify-content-between text-primary-hover">
+                    <a class="h5 mb-0 text-body" href="{{ path('app_2fa_manage') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Security (2FA)">
+                        <i class="bi bi-shield-lock"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Settings">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Go to Website">
+                        <i class="bi bi-globe"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+                        <i class="bi bi-power"></i>
+                    </a>
+                </div>
+            </div>
+            </div>
+    </div>
+</nav><nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
+
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
+            <img class="navbar-brand-item" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA" style="height: 90px;">
+        </a>
+    </div>
+    <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+
+            <ul class="navbar-nav flex-column" id="navbar-sidebar">
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_admin_dashboard') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_admin_dashboard' %} active{% endif %}">
+                        <i class="bi bi-house fa-fw me-2"></i>Dashboard
+                    </a>
+                </li>
+                
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Learning Management</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_course' %} active{% endif %}" href="{{ path('admin_course_index') }}">
+                        <i class="bi bi-basket fa-fw me-2"></i>Courses
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_planning' %} active{% endif %}" href="{{ path('admin_planning_index') }}">
+                        <i class="bi bi-calendar-check fa-fw me-2"></i>Planning Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_study_session' %} active{% endif %}" href="{{ path('admin_study_session_index') }}">
+                        <i class="bi bi-journal-check fa-fw me-2"></i>Completed Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_quiz_index' or app.request.attributes.get('_route') starts with 'app_quiz_' %} active{% endif %}" href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">
+                        <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4 d-flex justify-content-between align-items-center{% if app.request.attributes.get('_route') starts with 'app_quiz_reports' %} active{% endif %}" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">
+                        <span>
+                            <i class="fas fa-flag fa-fw me-2"></i>Quiz Reports
+                        </span>
+                        {% set pendingCount = pending_reports_count() %}
+                        {% if pendingCount > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-2 pulse-badge">{{ pendingCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') == 'app_quiz_statistics' %} active{% endif %}" href="{{ path('app_quiz_statistics', {'prefix': 'admin'}) }}">
+                        <i class="bi bi-bar-chart fa-fw me-2"></i>Quiz Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_books' %} active{% endif %}" href="{{ path('admin_books_index') }}">
+                        <i class="fas fa-book fa-fw me-2"></i>Library
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Gamification</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_game_index') }}">
+                        <i class="fas fa-gamepad fa-fw me-2"></i>Games
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_reward_index') }}">
+                        <i class="fas fa-trophy fa-fw me-2"></i>Rewards
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_statistics' %} active{% endif %}" href="{{ path('admin_statistics_dashboard') }}">
+                        <i class="bi bi-graph-up fa-fw me-2"></i>Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Community</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_forum_index') }}">
+                        <i class="fas fa-comments fa-fw me-2"></i>Forum Moderation
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Security</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_login_history' %} active{% endif %}" href="{{ path('admin_login_history_index') }}">
+                        <i class="bi bi-clock-history fa-fw me-2"></i>Login History
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_users_list') }}">
+                        <i class="bi bi-people fa-fw me-2"></i>User Management
+                    </a>
+                </li>
+
+            </ul>
+            <div class="px-3 mt-auto pt-3">
+                <div class="d-flex align-items-center justify-content-between text-primary-hover">
+                    <a class="h5 mb-0 text-body" href="{{ path('app_2fa_manage') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Security (2FA)">
+                        <i class="bi bi-shield-lock"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Settings">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Go to Website">
+                        <i class="bi bi-globe"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+                        <i class="bi bi-power"></i>
+                    </a>
+                </div>
+            </div>
+            </div>
+    </div>
+</nav><nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
+
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
+            <img class="navbar-brand-item" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA" style="height: 90px;">
+        </a>
+    </div>
+    <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+
+            <ul class="navbar-nav flex-column" id="navbar-sidebar">
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_admin_dashboard') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_admin_dashboard' %} active{% endif %}">
+                        <i class="bi bi-house fa-fw me-2"></i>Dashboard
+                    </a>
+                </li>
+                
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Learning Management</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_course' %} active{% endif %}" href="{{ path('admin_course_index') }}">
+                        <i class="bi bi-basket fa-fw me-2"></i>Courses
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_planning' %} active{% endif %}" href="{{ path('admin_planning_index') }}">
+                        <i class="bi bi-calendar-check fa-fw me-2"></i>Planning Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_study_session' %} active{% endif %}" href="{{ path('admin_study_session_index') }}">
+                        <i class="bi bi-journal-check fa-fw me-2"></i>Completed Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_quiz_index' or app.request.attributes.get('_route') starts with 'app_quiz_' %} active{% endif %}" href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">
+                        <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4 d-flex justify-content-between align-items-center{% if app.request.attributes.get('_route') starts with 'app_quiz_reports' %} active{% endif %}" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">
+                        <span>
+                            <i class="fas fa-flag fa-fw me-2"></i>Quiz Reports
+                        </span>
+                        {% set pendingCount = pending_reports_count() %}
+                        {% if pendingCount > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-2 pulse-badge">{{ pendingCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') == 'app_quiz_statistics' %} active{% endif %}" href="{{ path('app_quiz_statistics', {'prefix': 'admin'}) }}">
+                        <i class="bi bi-bar-chart fa-fw me-2"></i>Quiz Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_books' %} active{% endif %}" href="{{ path('admin_books_index') }}">
+                        <i class="fas fa-book fa-fw me-2"></i>Library
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Gamification</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_game_index') }}">
+                        <i class="fas fa-gamepad fa-fw me-2"></i>Games
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_reward_index') }}">
+                        <i class="fas fa-trophy fa-fw me-2"></i>Rewards
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_statistics' %} active{% endif %}" href="{{ path('admin_statistics_dashboard') }}">
+                        <i class="bi bi-graph-up fa-fw me-2"></i>Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Community</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_forum_index') }}">
+                        <i class="fas fa-comments fa-fw me-2"></i>Forum Moderation
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Security</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_login_history' %} active{% endif %}" href="{{ path('admin_login_history_index') }}">
+                        <i class="bi bi-clock-history fa-fw me-2"></i>Login History
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_users_list') }}">
+                        <i class="bi bi-people fa-fw me-2"></i>User Management
+                    </a>
+                </li>
+
+            </ul>
+            <div class="px-3 mt-auto pt-3">
+                <div class="d-flex align-items-center justify-content-between text-primary-hover">
+                    <a class="h5 mb-0 text-body" href="{{ path('app_2fa_manage') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Security (2FA)">
+                        <i class="bi bi-shield-lock"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Settings">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Go to Website">
+                        <i class="bi bi-globe"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+                        <i class="bi bi-power"></i>
+                    </a>
+                </div>
+            </div>
+            </div>
+    </div>
+</nav><nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
+
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
+            <img class="navbar-brand-item" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA" style="height: 90px;">
+        </a>
+    </div>
+    <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+
+            <ul class="navbar-nav flex-column" id="navbar-sidebar">
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_admin_dashboard') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_admin_dashboard' %} active{% endif %}">
+                        <i class="bi bi-house fa-fw me-2"></i>Dashboard
+                    </a>
+                </li>
+                
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Learning Management</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_course' %} active{% endif %}" href="{{ path('admin_course_index') }}">
+                        <i class="bi bi-basket fa-fw me-2"></i>Courses
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_planning' %} active{% endif %}" href="{{ path('admin_planning_index') }}">
+                        <i class="bi bi-calendar-check fa-fw me-2"></i>Planning Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_study_session' %} active{% endif %}" href="{{ path('admin_study_session_index') }}">
+                        <i class="bi bi-journal-check fa-fw me-2"></i>Completed Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_quiz_index' or app.request.attributes.get('_route') starts with 'app_quiz_' %} active{% endif %}" href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">
+                        <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4 d-flex justify-content-between align-items-center{% if app.request.attributes.get('_route') starts with 'app_quiz_reports' %} active{% endif %}" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">
+                        <span>
+                            <i class="fas fa-flag fa-fw me-2"></i>Quiz Reports
+                        </span>
+                        {% set pendingCount = pending_reports_count() %}
+                        {% if pendingCount > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-2 pulse-badge">{{ pendingCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') == 'app_quiz_statistics' %} active{% endif %}" href="{{ path('app_quiz_statistics', {'prefix': 'admin'}) }}">
+                        <i class="bi bi-bar-chart fa-fw me-2"></i>Quiz Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_books' %} active{% endif %}" href="{{ path('admin_books_index') }}">
+                        <i class="fas fa-book fa-fw me-2"></i>Library
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Gamification</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_game_index') }}">
+                        <i class="fas fa-gamepad fa-fw me-2"></i>Games
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_reward_index') }}">
+                        <i class="fas fa-trophy fa-fw me-2"></i>Rewards
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_statistics' %} active{% endif %}" href="{{ path('admin_statistics_dashboard') }}">
+                        <i class="bi bi-graph-up fa-fw me-2"></i>Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Community</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_forum_index') }}">
+                        <i class="fas fa-comments fa-fw me-2"></i>Forum Moderation
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Security</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_login_history' %} active{% endif %}" href="{{ path('admin_login_history_index') }}">
+                        <i class="bi bi-clock-history fa-fw me-2"></i>Login History
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_users_list') }}">
+                        <i class="bi bi-people fa-fw me-2"></i>User Management
+                    </a>
+                </li>
+
+            </ul>
+            <div class="px-3 mt-auto pt-3">
+                <div class="d-flex align-items-center justify-content-between text-primary-hover">
+                    <a class="h5 mb-0 text-body" href="{{ path('app_2fa_manage') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Security (2FA)">
+                        <i class="bi bi-shield-lock"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Settings">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Go to Website">
+                        <i class="bi bi-globe"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+                        <i class="bi bi-power"></i>
+                    </a>
+                </div>
+            </div>
+            </div>
+    </div>
+</nav><nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
+
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
+            <img class="navbar-brand-item" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA" style="height: 90px;">
+        </a>
+    </div>
+    <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+
+            <ul class="navbar-nav flex-column" id="navbar-sidebar">
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_admin_dashboard') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_admin_dashboard' %} active{% endif %}">
+                        <i class="bi bi-house fa-fw me-2"></i>Dashboard
+                    </a>
+                </li>
+                
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Learning Management</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_course' %} active{% endif %}" href="{{ path('admin_course_index') }}">
+                        <i class="bi bi-basket fa-fw me-2"></i>Courses
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_planning' %} active{% endif %}" href="{{ path('admin_planning_index') }}">
+                        <i class="bi bi-calendar-check fa-fw me-2"></i>Planning Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_study_session' %} active{% endif %}" href="{{ path('admin_study_session_index') }}">
+                        <i class="bi bi-journal-check fa-fw me-2"></i>Completed Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_quiz_index' or app.request.attributes.get('_route') starts with 'app_quiz_' %} active{% endif %}" href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">
+                        <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4 d-flex justify-content-between align-items-center{% if app.request.attributes.get('_route') starts with 'app_quiz_reports' %} active{% endif %}" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">
+                        <span>
+                            <i class="fas fa-flag fa-fw me-2"></i>Quiz Reports
+                        </span>
+                        {% set pendingCount = pending_reports_count() %}
+                        {% if pendingCount > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-2 pulse-badge">{{ pendingCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') == 'app_quiz_statistics' %} active{% endif %}" href="{{ path('app_quiz_statistics', {'prefix': 'admin'}) }}">
+                        <i class="bi bi-bar-chart fa-fw me-2"></i>Quiz Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_books' %} active{% endif %}" href="{{ path('admin_books_index') }}">
+                        <i class="fas fa-book fa-fw me-2"></i>Library
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Gamification</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_game_index') }}">
+                        <i class="fas fa-gamepad fa-fw me-2"></i>Games
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_reward_index') }}">
+                        <i class="fas fa-trophy fa-fw me-2"></i>Rewards
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_statistics' %} active{% endif %}" href="{{ path('admin_statistics_dashboard') }}">
+                        <i class="bi bi-graph-up fa-fw me-2"></i>Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Community</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_forum_index') }}">
+                        <i class="fas fa-comments fa-fw me-2"></i>Forum Moderation
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Security</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_login_history' %} active{% endif %}" href="{{ path('admin_login_history_index') }}">
+                        <i class="bi bi-clock-history fa-fw me-2"></i>Login History
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_users_list') }}">
+                        <i class="bi bi-people fa-fw me-2"></i>User Management
+                    </a>
+                </li>
+
+            </ul>
+            <div class="px-3 mt-auto pt-3">
+                <div class="d-flex align-items-center justify-content-between text-primary-hover">
+                    <a class="h5 mb-0 text-body" href="{{ path('app_2fa_manage') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Security (2FA)">
+                        <i class="bi bi-shield-lock"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Settings">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Go to Website">
+                        <i class="bi bi-globe"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+                        <i class="bi bi-power"></i>
+                    </a>
+                </div>
+            </div>
+            </div>
+    </div>
+</nav><nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
+
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="{{ path('app_admin_dashboard') }}">
+            <img class="navbar-brand-item" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA" style="height: 90px;">
+        </a>
+    </div>
+    <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+
+            <ul class="navbar-nav flex-column" id="navbar-sidebar">
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_admin_dashboard') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_admin_dashboard' %} active{% endif %}">
+                        <i class="bi bi-house fa-fw me-2"></i>Dashboard
+                    </a>
+                </li>
+                
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Learning Management</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_course' %} active{% endif %}" href="{{ path('admin_course_index') }}">
+                        <i class="bi bi-basket fa-fw me-2"></i>Courses
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_planning' %} active{% endif %}" href="{{ path('admin_planning_index') }}">
+                        <i class="bi bi-calendar-check fa-fw me-2"></i>Planning Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_study_session' %} active{% endif %}" href="{{ path('admin_study_session_index') }}">
+                        <i class="bi bi-journal-check fa-fw me-2"></i>Completed Sessions
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_quiz_index' or app.request.attributes.get('_route') starts with 'app_quiz_' %} active{% endif %}" href="{{ path('app_quiz_index', {'prefix': 'admin'}) }}">
+                        <i class="fas fa-question-circle fa-fw me-2"></i>Quizzes
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4 d-flex justify-content-between align-items-center{% if app.request.attributes.get('_route') starts with 'app_quiz_reports' %} active{% endif %}" href="{{ path('app_quiz_reports_index', {'prefix': 'admin'}) }}">
+                        <span>
+                            <i class="fas fa-flag fa-fw me-2"></i>Quiz Reports
+                        </span>
+                        {% set pendingCount = pending_reports_count() %}
+                        {% if pendingCount > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-2 pulse-badge">{{ pendingCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') == 'app_quiz_statistics' %} active{% endif %}" href="{{ path('app_quiz_statistics', {'prefix': 'admin'}) }}">
+                        <i class="bi bi-bar-chart fa-fw me-2"></i>Quiz Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_books' %} active{% endif %}" href="{{ path('admin_books_index') }}">
+                        <i class="fas fa-book fa-fw me-2"></i>Library
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Gamification</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_game_index') }}">
+                        <i class="fas fa-gamepad fa-fw me-2"></i>Games
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_reward_index') }}">
+                        <i class="fas fa-trophy fa-fw me-2"></i>Rewards
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_statistics' %} active{% endif %}" href="{{ path('admin_statistics_dashboard') }}">
+                        <i class="bi bi-graph-up fa-fw me-2"></i>Statistics
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Community</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_forum_index') }}">
+                        <i class="fas fa-comments fa-fw me-2"></i>Forum Moderation
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2 my-2 mt-4 text-uppercase small text-muted">Security</li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'admin_login_history' %} active{% endif %}" href="{{ path('admin_login_history_index') }}">
+                        <i class="bi bi-clock-history fa-fw me-2"></i>Login History
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('app_admin_users_list') }}">
+                        <i class="bi bi-people fa-fw me-2"></i>User Management
+                    </a>
+                </li>
+
+            </ul>
+            <div class="px-3 mt-auto pt-3">
+                <div class="d-flex align-items-center justify-content-between text-primary-hover">
+                    <a class="h5 mb-0 text-body" href="{{ path('app_2fa_manage') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Security (2FA)">
+                        <i class="bi bi-shield-lock"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Settings">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_home') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Go to Website">
+                        <i class="bi bi-globe"></i>
+                    </a>
+                    <a class="h5 mb-0 text-body" href="{{ path('app_logout') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sign out">
+                        <i class="bi bi-power"></i>
+                    </a>
+                </div>
+            </div>
+            </div>
+    </div>
+</nav>

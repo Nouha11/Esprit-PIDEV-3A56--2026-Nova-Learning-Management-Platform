@@ -9,12 +9,35 @@
             
             {# 1. Game Header (XP and Progress) #}
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill">
+                <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill" id="xp-badge">
                     <i class="bi bi-lightning-fill"></i> +{{ question.xpValue }} XP
                 </span>
                 <span class="text-muted small fw-bold text-uppercase">
                     Difficulty: {{ question.difficulty }}
                 </span>
+            </div>
+
+            {# Hint Button #}
+            {% if not hintUsed %}
+                <div class="text-center mb-3">
+                    <button type="button" class="btn btn-outline-info btn-sm" id="hint-btn" data-question-id="{{ question.id }}">
+                        <i class="bi bi-lightbulb"></i> Get AI Hint (-50% XP)
+                    </button>
+                </div>
+            {% endif %}
+
+            {# Hint Display Area #}
+            <div id="hint-container" class="alert alert-info mb-4" style="display: {% if hintUsed %}block{% else %}none{% endif %};">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-lightbulb-fill me-2 fs-5"></i>
+                    <div>
+                        <strong>AI Hint:</strong>
+                        <p class="mb-0 mt-1" id="hint-text">{{ currentHint }}</p>
+                        <small class="text-muted d-block mt-2">
+                            <i class="bi bi-info-circle"></i> XP reduced by 50% for using hint
+                        </small>
+                    </div>
+                </div>
             </div>
 
             {# 2. The Question Card #}
@@ -80,5 +103,74 @@
     .choice-card:hover {
         transform: translateY(-2px);
     }
+    
+    #hint-btn.loading {
+        pointer-events: none;
+        opacity: 0.6;
+    }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hintBtn = document.getElementById('hint-btn');
+    
+    if (hintBtn) {
+        hintBtn.addEventListener('click', async function() {
+            const questionId = this.dataset.questionId;
+            const xpBadge = document.getElementById('xp-badge');
+            
+            // Show loading state
+            this.classList.add('loading');
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating hint...';
+            
+            try {
+                const response = await fetch(`/game/quiz/hint/${questionId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update XP badge
+                    xpBadge.innerHTML = `<i class="bi bi-lightning-fill"></i> +${data.reducedXp} XP <small class="text-decoration-line-through ms-1">${data.originalXp}</small>`;
+                    
+                    // Show hint
+                    document.getElementById('hint-text').textContent = data.hint;
+                    document.getElementById('hint-container').style.display = 'block';
+                    
+                    // Hide hint button
+                    this.style.display = 'none';
+                    
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-warning alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Hint activated!</strong> Your XP for this question has been reduced from ${data.originalXp} to ${data.reducedXp}.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+                    
+                    // Auto-dismiss after 5 seconds
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 5000);
+                } else {
+                    alert(data.error || 'Failed to generate hint');
+                    this.classList.remove('loading');
+                    this.innerHTML = '<i class="bi bi-lightbulb"></i> Get AI Hint (-50% XP)';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate hint. Please try again.');
+                this.classList.remove('loading');
+                this.innerHTML = '<i class="bi bi-lightbulb"></i> Get AI Hint (-50% XP)';
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -28,7 +28,7 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\Service\QuizReportNotificationService:
+    App\Service\Quiz\QuizReportNotificationService:
         arguments:
             $adminEmail: '%admin_notification_email%'
 
@@ -45,6 +45,10 @@ services:
             $youtubeApiKey: '%env(YOUTUBE_API_KEY)%'
 
     App\Service\game\HuggingFaceService:
+        arguments:
+            $huggingFaceApiKey: '%env(HUGGING_FACE_API_KEY)%'
+
+    App\Service\Quiz\QuizHintService:
         arguments:
             $huggingFaceApiKey: '%env(HUGGING_FACE_API_KEY)%'
 
