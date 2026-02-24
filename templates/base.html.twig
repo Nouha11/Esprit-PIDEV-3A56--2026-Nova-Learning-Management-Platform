@@ -138,6 +138,20 @@
             font-size: 0.9rem !important;
         }
         
+        /* Navbar dropdown hover effect - only on desktop */
+        @media (min-width: 992px) {
+            .navbar-nav .nav-item.dropdown:hover > .dropdown-menu {
+                display: block;
+                margin-top: 0;
+            }
+        }
+        .navbar-nav .dropdown-menu {
+            margin-top: 0;
+        }
+        .navbar-nav .dropdown-toggle::after {
+            vertical-align: 0.15em;
+        }
+        
         /* Active nav link styling */
         .navbar-nav .nav-link.active {
             color: var(--bs-primary) !important;
@@ -194,8 +208,18 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('course_index') }}"><i class="bi bi-book me-2"></i>{{ t.t('Courses') }}</a>
                     </li>                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>{{ t.t('Library') }}</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="libraryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-book me-2"></i>{{ t.t('Library') }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="libraryDropdown">
+                            <li><a class="dropdown-item" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>{{ t.t('Browse Library') }}</a></li>
+                            {% if app.user %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ path('my_library') }}"><i class="bi bi-collection me-2"></i>My Library</a></li>
+                                <li><a class="dropdown-item" href="{{ path('my_payments') }}"><i class="bi bi-credit-card me-2"></i>My Payments</a></li>
+                            {% endif %}
+                        </ul>
                     </li>
 
                     {% if is_granted('ROLE_STUDENT') %}
@@ -258,107 +282,6 @@
                 {% endif %}
 
                 {% if app.user %}
-                <li class="nav-item ms-2 dropdown">
-                    <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                        <i class="bi bi-cart3 fa-fw"></i>
-                    </a>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-dark mt-xl-2 ms-n1">2 
-                        <span class="visually-hidden">unread messages</span>
-                    </span>
-
-                    <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
-                        <div class="card bg-transparent">
-                            <div class="card-header bg-transparent border-bottom py-4">
-                                <h5 class="m-0">{{ t.t('Cart items') }}</h5>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="row p-3 g-2">
-                                    <div class="col-3">
-                                        <img class="rounded-2" src="{{ asset('assets/images/book/02.jpg') }}" alt="avatar">
-                                    </div>
-                                    <div class="col-9">
-                                        <div class="d-flex justify-content-between">
-                                            <h6 class="m-0">Angular 4 Tutorial in audio (Compact Disk)</h6>
-                                            <a href="#" class="small text-primary-hover"><i class="bi bi-x-lg"></i></a>
-                                        </div>
-                                        <form class="choices-sm pt-2 col-4">
-                                            <select class="form-select js-choice border-0 bg-transparent" data-search-enabled="false">
-                                                <option>1</option>
-                                                <option selected>2</option>
-                                                <option>3</option>
-                                                <option>4</option>
-                                                <option>5</option>
-                                            </select>
-                                        </form>
-                                    </div>
-                                </div>
-                                <hr class="m-0">
-
-                                <div class="row p-3 g-2">
-                                    <div class="col-3">
-                                        <img class="rounded-2" src="{{ asset('assets/images/book/04.jpg') }}" alt="avatar">
-                                    </div>
-                                    <div class="col-9">
-                                        <div class="d-flex justify-content-between">
-                                            <h6 class="m-0">The Principles of Beautiful Graphics Design (Paperback)</h6>
-                                            <a href="#" class="small text-primary-hover"><i class="bi bi-x-lg"></i></a>
-                                        </div>
-                                        <form class="choices-sm pt-2 col-4">
-                                            <select class="form-select js-choice border-0 bg-transparent" data-search-enabled="false">
-                                                <option selected>1</option>
-                                                <option>2</option>
-                                                <option>3</option>
-                                                <option>4</option>
-                                                <option>5</option>
-                                            </select>
-                                        </form>
-                                    </div>
-                                </div>
-                                </div>
-                            <div class="card-footer bg-transparent border-top py-3 text-center d-flex justify-content-between position-relative">
-                                <a href="#" class="btn btn-sm btn-light mb-0">{{ t.t('View Cart') }}</a>
-                                <a href="#" class="btn btn-sm btn-success mb-0">{{ t.t('Checkout') }}</a>
-                            </div>
-                        </div>
-                    </div>
-                    </li>
-
-<!--                 <li class="nav-item ms-2 ms-sm-3 dropdown d-none d-sm-block">
-                    <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                        <i class="bi bi-bell fa-fw"></i>
-                    </a>
-                    <span class="notif-badge animation-blink"></span>
-
-                    <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
-                        <div class="card bg-transparent">
-                            <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
-                                <h6 class="m-0">{{ t.t('Notifications') }} <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 {{ t.t('new') }}</span></h6>
-                                <a class="small" href="#">{{ t.t('Clear all') }}</a>
-                            </div>
-                            <div class="card-body p-0">
-                                <ul class="list-group list-unstyled list-group-flush">
-                                    <li>
-                                        <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-                                            <div class="me-3">
-                                                <div class="avatar avatar-md">
-                                                    <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar">
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1">Update v2.3 completed successfully</h6>
-                                                <p class="small text-body m-0">What's new! Find out about new features</p>
-                                                <small class="text-body">5 min ago</small>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
-                                <a href="#" class="stretched-link">{{ t.t('See all incoming activity') }}</a>
-                            </div>
-                        </div>
-                    </div>
-                </li> -->
                     <!-- Notification Bell -->
                     {% include 'components/notification_bell.html.twig' %}
 
@@ -869,78 +792,6 @@
 
     <script src="{{ asset('assets/js/functions.js') }}"></script>
     
-    <!-- Active nav link highlighter -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get current path
-            const currentPath = window.location.pathname;
-            
-            // Get all nav links
-            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-            
-            // Remove active class from all links first
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            // Add active class to matching link
-            navLinks.forEach(link => {
-                const linkPath = new URL(link.href).pathname;
-                
-                // Exact match or starts with (for sub-pages)
-                if (currentPath === linkPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
-                    link.classList.add('active');
-                }
-            });
-            
-            // Special case: if no match found and we're on home page, activate home link
-            const hasActive = Array.from(navLinks).some(link => link.classList.contains('active'));
-            if (!hasActive && (currentPath === '/' || currentPath === '')) {
-                const homeLink = document.querySelector('.navbar-nav .nav-link[href*="app_home"]');
-                if (homeLink) {
-                    homeLink.classList.add('active');
-                }
-            }
-            
-            // Theme switcher for dropdown buttons
-            const updateThemeButtons = (theme) => {
-                document.querySelectorAll('.theme-btn').forEach(btn => {
-                    const btnTheme = btn.getAttribute('data-bs-theme-value');
-                    if (btnTheme === theme) {
-                        btn.classList.remove('btn-light');
-                        btn.classList.add('btn-primary', 'active');
-                    } else {
-                        btn.classList.remove('btn-primary', 'active');
-                        btn.classList.add('btn-light');
-                    }
-                });
-            };
-            
-            // Initialize theme buttons on page load
-            const storedTheme = localStorage.getItem('theme') || 'auto';
-            updateThemeButtons(storedTheme);
-            
-            // Add click handlers to theme buttons
-            document.querySelectorAll('.theme-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-bs-theme-value');
-                    localStorage.setItem('theme', theme);
-                    
-                    // Set theme
-                    if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                        document.documentElement.setAttribute('data-bs-theme', 'dark');
-                    } else if (theme === 'auto') {
-                        document.documentElement.setAttribute('data-bs-theme', 'light');
-                    } else {
-                        document.documentElement.setAttribute('data-bs-theme', theme);
-                    }
-                    
-                    // Update button states
-                    updateThemeButtons(theme);
-                });
-            });
-        });
-    </script>
     {% endblock %}
 </body>
 </html>

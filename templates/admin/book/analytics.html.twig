@@ -1,0 +1,348 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Book Sales Analytics{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">Book Sales Analytics</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ path('app_admin_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('admin_books_index') }}">Books</a></li>
+                    <li class="breadcrumb-item active">Analytics</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="{{ path('admin_books_index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Books
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-circle">
+                                <i class="bi bi-book fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0 text-muted">Total Books</h6>
+                            <h3 class="mb-0">{{ totalBooks }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="icon-lg bg-success bg-opacity-10 text-success rounded-circle">
+                                <i class="bi bi-cart-check fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0 text-muted">Total Sales</h6>
+                            <h3 class="mb-0">{{ totalSales }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="icon-lg bg-warning bg-opacity-10 text-warning rounded-circle">
+                                <i class="bi bi-currency-dollar fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0 text-muted">Total Revenue</h6>
+                            <h3 class="mb-0">${{ totalRevenue|number_format(2) }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="icon-lg bg-info bg-opacity-10 text-info rounded-circle">
+                                <i class="bi bi-graph-up fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0 text-muted">Avg Order Value</h6>
+                            <h3 class="mb-0">${{ avgOrderValue|number_format(2) }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Sales Over Time Chart -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up-arrow text-primary me-2"></i>
+                        Sales Over Time (Last 12 Months)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Over Time Chart -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-cash-stack text-success me-2"></i>
+                        Revenue Trend
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Selling Books -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-trophy text-warning me-2"></i>
+                        Top Selling Books
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if salesByBook is empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox display-4 text-muted"></i>
+                            <p class="text-muted mt-3">No sales data available yet</p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Book Title</th>
+                                        <th class="text-center">Sales</th>
+                                        <th class="text-end">Revenue</th>
+                                        <th class="text-end">Avg Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for index, book in salesByBook %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge {% if index == 0 %}bg-warning{% elseif index == 1 %}bg-secondary{% elseif index == 2 %}bg-bronze{% else %}bg-secondary bg-opacity-25 text-body{% endif %}">
+                                                    #{{ index + 1 }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong>{{ book.title }}</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary">{{ book.count }}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <strong class="text-success">${{ book.revenue|number_format(2) }}</strong>
+                                            </td>
+                                            <td class="text-end">
+                                                ${{ (book.revenue / book.count)|number_format(2) }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// Get current theme colors
+function getThemeColors() {
+    const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    return {
+        textColor: isDark ? '#dee2e6' : '#212529',
+        gridColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        backgroundColor: isDark ? 'rgba(13, 110, 253, 0.2)' : 'rgba(13, 110, 253, 0.1)'
+    };
+}
+
+const colors = getThemeColors();
+
+// Sales Over Time Chart
+const salesCtx = document.getElementById('salesChart').getContext('2d');
+const salesChart = new Chart(salesCtx, {
+    type: 'line',
+    data: {
+        labels: {{ months|json_encode|raw }},
+        datasets: [{
+            label: 'Sales',
+            data: {{ salesByMonth|json_encode|raw }},
+            borderColor: 'rgb(13, 110, 253)',
+            backgroundColor: colors.backgroundColor,
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return 'Sales: ' + context.parsed.y;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1,
+                    color: colors.textColor
+                },
+                grid: {
+                    color: colors.gridColor
+                }
+            },
+            x: {
+                ticks: {
+                    color: colors.textColor
+                },
+                grid: {
+                    color: colors.gridColor
+                }
+            }
+        }
+    }
+});
+
+// Revenue Over Time Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueChart = new Chart(revenueCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ months|json_encode|raw }},
+        datasets: [{
+            label: 'Revenue',
+            data: {{ revenueByMonth|json_encode|raw }},
+            backgroundColor: 'rgba(25, 135, 84, 0.8)',
+            borderColor: 'rgb(25, 135, 84)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return 'Revenue: $' + context.parsed.y.toFixed(2);
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value;
+                    },
+                    color: colors.textColor
+                },
+                grid: {
+                    color: colors.gridColor
+                }
+            },
+            x: {
+                ticks: {
+                    color: colors.textColor
+                },
+                grid: {
+                    color: colors.gridColor
+                }
+            }
+        }
+    }
+});
+
+// Update charts when theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateCharts);
+document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+        setTimeout(updateCharts, 100);
+    });
+});
+
+function updateCharts() {
+    const newColors = getThemeColors();
+    
+    // Update sales chart
+    salesChart.data.datasets[0].backgroundColor = newColors.backgroundColor;
+    salesChart.options.scales.y.ticks.color = newColors.textColor;
+    salesChart.options.scales.y.grid.color = newColors.gridColor;
+    salesChart.options.scales.x.ticks.color = newColors.textColor;
+    salesChart.options.scales.x.grid.color = newColors.gridColor;
+    salesChart.update();
+    
+    // Update revenue chart
+    revenueChart.options.scales.y.ticks.color = newColors.textColor;
+    revenueChart.options.scales.y.grid.color = newColors.gridColor;
+    revenueChart.options.scales.x.ticks.color = newColors.textColor;
+    revenueChart.options.scales.x.grid.color = newColors.gridColor;
+    revenueChart.update();
+}
+</script>
+
+<style>
+.bg-bronze {
+    background-color: #cd7f32 !important;
+}
+</style>
+{% endblock %}

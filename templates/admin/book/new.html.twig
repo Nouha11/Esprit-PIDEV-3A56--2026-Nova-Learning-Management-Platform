@@ -34,7 +34,7 @@
 
         <!-- Card body START -->
         <div class="card-body px-3 px-sm-5">
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
 
             <div class="row g-4">
                 <!-- Left Column START -->
@@ -90,6 +90,21 @@
                         {{ form_errors(form.isDigital) }}
                     </div>
 
+                    <!-- PDF Upload -->
+                    <div class="mb-4" id="pdfField">
+                        {{ form_label(form.pdfFile, 'Upload PDF File', {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="text-center justify-content-center align-items-center p-4 border border-2 border-dashed position-relative rounded-3">
+                            <i class="bi bi-file-pdf text-danger fs-1 mb-2"></i>
+                            <div>
+                                <h6 class="my-2">Upload PDF for digital book</h6>
+                                {{ form_widget(form.pdfFile, {'attr': {'class': 'form-control', 'id': 'pdfFileInput'}}) }}
+                                <p class="small mb-0 mt-2"><b>Note:</b> Max 50MB. PDF format only.</p>
+                                <div id="pdfFileName" class="mt-2 text-primary fw-bold" style="display: none;"></div>
+                            </div>
+                        </div>
+                        {{ form_errors(form.pdfFile) }}
+                    </div>
+
                     <!-- Library Selection (for physical books) -->
                     <div class="mb-4" id="libraryField">
                         {{ form_label(form.libraries, 'Library Locations (Physical Copies)', {'label_attr': {'class': 'form-label'}}) }}
@@ -136,5 +151,25 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
+    <script>
+        // Show selected PDF file name
+        document.addEventListener('DOMContentLoaded', function() {
+            const pdfInput = document.getElementById('pdfFileInput');
+            const pdfFileName = document.getElementById('pdfFileName');
+            
+            if (pdfInput && pdfFileName) {
+                pdfInput.addEventListener('change', function(e) {
+                    if (this.files && this.files.length > 0) {
+                        const file = this.files[0];
+                        const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                        pdfFileName.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i>Selected: ${file.name} (${sizeMB} MB)`;
+                        pdfFileName.style.display = 'block';
+                    } else {
+                        pdfFileName.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
 {% endblock %}
 
