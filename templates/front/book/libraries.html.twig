@@ -13,11 +13,29 @@
             border-radius: 0.5rem;
             box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
         }
+        
+        /* Dark theme map tiles */
+        [data-bs-theme="dark"] .leaflet-tile-pane {
+            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+        }
+        
+        [data-bs-theme="dark"] .leaflet-control-zoom a,
+        [data-bs-theme="dark"] .leaflet-control-attribution {
+            background-color: #212529 !important;
+            color: #dee2e6 !important;
+            border-color: #495057 !important;
+        }
+        
+        [data-bs-theme="dark"] .leaflet-popup-content-wrapper,
+        [data-bs-theme="dark"] .leaflet-popup-tip {
+            background-color: #212529 !important;
+            color: #dee2e6 !important;
+        }
+        
         .library-card {
             transition: all 0.3s ease;
             cursor: pointer;
             border: 2px solid transparent;
-            background-color: #ffffff;
         }
         .library-card:hover {
             transform: translateY(-5px);
@@ -25,9 +43,19 @@
         }
         .library-card.selected {
             border: 3px solid #0d6efd !important;
-            background: linear-gradient(135deg, #cfe2ff 0%, #e7f1ff 100%);
             box-shadow: 0 0.5rem 1.5rem rgba(13, 110, 253, 0.3) !important;
         }
+        
+        /* Light theme */
+        [data-bs-theme="light"] .library-card.selected {
+            background: linear-gradient(135deg, #cfe2ff 0%, #e7f1ff 100%);
+        }
+        
+        /* Dark theme */
+        [data-bs-theme="dark"] .library-card.selected {
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.2) 0%, rgba(13, 110, 253, 0.1) 100%);
+        }
+        
         .library-card.selected .card-title {
             color: #0d6efd !important;
         }
@@ -48,11 +76,7 @@
             border-radius: 0.5rem;
         }
         .card-title {
-            color: #212529;
             font-size: 1.1rem;
-        }
-        .text-dark {
-            color: #212529 !important;
         }
     </style>
 {% endblock %}
@@ -126,7 +150,7 @@
 
                     <!-- Interactive Map Section -->
                     <div class="card shadow mb-4">
-                        <div class="card-header bg-white">
+                        <div class="card-header bg-transparent">
                             <h5 class="mb-0">
                                 <i class="bi bi-map me-2"></i>Find Libraries Near You
                             </h5>
@@ -162,9 +186,9 @@
                                                     <i class="bi bi-building fs-3"></i>
                                                 </div>
                                                 <div class="ms-3 flex-grow-1">
-                                                    <h5 class="card-title mb-2 fw-bold text-dark">{{ library.name }}</h5>
+                                                    <h5 class="card-title mb-2 fw-bold">{{ library.name }}</h5>
                                                     {% if library.address %}
-                                                        <p class="text-dark mb-2">
+                                                        <p class="mb-2">
                                                             <i class="bi bi-geo-alt-fill text-primary me-1"></i>
                                                             <small class="fw-normal">{{ library.address }}</small>
                                                         </p>

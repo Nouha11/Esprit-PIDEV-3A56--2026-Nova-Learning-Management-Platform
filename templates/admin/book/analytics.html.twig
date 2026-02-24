@@ -101,7 +101,7 @@
         <!-- Sales Over Time Chart -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-transparent border-bottom">
                     <h5 class="mb-0">
                         <i class="bi bi-graph-up-arrow text-primary me-2"></i>
                         Sales Over Time (Last 12 Months)
@@ -116,7 +116,7 @@
         <!-- Revenue Over Time Chart -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-transparent border-bottom">
                     <h5 class="mb-0">
                         <i class="bi bi-cash-stack text-success me-2"></i>
                         Revenue Trend
@@ -133,7 +133,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-transparent border-bottom">
                     <h5 class="mb-0">
                         <i class="bi bi-trophy text-warning me-2"></i>
                         Top Selling Books
@@ -161,7 +161,7 @@
                                     {% for index, book in salesByBook %}
                                         <tr>
                                             <td>
-                                                <span class="badge {% if index == 0 %}bg-warning{% elseif index == 1 %}bg-secondary{% elseif index == 2 %}bg-bronze{% else %}bg-light text-dark{% endif %}">
+                                                <span class="badge {% if index == 0 %}bg-warning{% elseif index == 1 %}bg-secondary{% elseif index == 2 %}bg-bronze{% else %}bg-secondary bg-opacity-25 text-body{% endif %}">
                                                     #{{ index + 1 }}
                                                 </span>
                                             </td>
@@ -193,6 +193,18 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
+// Get current theme colors
+function getThemeColors() {
+    const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    return {
+        textColor: isDark ? '#dee2e6' : '#212529',
+        gridColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        backgroundColor: isDark ? 'rgba(13, 110, 253, 0.2)' : 'rgba(13, 110, 253, 0.1)'
+    };
+}
+
+const colors = getThemeColors();
+
 // Sales Over Time Chart
 const salesCtx = document.getElementById('salesChart').getContext('2d');
 const salesChart = new Chart(salesCtx, {
@@ -203,7 +215,7 @@ const salesChart = new Chart(salesCtx, {
             label: 'Sales',
             data: {{ salesByMonth|json_encode|raw }},
             borderColor: 'rgb(13, 110, 253)',
-            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            backgroundColor: colors.backgroundColor,
             tension: 0.4,
             fill: true
         }]
@@ -227,7 +239,19 @@ const salesChart = new Chart(salesCtx, {
             y: {
                 beginAtZero: true,
                 ticks: {
-                    stepSize: 1
+                    stepSize: 1,
+                    color: colors.textColor
+                },
+                grid: {
+                    color: colors.gridColor
+                }
+            },
+            x: {
+                ticks: {
+                    color: colors.textColor
+                },
+                grid: {
+                    color: colors.gridColor
                 }
             }
         }
@@ -269,12 +293,51 @@ const revenueChart = new Chart(revenueCtx, {
                 ticks: {
                     callback: function(value) {
                         return '$' + value;
-                    }
+                    },
+                    color: colors.textColor
+                },
+                grid: {
+                    color: colors.gridColor
+                }
+            },
+            x: {
+                ticks: {
+                    color: colors.textColor
+                },
+                grid: {
+                    color: colors.gridColor
                 }
             }
         }
     }
 });
+
+// Update charts when theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateCharts);
+document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+        setTimeout(updateCharts, 100);
+    });
+});
+
+function updateCharts() {
+    const newColors = getThemeColors();
+    
+    // Update sales chart
+    salesChart.data.datasets[0].backgroundColor = newColors.backgroundColor;
+    salesChart.options.scales.y.ticks.color = newColors.textColor;
+    salesChart.options.scales.y.grid.color = newColors.gridColor;
+    salesChart.options.scales.x.ticks.color = newColors.textColor;
+    salesChart.options.scales.x.grid.color = newColors.gridColor;
+    salesChart.update();
+    
+    // Update revenue chart
+    revenueChart.options.scales.y.ticks.color = newColors.textColor;
+    revenueChart.options.scales.y.grid.color = newColors.gridColor;
+    revenueChart.options.scales.x.ticks.color = newColors.textColor;
+    revenueChart.options.scales.x.grid.color = newColors.gridColor;
+    revenueChart.update();
+}
 </script>
 
 <style>
