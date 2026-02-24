@@ -4,19 +4,20 @@ namespace App\Service\Quiz;
 
 use App\Entity\Quiz\Question;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Psr\Log\LoggerInterface;
 
 class QuizHintService
 {
     public function __construct(
         private HttpClientInterface $httpClient,
-        private string $geminiApiKey,
+        #[Autowire(env: 'GEMINI_API_KEY')] private string $geminiApiKey,
         private LoggerInterface $logger
     ) {
     }
 
     /**
-     * Generate a hint for a quiz question using Google Gemini
+     * Generate a hint for a quiz question using Google Gemini (same as forum)
      * 
      * @param Question $question
      * @return string The generated hint
@@ -27,51 +28,35 @@ class QuizHintService
         try {
             $prompt = $this->buildPrompt($question);
             
-            // Using Gemini 2.5 Flash API for text generation
-            $response = $this->httpClient->request('POST', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'X-goog-api-key' => $this->geminiApiKey,
-                ],
-                'json' => [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                ['text' => $prompt]
+            // Using same Gemini API approach as forum
+            $response = $this->httpClient->request(
+                'POST',
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $this->geminiApiKey,
+                [
+                    'verify_peer' => false, // Bypasses XAMPP SSL issues
+                    'verify_host' => false,
+                    'json' => [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    ['text' => $prompt]
+                                ]
                             ]
                         ]
-                    ],
-                    'generationConfig' => [
-                        'temperature' => 0.7,
-                        'topK' => 40,
-                        'topP' => 0.95,
-                        'maxOutputTokens' => 150,
-                    ],
-                    'safetySettings' => [
-                        [
-                            'category' => 'HARM_CATEGORY_HARASSMENT',
-                            'threshold' => 'BLOCK_NONE'
-                        ],
-                        [
-                            'category' => 'HARM_CATEGORY_HATE_SPEECH',
-                            'threshold' => 'BLOCK_NONE'
-                        ],
-                        [
-                            'category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                            'threshold' => 'BLOCK_NONE'
-                        ],
-                        [
-                            'category' => 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                            'threshold' => 'BLOCK_NONE'
-                        ]
                     ]
-                ],
-                'timeout' => 15,
-            ]);
+                ]
+            );
 
+            // Check response status
+            if ($response->getStatusCode() !== 200) {
+                $errorData = $response->toArray(false); 
+                $googleMessage = $errorData['error']['message'] ?? 'Unknown Google Error';
+                throw new \Exception('Google API Refused: ' . $googleMessage);
+            }
+
+            // Decode the JSON response
             $data = $response->toArray();
             
-            // Gemini returns response in candidates array
             if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
                 $hint = trim($data['candidates'][0]['content']['parts'][0]['text']);
                 // Clean up the hint

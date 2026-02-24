@@ -49,8 +49,7 @@ services:
             $huggingFaceApiKey: '%env(HUGGING_FACE_API_KEY)%'
 
     App\Service\Quiz\QuizHintService:
-        arguments:
-            $geminiApiKey: '%env(GEMINI_API_KEY)%'
+        # Uses #[Autowire(env: 'GEMINI_API_KEY')] attribute, no manual config needed
 
 when@test:
     services:
