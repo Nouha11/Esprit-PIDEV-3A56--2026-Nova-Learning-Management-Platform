@@ -57,6 +57,9 @@ class Book
     )]
     private ?string $coverImage = null;
 
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $pdfUrl = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(
         min: 2, 
@@ -178,6 +181,17 @@ class Book
     public function setCoverImage(?string $coverImage): static
     {
         $this->coverImage = $coverImage;
+        return $this;
+    }
+
+    public function getPdfUrl(): ?string
+    {
+        return $this->pdfUrl;
+    }
+
+    public function setPdfUrl(?string $pdfUrl): static
+    {
+        $this->pdfUrl = $pdfUrl;
         return $this;
     }
 

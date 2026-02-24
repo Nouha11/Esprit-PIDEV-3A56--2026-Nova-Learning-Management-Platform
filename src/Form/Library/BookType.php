@@ -98,6 +98,23 @@ class BookType extends AbstractType
                 ]
             ])
             
+            // Champ PDF: Fichier optionnel pour livres numériques
+            // Validation: Maximum 50MB, format PDF uniquement
+            ->add('pdfFile', FileType::class, [
+                'label' => 'Fichier PDF (pour livres numériques)',
+                'required' => false,
+                'mapped' => false,
+                'attr' => ['class' => 'form-control', 'accept' => '.pdf'],
+                'help' => 'Upload a PDF file for digital books (max 50MB)',
+                'constraints' => [
+                    new File([
+                        'maxSize' => '50M',
+                        'mimeTypes' => ['application/pdf'],
+                        'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide',
+                    ])
+                ]
+            ])
+            
             // Bouton de soumission
             ->add('save', SubmitType::class, [
                 'label' => 'Enregistrer le livre',
