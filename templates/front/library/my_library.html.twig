@@ -89,9 +89,17 @@
                                                 <i class="bi bi-calendar3 me-1"></i>
                                                 {{ purchase.purchasedAt|date('M d, Y') }}
                                             </small>
-                                            <a href="{{ path('book_show', {'id': purchase.book.id}) }}" class="btn btn-sm btn-primary-soft">
-                                                <i class="bi bi-book me-1"></i>Read
-                                            </a>
+                                            <div>
+                                                {% if purchase.book.pdfUrl %}
+                                                    <a href="{{ path('book_read_pdf', {'id': purchase.book.id}) }}" class="btn btn-sm btn-success">
+                                                        <i class="bi bi-book-fill me-1"></i>Read PDF
+                                                    </a>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>PDF Not Available
+                                                    </span>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

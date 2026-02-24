@@ -266,37 +266,56 @@
                         <i class="bi bi-bell fa-fw"></i>
                     </a>
                     <!-- Notification dote -->
-                    <span class="notif-badge animation-blink"></span>
+                    {% if unread_notifications_count > 0 %}
+                        <span class="notif-badge animation-blink"></span>
+                    {% endif %}
 
                     <!-- Notification dropdown menu START -->
                     <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
                         <div class="card bg-transparent">
                             <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
-                                <h6 class="m-0">Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 new</span></h6>
-                                <a class="small" href="#">Clear all</a>
+                                <h6 class="m-0">Notifications 
+                                    {% if unread_notifications_count > 0 %}
+                                        <span class="badge bg-danger bg-opacity-10 text-danger ms-2">{{ unread_notifications_count }} new</span>
+                                    {% endif %}
+                                </h6>
+                                {% if unread_notifications_count > 0 %}
+                                    <a class="small" href="#" onclick="markAllRead(event)">Clear all</a>
+                                {% endif %}
                             </div>
                             <div class="card-body p-0">
-                                <ul class="list-group list-unstyled list-group-flush">
-                                    <!-- Notif item -->
-                                    <li>
-                                        <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-                                            <div class="me-3">
-                                                <div class="avatar avatar-md">
-                                                    <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar">
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1">Update v2.3 completed successfully</h6>
-                                                <p class="small text-body m-0">What's new! Find out about new features</p>
-                                                <small class="text-body">5 min ago</small>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
+                                {% if unread_notifications is empty %}
+                                    <div class="text-center py-4">
+                                        <i class="bi bi-bell-slash display-6 text-muted"></i>
+                                        <p class="text-muted mt-2 mb-0">No new notifications</p>
+                                    </div>
+                                {% else %}
+                                    <ul class="list-group list-unstyled list-group-flush">
+                                        {% for notification in unread_notifications|slice(0, 5) %}
+                                            <!-- Notif item -->
+                                            <li>
+                                                <a href="{{ notification.link ?: '#' }}" class="list-group-item-action border-0 border-bottom d-flex p-3 {% if not notification.isRead %}bg-light{% endif %}">
+                                                    <div class="me-3">
+                                                        <div class="avatar avatar-md">
+                                                            <div class="avatar-img rounded-circle bg-{{ notification.type starts with 'loan_approved' or notification.type starts with 'payment_success' ? 'success' : (notification.type starts with 'loan_rejected' or notification.type starts with 'payment_failed' ? 'danger' : 'primary') }} bg-opacity-10 text-center">
+                                                                <i class="{{ notification.icon }} fs-5 mt-3"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1">{{ notification.title }}</h6>
+                                                        <p class="small text-body m-0">{{ notification.message|length > 80 ? notification.message|slice(0, 80) ~ '...' : notification.message }}</p>
+                                                        <small class="text-body">{{ notification.timeAgo }}</small>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
                             </div>
                             <!-- Button -->
                             <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
-                                <a href="#" class="stretched-link">See all incoming activity</a>
+                                <a href="{{ path('notifications_index') }}" class="stretched-link">See all notifications</a>
                             </div>
                         </div>
                     </div>
@@ -857,6 +876,26 @@
 
     <!-- Template Functions -->
     <script src="{{ asset('assets/js/functions.js') }}"></script>
+    
+    <!-- Notification Functions -->
+    <script>
+    function markAllRead(event) {
+        event.preventDefault();
+        
+        fetch('{{ path('notifications_mark_all_read') }}', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+    </script>
     {% endblock %}
 </body>
 </html>

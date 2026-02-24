@@ -3,6 +3,7 @@
 namespace App\Controller\Admin\Library;
 
 use App\Entity\Library\Loan;
+use App\Service\Library\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 class AdminLoanController extends AbstractController
 {
+    public function __construct(
+        private NotificationService $notificationService
+    ) {}
+
     #[Route('/', name: 'admin_loans_index')]
     public function index(Request $request, EntityManagerInterface $em): Response
     {
@@ -117,7 +122,10 @@ class AdminLoanController extends AbstractController
             $loan->setApprovedAt(new \DateTimeImmutable());
             $em->flush();
 
-            $this->addFlash('success', 'Loan approved successfully!');
+            // Envoyer une notification à l'utilisateur
+            $this->notificationService->notifyLoanApproved($loan);
+
+            $this->addFlash('success', 'Loan approved successfully! User has been notified.');
         }
 
         return $this->redirectToRoute('admin_loans_index');
@@ -139,7 +147,10 @@ class AdminLoanController extends AbstractController
             $loan->setRejectionReason($reason);
             $em->flush();
 
-            $this->addFlash('success', 'Loan rejected.');
+            // Envoyer une notification à l'utilisateur
+            $this->notificationService->notifyLoanRejected($loan, $reason);
+
+            $this->addFlash('success', 'Loan rejected. User has been notified.');
         }
 
         return $this->redirectToRoute('admin_loans_index');
@@ -163,7 +174,10 @@ class AdminLoanController extends AbstractController
             $loan->setStatus(Loan::STATUS_ACTIVE);
             $em->flush();
 
-            $this->addFlash('success', 'Loan marked as active (book picked up).');
+            // Envoyer une notification à l'utilisateur
+            $this->notificationService->notifyLoanActive($loan);
+
+            $this->addFlash('success', 'Loan marked as active (book picked up). User has been notified.');
         }
 
         return $this->redirectToRoute('admin_loans_index');
@@ -183,7 +197,10 @@ class AdminLoanController extends AbstractController
             $loan->setEndAt(new \DateTimeImmutable()); // Enregistrer la date de retour réelle
             $em->flush();
 
-            $this->addFlash('success', 'Loan marked as returned.');
+            // Envoyer une notification à l'utilisateur
+            $this->notificationService->notifyLoanReturned($loan);
+
+            $this->addFlash('success', 'Loan marked as returned. User has been notified.');
         }
 
         return $this->redirectToRoute('admin_loans_index');

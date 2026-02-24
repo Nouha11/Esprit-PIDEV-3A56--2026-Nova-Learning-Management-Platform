@@ -205,7 +205,7 @@ class AdminBookController extends AbstractController
     }
 
     #[Route('/new', name: 'admin_books_new')]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, \App\Service\Library\FileUploadService $fileUploadService): Response
     {
         $book = new Book();
         $book->setUploaderId($this->getUser()->getId());
@@ -221,23 +221,36 @@ class AdminBookController extends AbstractController
                 $book->setPublishedAt(new \DateTimeImmutable($publishedDate->format('Y-m-d') . ' 00:00:00'));
             }
 
-            // Handle cover image upload
+            // Handle cover image upload locally
             $coverImageFile = $form->get('coverImage')->getData();
             if ($coverImageFile) {
-                $originalFilename = pathinfo($coverImageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $this->slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $coverImageFile->guessExtension();
-
-                try {
-                    $uploadDir = $this->getParameter('kernel.project_dir') . '/' . $this->booksDirectory;
-                    if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0755, true);
-                    }
-                    $coverImageFile->move($uploadDir, $newFilename);
-                    $book->setCoverImage('uploads/books/' . $newFilename);
-                } catch (\Exception $e) {
-                    $this->addFlash('error', 'Failed to upload cover image: ' . $e->getMessage());
+                $result = $fileUploadService->uploadCoverImage($coverImageFile);
+                if ($result['success']) {
+                    $book->setCoverImage($result['path']);
+                } else {
+                    $this->addFlash('error', 'Failed to upload cover image: ' . $result['error']);
                     return $this->redirectToRoute('admin_books_new');
+                }
+            }
+
+            // Handle PDF upload locally (for digital books)
+            $pdfFile = $form->get('pdfFile')->getData();
+            if ($pdfFile) {
+                if ($book->isDigital()) {
+                    try {
+                        $result = $fileUploadService->uploadPdf($pdfFile);
+                        if ($result['success']) {
+                            $book->setPdfUrl($result['path']);
+                            $sizeMB = round($result['size'] / 1024 / 1024, 2);
+                            $this->addFlash('success', 'PDF uploaded successfully! Size: ' . $sizeMB . ' MB');
+                        } else {
+                            $this->addFlash('error', 'Failed to upload PDF: ' . ($result['error'] ?? 'Unknown error'));
+                        }
+                    } catch (\Exception $e) {
+                        $this->addFlash('error', 'Exception uploading PDF: ' . $e->getMessage());
+                    }
+                } else {
+                    $this->addFlash('warning', 'PDF file ignored - book is not marked as digital');
                 }
             }
 
@@ -290,7 +303,7 @@ class AdminBookController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'admin_books_edit')]
-    public function edit(Request $request, int $id, EntityManagerInterface $em): Response
+    public function edit(Request $request, int $id, EntityManagerInterface $em, \App\Service\Library\FileUploadService $fileUploadService): Response
     {
         $book = $em->getRepository(Book::class)->find($id);
         if (!$book) {
@@ -306,38 +319,62 @@ class AdminBookController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // DEBUG: Log form submission
+            $pdfFile = $form->get('pdfFile')->getData();
+            $this->addFlash('info', 'Form submitted. PDF file received: ' . ($pdfFile ? 'YES (' . $pdfFile->getClientOriginalName() . ')' : 'NO'));
+            $this->addFlash('info', 'Book is digital: ' . ($book->isDigital() ? 'YES' : 'NO'));
+            
             // Si une date de publication est fournie, on met l'heure à minuit (00:00:00)
             if ($book->getPublishedAt()) {
                 $publishedDate = $book->getPublishedAt();
                 $book->setPublishedAt(new \DateTimeImmutable($publishedDate->format('Y-m-d') . ' 00:00:00'));
             }
 
-            // Handle cover image upload
+            // Handle cover image upload locally
             $coverImageFile = $form->get('coverImage')->getData();
             if ($coverImageFile) {
-                // Delete old image if exists
-                if ($book->getCoverImage()) {
-                    $oldImagePath = $this->getParameter('kernel.project_dir') . '/public/' . $book->getCoverImage();
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
+                $result = $fileUploadService->uploadCoverImage($coverImageFile);
+                if ($result['success']) {
+                    // Delete old cover image if exists
+                    if ($book->getCoverImage()) {
+                        $fileUploadService->deleteFile($book->getCoverImage());
                     }
-                }
-
-                $originalFilename = pathinfo($coverImageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $this->slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $coverImageFile->guessExtension();
-
-                try {
-                    $uploadDir = $this->getParameter('kernel.project_dir') . '/' . $this->booksDirectory;
-                    if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0755, true);
-                    }
-                    $coverImageFile->move($uploadDir, $newFilename);
-                    $book->setCoverImage('uploads/books/' . $newFilename);
-                } catch (\Exception $e) {
-                    $this->addFlash('error', 'Failed to upload cover image: ' . $e->getMessage());
+                    $book->setCoverImage($result['path']);
+                    $this->addFlash('success', 'Cover image uploaded successfully!');
+                } else {
+                    $this->addFlash('error', 'Failed to upload cover image: ' . $result['error']);
                     return $this->redirectToRoute('admin_books_edit', ['id' => $book->getId()]);
                 }
+            }
+
+            // Handle PDF upload locally
+            if ($pdfFile) {
+                $this->addFlash('info', 'PDF file detected, starting upload...');
+                
+                if ($book->isDigital()) {
+                    try {
+                        $this->addFlash('info', 'Uploading PDF locally...');
+                        $result = $fileUploadService->uploadPdf($pdfFile);
+                        
+                        if ($result['success']) {
+                            // Delete old PDF if exists
+                            if ($book->getPdfUrl()) {
+                                $fileUploadService->deleteFile($book->getPdfUrl());
+                            }
+                            $book->setPdfUrl($result['path']);
+                            $sizeMB = round($result['size'] / 1024 / 1024, 2);
+                            $this->addFlash('success', 'PDF uploaded successfully! Path: ' . $result['path'] . ' (' . $sizeMB . ' MB)');
+                        } else {
+                            $this->addFlash('error', 'Failed to upload PDF: ' . ($result['error'] ?? 'Unknown error'));
+                        }
+                    } catch (\Exception $e) {
+                        $this->addFlash('error', 'Exception uploading PDF: ' . $e->getMessage());
+                    }
+                } else {
+                    $this->addFlash('warning', 'PDF file ignored - book is not marked as digital. Please check the "Digital Book" checkbox.');
+                }
+            } else {
+                $this->addFlash('info', 'No PDF file was uploaded.');
             }
 
             $book->setUpdatedAt(new \DateTimeImmutable());
