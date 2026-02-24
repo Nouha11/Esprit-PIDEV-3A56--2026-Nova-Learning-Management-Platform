@@ -28,6 +28,20 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    # File Upload Service Configuration
+    App\Service\Library\FileUploadService:
+        arguments:
+            $uploadsDirectory: '%kernel.project_dir%/public/uploads'
+
+    # AI Assistant Service Configuration
+    App\Service\Library\AiAssistantService:
+        arguments:
+            $aiApiKey: '%env(AI_API_KEY)%'
+            $aiProvider: '%env(AI_PROVIDER)%'
+
     App\Service\Quiz\QuizReportNotificationService:
         arguments:
             $adminEmail: '%admin_notification_email%'

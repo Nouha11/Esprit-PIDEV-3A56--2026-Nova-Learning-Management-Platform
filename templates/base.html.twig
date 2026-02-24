@@ -198,6 +198,15 @@
                         <a class="nav-link" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>{{ t.t('Library') }}</a>
                     </li>
 
+                    {% if app.user %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('my_library') }}"><i class="bi bi-collection me-2"></i>My Library</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('my_payments') }}"><i class="bi bi-credit-card me-2"></i>My Payments</a>
+                        </li>
+                    {% endif %}
+
                     {% if is_granted('ROLE_STUDENT') %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a>
@@ -326,35 +335,56 @@
 <!--                 <li class="nav-item ms-2 ms-sm-3 dropdown d-none d-sm-block">
                     <a class="btn btn-light btn-round mb-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                         <i class="bi bi-bell fa-fw"></i>
-                    </a>
-                    <span class="notif-badge animation-blink"></span>
+                    </a>-->
+                    <!-- Notification dote -->
+                    {% if unread_notifications_count > 0 %}
+                        <span class="notif-badge animation-blink"></span>
+                    {% endif %}
 
                     <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0">
                         <div class="card bg-transparent">
                             <div class="card-header bg-transparent border-bottom py-4 d-flex justify-content-between align-items-center">
-                                <h6 class="m-0">{{ t.t('Notifications') }} <span class="badge bg-danger bg-opacity-10 text-danger ms-2">2 {{ t.t('new') }}</span></h6>
-                                <a class="small" href="#">{{ t.t('Clear all') }}</a>
+                                <h6 class="m-0">Notifications 
+                                    {% if unread_notifications_count > 0 %}
+                                        <span class="badge bg-danger bg-opacity-10 text-danger ms-2">{{ unread_notifications_count }} new</span>
+                                    {% endif %}
+                                </h6>
+                                {% if unread_notifications_count > 0 %}
+                                    <a class="small" href="#" onclick="markAllRead(event)">Clear all</a>
+                                {% endif %}
                             </div>
                             <div class="card-body p-0">
-                                <ul class="list-group list-unstyled list-group-flush">
-                                    <li>
-                                        <a href="#" class="list-group-item-action border-0 border-bottom d-flex p-3">
-                                            <div class="me-3">
-                                                <div class="avatar avatar-md">
-                                                    <img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.jpg') }}" alt="avatar">
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1">Update v2.3 completed successfully</h6>
-                                                <p class="small text-body m-0">What's new! Find out about new features</p>
-                                                <small class="text-body">5 min ago</small>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
+                                {% if unread_notifications is empty %}
+                                    <div class="text-center py-4">
+                                        <i class="bi bi-bell-slash display-6 text-muted"></i>
+                                        <p class="text-muted mt-2 mb-0">No new notifications</p>
+                                    </div>
+                                {% else %}
+                                    <ul class="list-group list-unstyled list-group-flush">
+                                        {% for notification in unread_notifications|slice(0, 5) %}
+                                            <!-- Notif item -->
+                                            <li>
+                                                <a href="{{ notification.link ?: '#' }}" class="list-group-item-action border-0 border-bottom d-flex p-3 {% if not notification.isRead %}bg-light{% endif %}">
+                                                    <div class="me-3">
+                                                        <div class="avatar avatar-md">
+                                                            <div class="avatar-img rounded-circle bg-{{ notification.type starts with 'loan_approved' or notification.type starts with 'payment_success' ? 'success' : (notification.type starts with 'loan_rejected' or notification.type starts with 'payment_failed' ? 'danger' : 'primary') }} bg-opacity-10 text-center">
+                                                                <i class="{{ notification.icon }} fs-5 mt-3"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1">{{ notification.title }}</h6>
+                                                        <p class="small text-body m-0">{{ notification.message|length > 80 ? notification.message|slice(0, 80) ~ '...' : notification.message }}</p>
+                                                        <small class="text-body">{{ notification.timeAgo }}</small>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
                             </div>
                             <div class="card-footer bg-transparent border-0 py-3 text-center position-relative">
-                                <a href="#" class="stretched-link">{{ t.t('See all incoming activity') }}</a>
+                                <a href="{{ path('notifications_index') }}" class="stretched-link">See all notifications</a>
                             </div>
                         </div>
                     </div>
@@ -869,77 +899,24 @@
 
     <script src="{{ asset('assets/js/functions.js') }}"></script>
     
-    <!-- Active nav link highlighter -->
+    <!-- Notification Functions -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get current path
-            const currentPath = window.location.pathname;
-            
-            // Get all nav links
-            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-            
-            // Remove active class from all links first
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            // Add active class to matching link
-            navLinks.forEach(link => {
-                const linkPath = new URL(link.href).pathname;
-                
-                // Exact match or starts with (for sub-pages)
-                if (currentPath === linkPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
-                    link.classList.add('active');
-                }
-            });
-            
-            // Special case: if no match found and we're on home page, activate home link
-            const hasActive = Array.from(navLinks).some(link => link.classList.contains('active'));
-            if (!hasActive && (currentPath === '/' || currentPath === '')) {
-                const homeLink = document.querySelector('.navbar-nav .nav-link[href*="app_home"]');
-                if (homeLink) {
-                    homeLink.classList.add('active');
-                }
+    function markAllRead(event) {
+        event.preventDefault();
+        
+        fetch('{{ path('notifications_mark_all_read') }}', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
             }
-            
-            // Theme switcher for dropdown buttons
-            const updateThemeButtons = (theme) => {
-                document.querySelectorAll('.theme-btn').forEach(btn => {
-                    const btnTheme = btn.getAttribute('data-bs-theme-value');
-                    if (btnTheme === theme) {
-                        btn.classList.remove('btn-light');
-                        btn.classList.add('btn-primary', 'active');
-                    } else {
-                        btn.classList.remove('btn-primary', 'active');
-                        btn.classList.add('btn-light');
-                    }
-                });
-            };
-            
-            // Initialize theme buttons on page load
-            const storedTheme = localStorage.getItem('theme') || 'auto';
-            updateThemeButtons(storedTheme);
-            
-            // Add click handlers to theme buttons
-            document.querySelectorAll('.theme-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-bs-theme-value');
-                    localStorage.setItem('theme', theme);
-                    
-                    // Set theme
-                    if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                        document.documentElement.setAttribute('data-bs-theme', 'dark');
-                    } else if (theme === 'auto') {
-                        document.documentElement.setAttribute('data-bs-theme', 'light');
-                    } else {
-                        document.documentElement.setAttribute('data-bs-theme', theme);
-                    }
-                    
-                    // Update button states
-                    updateThemeButtons(theme);
-                });
-            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
         });
+    }
     </script>
     {% endblock %}
 </body>

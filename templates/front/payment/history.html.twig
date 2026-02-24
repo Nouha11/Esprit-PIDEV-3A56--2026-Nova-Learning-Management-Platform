@@ -1,0 +1,176 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Payment History{% endblock %}
+
+{% block body %}
+
+<!-- Main Content START -->
+<main>
+    <div class="container">
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mt-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        {% block front_content %}
+        <!-- =======================
+        Page Banner START -->
+        <section class="bg-primary bg-opacity-10 py-5 mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">Payment History</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Payment History</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- =======================
+        Page Banner END -->
+
+        <!-- =======================
+        Page content START -->
+        <section class="pt-5 pb-5">
+
+            <!-- Statistics -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-primary">
+                        <div class="card-body text-center">
+                            <h3 class="text-primary mb-0">{{ stats.total }}</h3>
+                            <small class="text-muted">Total Transactions</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-success">
+                        <div class="card-body text-center">
+                            <h3 class="text-success mb-0">{{ stats.completed }}</h3>
+                            <small class="text-muted">Successful</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-danger">
+                        <div class="card-body text-center">
+                            <h3 class="text-danger mb-0">{{ stats.failed }}</h3>
+                            <small class="text-muted">Failed</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-info">
+                        <div class="card-body text-center">
+                            <h3 class="text-info mb-0">${{ stats.totalAmount|number_format(2) }}</h3>
+                            <small class="text-muted">Total Spent</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payments Table -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>Transaction History</h5>
+                </div>
+                <div class="card-body">
+                    {% if payments|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>Book</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                        <tr>
+                                            <td><code>{{ payment.transactionId }}</code></td>
+                                            <td>
+                                                <div class="fw-bold">{{ payment.book.title }}</div>
+                                                <small class="text-muted">{{ payment.book.author ?? 'Unknown' }}</small>
+                                            </td>
+                                            <td class="fw-bold">${{ payment.amount }}</td>
+                                            <td>
+                                                {% if payment.paymentMethod == 'credit_card' %}
+                                                    <i class="bi bi-credit-card me-1"></i>Card
+                                                    {% if payment.cardLastFour %}
+                                                        <br><small class="text-muted">****{{ payment.cardLastFour }}</small>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <i class="bi bi-paypal me-1"></i>PayPal
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small>{{ payment.createdAt|date('M d, Y') }}</small>
+                                                <br><small class="text-muted">{{ payment.createdAt|date('H:i') }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge {{ payment.statusBadgeClass }}">
+                                                    {{ payment.statusLabel }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if payment.status == 'FAILED' and payment.failureReason %}
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                            data-bs-toggle="tooltip" 
+                                                            title="{{ payment.failureReason }}">
+                                                        <i class="bi bi-exclamation-circle"></i>
+                                                    </button>
+                                                {% elseif payment.status == 'COMPLETED' %}
+                                                    <i class="bi bi-check-circle text-success"></i>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-receipt fs-1 text-muted"></i>
+                            <p class="text-muted mt-3">No payment history yet.</p>
+                            <a href="{{ path('book_list') }}" class="btn btn-primary">
+                                <i class="bi bi-shop me-2"></i>Browse Books
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="mt-4">
+                <a href="{{ path('my_library') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to My Library
+                </a>
+            </div>
+        </section>
+        <!-- =======================
+        Page content END -->
+        {% endblock %}
+    </div>
+</main>
+<!-- Main Content END -->
+
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+{% endblock %}

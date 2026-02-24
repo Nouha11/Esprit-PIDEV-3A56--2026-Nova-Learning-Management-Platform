@@ -25,14 +25,20 @@
                 </li>
 
                 <li class="nav-item"> 
-                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_planning' %} active{% endif %}" href="{{ path('admin_planning_index') }}">
-                        <i class="bi bi-calendar-check fa-fw me-2"></i>Planning Sessions
+                    <a class="nav-link" href="{{ path('admin_books_index') }}">
+                        <i class="fas fa-book fa-fw me-2"></i>Library
                     </a>
                 </li>
 
                 <li class="nav-item"> 
-                    <a class="nav-link ps-4{% if app.request.attributes.get('_route') starts with 'admin_study_session' %} active{% endif %}" href="{{ path('admin_study_session_index') }}">
-                        <i class="bi bi-journal-check fa-fw me-2"></i>Completed Sessions
+                    <a class="nav-link" href="{{ path('admin_books_analytics') }}">
+                        <i class="bi bi-graph-up fa-fw me-2"></i>Sales Analytics
+                    </a>
+                </li>
+
+                <li class="nav-item"> 
+                    <a class="nav-link" href="{{ path('admin_loans_index') }}">
+                        <i class="bi bi-bookmark-check fa-fw me-2"></i>Loans
                     </a>
                 </li>
 

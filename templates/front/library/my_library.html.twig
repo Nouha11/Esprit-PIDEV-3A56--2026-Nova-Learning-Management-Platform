@@ -1,53 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>My Library</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
-    
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
-    
-    <!-- Plugins CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    
-    <!-- Theme CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
-</head>
+{% extends 'base.html.twig' %}
 
-<body>
+{% block title %}My Library - NOVA{% endblock %}
 
-<!-- Page Banner START -->
-<section class="py-0">
+{% block body %}
+
+<!-- Main Content START -->
+<main>
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="bg-light p-4 text-center rounded-3">
-                    <h1 class="m-0">My Library</h1>
-                    <div class="d-flex justify-content-center">
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb breadcrumb-dots mb-0">
-                                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">My Library</li>
-                            </ol>
-                        </nav>
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mt-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        {% block front_content %}
+        <!-- =======================
+        Page Banner START -->
+        <section class="bg-primary bg-opacity-10 py-5 mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-0">My Library</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">My Library</li>
+                                </ol>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-<!-- Page Banner END -->
+        </section>
+        <!-- =======================
+        Page Banner END -->
 
-<!-- Page Content START -->
-<section class="pt-5 pb-5">
-    <div class="container">
+        <!-- =======================
+        Page content START -->
+        <section class="pt-5">
         
         <!-- Digital Books Section -->
         <div class="row mb-5">
@@ -94,9 +89,17 @@
                                                 <i class="bi bi-calendar3 me-1"></i>
                                                 {{ purchase.purchasedAt|date('M d, Y') }}
                                             </small>
-                                            <a href="{{ path('book_show', {'id': purchase.book.id}) }}" class="btn btn-sm btn-primary-soft">
-                                                <i class="bi bi-book me-1"></i>Read
-                                            </a>
+                                            <div>
+                                                {% if purchase.book.pdfUrl %}
+                                                    <a href="{{ path('book_read_pdf', {'id': purchase.book.id}) }}" class="btn btn-sm btn-success">
+                                                        <i class="bi bi-book-fill me-1"></i>Read PDF
+                                                    </a>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>PDF Not Available
+                                                    </span>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -147,22 +150,33 @@
                                                     <a href="{{ path('book_show', {'id': loan.book.id}) }}">{{ loan.book.title }}</a>
                                                 </h5>
                                                 <p class="mb-2 text-muted">by {{ loan.book.author ?: 'Unknown' }}</p>
-                                                <div class="d-flex gap-3">
+                                                <div class="d-flex gap-3 mb-2">
                                                     <small>
                                                         <i class="bi bi-calendar-check text-success me-1"></i>
-                                                        Borrowed: {{ loan.startAt|date('M d, Y') }}
+                                                        Pickup: {{ loan.startAt|date('M d, Y H:i') }}
                                                     </small>
+                                                    {% if loan.endAt %}
+                                                    <small>
+                                                        <i class="bi bi-calendar-x text-danger me-1"></i>
+                                                        Return: {{ loan.endAt|date('M d, Y H:i') }}
+                                                    </small>
+                                                    {% endif %}
                                                 </div>
+                                                {% if loan.library %}
+                                                <small class="text-muted">
+                                                    <i class="bi bi-building me-1"></i>{{ loan.library.name }}
+                                                </small>
+                                                {% endif %}
                                             </div>
-                                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
-                                                <span class="badge bg-success-soft text-success mb-2">
-                                                    <i class="bi bi-clock me-1"></i>Active Loan
-                                                </span>
-                                                <div>
-                                                    <a href="{{ path('book_show', {'id': loan.book.id}) }}" class="btn btn-sm btn-light">
-                                                        <i class="bi bi-eye me-1"></i>View Book
-                                                    </a>
-                                                </div>
+                                            <div class="col-md-3 text-end">
+                                                <span class="badge {{ loan.statusBadgeClass }} mb-2">{{ loan.statusLabel }}</span>
+                                                {% if loan.status == 'PENDING' %}
+                                                    <p class="small text-muted mb-0">Waiting for approval</p>
+                                                {% elseif loan.status == 'APPROVED' %}
+                                                    <p class="small text-muted mb-0">Ready for pickup</p>
+                                                {% elseif loan.status == 'ACTIVE' %}
+                                                    <p class="small text-muted mb-0">Book in your possession</p>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>
@@ -234,18 +248,15 @@
             </div>
         {% endif %}
         
+        </section>
+        <!-- =======================
+        Page content END -->
+        {% endblock %}
     </div>
-</section>
-<!-- Page Content END -->
+</main>
+<!-- Main Content END -->
+
 
 <!-- Back to top -->
 <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
-
-<!-- Bootstrap JS -->
-<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-
-<!-- Template Functions -->
-<script src="{{ asset('assets/js/functions.js') }}"></script>
-
-</body>
-</html>
+{% endblock %}
