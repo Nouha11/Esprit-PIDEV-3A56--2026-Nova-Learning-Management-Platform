@@ -261,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
         xpBadge.classList.add('bg-secondary');
         
         // Show timeout message (but don't disable form)
+        const container = document.querySelector('.container');
         const alertDiv = document.createElement('div');
         alertDiv.className = 'alert alert-warning alert-dismissible fade show';
         alertDiv.innerHTML = `
@@ -268,7 +269,13 @@ document.addEventListener('DOMContentLoaded', function() {
             <strong>Time's up!</strong> You can still answer, but no XP will be awarded.
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+        
+        // Insert at the beginning of container
+        if (container && container.firstChild) {
+            container.insertBefore(alertDiv, container.firstChild);
+        } else if (container) {
+            container.appendChild(alertDiv);
+        }
     }
     
     // Start the timer
@@ -321,6 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.style.display = 'none';
                     
                     // Show success message
+                    const container = document.querySelector('.container');
                     const alertDiv = document.createElement('div');
                     alertDiv.className = 'alert alert-warning alert-dismissible fade show';
                     alertDiv.innerHTML = `
@@ -328,7 +336,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         <strong>Hint activated!</strong> Your XP for this question has been reduced from ${data.originalXp} to ${data.reducedXp}.
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     `;
-                    document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+                    
+                    // Insert at the beginning of container
+                    if (container && container.firstChild) {
+                        container.insertBefore(alertDiv, container.firstChild);
+                    } else if (container) {
+                        container.appendChild(alertDiv);
+                    }
                     
                     // Auto-dismiss after 5 seconds
                     setTimeout(() => {
