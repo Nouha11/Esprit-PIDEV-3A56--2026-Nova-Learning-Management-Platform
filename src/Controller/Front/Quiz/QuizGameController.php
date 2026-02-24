@@ -117,14 +117,19 @@ final class QuizGameController extends AbstractController
         // --- D. HANDLE ANSWER SUBMISSION ---
         if ($request->isMethod('POST')) {
             $submittedChoiceId = $request->request->get('answer');
+            $timedOut = $request->request->get('timeout', false);
             $selectedChoice = $choiceRepository->find($submittedChoiceId);
 
             // Check if hint was used for this question
             $hintUsed = $session->get('hint_used_' . $currentQuestionId, false);
             $xpToAward = $question->getXpValue();
             
-            // Apply hint penalty if hint was used
-            if ($hintUsed) {
+            // If timed out, set XP to 0
+            if ($timedOut) {
+                $xpToAward = 0;
+            }
+            // Apply hint penalty if hint was used (and not timed out)
+            elseif ($hintUsed) {
                 $xpToAward = (int) ceil($xpToAward / 2);
             }
 
@@ -133,14 +138,20 @@ final class QuizGameController extends AbstractController
                 $currentScore = $session->get('quiz_score');
                 $session->set('quiz_score', $currentScore + $xpToAward);
                 
-                if ($hintUsed) {
+                if ($timedOut) {
+                    $this->addFlash('warning', '⏱️ Time\'s up! Correct answer but +0 XP');
+                } elseif ($hintUsed) {
                     $this->addFlash('success', '✅ Correct! +' . $xpToAward . ' XP (hint penalty applied)');
                 } else {
                     $this->addFlash('success', '✅ Correct! +' . $xpToAward . ' XP');
                 }
             } else {
                 // WRONG
-                $this->addFlash('danger', '❌ Wrong answer!');
+                if ($timedOut) {
+                    $this->addFlash('danger', '⏱️ Time\'s up! Wrong answer, +0 XP');
+                } else {
+                    $this->addFlash('danger', '❌ Wrong answer!');
+                }
             }
 
             // Clear hint flag for this question

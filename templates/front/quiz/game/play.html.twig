@@ -70,6 +70,7 @@
 
             {# 3. The Answer Form #}
             <form method="POST" class="mt-4" id="quiz-form">
+                <input type="hidden" name="timeout" id="timeout-input" value="0">
                 <div class="row g-3">
                     {% for choice in question.choices %}
                         <div class="col-md-6">
@@ -188,6 +189,17 @@
         pointer-events: none;
         opacity: 0.6;
     }
+    
+    /* Shake animation for validation error */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+        20%, 40%, 60%, 80% { transform: translateX(10px); }
+    }
+    
+    .shake {
+        animation: shake 0.5s;
+    }
 </style>
 
 <script>
@@ -238,36 +250,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function handleTimeOut() {
-        // Disable form
-        quizForm.classList.add('form-disabled');
+        // Set timeout flag (no XP will be awarded)
+        document.getElementById('timeout-input').value = '1';
         
-        // Show timeout message
+        // Update XP badge to show 0 XP
+        const xpBadge = document.getElementById('xp-badge');
+        const originalXp = xpBadge.textContent;
+        xpBadge.innerHTML = `<i class="bi bi-lightning-fill"></i> +0 XP <small class="text-decoration-line-through ms-1">${originalXp.replace(/[^\d]/g, '')}</small>`;
+        xpBadge.classList.remove('bg-warning');
+        xpBadge.classList.add('bg-secondary');
+        
+        // Show timeout message (but don't disable form)
         const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.className = 'alert alert-warning alert-dismissible fade show';
         alertDiv.innerHTML = `
             <i class="bi bi-clock-history me-2"></i>
-            <strong>Time's up!</strong> Moving to next question...
+            <strong>Time's up!</strong> You can still answer, but no XP will be awarded.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
         document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
-        
-        // Auto-submit form after 2 seconds
-        setTimeout(function() {
-            // If no answer selected, select a random one
-            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
-            if (!selectedAnswer) {
-                const allAnswers = document.querySelectorAll('input[name="answer"]');
-                if (allAnswers.length > 0) {
-                    // Select random answer
-                    const randomIndex = Math.floor(Math.random() * allAnswers.length);
-                    allAnswers[randomIndex].checked = true;
-                }
-            }
-            quizForm.submit();
-        }, 2000);
     }
     
     // Start the timer
     startTimer();
+    
+    // Remove error message when an answer is selected
+    const answerInputs = document.querySelectorAll('input[name="answer"]');
+    answerInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const errorDiv = document.getElementById('answer-required-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        });
+    });
     
     // Pause timer when hint is being requested
     const hintBtn = document.getElementById('hint-btn');
@@ -319,13 +335,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         alertDiv.remove();
                     }, 5000);
                 } else {
-                    alert(data.error || 'Failed to generate hint');
+                    // Silently fail - just reset button
                     this.classList.remove('loading');
                     this.innerHTML = '<i class="bi bi-lightbulb"></i> Get AI Hint (-50% XP)';
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to generate hint. Please try again.');
+                // Silently fail - just reset button
+                console.error('Hint generation failed:', error);
                 this.classList.remove('loading');
                 this.innerHTML = '<i class="bi bi-lightbulb"></i> Get AI Hint (-50% XP)';
             } finally {
@@ -336,7 +352,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Stop timer when form is submitted
-    quizForm.addEventListener('submit', function() {
+    quizForm.addEventListener('submit', function(e) {
+        // Check if an answer is selected
+        const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+        
+        if (!selectedAnswer) {
+            e.preventDefault(); // Prevent form submission
+            
+            // Show error message
+            const existingError = document.getElementById('answer-required-error');
+            if (!existingError) {
+                const errorDiv = document.createElement('div');
+                errorDiv.id = 'answer-required-error';
+                errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                errorDiv.innerHTML = `
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>Please select an answer!</strong> You must choose an option before submitting.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                submitBtn.parentElement.appendChild(errorDiv);
+                
+                // Shake animation for submit button
+                submitBtn.classList.add('shake');
+                setTimeout(() => {
+                    submitBtn.classList.remove('shake');
+                }, 500);
+            }
+            
+            return false;
+        }
+        
+        // If answer is selected, proceed with submission
         clearInterval(timerInterval);
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
