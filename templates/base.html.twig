@@ -26,29 +26,16 @@
         }
         setTheme(getPreferredTheme())
         window.addEventListener('DOMContentLoaded', () => {
-            var el = document.querySelector('.theme-icon-active');
-            if(el != 'undefined' && el != null) {
-                const showActiveTheme = theme => {
-                const activeThemeIcon = document.querySelector('.theme-icon-active use')
-                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+            const showActiveTheme = theme => {
+                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
+                if (!btnToActive) return;
                 
-                // Check if elements exist before accessing them
-                if (!activeThemeIcon || !btnToActive) {
-                    return;
-                }
-                
-                const modeSwitch = btnToActive.querySelector('.mode-switch use')
-                if (!modeSwitch) {
-                    return;
-                }
-                
-                const svgOfActiveBtn = modeSwitch.getAttribute('href')
                 document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-                    element.classList.remove('active')
-                })
-                btnToActive.classList.add('active')
-                activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                    element.classList.remove('active');
+                });
+                btnToActive.classList.add('active');
             }
+            
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
                 if (storedTheme !== 'light' || storedTheme !== 'dark') {
                     setTheme(getPreferredTheme())
@@ -64,452 +51,658 @@
                         showActiveTheme(theme)
                     })
                 })
-            }
         })
     </script>
 
     {% block stylesheets %}
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
-
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap">
 
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/glightbox/css/glightbox.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
-
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}?v={{ random() }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/pagination.css') }}?v={{ random() }}">
     
-    <!-- Custom Navbar Fixes -->
     <style>
-        /* Force navbar layout fixes */
-        .navbar-nav.me-auto {
-            margin-right: auto !important;
-            flex: 1 !important;
+        /* GLOBAL DESIGN VARIABLES */
+        :root {
+            --nova-bg: #f8f9fa;
+            --nova-card-bg: #ffffff;
+            --nova-text-main: #1a1a1b;
+            --nova-text-muted: #6c757d;
+            --nova-border: #e0e3e7; 
+            --nova-nav-hover: #f1f3f5;
+            --nova-accent-shadow: rgba(13, 110, 253, 0.15);
         }
-        .navbar .nav.flex-row {
-            margin-left: auto !important;
-            flex-shrink: 0 !important;
+        [data-bs-theme="dark"], body.dark-mode, .dark-mode {
+            --nova-bg: #050505; 
+            --nova-card-bg: #1a1a1b;
+            --nova-text-main: #d7dadc;
+            --nova-text-muted: #818384;
+            --nova-border: #2d2d2f;
+            --nova-nav-hover: #272729;
+            --nova-accent-shadow: rgba(13, 110, 253, 0.25);
         }
-        .language-switcher .btn {
-            font-size: 1.1rem !important;
-            min-width: 32px !important;
-            text-align: center !important;
-            padding: 0.25rem 0.5rem !important;
-            border: none !important;
-            background: transparent !important;
-        }
-        .nav-item.me-2 {
-            margin-right: 0.75rem !important;
-        }
-        .navbar-nav .nav-item {
-            margin-right: 0.5rem !important;
-        }
-        .navbar-nav .nav-link {
-            padding: 0.5rem 0.75rem !important;
-            white-space: nowrap !important;
-        }
-        /* Ensure proper spacing between main nav and profile section */
-        .navbar-collapse {
-            justify-content: space-between !important;
-        }
-        /* Mobile responsive fixes */
-        @media (max-width: 991.98px) {
-            .navbar-collapse .navbar-nav {
-                margin-bottom: 1rem !important;
-            }
-            .navbar-collapse .nav.flex-row {
-                margin-left: 0 !important;
-                justify-content: center !important;
-            }
-        }
-        /* Language switcher specific fixes */
-        .language-switcher .dropdown-menu {
-            min-width: 120px !important;
-        }
-        .language-switcher .dropdown-item {
-            padding: 0.5rem 1rem !important;
-            font-size: 0.9rem !important;
-        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--nova-bg); color: var(--nova-text-main); }
         
-        /* Navbar dropdown hover effect - only on desktop */
-        @media (min-width: 992px) {
-            .navbar-nav .nav-item.dropdown:hover > .dropdown-menu {
-                display: block;
-                margin-top: 0;
-            }
-        }
-        .navbar-nav .dropdown-menu {
-            margin-top: 0;
-        }
-        .navbar-nav .dropdown-toggle::after {
-            vertical-align: 0.15em;
-        }
+        /* --- PREMIUM GLASS NAVBAR --- */
+        .navbar-glass { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 2px solid var(--nova-border); transition: all 0.3s ease; }
+        [data-bs-theme="dark"] .navbar-glass, .dark-mode .navbar-glass { background: rgba(26, 26, 27, 0.85) !important; }
+
+        /* NAVBAR SEARCH BAR */
+        .search-glass { background-color: var(--nova-bg); border: 2px solid var(--nova-border); border-radius: 8px; transition: all 0.2s ease; }
+        .search-glass:focus-within { background-color: var(--nova-card-bg); border-color: #0d6efd; box-shadow: 4px 4px 0 var(--nova-accent-shadow); }
+        .search-glass input { font-size: 14px; font-weight: 600; color: var(--nova-text-main); }
+        .search-glass input:focus { outline: none; box-shadow: none; }
+        .search-glass input::placeholder { color: var(--nova-text-muted); opacity: 0.8; font-weight: 500; }
+
+        /* THEME SWITCHER BUTTONS */
+        .mode-switch-wrapper { background: var(--nova-bg); border: 2px solid var(--nova-border); border-radius: 50rem; padding: 2px; display: flex; align-items: center; }
+        .theme-btn { border-radius: 50rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: var(--nova-text-muted); transition: all 0.2s; border: none; background: transparent; }
+        .theme-btn:hover { color: var(--nova-text-main); }
+        .theme-btn.active[data-bs-theme-value="light"] { background-color: #ffffff; color: #f59e0b; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        [data-bs-theme="dark"] .theme-btn.active[data-bs-theme-value="dark"] { background-color: #343536; color: #60a5fa; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+
+        /* NAVBAR LINKS */
+        .navbar-nav.me-auto { margin-right: auto !important; flex: 1 !important; }
+        .navbar .nav.flex-row { margin-left: auto !important; flex-shrink: 0 !important; }
+        .nav-item.me-2 { margin-right: 0.75rem !important; }
+        .navbar-nav .nav-item { margin-right: 0.25rem !important; }
+        .navbar-nav .nav-link { padding: 0.6rem 0.85rem !important; white-space: nowrap !important; transition: all 0.1s ease; border-radius: 6px; color: var(--nova-text-muted) !important; font-weight: 600; border: 2px solid transparent; }
+        .navbar-collapse { justify-content: space-between !important; }
+        @media (max-width: 991.98px) { .navbar-collapse .navbar-nav { margin-bottom: 1rem !important; } .navbar-collapse .nav.flex-row { margin-left: 0 !important; justify-content: center !important; } }
         
-        /* Active nav link styling */
-        .navbar-nav .nav-link.active {
-            color: var(--bs-primary) !important;
-            font-weight: 600;
-            position: relative;
-        }
+        .navbar-nav .dropdown-menu { margin-top: 0; border: 2px solid var(--nova-border); border-radius: 12px; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); overflow: hidden;}
+        @media (min-width: 992px) { .navbar-nav .nav-item.dropdown:hover > .dropdown-menu { display: block; margin-top: 0; } }
         
-        .navbar-nav .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0.75rem;
-            right: 0.75rem;
-            height: 2px;
-            background-color: var(--bs-primary);
-        }
+        .navbar-nav .nav-link:hover:not(.active) { background-color: var(--nova-bg); color: var(--nova-text-main) !important; border-color: var(--nova-border); transform: translateY(-2px); }
+        .navbar-nav .nav-link.active { color: var(--nova-text-main) !important; background-color: rgba(13, 110, 253, 0.08); border-color: rgba(13, 110, 253, 0.3); }
+
+        /* FLOATING TOASTS */
+        .nova-toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .nova-toast { min-width: 250px; background: var(--nova-card-bg); color: var(--nova-text-main); border: 2px solid var(--nova-border); border-radius: 4px; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); padding: 16px 20px; display: flex; align-items: center; transform: translateX(120%); opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-left: 6px solid #0d6efd; }
+        .nova-toast.show { transform: translateX(0); opacity: 1; }
+        .nova-toast.success { border-left-color: #198754; }
+        .nova-toast.error { border-left-color: #dc3545; }
         
-        /* Hover effect for nav links */
-        .navbar-nav .nav-link:hover:not(.active) {
-            color: var(--bs-primary) !important;
-            opacity: 0.8;
-        }
+        /* ======================================= */
+        /* --- HERO & GAME AESTHETICS --- */
+        /* ======================================= */
+        .home-hero-bg { position: relative; background-color: var(--nova-bg); padding: 120px 0 100px 0; overflow: hidden; }
+        .home-hero-bg::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(to right, var(--nova-border) 1px, transparent 1px), linear-gradient(to bottom, var(--nova-border) 1px, transparent 1px); background-size: 24px 24px; opacity: 0.5; z-index: 0; mask-image: radial-gradient(circle at center, black 60%, transparent 100%); }
+        .glow-orb { position: absolute; border-radius: 50%; filter: blur(80px); z-index: 0; opacity: 0.4; animation: floatOrb 15s infinite ease-in-out alternate; }
+        .orb-1 { width: 600px; height: 600px; background: #0d6efd; top: -200px; left: -150px; }
+        .orb-2 { width: 500px; height: 500px; background: #6f42c1; bottom: -150px; right: 5%; animation-delay: -7s; }
+        @keyframes floatOrb { 0% { transform: translateY(0px); } 100% { transform: translateY(50px); } }
+
+        @keyframes heroFadeUp { 0% { opacity: 0; transform: translateY(40px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        .hero-anim-1 { animation: heroFadeUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; animation-delay: 0.1s; } 
+        .hero-anim-2 { animation: heroFadeUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; animation-delay: 0.2s; }
+        .hero-anim-3 { animation: heroFadeUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; animation-delay: 0.3s; }
+        .hero-anim-4 { animation: heroFadeUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; animation-delay: 0.4s; }
+
+        .leaderboard-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 3px solid var(--nova-border); border-radius: 16px; box-shadow: 8px 8px 0px var(--nova-accent-shadow), 0 20px 40px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        [data-bs-theme="dark"] .leaderboard-card, .dark-mode .leaderboard-card { background: rgba(26, 26, 27, 0.8); border-color: #2d2d2f; }
+        .leaderboard-card:hover { transform: translate(-4px, -4px); box-shadow: 12px 12px 0px var(--nova-accent-shadow), 0 30px 60px rgba(0,0,0,0.1); }
+
+        .leaderboard-item { background-color: rgba(255, 255, 255, 0.5); border: 2px solid transparent; box-shadow: 0 4px 0 rgba(0,0,0,0.02); transition: all 0.2s; }
+        [data-bs-theme="dark"] .leaderboard-item, .dark-mode .leaderboard-item { background-color: rgba(0, 0, 0, 0.3); border-color: transparent; box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+        .leaderboard-item:hover { border-color: #0d6efd; transform: translateY(-2px); box-shadow: 0 6px 0 var(--nova-accent-shadow); }
+
+        /* UI Mockups */
+        .mockup-card { background: var(--nova-card-bg); border: 2px solid var(--nova-border); border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s; }
+        .mockup-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); border-color: #0d6efd; }
+
+        .ecosystem-card { background: var(--nova-card-bg); border: 2px solid var(--nova-border); border-radius: 12px; padding: 32px 24px; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; height: 100%; display: flex; flex-direction: column; align-items: center; text-decoration: none; color: inherit; box-shadow: 0 4px 0 var(--nova-border); }
+        .ecosystem-card:hover { transform: translateY(-6px); border-color: #0d6efd; box-shadow: 0 8px 0 var(--nova-accent-shadow); }
+        .ecosystem-icon { width: 72px; height: 72px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 20px; transition: transform 0.3s; border: 2px solid transparent; }
+        .ecosystem-card:hover .ecosystem-icon { transform: scale(1.1) rotate(-3deg); border-color: currentColor; }
         
-        /* Dark mode support */
-        [data-bs-theme="dark"] .navbar-nav .nav-link.active {
-            color: var(--bs-primary) !important;
-        }
+        .game-level-card { background: var(--nova-card-bg); border: 2px solid var(--nova-border); border-radius: 12px; padding: 24px; transition: all 0.2s ease; position: relative; overflow: hidden; box-shadow: 4px 4px 0 var(--nova-border); }
+        .game-level-card:hover { transform: translate(-4px, -4px); box-shadow: 8px 8px 0 var(--nova-accent-shadow); }
+        .game-level-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; }
+        .gl-easy::before { background-color: #198754; }
+        .gl-medium::before { background-color: #fd7e14; }
+        .gl-hard::before { background-color: #dc3545; }
+        .gl-expert::before { background-color: #6f42c1; }
+        
+        .text-gradient { background: linear-gradient(135deg, #0d6efd 0%, #6f42c1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(2px 2px 0px rgba(13, 110, 253, 0.2)); }
+        .btn-custom-outline { background-color: var(--nova-card-bg); color: var(--nova-text-main); border: 2px solid var(--nova-border); transition: all 0.2s; font-weight: 700; box-shadow: 2px 2px 0 var(--nova-border); }
+        .btn-custom-outline:hover { background-color: var(--nova-bg); color: var(--nova-text-main); border-color: #0d6efd; transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--nova-accent-shadow); }
+        .btn-primary { box-shadow: 2px 2px 0 rgba(0,0,0,0.2); transition: all 0.2s; border: none;}
+        .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 rgba(0,0,0,0.2); }
     </style>
     {% endblock %}
 </head>
 
 <body>
-<header class="navbar-light navbar-sticky">
+<header class="navbar-light navbar-sticky navbar-glass sticky-top p-0 p-lg-2">
     <nav class="navbar navbar-expand-xl z-index-9">
-        <div class="container">
-            <a class="navbar-brand" href="{{ path('app_home') }}">
-                <img class="light-mode-item navbar-brand-item h-70px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
-                <img class="dark-mode-item navbar-brand-item h-70px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand me-4" href="{{ path('app_home') }}">
+                <img class="light-mode-item navbar-brand-item h-50px h-lg-60px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
+                <img class="dark-mode-item navbar-brand-item h-50px h-lg-60px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
             </a>
+
             <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-animation">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </span>
+                <span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
             </button>
 
-            <div class="navbar-collapse collapse" id="navbarCollapse">
-                <!-- Nav Main menu START -->
-                <ul class="navbar-nav navbar-nav-scroll me-auto" style="margin-right: auto !important;">
+            <div class="navbar-collapse collapse align-items-center" id="navbarCollapse">
+                
+                <form id="globalSearchForm" class="d-flex align-items-center mb-3 mb-xl-0 me-xl-5 ms-xl-3" style="max-width: 350px; width: 100%;" action="#" method="GET">
+                    <div class="input-group search-glass p-1">
+                        <span class="input-group-text border-0 bg-transparent ps-3 pe-2"><i class="bi bi-search text-muted"></i></span>
+                        <input id="globalSearchInput" class="form-control border-0 bg-transparent ps-1 shadow-none" type="search" name="q" placeholder="Search platform..." aria-label="Search">
+                    </div>
+                </form>
+
+                {% set current_route = app.request.attributes.get('_route') %}
+                <ul class="navbar-nav me-auto mb-2 mb-xl-0 gap-2">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ path('app_home') }}"><i class="bi bi-house me-2"></i>{{ t.t('Home') }}</a>
+                        <a class="nav-link {{ current_route == 'app_home' ? 'active' : '' }}" href="{{ path('app_home') }}">
+                            <i class="bi bi-house-door-fill me-1 text-secondary"></i> Home
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('course_index') }}"><i class="bi bi-book me-2"></i>{{ t.t('Courses') }}</a>
+                        <a class="nav-link {{ current_route starts with 'course_' ? 'active' : '' }}" href="{{ path('course_index') }}">
+                            <i class="bi bi-map-fill me-1 text-success"></i> Courses
+                        </a>
                     </li>                    
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="libraryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-book me-2"></i>{{ t.t('Library') }}
+                        <a class="nav-link dropdown-toggle {{ current_route in ['book_list', 'my_library', 'my_payments'] ? 'active' : '' }}" href="#" id="libraryDropdown" data-bs-toggle="dropdown">
+                            <i class="bi bi-collection-fill me-1 text-info"></i> Library
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="libraryDropdown">
-                            <li><a class="dropdown-item" href="{{ path('book_list') }}"><i class="bi bi-book me-2"></i>{{ t.t('Browse Library') }}</a></li>
+                        <ul class="dropdown-menu border-0 p-2" aria-labelledby="libraryDropdown" style="background: var(--nova-card-bg);">
+                            <li><a class="dropdown-item rounded-2 py-2 fw-medium {{ current_route == 'book_list' ? 'active text-primary' : '' }}" href="{{ path('book_list') }}"><i class="bi bi-compass-fill me-2 text-primary"></i>Browse Library</a></li>
                             {% if app.user %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ path('my_library') }}"><i class="bi bi-collection me-2"></i>My Library</a></li>
-                                <li><a class="dropdown-item" href="{{ path('my_payments') }}"><i class="bi bi-credit-card me-2"></i>My Payments</a></li>
+                                <li><hr class="dropdown-divider my-2" style="border-color: var(--nova-border);"></li>
+                                <li><a class="dropdown-item rounded-2 py-2 fw-medium {{ current_route == 'my_library' ? 'active text-success' : '' }}" href="{{ path('my_library') }}"><i class="bi bi-bookmark-check-fill me-2 text-success"></i>My Books</a></li>
+                                <li><a class="dropdown-item rounded-2 py-2 fw-medium {{ current_route == 'my_payments' ? 'active text-info' : '' }}" href="{{ path('my_payments') }}"><i class="bi bi-credit-card-fill me-2 text-info"></i>Payments</a></li>
                             {% endif %}
                         </ul>
                     </li>
 
                     {% if is_granted('ROLE_STUDENT') %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a>
+                            <a class="nav-link {{ current_route starts with 'front_game' ? 'active' : '' }}" href="{{ path('front_game_index') }}">
+                                <i class="bi bi-dpad-fill me-1 text-warning"></i> Games
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('front_game_index') }}"><i class="bi bi-controller me-2"></i>{{ t.t('Games') }}</a>
+                            <a class="nav-link {{ current_route starts with 'front_reward' ? 'active' : '' }}" href="{{ path('front_reward_browse') }}">
+                                <i class="bi bi-award-fill me-1 text-danger"></i> Rewards
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('front_reward_browse') }}"><i class="bi bi-trophy me-2"></i>{{ t.t('Rewards') }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_front_quiz_index') }}"><i class="bi bi-lightning-charge me-2"></i>{{ t.t('Quizzes') }}</a>
+                            <a class="nav-link {{ current_route starts with 'app_front_quiz' ? 'active' : '' }}" href="{{ path('app_front_quiz_index') }}">
+                                <i class="bi bi-patch-question-fill me-1" style="color: #6f42c1;"></i> Quizzes
+                            </a>
                         </li>
                     {% elseif is_granted('ROLE_TUTOR') %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_quiz_index', {'prefix': 'tutor'}) }}"><i class="bi bi-lightning-charge me-2"></i>{{ t.t('Manage Quizzes') }}</a>
+                            <a class="nav-link {{ current_route starts with 'app_quiz' ? 'active' : '' }}" href="{{ path('app_quiz_index', {'prefix': 'tutor'}) }}">
+                                <i class="bi bi-patch-question-fill me-1" style="color: #6f42c1;"></i> Manage Quizzes
+                            </a>
                         </li>
                     {% endif %}
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_forum') }}"><i class="bi bi-headset me-2"></i>{{ t.t('Forum') }}</a>
+                        <a class="nav-link {{ current_route starts with 'app_forum' ? 'active' : '' }}" href="{{ path('app_forum') }}">
+                            <i class="bi bi-people-fill me-1 text-primary"></i> Forum
+                        </a>
                     </li>
                 </ul>
-                <!-- Nav Main menu END -->
             </div>
-            <!-- Main navbar END -->
 
-            <!-- Profile and notification START -->
-            <ul class="nav flex-row align-items-center list-unstyled" style="margin-left: auto !important;">
-                <!-- Language Switcher -->
-                <li class="nav-item me-2">
-                    {% include 'components/language_switcher.html.twig' %}
+            <ul class="nav flex-row align-items-center list-unstyled ms-auto mb-0 gap-3">
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link btn-custom-outline px-3 py-1 rounded-pill d-flex align-items-center text-decoration-none" href="#" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border-width: 2px;">
+                        <i class="bi bi-globe-americas me-2 text-primary"></i> <span class="fw-bold small">{{ app.request.locale|default('en')|upper }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 p-2 shadow-lg" aria-labelledby="languageDropdown" style="background: var(--nova-card-bg); min-width: 140px; border: 2px solid var(--nova-border) !important; box-shadow: 6px 6px 0 rgba(0,0,0,0.1) !important;">
+                        <li><a class="dropdown-item py-2 rounded-2 fw-bold {{ app.request.locale == 'en' ? 'bg-primary bg-opacity-10 text-primary' : 'nova-text-main' }}" href="{{ path(app.request.attributes.get('_route', 'app_home'), app.request.attributes.get('_route_params', {})|merge({'_locale': 'en'})) }}"><span class="me-2 fs-5">🇺🇸</span> English</a></li>
+                        <li><a class="dropdown-item py-2 rounded-2 fw-bold {{ app.request.locale == 'fr' ? 'bg-primary bg-opacity-10 text-primary' : 'nova-text-main' }}" href="{{ path(app.request.attributes.get('_route', 'app_home'), app.request.attributes.get('_route_params', {})|merge({'_locale': 'fr'})) }}"><span class="me-2 fs-5">🇫🇷</span> Français</a></li>
+                    </ul>
                 </li>
 
-
-                <!-- Dark/Light mode toggle - Only show when not logged in -->
-                {% if not app.user %}
-                <li class="nav-item me-2 d-none d-sm-block">
-                    <div class="mode-switch theme-icon-active d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-link nav-link mb-0 p-0" data-bs-theme-value="light">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sun fa-fw mode-switch" viewBox="0 0 16 16">
-                                <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
-                                <use href="#"></use>
-                            </svg>
-                        </button>
-                        <button type="button" class="btn btn-link nav-link mb-0 p-0" data-bs-theme-value="dark">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-moon-stars fa-fw mode-switch" viewBox="0 0 16 16">
-                                <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
-                                <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
-                                <use href="#"></use>
-                            </svg>
-                        </button>
+                <li class="nav-item d-none d-sm-block">
+                    <div class="mode-switch-wrapper theme-icon-active">
+                        <button type="button" class="theme-btn" data-bs-theme-value="light" title="Light Mode"><i class="bi bi-sun-fill fs-6"></i></button>
+                        <button type="button" class="theme-btn" data-bs-theme-value="dark" title="Dark Mode"><i class="bi bi-moon-stars-fill fs-6"></i></button>
                     </div>
                 </li>
-                {% endif %}
 
-                {% if app.user %}
-                    <!-- Notification Bell -->
+                {% if not app.user %}
+                    <li class="nav-item ms-1"><a href="{{ path('app_login') }}" class="btn btn-sm btn-custom-outline mb-0 rounded-pill px-4 py-2">Sign In</a></li>
+                    <li class="nav-item ms-1"><a href="{{ path('app_signup') }}" class="btn btn-sm btn-primary mb-0 fw-bold rounded-pill px-4 py-2">Get Started</a></li>
+                {% else %}
                     {% include 'components/notification_bell.html.twig' %}
+                    <li class="nav-item dropdown">
+                        <a class="avatar avatar-sm p-0 d-block transition-base" href="#" id="profileDropdown" data-bs-toggle="dropdown" style="transform: scale(1); transition: transform 0.2s;">
+                            {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and app.user.studentProfile.profilePicture %}
+                                <img class="avatar-img rounded-circle border border-2 border-primary" src="{{ vich_uploader_asset(app.user.studentProfile, 'avatarFile') }}" alt="avatar" onmouseover="this.parentElement.style.transform='scale(1.1)'" onmouseout="this.parentElement.style.transform='scale(1)'">
+                            {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and app.user.tutorProfile.profilePicture %}
+                                <img class="avatar-img rounded-circle border border-2 border-primary" src="{{ vich_uploader_asset(app.user.tutorProfile, 'avatarFile') }}" alt="avatar" onmouseover="this.parentElement.style.transform='scale(1.1)'" onmouseout="this.parentElement.style.transform='scale(1)'">
+                            {% else %}
+                                <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center border border-2 border-primary shadow-sm" style="width: 42px; height: 42px;" onmouseover="this.parentElement.style.transform='scale(1.1)'" onmouseout="this.parentElement.style.transform='scale(1)'"><span class="fw-bold">{{ app.user.username|first|upper }}</span></div>
+                            {% endif %}
+                        </a>
 
-                    
-                <li class="nav-item ms-3 dropdown">
-                    <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
-                        {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and app.user.studentProfile.profilePicture %}
-                            <img class="avatar-img rounded-circle" src="{{ vich_uploader_asset(app.user.studentProfile, 'avatarFile') }}" alt="avatar">
-                        {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and app.user.tutorProfile.profilePicture %}
-                            <img class="avatar-img rounded-circle" src="{{ vich_uploader_asset(app.user.tutorProfile, 'avatarFile') }}" alt="avatar">
-                        {% else %}
-                            <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                <span class="fw-bold">{{ app.user.username|first|upper }}</span>
-                            </div>
-                        {% endif %}
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
-                        <li class="px-3 mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar me-3">
-                                    {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and app.user.studentProfile.profilePicture %}
-                                        <img class="avatar-img rounded-circle shadow" src="{{ vich_uploader_asset(app.user.studentProfile, 'avatarFile') }}" alt="avatar">
-                                    {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and app.user.tutorProfile.profilePicture %}
-                                        <img class="avatar-img rounded-circle shadow" src="{{ vich_uploader_asset(app.user.tutorProfile, 'avatarFile') }}" alt="avatar">
-                                    {% else %}
-                                        <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow" style="width: 50px; height: 50px;">
-                                            <span class="fw-bold fs-5">{{ app.user.username|first|upper }}</span>
-                                        </div>
-                                    {% endif %}
+                        <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow-lg border-0 pt-3" aria-labelledby="profileDropdown" style="background: var(--nova-card-bg); border: 2px solid var(--nova-border) !important; min-width: 260px; box-shadow: 8px 8px 0 var(--nova-accent-shadow) !important;">
+                            <li class="px-4 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar me-3">
+                                        {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and app.user.studentProfile.profilePicture %}
+                                            <img class="avatar-img rounded-circle" src="{{ vich_uploader_asset(app.user.studentProfile, 'avatarFile') }}">
+                                        {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and app.user.tutorProfile.profilePicture %}
+                                            <img class="avatar-img rounded-circle" src="{{ vich_uploader_asset(app.user.tutorProfile, 'avatarFile') }}">
+                                        {% else %}
+                                            <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;"><span class="fw-bold fs-5">{{ app.user.username|first|upper }}</span></div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold nova-text-main">{{ app.user.username }}</h6>
+                                        <p class="small m-0 nova-text-muted text-truncate" style="max-width: 150px;">{{ app.user.email }}</p>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill mt-1 border border-primary"><i class="bi bi-star-fill me-1"></i> {{ app.user.studentProfile.totalXP|default(0) }} XP</span>
+                                    </div>
                                 </div>
-                                <div>
-                                    <a class="h6" href="#">{{ app.user.username }}</a>
-                                    <p class="small m-0">{{ app.user.email }}</p>
-                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider m-0" style="border-color: var(--nova-border);"></li>
+                            
+                            <div class="p-3 d-flex flex-column gap-1">
+                            {% if 'ROLE_STUDENT' in app.user.roles %}
+                                <a class="dropdown-item py-2 rounded-3 fw-bold nova-text-main d-flex align-items-center" href="{{ path('app_student_dashboard') }}"><span class="icon-md bg-primary bg-opacity-10 text-primary rounded-2 me-2 d-flex align-items-center justify-content-center"><i class="bi bi-speedometer2"></i></span>My Dashboard</a>
+                                <a class="dropdown-item py-2 rounded-3 fw-bold nova-text-main d-flex align-items-center" href="{{ path('app_student_profile') }}"><span class="icon-md bg-info bg-opacity-10 text-info rounded-2 me-2 d-flex align-items-center justify-content-center"><i class="bi bi-person"></i></span>My Profile</a>
+                            {% elseif 'ROLE_TUTOR' in app.user.roles %}
+                                <a class="dropdown-item py-2 rounded-3 fw-bold nova-text-main d-flex align-items-center" href="{{ path('app_tutor_dashboard') }}"><span class="icon-md bg-primary bg-opacity-10 text-primary rounded-2 me-2 d-flex align-items-center justify-content-center"><i class="bi bi-speedometer2"></i></span>Tutor Dashboard</a>
+                                <a class="dropdown-item py-2 rounded-3 fw-bold nova-text-main d-flex align-items-center" href="{{ path('enrollment_requests') }}"><span class="icon-md bg-success bg-opacity-10 text-success rounded-2 me-2 d-flex align-items-center justify-content-center"><i class="bi bi-person-check"></i></span>Enrollment Requests</a>
+                                <a class="dropdown-item py-2 rounded-3 fw-bold nova-text-main d-flex align-items-center" href="{{ path('app_tutor_profile') }}"><span class="icon-md bg-info bg-opacity-10 text-info rounded-2 me-2 d-flex align-items-center justify-content-center"><i class="bi bi-person"></i></span>My Profile</a>
+                            {% elseif 'ROLE_ADMIN' in app.user.roles %}
+                                <a class="dropdown-item py-2 rounded-3 fw-bold nova-text-main d-flex align-items-center" href="{{ path('app_admin_dashboard') }}"><span class="icon-md bg-danger bg-opacity-10 text-danger rounded-2 me-2 d-flex align-items-center justify-content-center"><i class="bi bi-shield-lock"></i></span>Admin Panel</a>
+                            {% endif %}
                             </div>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        {% if 'ROLE_STUDENT' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_student_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>{{ t.t('My Dashboard') }}</a></li>
-                        {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_tutor_dashboard') }}"><i class="bi bi-speedometer2 fa-fw me-2"></i>{{ t.t('Tutor Dashboard') }}</a></li>
-                            <li><a class="dropdown-item" href="{{ path('enrollment_requests') }}"><i class="bi bi-person-check fa-fw me-2"></i>{{ t.t('Enrollment Requests') }}</a></li>
-                        {% endif %}
-
-                        {% if 'ROLE_STUDENT' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_student_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a></li>
-                        {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                            <li><a class="dropdown-item" href="{{ path('app_tutor_profile') }}"><i class="bi bi-person fa-fw me-2"></i>{{ t.t('My Profile') }}</a></li>
-                        {% endif %}
-                        
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>{{ t.t('Help') }}</a></li>
-                        <li><a class="dropdown-item bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="bi bi-power fa-fw me-2"></i>{{ t.t('Sign Out') }}</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        <li>
-                            <div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center gap-2 p-2 rounded mt-2">
-                                <button type="button" class="btn btn-sm mb-0 flex-fill theme-btn" data-bs-theme-value="light">
-                                    <i class="bi bi-sun me-1"></i> {{ t.t('Light') }}
-                                </button>
-                                <button type="button" class="btn btn-sm mb-0 flex-fill theme-btn" data-bs-theme-value="dark">
-                                    <i class="bi bi-moon-stars me-1"></i> {{ t.t('Dark') }}
-                                </button>
-                                <button type="button" class="btn btn-sm mb-0 flex-fill theme-btn" data-bs-theme-value="auto">
-                                    <i class="bi bi-circle-half me-1"></i> {{ t.t('Auto') }}
-                                </button>
+                            
+                            <li><hr class="dropdown-divider m-0" style="border-color: var(--nova-border);"></li>
+                            <div class="p-3">
+                                <a class="dropdown-item py-2 rounded-3 text-danger fw-bold d-flex align-items-center bg-danger bg-opacity-10" href="{{ path('app_logout') }}"><i class="bi bi-power me-2"></i>Sign Out</a>
                             </div>
-                        </li> 
                         </ul>
                     </li>
-                {% else %}
-                <li class="nav-item ms-2">
-                    <a href="{{ path('app_login') }}" class="btn btn-sm btn-outline-primary mb-0">
-                        <i class="bi bi-box-arrow-in-right me-1"></i>{{ t.t('Sign In') }}
-                    </a>
-                </li>
-                <li class="nav-item ms-2">
-                    <a href="{{ path('app_signup') }}" class="btn btn-sm btn-primary mb-0">
-                        <i class="bi bi-person-plus me-1"></i>{{ t.t('Get Started') }}
-                    </a>
-                </li>
                 {% endif %}
             </ul>
-            </div>
+        </div>
     </nav>
 </header>
 
-<div class="container mt-3">
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show shadow-sm" role="alert">
-                {{ message|raw }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endfor %}
-</div>
 {% block body %}
-
     <main>
-        <section class="position-relative overflow-hidden pb-0 pb-sm-5">
-            <div class="container">
-                <div class="row d-lg-flex justify-content-lg-between g-4 g-md-5">
-                    <div class="col-lg-7 position-relative z-index-1 mb-2">
-                        <h1 class="mb-4 display-4">
-                            <span>
-                                <svg class="fill-warning" width="103" height="100" viewBox="0 0 103 100">
-                                    <path d="M69.0166 69.7017C56.5959 80.712 39.8019 84.7239 25.181 80.1338C24.3382 79.9118 23.8242 78.9676 24.1599 78.1317C24.3819 77.2889 25.3261 76.7749 26.162 77.1106C39.7195 81.3514 55.3555 77.6122 66.9322 67.3502C78.5088 57.0882 84.0965 42.0136 81.5127 28.0453C81.3934 27.1819 81.9032 26.2994 82.7665 26.1801C83.6299 26.0608 84.5124 26.5706 84.6317 27.4339C87.4951 42.4465 81.4374 58.6914 69.0166 69.7017Z"/>
-                                </svg>
-                            </span>
-                            {{ t.t('Learning Might be') }}
-                            <span>{{ t.t('Closed, Not Your') }}</span>
-                            <span class="position-relative d-inline-block">{{ t.t('Curiosity') }}
-                                <span class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-sm-block">
-                                    <svg class="fill-orange" width="303" height="86" viewBox="0 0 303 86">
-                                        <path d="M288.197 19.3999C281.599 15.6998 273.654 13.03 265.424 10.926C256.533 8.64794 247.263 6.92124 237.946 5.4267C218.461 2.249 198.384 0.406219 178.237 0.0579769C158.609 -0.275755 138.888 0.8125 119.733 3.49686C108.17 5.10748 96.8189 7.2985 85.8466 10.0264C81.4955 11.0131 77.168 12.0723 72.9115 13.2331C56.382 17.7022 40.5146 23.4192 26.3972 30.355C12.9182 36.9861 0.716203 46.0404 0.999971 57.2131C1.14185 62.2772 4.16871 67.051 9.98595 70.693C15.4721 74.1319 22.6846 76.3809 29.9679 78.0206C38.7647 80.0085 48.0345 81.3289 57.257 82.4026C67.1179 83.5489 77.0734 84.2889 87.0762 84.6807C107.413 85.4642 127.892 84.7968 148.063 83.0266C168.399 81.2418 188.429 78.3543 208.127 74.8139C227.399 71.3459 246.436 67.2976 265.141 62.8285C278.927 59.5348 294.227 55.0802 300.446 46.2435C307.091 36.812 299.949 25.973 288.197 19.3999Z"/>
-                                    </svg>
-                                </span>
-                            </span>
+        <section class="home-hero-bg">
+            <div class="glow-orb orb-1"></div>
+            <div class="glow-orb orb-2"></div>
+
+            <div class="container position-relative z-index-1">
+                <div class="row align-items-center g-5">
+                    
+                    <div class="col-lg-6">
+                        <h1 class="display-4 fw-bold mb-4 nova-text-main hero-anim-1" style="line-height: 1.1; font-weight: 800; letter-spacing: -1px;">
+                            Study Smarter.<br>
+                            <span class="text-gradient">Level Up Together.</span>
                         </h1>
-
-                        <p class="mb-3 col-lg-8">{{ t.t('NOVA is an intelligent study coaching platform designed to help you achieve academic excellence through gamification and personalized learning.') }}</p>
-
-                        <a href="{{ path('course_index') }}" class="btn btn-lg btn-blue mb-0">{{ t.t('Explore Courses') }}</a>
+                        <p class="lead nova-text-muted mb-5 pe-lg-5 hero-anim-2 fw-medium" style="font-size: 1.2rem; line-height: 1.6;">
+                            Experience the future of education. Read books from our digital library, follow structured courses, play gamified quizzes to earn rewards, and solve complex problems in our AI-assisted peer forum. All your tools in one place.
+                        </p>
+                        
+                        <div class="d-flex flex-wrap gap-3 hero-anim-3">
+                            <a href="{{ path('course_index') }}" class="btn btn-lg btn-primary rounded-pill fw-bold px-5 py-3">Explore Courses <i class="bi bi-map-fill ms-2"></i></a>
+                            <a href="{{ path('app_forum_ai_assist') }}" class="btn btn-lg btn-custom-outline rounded-pill fw-bold px-5 py-3">Try AI Tutor <i class="bi bi-robot ms-2 text-primary"></i></a>
+                        </div>
                     </div>
-                    <div class="col-lg-5 col-xxl-3 position-relative">
-                        <h4 class="mb-4">{{ t.t('Top Students This Month') }}</h4>
 
-                        {% if topStudents is defined and topStudents|length > 0 %}
-                            {% for index, data in topStudents %}
-                                <div class="d-flex align-items-center {{ loop.last ? '' : 'mb-3' }}">
-                                    <div class="avatar avatar-xl">
-                                        {% if data.student.profilePicture %}
-                                            <img class="avatar-img rounded-circle" src="{{ vich_uploader_asset(data.student, 'avatarFile') }}" alt="{{ data.student.firstName }}">
-                                        {% else %}
-                                            <div class="avatar-img rounded-circle bg-{{ get_level_badge_color(data.levelInfo.level) }} text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">
-                                                {{ data.student.firstName|slice(0, 1) }}{{ data.student.lastName|slice(0, 1) }}
-                                            </div>
-                                        {% endif %}
-                                        <div class="position-absolute bottom-0 end-0">
-                                            <img src="{{ asset('assets/images/element/medal-badge.png') }}" class="position-relative" alt="">
-                                            <span class="fw-bold text-dark smaller position-absolute top-50 start-50 translate-middle">
-                                                {{ loop.index }}{{ loop.index == 1 ? '<sup>st</sup>' : (loop.index == 2 ? '<sup>nd</sup>' : '<sup>rd</sup>') }}
+                    <div class="col-lg-6 col-xl-5 offset-xl-1 hero-anim-4 mt-5 mt-lg-0">
+                        <div class="leaderboard-card p-4 p-md-5 position-relative">
+                            <div class="position-absolute top-0 start-0 m-3"><i class="bi bi-dpad-fill fs-4 text-primary opacity-50"></i></div>
+                            <div class="position-absolute top-0 end-0 m-3"><i class="bi bi-cpu fs-4 text-purple opacity-50" style="color: #6f42c1;"></i></div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3" style="border-color: var(--nova-border) !important;">
+                                <h4 class="mb-0 fw-bold nova-text-main" style="letter-spacing: -0.5px;"><i class="bi bi-trophy-fill text-warning me-2"></i> Top Students</h4>
+                                <span class="badge bg-success border border-success bg-opacity-10 text-success rounded-pill fw-bold px-3">This Month</span>
+                            </div>
+
+                            {% if topStudents is defined and topStudents|length > 0 %}
+                                <div class="d-flex flex-column gap-3">
+                                {% for index, data in topStudents|slice(0, 3) %}
+                                    <div class="leaderboard-item d-flex align-items-center p-3 rounded-3">
+                                        <div class="fw-black fs-4 me-3 nova-text-muted opacity-50" style="width: 30px; font-family: 'Press Start 2P', cursive; font-size: 1rem;">{{ loop.index }}</div>
+                                        <div class="avatar avatar-md me-3 position-relative">
+                                            {% if data.student.profilePicture %}
+                                                <img class="avatar-img rounded-circle shadow" style="border: 2px solid var(--nova-border);" src="{{ vich_uploader_asset(data.student, 'avatarFile') }}" alt="{{ data.student.firstName }}">
+                                            {% else %}
+                                                <div class="avatar-img rounded-circle bg-{{ get_level_badge_color(data.levelInfo.level) }} text-white d-flex align-items-center justify-content-center shadow fw-bold" style="border: 2px solid var(--nova-border);">
+                                                    {{ data.student.firstName|slice(0, 1) }}{{ data.student.lastName|slice(0, 1) }}
+                                                </div>
+                                            {% endif %}
+                                            {% if loop.index == 1 %}<i class="bi bi-crown-fill text-warning position-absolute top-0 start-0 translate-middle fs-5"></i>{% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 fw-bold nova-text-main">{{ data.student.firstName }} {{ data.student.lastName }}</h6>
+                                            <span class="badge bg-{{ get_level_badge_color(data.levelInfo.level) }} bg-opacity-10 text-{{ get_level_badge_color(data.levelInfo.level) }} border border-{{ get_level_badge_color(data.levelInfo.level) }} rounded-pill">
+                                                <i class="{{ get_level_icon(data.levelInfo.level) }} me-1"></i> {{ data.levelInfo.name }}
                                             </span>
                                         </div>
+                                        <div class="text-end">
+                                            <span class="fw-black text-primary fs-5" style="font-family: 'Inter', sans-serif; font-weight: 800;">{{ data.student.totalXP|number_format }}</span> <small class="fw-bold text-muted">XP</small>
+                                        </div>
                                     </div>
-                                    <div class="ms-3">
-                                        <h5 class="mb-1">{{ data.student.firstName }} {{ data.student.lastName }}</h5>
-                                        <p class="mb-0">
-                                            <span class="badge bg-{{ get_level_badge_color(data.levelInfo.level) }} me-1">
-                                                <i class="{{ get_level_icon(data.levelInfo.level) }}"></i>
-                                                {{ data.levelInfo.name }}
-                                            </span>
-                                            {{ data.student.totalXP|number_format }} XP
-                                        </p>
-                                    </div>
+                                {% endfor %}
                                 </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="text-center py-4">
-                                <i class="bi bi-trophy fs-1 text-muted"></i>
-                                <p class="text-muted mt-2">No students yet. Be the first!</p>
-                            </div>
-                        {% endif %}
-                        
-                        <!-- View Full Leaderboard Button -->
-                        <div class="mt-4 d-grid">
-                            <a href="{{ path('front_leaderboard_index') }}" class="btn btn-primary-soft">
-                                <i class="bi bi-bar-chart me-2"></i>{{ t.t('View Full Leaderboard') }}
-                            </a>
+                                <div class="mt-4 pt-3 text-center">
+                                    <a href="{{ path('front_leaderboard_index') }}" class="btn btn-sm btn-custom-outline rounded-pill px-4">View Leaderboard <i class="bi bi-chevron-right ms-1"></i></a>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3 border border-2 border-warning" style="width: 80px; height: 80px; background: var(--nova-bg)!important;"><i class="bi bi-star-fill text-warning display-5"></i></div>
+                                    <h5 class="nova-text-main fw-bold">No Champions Yet</h5>
+                                    <p class="nova-text-muted mb-0">Start learning to claim the #1 spot!</p>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
-                    </div>
+
+                </div>
             </div>
         </section>
-        {% if is_granted('ROLE_STUDENT') %}
-        <section>
+
+        <section class="py-5 py-md-6" style="background-color: var(--nova-card-bg); border-top: 2px solid var(--nova-border); border-bottom: 2px solid var(--nova-border);">
             <div class="container">
-                <div class="row g-4">
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card bg-warning bg-opacity-50 p-4 overflow-hidden h-100">
-                            <div class="card-header bg-transparent p-0">
-                                <h6>{{ t.t('Easy Level') }}</h6>
-                            </div>
-                            <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'PUZZLE'}) }}" class="stretched-link">{{ t.t('Puzzle Games') }}</a></h3>
-                                <h6 class="lead">{{ t.t('Fun & Simple') }}</h6>
-                                <img src="{{ asset('assets/images/element/primary-school.svg') }}" class="opacity-5 mb-n5" alt="">
+                <div class="row justify-content-center mb-5 text-center">
+                    <div class="col-lg-8">
+                        <h2 class="fw-bold nova-text-main" style="letter-spacing: -1px;">The Complete NOVA Ecosystem</h2>
+                        <p class="nova-text-muted fs-5 fw-medium">Six powerful modules, perfectly integrated into one unified learning platform.</p>
+                    </div>
+                </div>
+
+                <div class="row g-4 justify-content-center">
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{ path('course_index') }}" class="ecosystem-card">
+                            <div class="ecosystem-icon bg-success bg-opacity-10 text-success"><i class="bi bi-map-fill"></i></div>
+                            <h4 class="fw-bold mb-2">Interactive Courses</h4>
+                            <p class="nova-text-muted mb-0 fw-medium fs-6">Learn at your own pace with rich, structured courses designed by expert university tutors.</p>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{ path('app_forum') }}" class="ecosystem-card">
+                            <div class="ecosystem-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-people-fill"></i></div>
+                            <h4 class="fw-bold mb-2">AI Peer Forum</h4>
+                            <p class="nova-text-muted mb-0 fw-medium fs-6">Ask questions, get help from peers, and use our intelligent AI tutor to understand complex concepts.</p>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{ path('book_list') }}" class="ecosystem-card">
+                            <div class="ecosystem-icon bg-info bg-opacity-10 text-info"><i class="bi bi-collection-fill"></i></div>
+                            <h4 class="fw-bold mb-2">Digital Library</h4>
+                            <p class="nova-text-muted mb-0 fw-medium fs-6">Access hundreds of peer-reviewed resources and books. Build your personal collection.</p>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{ path('front_game_index') }}" class="ecosystem-card">
+                            <div class="ecosystem-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-dpad-fill"></i></div>
+                            <h4 class="fw-bold mb-2">Educational Games</h4>
+                            <p class="nova-text-muted mb-0 fw-medium fs-6">Turn studying into playing. Enjoy puzzles, memory challenges, and arcade games to master subjects.</p>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{ path('app_front_quiz_index') }}" class="ecosystem-card" style="--nova-accent-shadow: rgba(111,66,193,0.15);">
+                            <div class="ecosystem-icon bg-purple bg-opacity-10" style="color: #6f42c1;"><i class="bi bi-patch-question-fill"></i></div>
+                            <h4 class="fw-bold mb-2">Smart Quizzes</h4>
+                            <p class="nova-text-muted mb-0 fw-medium fs-6">Test your knowledge instantly with automated grading and custom assessments from your tutors.</p>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{ path('front_reward_browse') }}" class="ecosystem-card">
+                            <div class="ecosystem-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-award-fill"></i></div>
+                            <h4 class="fw-bold mb-2">Rewards & Badges</h4>
+                            <p class="nova-text-muted mb-0 fw-medium fs-6">Compete on the leaderboard, earn XP, and unlock exclusive digital badges for your achievements.</p>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5 py-md-7 border-bottom" style="border-color: var(--nova-border) !important; background-color: var(--nova-bg);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6 position-relative">
+                        <div class="bg-success bg-opacity-10 rounded-4 p-5 position-relative border border-success border-opacity-25" style="box-shadow: inset 0 0 40px rgba(25, 135, 84, 0.05);">
+                            <div class="position-absolute top-0 start-0 m-4"><i class="bi bi-journal-check text-success fs-3 opacity-50"></i></div>
+                            <div class="mockup-card p-0 overflow-hidden text-start position-relative z-index-1">
+                                <div class="bg-success p-3 d-flex align-items-center justify-content-center" style="height: 160px;">
+                                    <button class="btn btn-light rounded-circle text-success shadow-lg d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;"><i class="bi bi-play-fill fs-2 ms-1"></i></button>
+                                </div>
+                                <div class="p-4">
+                                    <h6 class="fw-bold nova-text-main mb-3 fs-5">Data Structures 101</h6>
+                                    <div class="d-flex justify-content-between text-muted small fw-bold mb-2">
+                                        <span>Course Progress</span>
+                                        <span class="text-success">65%</span>
+                                    </div>
+                                    <div class="progress mb-4 bg-success bg-opacity-10 border border-success border-opacity-25" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 65%;"></div>
+                                    </div>
+                                    <div class="d-flex flex-column gap-2 text-muted small fw-bold">
+                                        <div class="d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2 fs-6"></i> Chapter 1: Arrays & Lists</div>
+                                        <div class="d-flex align-items-center"><i class="bi bi-circle me-2 fs-6"></i> Chapter 2: Binary Trees</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-5 offset-lg-1">
+                        <div class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold">
+                            <i class="bi bi-map-fill me-1"></i> Interactive Learning
+                        </div>
+                        <h2 class="fw-black nova-text-main mb-3 display-6" style="letter-spacing: -1px;">Master complex subjects step-by-step.</h2>
+                        <p class="nova-text-muted fs-5 fw-medium mb-4">Follow structured, gamified courses created by expert tutors. Track your progress, complete modules, and build a strong academic foundation.</p>
+                        <a href="{{ path('course_index') }}" class="btn btn-custom-outline rounded-pill fw-bold px-4">Explore Courses <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card bg-purple bg-opacity-50 p-4 overflow-hidden h-100">
-                            <div class="card-header bg-transparent p-0">
-                                <h6>{{ t.t('Medium Level') }}</h6>
-                            </div>
-                            <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'MEMORY'}) }}" class="stretched-link">{{ t.t('Memory Games') }}</a></h3>
-                                <h6 class="lead">{{ t.t('Train Your Brain') }}</h6>
-                                <img src="{{ asset('assets/images/element/middle-school.svg') }}" class="opacity-5 mb-n5" alt="">
+        <section class="py-5 py-md-7 border-bottom" style="border-color: var(--nova-border) !important; background-color: var(--nova-card-bg);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-5 order-2 order-lg-1">
+                        <div class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold">
+                            <i class="bi bi-people-fill me-1"></i> Peer-to-Peer Hub
+                        </div>
+                        <h2 class="fw-black nova-text-main mb-3 display-6" style="letter-spacing: -1px;">Never get stuck on a problem again.</h2>
+                        <p class="nova-text-muted fs-5 fw-medium mb-4">Post questions, share code snippets, and get help from classmates. If no one is around, our 24/7 AI Tutor will guide you to the answer without giving it away.</p>
+                        <a href="{{ path('app_forum') }}" class="btn btn-custom-outline rounded-pill fw-bold px-4">Visit the Forum <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+                    <div class="col-lg-6 offset-lg-1 order-1 order-lg-2 position-relative">
+                        <div class="bg-primary bg-opacity-10 rounded-4 p-5 position-relative border border-primary border-opacity-25" style="box-shadow: inset 0 0 40px rgba(13, 110, 253, 0.05);">
+                            <div class="position-absolute top-0 end-0 m-4"><i class="bi bi-chat-square-text-fill text-primary fs-3 opacity-50"></i></div>
+                            <div class="mockup-card p-4 text-start position-relative z-index-1">
+                                <div class="d-flex align-items-start mb-4">
+                                    <div class="avatar avatar-sm rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-3 fw-bold" style="width:36px; height:36px;">A</div>
+                                    <div class="bg-light p-3 rounded-3 flex-grow-1 border" style="border-color: var(--nova-border)!important; background-color: var(--nova-bg)!important;">
+                                        <p class="mb-0 small fw-medium nova-text-main">How does recursion actually work in Java?</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start ps-4 ms-2">
+                                    <div class="avatar avatar-sm rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3 shadow-sm" style="width:36px; height:36px;"><i class="bi bi-robot"></i></div>
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 flex-grow-1 border border-primary border-opacity-25 position-relative">
+                                        <span class="badge bg-success position-absolute top-0 end-0 translate-middle-y me-2 border border-success"><i class="bi bi-check me-1"></i>Solution</span>
+                                        <p class="mb-0 small fw-medium nova-text-main mt-1">Think of it like a stack of plates. A function keeps adding a new plate on top of itself until it hits the base case...</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
 
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card bg-orange bg-opacity-50 p-4 overflow-hidden h-100">
-                            <div class="card-header bg-transparent p-0">
-                                <h6>{{ t.t('Hard Level') }}</h6>
-                            </div>
-                            <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'TRIVIA'}) }}" class="stretched-link">{{ t.t('Trivia Games') }}</a></h3>
-                                <h6 class="lead">{{ t.t('Test Knowledge') }}</h6>
-                                <img src="{{ asset('assets/images/element/high-school.svg') }}" class="opacity-5 mb-n5" alt="">
+        <section class="py-5 py-md-7 border-bottom" style="border-color: var(--nova-border) !important; background-color: var(--nova-bg);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6 position-relative">
+                        <div class="bg-info bg-opacity-10 rounded-4 p-5 position-relative border border-info border-opacity-25" style="box-shadow: inset 0 0 40px rgba(13, 202, 240, 0.05);">
+                            <div class="position-absolute top-0 start-0 m-4"><i class="bi bi-bookmark-star-fill text-info fs-3 opacity-50"></i></div>
+                            <div class="row g-3 position-relative z-index-1">
+                                <div class="col-6">
+                                    <div class="mockup-card text-center" style="transform: rotate(-5deg);">
+                                        <div class="bg-info rounded-2 mb-3 d-flex align-items-center justify-content-center text-white shadow-sm" style="height: 140px;"><i class="bi bi-book-half fs-1"></i></div>
+                                        <h6 class="mb-0 fw-bold nova-text-main">Computer Science</h6>
+                                        <small class="nova-text-muted fw-medium">Algorithms</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 mt-4">
+                                    <div class="mockup-card text-center" style="transform: rotate(3deg);">
+                                        <div class="bg-primary rounded-2 mb-3 d-flex align-items-center justify-content-center text-white shadow-sm" style="height: 140px;"><i class="bi bi-calculator fs-1"></i></div>
+                                        <h6 class="mb-0 fw-bold nova-text-main">Advanced Calculus</h6>
+                                        <small class="nova-text-muted fw-medium">Mathematics</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-5 offset-lg-1">
+                        <div class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold">
+                            <i class="bi bi-collection-fill me-1"></i> Digital Library
+                        </div>
+                        <h2 class="fw-black nova-text-main mb-3 display-6" style="letter-spacing: -1px;">Your personal academic arsenal.</h2>
+                        <p class="nova-text-muted fs-5 fw-medium mb-4">Access hundreds of peer-reviewed resources, textbooks, and notes. Build your personal library, manage secure payments, and read anywhere, anytime.</p>
+                        <a href="{{ path('book_list') }}" class="btn btn-custom-outline rounded-pill fw-bold px-4">Browse Library <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card bg-info bg-opacity-50 p-4 overflow-hidden h-100">
-                            <div class="card-header bg-transparent p-0">
-                                <h6>{{ t.t('Expert Level') }}</h6>
+        <section class="py-5 py-md-7 border-bottom" style="border-color: var(--nova-border) !important; background-color: var(--nova-card-bg);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-5 order-2 order-lg-1">
+                        <div class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold">
+                            <i class="bi bi-dpad-fill me-1"></i> Play to Learn
+                        </div>
+                        <h2 class="fw-black nova-text-main mb-3 display-6" style="letter-spacing: -1px;">Turn studying into an arcade game.</h2>
+                        <p class="nova-text-muted fs-5 fw-medium mb-4">Who said studying has to be boring? Play memory games, solve puzzles, and beat high scores while reinforcing what you've learned in class.</p>
+                        <a href="{{ path('front_game_index') }}" class="btn btn-custom-outline rounded-pill fw-bold px-4">Play Now <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+                    <div class="col-lg-6 offset-lg-1 order-1 order-lg-2 position-relative">
+                        <div class="bg-warning bg-opacity-10 rounded-4 p-5 position-relative border border-warning border-opacity-25" style="box-shadow: inset 0 0 40px rgba(255, 193, 7, 0.05);">
+                            <div class="position-absolute top-0 end-0 m-4"><i class="bi bi-joystick text-warning fs-3 opacity-50"></i></div>
+                            <div class="mockup-card p-0 overflow-hidden text-center bg-dark position-relative z-index-1" style="border: 4px solid var(--nova-text-main);">
+                                <div class="p-3 d-flex justify-content-between align-items-center border-bottom border-secondary">
+                                    <div class="text-danger"><i class="bi bi-heart-fill"></i><i class="bi bi-heart-fill ms-1"></i><i class="bi bi-heart-half ms-1"></i></div>
+                                    <div class="text-warning fw-black" style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem;">SCORE: 4500</div>
+                                </div>
+                                <div class="p-5 d-flex justify-content-center align-items-center" style="min-height: 180px;">
+                                    <i class="bi bi-controller text-white opacity-25" style="font-size: 5rem;"></i>
+                                </div>
+                                <div class="bg-success text-white py-3 fw-bold" style="font-family: 'Press Start 2P', cursive; font-size: 0.8rem;">LEVEL CLEARED!</div>
                             </div>
-                            <div class="card-body p-0 mt-3">
-                                <h3 class="mb-2"><a href="{{ path('front_game_by_type', {type: 'ARCADE'}) }}" class="stretched-link">{{ t.t('Arcade Games') }}</a></h3>
-                                <h6 class="lead">{{ t.t('Ultimate Challenge') }}</h6>
-                                <img src="{{ asset('assets/images/element/exam.svg') }}" class="opacity-5 mb-n5" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5 py-md-7 border-bottom" style="border-color: var(--nova-border) !important; background-color: var(--nova-bg);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6 position-relative">
+                        <div class="bg-purple bg-opacity-10 rounded-4 p-5 position-relative border border-purple border-opacity-25" style="box-shadow: inset 0 0 40px rgba(111, 66, 193, 0.05); background-color: rgba(111,66,193,0.05);">
+                            <div class="position-absolute top-0 start-0 m-4"><i class="bi bi-patch-question-fill fs-3 opacity-50" style="color: #6f42c1;"></i></div>
+                            <div class="mockup-card position-relative z-index-1 p-0 overflow-hidden text-start">
+                                <div class="bg-light p-3 border-bottom d-flex justify-content-between align-items-center" style="border-color: var(--nova-border) !important; background-color: var(--nova-bg) !important;">
+                                    <h6 class="fw-bold mb-0 nova-text-main">Midterm Prep</h6>
+                                    <span class="badge bg-danger rounded-pill px-3 border border-danger"><i class="bi bi-stopwatch"></i> 14:59</span>
+                                </div>
+                                <div class="p-4">
+                                    <p class="fw-bold mb-3 nova-text-main fs-6">1. What is the time complexity of QuickSort?</p>
+                                    <div class="p-3 border rounded-3 mb-2 text-success bg-success bg-opacity-10 border-success fw-bold d-flex align-items-center"><i class="bi bi-check-circle-fill me-3 fs-5"></i> O(n log n)</div>
+                                    <div class="p-3 border rounded-3 mb-2 nova-text-muted d-flex align-items-center" style="border-color: var(--nova-border) !important; background-color: var(--nova-bg);"><i class="bi bi-circle me-3 fs-5"></i> O(n²)</div>
+                                    <div class="p-3 border rounded-3 nova-text-muted d-flex align-items-center" style="border-color: var(--nova-border) !important; background-color: var(--nova-bg);"><i class="bi bi-circle me-3 fs-5"></i> O(log n)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 offset-lg-1">
+                        <div class="badge bg-purple bg-opacity-10 rounded-pill px-3 py-2 mb-3 fw-bold border border-purple" style="color: #6f42c1; border-color: rgba(111,66,193,0.3) !important;">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> Smart Assessments
+                        </div>
+                        <h2 class="fw-black nova-text-main mb-3 display-6" style="letter-spacing: -1px;">Test your knowledge instantly.</h2>
+                        <p class="nova-text-muted fs-5 fw-medium mb-4">Take interactive quizzes designed by university tutors. Identify your weak spots before exams and track your improvement with detailed analytics.</p>
+                        <a href="{{ path('app_front_quiz_index') }}" class="btn btn-custom-outline rounded-pill fw-bold px-4">Take a Quiz <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5 py-md-7 border-bottom" style="border-color: var(--nova-border) !important; background-color: var(--nova-card-bg);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-5 order-2 order-lg-1">
+                        <div class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold">
+                            <i class="bi bi-award-fill me-1"></i> XP & Leaderboards
+                        </div>
+                        <h2 class="fw-black nova-text-main mb-3 display-6" style="letter-spacing: -1px;">Earn glory and unlock rewards.</h2>
+                        <p class="nova-text-muted fs-5 fw-medium mb-4">Every action on NOVA earns you XP. Climb the monthly leaderboard, unlock exclusive badges, and show off your academic dominance to the community.</p>
+                        <a href="{{ path('front_leaderboard_index') }}" class="btn btn-custom-outline rounded-pill fw-bold px-4">View Rankings <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+                    <div class="col-lg-6 offset-lg-1 order-1 order-lg-2 position-relative">
+                        <div class="bg-danger bg-opacity-10 rounded-4 p-5 position-relative border border-danger border-opacity-25" style="box-shadow: inset 0 0 40px rgba(220, 53, 69, 0.05);">
+                            <div class="position-absolute top-0 end-0 m-4"><i class="bi bi-trophy-fill text-danger fs-3 opacity-50"></i></div>
+                            <div class="mockup-card text-center p-5 position-relative z-index-1">
+                                <div class="position-relative d-inline-block mb-4 mt-2">
+                                    <div class="spinner-grow text-warning position-absolute top-50 start-50 translate-middle" style="width: 7rem; height: 7rem; opacity: 0.3;" role="status"></div>
+                                    <i class="bi bi-shield-fill-check text-danger position-relative z-index-1" style="font-size: 5rem; filter: drop-shadow(0 10px 15px rgba(220,53,69,0.4));"></i>
+                                </div>
+                                <h4 class="fw-black nova-text-main mb-1">Algorithm Master</h4>
+                                <p class="nova-text-muted mb-4 fw-bold">Achievement Unlocked!</p>
+                                <div class="d-inline-block bg-danger bg-opacity-10 text-danger rounded-pill py-2 px-4 fw-black border border-danger fs-5">
+                                    +500 XP
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {% if not app.user %}
+        <section class="py-5 mb-5 mt-5">
+            <div class="container">
+                <div class="bg-primary rounded-4 p-4 p-md-5 position-relative overflow-hidden border border-4 border-white" style="box-shadow: 0 20px 40px rgba(13, 110, 253, 0.3) !important;">
+                    <div class="position-absolute top-0 end-0 opacity-10 pe-none d-none d-md-block" style="transform: translate(20%, -20%);">
+                        <i class="bi bi-controller text-white" style="font-size: 15rem; transform: rotate(-20deg);"></i>
+                    </div>
+                    
+                    <div class="row position-relative z-index-1 align-items-center">
+                        <div class="col-lg-7 mb-4 mb-lg-0 text-white">
+                            <h2 class="fw-black text-white mb-3 display-5" style="letter-spacing: -1px;">Ready to Press Start?</h2>
+                            <p class="fs-5 opacity-90 mb-0 fw-medium">Join thousands of students. Earn XP, unlock rewards, and master subjects with peer and AI support.</p>
+                        </div>
+                        <div class="col-lg-5 text-lg-end">
+                            <div class="d-grid gap-3 d-sm-flex justify-content-lg-end">
+                                <a href="{{ path('app_signup_student') }}?role=student" class="btn btn-light btn-lg rounded-pill fw-black text-primary px-5 py-3 shadow-sm border-2 border-white" style="transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">I'm a Student</a>
+                                <a href="{{ path('app_signup_tutor') }}?role=tutor" class="btn btn-outline-light btn-lg rounded-pill fw-black px-5 py-3 border-2" style="transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">I'm a Tutor</a>
                             </div>
                         </div>
                     </div>
@@ -517,281 +710,141 @@
             </div>
         </section>
         {% endif %}
-        <section class="pt-0 pt-md-5">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-5 col-xxl-6 position-relative">
-                        <h2 class="h1">
-                            <span class="position-relative z-index-9">{{ t.t('Achieve Your Goals With') }}</span>
-                            <span class="position-relative z-index-1">NOVA
-                                <span class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-sm-block">
-                                    <svg class="fill-orange" width="180" height="86" viewBox="0 0 303 86">
-                                        <path d="M288.197 19.3999C281.599 15.6998 273.654 13.03 265.424 10.926C256.533 8.64794 247.263 6.92124 237.946 5.4267C218.461 2.249 198.384 0.406219 178.237 0.0579769C158.609 -0.275755 138.888 0.8125 119.733 3.49686C108.17 5.10748 96.8189 7.2985 85.8466 10.0264C81.4955 11.0131 77.168 12.0723 72.9115 13.2331C56.382 17.7022 40.5146 23.4192 26.3972 30.355C12.9182 36.9861 0.716203 46.0404 0.999971 57.2131C1.14185 62.2772 4.16871 67.051 9.98595 70.693C15.4721 74.1319 22.6846 76.3809 29.9679 78.0206C38.7647 80.0085 48.0345 81.3289 57.257 82.4026C67.1179 83.5489 77.0734 84.2889 87.0762 84.6807C107.413 85.4642 127.892 84.7968 148.063 83.0266C168.399 81.2418 188.429 78.3543 208.127 74.8139C227.399 71.3459 246.436 67.2976 265.141 62.8285C278.927 59.5348 294.227 55.0802 300.446 46.2435C307.091 36.812 299.949 25.973 288.197 19.3999Z"/>
-                                    </svg>
-                                </span>
-                            </span>
-                        </h2>
 
-                        <p class="mt-4 mb-0">{{ t.t('NOVA combines gamification with intelligent learning to help you excel in your studies. Earn XP, unlock badges, and compete with friends while mastering your subjects.') }}</p>
-
-                        <ul class="list-group list-group-borderless mt-4">
-                            <li class="list-group-item h6 d-flex fw-normal mb-0">
-                                <i class="bi bi-patch-check-fill text-success me-2"></i>{{ t.t('Interactive games that make learning fun') }}
-                            </li>
-                            <li class="list-group-item h6 d-flex fw-normal mb-0">
-                                <i class="bi bi-patch-check-fill text-success me-2"></i>{{ t.t('Track your progress with XP and achievements') }}
-                            </li>
-                            <li class="list-group-item h6 d-flex fw-normal mb-0">
-                                <i class="bi bi-patch-check-fill text-success me-2"></i>{{ t.t('Compete on leaderboards and earn rewards') }}
-                            </li>
-                        </ul>
-
-                        <div class="d-sm-flex align-items-center mt-4">
-                            <a href="{{ path('front_game_index') }}" class="btn btn-lg btn-dark me-2 mb-4 mb-sm-0">{{ t.t('Get Started') }}</a>
-                        </div>
-                    </div>
-                    <div class="col-lg-7 col-xxl-6 my-5 mt-lg-0">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="bg-danger bg-opacity-10 p-4 p-xl-5 text-center rounded-3 mb-4">
-                                    <h6>{{ t.t('Active Since') }}</h6>
-                                    <span class="h2 text-danger mb-2">2026</span>
-                                </div>
-                                <div class="bg-light p-4 p-xl-5 text-center rounded-3">
-                                    <span class="h2 text-primary mb-2">50+</span>
-                                    <h6>{{ t.t('Games Available') }}</h6>
-                                </div>
-                            </div>
-
-                            <div class="col-md-8 position-relative mt-5 mt-md-0">
-                                <img src="{{ asset('assets/images/about/25.jpg') }}" class="rounded-3" alt="">
-                                <div class="col-10 position-absolute top-100 start-0 translate-middle mt-n6 ms-n3 d-none d-md-block">
-                                    <img src="{{ asset('assets/images/about/26.jpg') }}" class="rounded-3" alt="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-            </div>
-        </section>
-        <section class="pt-0 pt-md-6">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="bg-light p-4 p-sm-5 rounded-3 position-relative overflow-hidden">
-                    <figure class="position-absolute top-0 start-0 d-none d-lg-block ms-n7 opacity-3">
-                        <svg width="294.5px" height="261.6px" viewBox="0 0 294.5 261.6">
-                            <path class="fill-warning opacity-5" d="M280.7,84.9c-4.6-9.5-10.1-18.6-16.4-27.2c-18.4-25.2-44.9-45.3-76-54.2c-31.7-9.1-67.7-0.2-93.1,21.6 C82,36.4,71.9,50.6,65.4,66.3c-4.6,11.1-9.5,22.3-17.2,31.8c-6.8,8.3-15.6,15-22.8,23C10.4,137.6-0.1,157.2,0,179 c0.1,28,11.4,64.6,40.4,76.7c23.9,10,50.7-3.1,75.4-4.7c23.1-1.5,43.1,10.4,65.5,10.6c53.4,0.6,97.8-42,109.7-90.4 C298.5,140.9,293.4,111.5,280.7,84.9z"></path>
-                        </svg>
-                    </figure>
-
-                    <div class="col-11 mx-auto position-relative">
-                        {% if app.user %}
-                            <div class="row align-items-center">
-                                <div class="col-lg-8">
-                                    <h3>Welcome back to NOVA!</h3>
-                                    <p class="mb-3 mb-lg-0">Continue your learning journey and achieve your academic goals!</p>
-                                </div>
-                                <div class="col-lg-4 text-lg-end">
-                                    {% if 'ROLE_STUDENT' in app.user.roles %}
-                                        <a href="{{ path('app_student_dashboard') }}" class="btn btn-warning mb-0">
-                                            <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
-                                        </a>
-                                    {% elseif 'ROLE_TUTOR' in app.user.roles %}
-                                        <a href="{{ path('app_tutor_dashboard') }}" class="btn btn-warning mb-0">
-                                            <i class="bi bi-speedometer2 me-2"></i>Tutor Dashboard
-                                        </a>
-                                    {% elseif 'ROLE_ADMIN' in app.user.roles %}
-                                        <a href="{{ path('app_admin_dashboard') }}" class="btn btn-warning mb-0">
-                                            <i class="bi bi-shield-lock me-2"></i>Admin Panel
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% else %}
-                            <div class="row align-items-center">
-                                <div class="col-lg-12 text-center mb-4">
-                                    <h3>Ready to start your learning journey?</h3>
-                                    <p class="mb-4">Join thousands of students already using NOVA to achieve their academic goals!</p>
-                                </div>
-                            </div>
-
-                            <div class="row g-4 mb-4">
-                                <div class="col-md-6">
-                                    <div class="card h-100 border-primary shadow-sm hover-shadow">
-                                        <div class="card-body text-center p-4">
-                                            <div class="icon-lg bg-primary bg-opacity-10 rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-person-check text-primary fs-1"></i>
-                                            </div>
-                                            <h4 class="card-title mb-3">I'm a Student</h4>
-                                            <p class="card-text text-muted mb-4">
-                                                Access interactive games, earn XP, track your progress, and compete on leaderboards
-                                            </p>
-                                            <ul class="list-unstyled text-start mb-4">
-                                                <li class="mb-2">
-                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                    <small>Play educational games</small>
-                                                </li>
-                                                <li class="mb-2">
-                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                    <small>Earn badges & rewards</small>
-                                                </li>
-                                                <li class="mb-2">
-                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                    <small>Track your learning progress</small>
-                                                </li>
-                                                <li class="mb-2">
-                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                    <small>Compete on leaderboards</small>
-                                                </li>
-                                            </ul>
-                                            <div class="d-grid gap-2">
-                                                <a href="{{ path('app_signup_student') }}?role=student" class="btn btn-primary btn-lg">
-                                                    <i class="bi bi-person-plus me-2"></i>Sign Up as Student
-                                                </a>
-                                                <a href="{{ path('app_login') }}" class="btn btn-outline-primary">
-                                                    Already have an account? Sign In
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="card h-100 border-warning shadow-sm hover-shadow">
-                                        <div class="card-body text-center p-4">
-                                            <div class="icon-lg bg-warning bg-opacity-10 rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                                <i class="bi bi-person-workspace text-warning fs-1"></i>
-                                            </div>
-                                            <h4 class="card-title mb-3">I'm a Tutor</h4>
-                                            <p class="card-text text-muted mb-4">
-                                                Create and manage games, rewards, monitor student progress, and help students excel
-                                            </p>
-                                            <ul class="list-unstyled text-start mb-4">
-                                                <li class="mb-2">
-                                                    <i class="bi bi-check-circle-fill text-warning me-2"></i>
-                                                    <small>Create custom games</small>
-                                                </li>
-                                                <li class="mb-2">
-                                                    <i class="bi bi-check-circle-fill text-warning me-2"></i>
-                                                    <small>Manage student rewards</small>
-                                                </li>
-                                                <li class="mb-2">
-                                                    <i class="bi bi-check-circle-fill text-warning me-2"></i>
-                                                    <small>Track student analytics</small>
-                                                </li>
-                                                <li class="mb-2">
-                                                    <i class="bi bi-check-circle-fill text-warning me-2"></i>
-                                                    <small>Engage with learners</small>
-                                                </li>
-                                            </ul>
-                                            <div class="d-grid gap-2">
-                                                <a href="{{ path('app_signup_tutor') }}?role=tutor" class="btn btn-warning btn-lg">
-                                                    <i class="bi bi-person-plus me-2"></i>Sign Up as Tutor
-                                                </a>
-                                                <a href="{{ path('app_login') }}" class="btn btn-outline-warning">
-                                                    Already have an account? Sign In
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    </main>
 {% endblock %}
 
-<style>
-    .hover-shadow {
-        transition: all 0.3s ease;
-    }
-    .hover-shadow:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
-    }
-</style>
-        </main>
-    <footer class="bg-light pt-5">
+    <footer class="bg-light pt-5" style="border-top: 2px solid var(--nova-border); background: var(--nova-card-bg) !important;">
         <div class="container">
             <div class="row g-4">
-                <div class="col-lg-3">
+                <div class="col-lg-4 pe-lg-5">
                     <a class="me-0" href="">
-                        <img class="light-mode-item h-56px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
-                        <img class="dark-mode-item h-56px" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
+                        <img class="light-mode-item h-50px mb-3" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
+                        <img class="dark-mode-item h-50px mb-3" src="{{ asset('assets/images/Logo.png') }}" alt="NOVA">
                     </a>
-                    <p class="my-3">NOVA - Intelligent Study Coaching Platform. Making learning fun through gamification.</p>
-                    <ul class="list-inline mb-0 mt-3">
-                        <li class="list-inline-item">
-                            <a class="btn btn-white btn-sm shadow px-2 text-facebook" href="#"><i class="fab fa-fw fa-facebook-f"></i></a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a class="btn btn-white btn-sm shadow px-2 text-instagram" href="#"><i class="fab fa-fw fa-instagram"></i></a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a class="btn btn-white btn-sm shadow px-2 text-twitter" href="#"><i class="fab fa-fw fa-twitter"></i></a>
-                        </li>
+                    <p class="nova-text-muted mb-4 fw-medium" style="font-size: 15px;">NOVA is an intelligent study coaching platform. We make learning engaging through gamification, community support, and AI assistance.</p>
+                    <ul class="list-inline mb-0 mt-3 gap-2 d-flex">
+                        <li class="list-inline-item"><a class="btn btn-sm btn-custom-outline rounded-circle p-2 d-flex align-items-center justify-content-center" style="width:35px; height:35px;" href="#"><i class="fab fa-fw fa-facebook-f"></i></a></li>
+                        <li class="list-inline-item"><a class="btn btn-sm btn-custom-outline rounded-circle p-2 d-flex align-items-center justify-content-center" style="width:35px; height:35px;" href="#"><i class="fab fa-fw fa-instagram"></i></a></li>
+                        <li class="list-inline-item"><a class="btn btn-sm btn-custom-outline rounded-circle p-2 d-flex align-items-center justify-content-center" style="width:35px; height:35px;" href="#"><i class="fab fa-fw fa-twitter"></i></a></li>
                     </ul>
                 </div>
-                <div class="col-lg-6">
+                
+                <div class="col-lg-8">
                     <div class="row g-4">
                         <div class="col-6 col-md-4">
-                            <h5 class="mb-2 mb-md-4">Platform</h5>
-                            <ul class="nav flex-column">
-                                <li class="nav-item"><a class="nav-link" href="{{ path('front_game_index') }}">Games</a></li>
-                                <li class="nav-item"><a class="nav-link" href="{{ path('front_reward_browse') }}">Rewards</a></li>
+                            <h5 class="mb-3 fw-bold nova-text-main">Platform</h5>
+                            <ul class="nav flex-column gap-2">
+                                <li class="nav-item"><a class="nav-link p-0 nova-text-muted fw-medium" href="{{ path('app_forum') }}">Community Forum</a></li>
+                                <li class="nav-item"><a class="nav-link p-0 nova-text-muted fw-medium" href="{{ path('course_index') }}">Courses</a></li>
+                                <li class="nav-item"><a class="nav-link p-0 nova-text-muted fw-medium" href="{{ path('front_game_index') }}">Mini-Games</a></li>
+                                <li class="nav-item"><a class="nav-link p-0 nova-text-muted fw-medium" href="{{ path('front_reward_browse') }}">Rewards</a></li>
                             </ul>
                         </div>
                         <div class="col-6 col-md-4">
-                            <h5 class="mb-2 mb-md-4">Support</h5>
-                            <ul class="nav flex-column">
-                                <li class="nav-item"><a class="nav-link" href="#">Help Center</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#">FAQ</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                            <h5 class="mb-3 fw-bold nova-text-main">Support</h5>
+                            <ul class="nav flex-column gap-2">
+                                <li class="nav-item"><a class="nav-link p-0 nova-text-muted fw-medium" href="#">Help Center</a></li>
+                                <li class="nav-item"><a class="nav-link p-0 nova-text-muted fw-medium" href="#">FAQ</a></li>
+                                <li class="nav-item"><a class="nav-link p-0 nova-text-muted fw-medium" href="#">Contact Us</a></li>
                             </ul>
                         </div>
-                        <div class="col-6 col-md-4">
-                            <h5 class="mb-2 mb-md-4">Legal</h5>
-                            <ul class="nav flex-column">
-                                <li class="nav-item"><a class="nav-link" href="#">Privacy Policy</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#">Terms of Use</a></li>
-                            </ul>
+                        <div class="col-12 col-md-4">
+                            <h5 class="mb-3 fw-bold nova-text-main">Get in Touch</h5>
+                            <p class="nova-text-muted mb-2 fw-medium"><i class="bi bi-envelope-fill me-2 text-primary"></i>support@nova.edu</p>
+                            <p class="nova-text-muted mb-0 fw-medium"><i class="bi bi-telephone-fill me-2 text-primary"></i>+216 55 123 456</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3">
-                    <h5 class="mb-2 mb-md-4">Contact</h5>
-                    <p class="mb-0">Email:<span class="h6 fw-light ms-2">support@nova.com</span></p>
-                </div>
-                </div>
+            </div>
 
-            <hr class="mt-4 mb-0">
+            <hr class="mt-5 mb-0" style="border-color: var(--nova-border);">
 
-            <div class="py-3">
+            <div class="py-4">
                 <div class="container px-0">
-                    <div class="d-lg-flex justify-content-between align-items-center py-3 text-center text-md-left">
-                        <div class="text-body text-primary-hover">
-                            Copyrights ©{{ "now"|date("Y") }} NOVA. All rights reserved.
+                    <div class="d-md-flex justify-content-between align-items-center text-center text-md-left">
+                        <div class="nova-text-muted fw-medium" style="font-size: 14px;">
+                            Copyrights © {{ "now"|date("Y") }} NOVA. All rights reserved. Built with <i class="bi bi-heart-fill text-danger px-1"></i> by the NOVA Team.
+                        </div>
+                        <div class="mt-3 mt-md-0">
+                            <ul class="list-inline mb-0" style="font-size: 14px;">
+                                <li class="list-inline-item"><a class="nova-text-muted text-decoration-none fw-medium" href="#">Privacy Policy</a></li>
+                                <li class="list-inline-item px-2 nova-text-muted">•</li>
+                                <li class="list-inline-item"><a class="nova-text-muted text-decoration-none fw-medium" href="#">Terms of Service</a></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
+    
     <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
 
     {% block javascripts %}
     <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-
     <script src="{{ asset('assets/vendor/glightbox/js/glightbox.js') }}"></script>
     <script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
-
     <script src="{{ asset('assets/js/functions.js') }}"></script>
     
+    {# MAGIC FLOATING TOASTS SCRIPT #}
+    <div class="nova-toast-container" id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toastContainer = document.getElementById('toastContainer');
+            
+            function createToast(message, type) {
+                const toast = document.createElement('div');
+                toast.className = `nova-toast ${type}`;
+                
+                const iconClass = type === 'success' ? 'bi-check-circle-fill' : (type === 'error' ? 'bi-exclamation-octagon-fill' : 'bi-info-circle-fill');
+                
+                toast.innerHTML = `<i class="bi ${iconClass}"></i> <span class="fw-bold" style="font-size: 14px;">${message}</span>`;
+                toastContainer.appendChild(toast);
+                
+                setTimeout(() => toast.classList.add('show'), 50);
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 4000);
+            }
+
+            const alertContainer = document.querySelector('.container.mt-3');
+            if(alertContainer && alertContainer.innerHTML.includes('alert-dismissible')) {
+                alertContainer.innerHTML = ''; 
+            }
+
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    createToast("{{ message|escape('js') }}", "{{ label == 'danger' ? 'error' : label }}");
+                {% endfor %}
+            {% endfor %}
+            
+            // DEMO TRICK: Intercept search for the video
+            const globalSearchForm = document.getElementById('globalSearchForm');
+            if (globalSearchForm) {
+                globalSearchForm.addEventListener('submit', function(e) {
+                    e.preventDefault(); 
+                    const query = document.getElementById('globalSearchInput').value;
+                    if(query.trim() === '') return;
+
+                    const toast = document.createElement('div');
+                    toast.className = `nova-toast`; 
+                    toast.innerHTML = `<i class="bi bi-cpu text-primary spinner-border spinner-border-sm me-2" style="width: 1rem; height: 1rem;"></i> <span class="fw-bold" style="font-size: 14px;">Searching Ecosystem for "${query}"...</span>`;
+                    toastContainer.appendChild(toast);
+                    
+                    setTimeout(() => toast.classList.add('show'), 50);
+                    
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        setTimeout(() => toast.remove(), 400);
+                    }, 3000);
+                });
+            }
+        });
+    </script>
     {% endblock %}
 </body>
 </html>

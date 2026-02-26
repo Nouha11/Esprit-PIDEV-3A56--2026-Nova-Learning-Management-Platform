@@ -67,6 +67,65 @@
         .tagify { --tags-border-color: var(--nova-border); --tags-hover-border-color: #0d6efd; --tags-focus-border-color: #0d6efd; background: var(--nova-input-bg); color: var(--nova-text-main); border-radius: 4px; padding: 2px 8px; border: none; border-bottom: 1px dashed var(--nova-border); }
         .tagify__tag > div { background: rgba(13, 110, 253, 0.1); color: #0d6efd; font-weight: 600; border-radius: 4px; }
         .tagify__input::before { color: var(--nova-text-muted) !important; }
+
+        /* ========================================== */
+        /* --- 🪄 NOVA MAGIC UI ANIMATIONS PACK --- */
+        /* ========================================== */
+
+        /* 1. Smooth Cascading Page Load */
+        @keyframes fadeSlideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Apply base animation to all main blocks */
+        .sticky-sidebar, .create-post-bar, .sort-bar, .post-card, .reddit-card, .nova-card {
+            animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* Stagger the delays for the "Cascade" effect */
+        .col-xl-2 .sticky-sidebar { animation-delay: 0.05s; }
+        .col-xl-7 > div:nth-child(1) { animation-delay: 0.1s; }
+        .col-xl-7 > div:nth-child(2) { animation-delay: 0.15s; }
+        .col-xl-7 > div:nth-child(3) { animation-delay: 0.2s; }
+        .col-xl-7 > div:nth-child(4) { animation-delay: 0.25s; }
+        .col-xl-3 .sticky-sidebar { animation-delay: 0.3s; }
+
+        /* 2. Premium Card Hover Lift */
+        .post-card, .reddit-card {
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out !important;
+        }
+        .post-card:hover, .reddit-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
+            border-color: #0d6efd !important; /* Highlights the border in brand blue */
+        }
+
+        /* 3. The "Reddit Vote Pop" Micro-interaction */
+        @keyframes votePop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+        .vote-arrow.active {
+            animation: votePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* 4. Squishy Buttons */
+        .btn, .action-pill {
+            transition: transform 0.1s ease, background-color 0.2s ease, color 0.2s ease;
+        }
+        .btn:active, .action-pill:active {
+            transform: scale(0.95); /* Squish effect when clicked */
+        }
+
+        /* 5. Smooth Tab switching for Left Nav */
+        .left-nav-link {
+            transition: all 0.2s ease;
+        }
+        .left-nav-link:hover {
+            transform: translateX(4px); /* Gently nudges the link to the right on hover */
+        }
     </style>
 {% endblock %}
 
