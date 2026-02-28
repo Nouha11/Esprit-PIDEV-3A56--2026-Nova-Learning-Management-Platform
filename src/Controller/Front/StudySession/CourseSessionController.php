@@ -7,7 +7,7 @@ use App\Repository\StudySession\CourseRepository;
 use App\Service\StudySession\EnrollmentService;
 use App\Service\StudySession\EnergyMonitorService;
 use App\Service\StudySession\CourseResourceService;
-use App\Service\StudySession\PomodoroService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,8 +22,8 @@ class CourseSessionController extends AbstractController
         private EnrollmentService $enrollmentService,
         private EnergyMonitorService $energyMonitorService,
         private CourseResourceService $courseResourceService,
-        private PomodoroService $pomodoroService,
-        private CourseRepository $courseRepository
+        private CourseRepository $courseRepository,
+        private EntityManagerInterface $entityManager
     ) {}
 
     /**
@@ -33,6 +33,10 @@ class CourseSessionController extends AbstractController
     public function view(int $courseId): Response
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
         
         // Load course entity
         $course = $this->courseRepository->find($courseId);
@@ -62,7 +66,8 @@ class CourseSessionController extends AbstractController
         }
         
         // Show warning if energy is low
-        if ($currentEnergy > 0 && $currentEnergy <= 20) {
+        // FIXED: PHPStan noted that $currentEnergy > 0 is always true here because of the block above.
+        if ($currentEnergy <= 20) {
             $this->addFlash('warning', 'Your energy is running low! Consider playing a mini game to restore it.');
         }
 
@@ -102,6 +107,10 @@ class CourseSessionController extends AbstractController
     {
         $user = $this->getUser();
         
+        if (!$user instanceof \App\Entity\users\User) {
+            return new JsonResponse(['error' => 'Unauthorized'], 401);
+        }
+        
         // Get student profile
         $studentProfile = $user->getStudentProfile();
         if (!$studentProfile) {
@@ -124,6 +133,10 @@ class CourseSessionController extends AbstractController
     public function depleteEnergy(int $courseId): JsonResponse
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
         
         // Verify course exists and user is enrolled
         $course = $this->courseRepository->find($courseId);
@@ -156,6 +169,10 @@ class CourseSessionController extends AbstractController
     public function updateProgress(int $courseId): JsonResponse
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
         
         // Verify course exists and user is enrolled
         $course = $this->courseRepository->find($courseId);
@@ -192,8 +209,8 @@ class CourseSessionController extends AbstractController
             $course->setStatus('IN_PROGRESS');
         }
         
-        // Persist changes
-        $this->courseRepository->getEntityManager()->flush();
+        // Persist changes (FIXED: Using injected EntityManager instead of protected repository method)
+        $this->entityManager->flush();
         
         return new JsonResponse([
             'success' => true,
@@ -210,6 +227,10 @@ class CourseSessionController extends AbstractController
     public function completeCourse(int $courseId): Response
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
         
         // Load course entity
         $course = $this->courseRepository->find($courseId);
@@ -244,8 +265,8 @@ class CourseSessionController extends AbstractController
         $course->setStatus('COMPLETED');
         $course->setProgress(100);
 
-        // Persist changes
-        $this->courseRepository->getEntityManager()->flush();
+        // Persist changes (FIXED: Using injected EntityManager instead of protected repository method)
+        $this->entityManager->flush();
 
         // Build success message
         $message = sprintf(
@@ -268,6 +289,10 @@ class CourseSessionController extends AbstractController
     public function downloadResource(int $courseId, int $resourceId): Response
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
         
         // Load course entity
         $course = $this->courseRepository->find($courseId);

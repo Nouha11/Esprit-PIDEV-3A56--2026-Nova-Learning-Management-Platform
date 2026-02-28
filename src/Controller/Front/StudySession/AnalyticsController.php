@@ -25,6 +25,12 @@ class AnalyticsController extends AbstractController
     public function dashboard(Request $request): Response
     {
         $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
+
         $courseId = $request->query->get('courseId');
         
         // Get time range filter from query parameter (default: week)

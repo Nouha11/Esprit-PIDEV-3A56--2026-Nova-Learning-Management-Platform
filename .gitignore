@@ -27,3 +27,7 @@
 
 # Team credentials (never commit!)
 TEAM_CREDENTIALS.md
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###

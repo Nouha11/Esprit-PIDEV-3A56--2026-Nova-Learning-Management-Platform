@@ -4,7 +4,6 @@ namespace App\Controller\Front\Game;
 use App\Entity\Gamification\Game;
 use App\Repository\Gamification\GameRepository as GamificationGameRepository;
 use App\Repository\Gamification\GameRatingRepository;
-use App\Service\game\GameService;
 use App\Service\game\LevelCalculatorService;
 use App\Service\game\TokenService;
 use App\Service\game\LevelRewardService;
@@ -23,7 +22,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class GameController extends AbstractController
 {
     public function __construct(
-        private GameService $gameService,
         private TokenService $tokenService,
         private LevelRewardService $levelRewardService,
         private LevelCalculatorService $levelCalculatorService,
@@ -37,8 +35,8 @@ class GameController extends AbstractController
     }
 
     /**
-    * Browse all available games with pagination and Ajax filters
-    */
+     * Browse all available games with pagination and Ajax filters
+     */
     #[Route('', name: 'front_game_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
@@ -115,7 +113,10 @@ class GameController extends AbstractController
         // Get current energy for student users
         $currentEnergy = 100;
         if ($this->isGranted('ROLE_STUDENT')) {
-            $currentEnergy = $this->energyMonitorService->getCurrentEnergy($this->getUser());
+            $user = $this->getUser();
+            if ($user instanceof \App\Entity\users\User) {
+                $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
+            }
         }
 
         // If Ajax request, return only the games partial
@@ -140,8 +141,8 @@ class GameController extends AbstractController
     }
 
     /**
-    * Show game details
-    */
+     * Show game details
+     */
     #[Route('/{id}', name: 'front_game_show', methods: ['GET'])]
     public function show(Game $game, Request $request): Response
     {
@@ -152,13 +153,18 @@ class GameController extends AbstractController
         }
 
         $student = null;
-        if ($this->getUser() && $this->getUser()->getStudentProfile()) {
-            $student = $this->getUser()->getStudentProfile();
+        $user = $this->getUser();
+        
+        if ($user instanceof \App\Entity\users\User && $user->getStudentProfile()) {
+            $student = $user->getStudentProfile();
             
             // Only show token cost warning if not coming from game completion
             $session = $request->getSession();
-            $flashBag = $session->getFlashBag();
-            $hasSuccessMessage = $flashBag->has('success');
+            $hasSuccessMessage = false;
+            
+            if ($session instanceof \Symfony\Component\HttpFoundation\Session\Session) {
+                $hasSuccessMessage = $session->getFlashBag()->has('success');
+            }
             
             if (!$hasSuccessMessage) {
                 // Show token cost warning if game has a cost
@@ -190,8 +196,8 @@ class GameController extends AbstractController
         $ratingStats = $this->ratingRepository->getGameRatingStats($game);
         $userRating = null;
         
-        if ($this->getUser()) {
-            $rating = $this->ratingRepository->getUserRating($game, $this->getUser());
+        if ($user instanceof \App\Entity\users\User) {
+            $rating = $this->ratingRepository->getUserRating($game, $user);
             $userRating = $rating ? $rating->getRating() : 0;
         }
 
@@ -206,8 +212,8 @@ class GameController extends AbstractController
     }
 
     /**
-    * Check if student can afford a game (Ajax endpoint)
-    */
+     * Check if student can afford a game (Ajax endpoint)
+     */
     #[Route('/{id}/check-tokens', name: 'front_game_check_tokens', methods: ['POST'])]
     #[IsGranted('ROLE_STUDENT')]
     public function checkTokens(Game $game): JsonResponse
@@ -215,7 +221,7 @@ class GameController extends AbstractController
         try {
             $user = $this->getUser();
             
-            if (!$user) {
+            if (!$user instanceof \App\Entity\users\User) {
                 return $this->json([
                     'success' => false,
                     'message' => 'User not authenticated'
@@ -251,8 +257,8 @@ class GameController extends AbstractController
     }
 
     /**
-    * Play game interface
-    */
+     * Play game interface
+     */
     #[Route('/{id}/play', name: 'front_game_play', methods: ['GET'])]
     #[IsGranted('ROLE_STUDENT')]
     public function play(Game $game, Request $request): Response
@@ -264,6 +270,10 @@ class GameController extends AbstractController
         }
 
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\users\User) {
+            throw $this->createAccessDeniedException('You must be logged in to play.');
+        }
+
         $student = $user->getStudentProfile();
 
         if (!$student) {
@@ -430,6 +440,10 @@ class GameController extends AbstractController
     public function complete(Game $game, Request $request): JsonResponse
     {
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\users\User) {
+            return $this->json(['success' => false, 'message' => 'User not authenticated'], 401);
+        }
+        
         $student = $user->getStudentProfile();
 
         if (!$student) {
@@ -439,9 +453,11 @@ class GameController extends AbstractController
             ], 404);
         }
 
-        // Clear any existing flash messages to avoid clutter
+        // Clear any existing flash messages to avoid clutter safely
         $session = $request->getSession();
-        $session->getFlashBag()->clear();
+        if ($session instanceof \Symfony\Component\HttpFoundation\Session\Session) {
+            $session->getFlashBag()->clear();
+        }
 
         // Get session data about the game cost
         $gameCost = $session->get('game_' . $game->getId() . '_cost', 0);
@@ -472,12 +488,7 @@ class GameController extends AbstractController
         $newLevel = $newLevelInfo['level'];
         $student->setLevel($newLevel);
         
-        // Ensure entity is managed
-        if (!$this->entityManager->contains($student)) {
-            $student = $this->entityManager->merge($student);
-        }
-        
-        // Flush to database
+        // Flush to database (Symfony implicitly manages the active user's entities)
         $this->entityManager->flush();
         
         // Award special bonus rewards associated with this game
@@ -680,7 +691,7 @@ class GameController extends AbstractController
         try {
             $user = $this->getUser();
 
-            if (!$user) {
+            if (!$user instanceof \App\Entity\users\User) {
                 return $this->json([
                     'success' => false,
                     'message' => 'You must be logged in to favorite games'
@@ -730,7 +741,7 @@ class GameController extends AbstractController
     {
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof \App\Entity\users\User) {
             $this->addFlash('error', 'You must be logged in to view favorites');
             return $this->redirectToRoute('app_login');
         }

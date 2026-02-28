@@ -96,14 +96,22 @@ class LeaderboardController extends AbstractController
     {
         $user = $this->getUser();
         
-        if (!$user || !$user->getStudentProfile()) {
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
+            return $this->json([
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+
+        $student = $user->getStudentProfile();
+        
+        if (!$student) {
             return $this->json([
                 'success' => false,
                 'message' => 'Student profile not found'
             ], 404);
         }
-
-        $student = $user->getStudentProfile();
         
         // Get all students ordered by XP
         $allStudents = $this->studentRepository->createQueryBuilder('s')

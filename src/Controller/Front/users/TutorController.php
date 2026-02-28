@@ -30,10 +30,9 @@ final class TutorController extends AbstractController
     #[Route('/profile', name: 'app_tutor_profile', methods: ['GET'])]
     public function profile(): Response
     {
-        /** @var User $user */
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
@@ -49,10 +48,9 @@ final class TutorController extends AbstractController
     #[Route('/profile/edit', name: 'app_tutor_profile_edit', methods: ['GET', 'POST'])]
     public function editProfile(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator, UserPasswordHasherInterface $passwordHasher): Response
     {
-        /** @var User $user */
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
@@ -130,9 +128,7 @@ final class TutorController extends AbstractController
                     $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
                     $user->setPassword($hashedPassword);
                     
-                    // Clear any password reset tokens
-                    $user->setResetToken(null);
-                    $user->setResetTokenExpiresAt(null);
+                    // FIXED: Removed undefined methods setResetToken and setResetTokenExpiresAt
                     
                     $this->addFlash('success', $translator->trans('Password changed successfully', [], 'validators', $locale));
                 }
@@ -186,10 +182,9 @@ final class TutorController extends AbstractController
     #[Route('/dashboard', name: 'app_tutor_dashboard', methods: ['GET'])]
     public function dashboard(): Response
     {
-        /** @var User $user */
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
@@ -213,10 +208,9 @@ final class TutorController extends AbstractController
     #[Route('/sessions', name: 'app_tutor_sessions', methods: ['GET'])]
     public function sessions(): Response
     {
-        /** @var User $user */
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
@@ -228,10 +222,9 @@ final class TutorController extends AbstractController
     #[Route('/availability', name: 'app_tutor_availability', methods: ['GET', 'POST'])]
     public function availability(Request $request, EntityManagerInterface $entityManager): Response
     {
-        /** @var User $user */
         $user = $this->getUser();
         
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 

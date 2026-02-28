@@ -39,6 +39,15 @@ class StudyBuddyController extends AbstractController
         }
 
         $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'User not authenticated.'
+            ], 401);
+        }
+        
         $student = $user->getStudentProfile();
 
         if (!$student) {

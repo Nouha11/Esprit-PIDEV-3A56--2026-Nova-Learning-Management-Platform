@@ -47,8 +47,10 @@ class OAuthController extends AbstractController
             $accessToken = $client->getAccessToken();
             
             // Get user info from Google
+            /** @var \League\OAuth2\Client\Provider\GoogleUser $googleUser */
             $googleUser = $client->fetchUserFromToken($accessToken);
             
+            // VS Code now knows exactly what $googleUser is, no more red lines!
             $email = $googleUser->getEmail();
             $firstName = $googleUser->getFirstName();
             $lastName = $googleUser->getLastName();
@@ -72,8 +74,8 @@ class OAuthController extends AbstractController
                 
                 // Create student profile
                 $studentProfile = new StudentProfile();
-                $studentProfile->setFirstName($firstName ?? 'User');
-                $studentProfile->setLastName($lastName ?? '');
+                $studentProfile->setFirstName($firstName ?: 'User');
+                $studentProfile->setLastName($lastName ?: '');
                 $studentProfile->setEmail($email);
                 
                 $user->setStudentProfile($studentProfile);
@@ -142,6 +144,7 @@ class OAuthController extends AbstractController
             $accessToken = $client->getAccessToken();
             
             // Get user info from LinkedIn
+            /** @var mixed $linkedinUser */
             $linkedinUser = $client->fetchUserFromToken($accessToken);
             
             $email = $linkedinUser->getEmail();
@@ -167,8 +170,8 @@ class OAuthController extends AbstractController
                 
                 // Create student profile
                 $studentProfile = new StudentProfile();
-                $studentProfile->setFirstName($firstName ?? 'User');
-                $studentProfile->setLastName($lastName ?? '');
+                $studentProfile->setFirstName($firstName ?: 'User');
+                $studentProfile->setLastName($lastName ?: '');
                 $studentProfile->setEmail($email);
                 
                 $user->setStudentProfile($studentProfile);

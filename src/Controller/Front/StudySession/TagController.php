@@ -108,6 +108,11 @@ class TagController extends AbstractController
     {
         $user = $this->getUser();
         
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
+        
         // Get all study sessions for the current user
         $allSessions = $this->studySessionRepository->findByFilters(
             userId: $user->getId()

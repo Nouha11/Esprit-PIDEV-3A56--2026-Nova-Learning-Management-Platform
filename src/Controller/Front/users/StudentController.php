@@ -31,7 +31,8 @@ final class StudentController extends AbstractController
     {
         $user = $this->getUser();
         
-        if (!$user) {
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
             return $this->redirectToRoute('app_login');
         }
 
@@ -54,7 +55,8 @@ final class StudentController extends AbstractController
     {
         $user = $this->getUser();
         
-        if (!$user) {
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
             return $this->redirectToRoute('app_login');
         }
 
@@ -98,8 +100,12 @@ final class StudentController extends AbstractController
                     return $this->redirectToRoute('app_student_profile');
                 }
                 
+                // FIXED: Get session directly from request instead of container to avoid "Service not found" error
+                /** @var \Symfony\Component\HttpFoundation\Session\Session $session */
+                $session = $request->getSession();
+                
                 // If password validation failed, return early
-                if ($this->container->get('session')->getFlashBag()->has('error')) {
+                if ($session->getFlashBag()->has('error')) {
                     return $this->render('front/users/student/edit.html.twig', [
                         'student' => $student,
                         'completion' => $completion,
@@ -187,7 +193,8 @@ final class StudentController extends AbstractController
     {
         $user = $this->getUser();
         
-        if (!$user) {
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
             return $this->redirectToRoute('app_login');
         }
 
@@ -217,7 +224,8 @@ final class StudentController extends AbstractController
     {
         $user = $this->getUser();
         
-        if (!$user) {
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
             return $this->redirectToRoute('app_login');
         }
 

@@ -1,0 +1,1963 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Result of && is always true\.$#'
+			identifier: booleanAnd.alwaysTrue
+			count: 2
+			path: src/Command/CheckTokenSystemCommand.php
+
+		-
+			message: '#^Variable \$games in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 2
+			path: src/Command/CheckTokenSystemCommand.php
+
+		-
+			message: '#^Variable \$students in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 2
+			path: src/Command/CheckTokenSystemCommand.php
+
+		-
+			message: '#^Call to protected method getEntityManager\(\) of class Doctrine\\ORM\\EntityRepository\<App\\Entity\\StudySession\\StudyStreak\>\.$#'
+			identifier: method.protected
+			count: 1
+			path: src/Command/StudySession/CheckStreaksCommand.php
+
+		-
+			message: '#^Method App\\Controller\\Admin\\Game\\GameAdminController\:\:createDefaultGameContent\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: src/Controller/Admin/Game/GameAdminController.php
+
+		-
+			message: '#^Property App\\Controller\\Admin\\Game\\GameAdminController\:\:\$huggingFaceService is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Admin/Game/GameAdminController.php
+
+		-
+			message: '#^Property App\\Controller\\Admin\\Game\\LevelMilestoneController\:\:\$rewardRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Admin/Game/LevelMilestoneController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getId\(\)\.$#'
+			identifier: method.notFound
+			count: 9
+			path: src/Controller/Admin/Library/AdminBookController.php
+
+		-
+			message: '#^Property App\\Controller\\Admin\\Library\\AdminBookController\:\:\$booksDirectory is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Admin/Library/AdminBookController.php
+
+		-
+			message: '#^Property App\\Controller\\Admin\\Library\\AdminBookController\:\:\$slugger is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Admin/Library/AdminBookController.php
+
+		-
+			message: '#^Parameter \#1 \$resolvedBy of method App\\Entity\\Quiz\\QuizReport\:\:setResolvedBy\(\) expects App\\Entity\\users\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/Admin/Quiz/QuizReportController.php
+
+		-
+			message: '#^Property App\\Controller\\Admin\\StudySession\\AdminPlanningController\:\:\$planningRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Admin/StudySession/AdminPlanningController.php
+
+		-
+			message: '#^Variable \$filters on left side of \?\? is never defined\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/Controller/Admin/StudySession/AdminPlanningController.php
+
+		-
+			message: '#^Property App\\Controller\\Admin\\StudySession\\AdminStudySessionController\:\:\$studySessionRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Admin/StudySession/AdminStudySessionController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getStudentProfile\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/Front/AI/AIAssistantController.php
+
+		-
+			message: '#^Variable \$query might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/Controller/Front/Forum/ForumController.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\ORM\\EntityManagerInterface\:\:merge\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\HttpFoundation\\Session\\SessionInterface\:\:getFlashBag\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:addFavoriteGame\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getFavoriteGames\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getStudentProfile\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:hasFavoriteGame\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:removeFavoriteGame\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\EnergyMonitorService\:\:getCurrentEnergy\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\EnergyMonitorService\:\:restoreEnergy\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\UserActivityService\:\:logActivity\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Parameter \#2 \$user of method App\\Repository\\Gamification\\GameRatingRepository\:\:getUserRating\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Property App\\Controller\\Front\\Game\\GameController\:\:\$gameService is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Front/Game/GameController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Entity\\Gamification\\GameRating\:\:setUser\(\) expects App\\Entity\\users\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/Game/GameRatingController.php
+
+		-
+			message: '#^Parameter \#2 \$user of method App\\Repository\\Gamification\\GameRatingRepository\:\:getUserRating\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/Front/Game/GameRatingController.php
+
+		-
+			message: '#^Property App\\Controller\\Front\\Game\\GameRatingController\:\:\$entityManager is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Front/Game/GameRatingController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getStudentProfile\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/Front/Game/LeaderboardController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getStudentProfile\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: src/Controller/Front/Game/RewardController.php
+
+		-
+			message: '#^Property App\\Controller\\Front\\Game\\RewardController\:\:\$levelCalculator is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Front/Game/RewardController.php
+
+		-
+			message: '#^Property App\\Controller\\Front\\Game\\RewardController\:\:\$rewardService is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Front/Game/RewardController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Entity\\Library\\DigitalPurchase\:\:setUser\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/Front/Library/BookController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Entity\\Library\\Loan\:\:setUser\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/Library/BookController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Entity\\Library\\Payment\:\:setUser\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/Library/BookController.php
+
+		-
+			message: '#^Parameter \#1 \$reportedBy of method App\\Entity\\Quiz\\QuizReport\:\:setReportedBy\(\) expects App\\Entity\\users\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/Quiz/QuizReportController.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: src/Controller/Front/Quiz/QuizResultController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getId\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/StudySession/AnalyticsController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\AnalyticsService\:\:getCompletionRate\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/AnalyticsController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\AnalyticsService\:\:getStudyTimeByCourse\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/AnalyticsController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\AnalyticsService\:\:getTotalStudyTime\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/AnalyticsController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\AnalyticsService\:\:getTotalXP\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/AnalyticsController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\AnalyticsService\:\:getXPOverTime\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/AnalyticsController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\StreakService\:\:getCurrentStreak\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/AnalyticsController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\StreakService\:\:getLongestStreak\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/AnalyticsController.php
+
+		-
+			message: '#^Parameter \#1 \$createdBy of method App\\Entity\\StudySession\\Course\:\:setCreatedBy\(\) expects App\\Entity\\users\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/CourseController.php
+
+		-
+			message: '#^Parameter \#1 \$student of method App\\Service\\StudySession\\EnrollmentService\:\:getPendingRequest\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/CourseController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\EnergyMonitorService\:\:getCurrentEnergy\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/Front/StudySession/CourseController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\EnrollmentService\:\:isEnrolled\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/CourseController.php
+
+		-
+			message: '#^Property App\\Controller\\Front\\StudySession\\CourseController\:\:\$planningService is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Front/StudySession/CourseController.php
+
+		-
+			message: '#^Property App\\Controller\\Front\\StudySession\\CourseController\:\:\$studySessionService is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Front/StudySession/CourseController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getStudentProfile\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: src/Controller/Front/StudySession/CourseSessionController.php
+
+		-
+			message: '#^Call to protected method getEntityManager\(\) of class Doctrine\\ORM\\EntityRepository\<App\\Entity\\StudySession\\Course\>\.$#'
+			identifier: method.protected
+			count: 2
+			path: src/Controller/Front/StudySession/CourseSessionController.php
+
+		-
+			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: src/Controller/Front/StudySession/CourseSessionController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\EnergyMonitorService\:\:depleteEnergy\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/CourseSessionController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\EnergyMonitorService\:\:getCurrentEnergy\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Controller/Front/StudySession/CourseSessionController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\EnergyMonitorService\:\:isEnergyDepleted\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/Front/StudySession/CourseSessionController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\EnrollmentService\:\:isEnrolled\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 5
+			path: src/Controller/Front/StudySession/CourseSessionController.php
+
+		-
+			message: '#^Property App\\Controller\\Front\\StudySession\\CourseSessionController\:\:\$pomodoroService is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Front/StudySession/CourseSessionController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\AnalyticsService\:\:getEnergyPatterns\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/Front/StudySession/EnergyController.php
+
+		-
+			message: '#^Parameter \#1 \$student of method App\\Service\\StudySession\\EnrollmentService\:\:requestEnrollment\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/EnrollmentController.php
+
+		-
+			message: '#^Parameter \#1 \$tutor of method App\\Service\\StudySession\\EnrollmentService\:\:getPendingRequestsForTutor\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/EnrollmentController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\AIRecommendationService\:\:generateStudyRecommendations\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/IntegrationController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getStudentProfile\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/StudySession/StudyBuddyController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getUsername\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/StudySession/StudyBuddyController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Entity\\StudySession\\StudySession\:\:setUser\(\) expects App\\Entity\\users\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/Front/StudySession/StudySessionController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\StudySession\\StreakService\:\:updateStreak\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/StudySession/StudySessionController.php
+
+		-
+			message: '#^Property App\\Controller\\Front\\StudySession\\StudySessionController\:\:\$studySessionRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Front/StudySession/StudySessionController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getId\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/StudySession/TagController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getStudentProfile\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: src/Controller/Front/users/StudentController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:setPassword\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/users/StudentController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\AIActivitySummaryService\:\:generateSummary\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/users/StudentController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\LoginHistoryService\:\:getRecentLogins\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/users/StudentController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\UserActivityService\:\:getRecentActivities\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/users/StudentController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method Symfony\\Component\\PasswordHasher\\Hasher\\UserPasswordHasherInterface\:\:hashPassword\(\) expects Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/users/StudentController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method Symfony\\Component\\PasswordHasher\\Hasher\\UserPasswordHasherInterface\:\:isPasswordValid\(\) expects Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Front/users/StudentController.php
+
+		-
+			message: '#^Service "session" is not registered in the container\.$#'
+			identifier: symfonyContainer.serviceNotFound
+			count: 1
+			path: src/Controller/Front/users/StudentController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\users\\User\:\:setResetToken\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/users/TutorController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\users\\User\:\:setResetTokenExpiresAt\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Front/users/TutorController.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 5
+			path: src/Controller/Front/users/TutorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\NotificationService\:\:countUnread\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\NotificationService\:\:getAllNotifications\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\NotificationService\:\:getUnreadNotifications\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\NotificationService\:\:markAllAsRead\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/NotificationController.php
+
+		-
+			message: '#^Call to an undefined method League\\OAuth2\\Client\\Provider\\ResourceOwnerInterface\:\:getEmail\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/OAuthController.php
+
+		-
+			message: '#^Call to an undefined method League\\OAuth2\\Client\\Provider\\ResourceOwnerInterface\:\:getFirstName\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/OAuthController.php
+
+		-
+			message: '#^Call to an undefined method League\\OAuth2\\Client\\Provider\\ResourceOwnerInterface\:\:getLastName\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/OAuthController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\SessionManagementService\:\:getActiveSessions\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/SessionManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\SessionManagementService\:\:terminateAllOtherSessions\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/SessionManagementController.php
+
+		-
+			message: '#^Parameter \#2 \$user of method App\\Service\\SessionManagementService\:\:terminateSession\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/SessionManagementController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getTotpSecret\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/TwoFactorController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:isTotpEnabled\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\TwoFactorService\:\:disableTwoFactor\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\TwoFactorService\:\:enableTwoFactor\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\TwoFactorService\:\:generateQrCode\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\TwoFactorService\:\:verifyAndEnable\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\TwoFactorService\:\:verifyCode\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/TwoFactorController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\UserActivityService\:\:getActivityStats\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/UserActivityController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\UserActivityService\:\:getRecentActivities\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/UserActivityController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getUsername\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/UsernameChangeController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\UsernameChangeService\:\:changeUsername\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/UsernameChangeController.php
+
+		-
+			message: '#^Parameter \#2 \$currentUser of method App\\Service\\UsernameChangeService\:\:validateUsername\(\) expects App\\Entity\\users\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/UsernameChangeController.php
+
+		-
+			message: '#^Parameter \#2 \$currentUser of method App\\Service\\UsernameChangeService\:\:validateUsername\(\) expects App\\Entity\\users\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/UsernameChangeController.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Comment\:\:\$author type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Comment.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Comment\:\:\$content type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Comment.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Comment\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Comment.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Comment\:\:\$downvoters type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\users\\User\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Comment.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Comment\:\:\$isSolution type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Comment.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Comment\:\:\$post type mapping mismatch\: property can contain App\\Entity\\Forum\\Post\|null but database expects App\\Entity\\Forum\\Post\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Comment.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Comment\:\:\$replies type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Forum\\Comment\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Comment.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Comment\:\:\$upvoters type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\users\\User\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Comment.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Entity\\Forum\\Post\) and ''updatedAt'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$author type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$comments type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Forum\\Comment\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$content type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$downvoters type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\users\\User\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$isLocked type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$reports type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Forum\\Report\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$tags type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Forum\\Tag\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$upvoters type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\users\\User\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Post\:\:\$upvotes type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Post.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Report\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Report.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Report\:\:\$reason type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Report.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Report\:\:\$reporter type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Forum/Report.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Space\:\:\$description type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Space.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Space\:\:\$name type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Space.php
+
+		-
+			message: '#^Property App\\Entity\\Forum\\Tag\:\:\$name type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Forum/Tag.php
+
+		-
+			message: '#^Parameter \#1 \$game of method App\\Entity\\Gamification\\GameContent\:\:setGame\(\) expects App\\Entity\\Gamification\\Game, null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$category type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$description type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$difficulty type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$favoritedBy type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\users\\User\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$isActive type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$name type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$rewardTokens type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$rewardXP type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$rewards type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Gamification\\Reward\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$tokenCost type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Game\:\:\$type type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Game.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\GameContent\:\:\$game type mapping mismatch\: property can contain App\\Entity\\Gamification\\Game\|null but database expects App\\Entity\\Gamification\\Game\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Gamification/GameContent.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\GameRating\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/GameRating.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\GameRating\:\:\$game type mapping mismatch\: property can contain App\\Entity\\Gamification\\Game\|null but database expects App\\Entity\\Gamification\\Game\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Gamification/GameRating.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\GameRating\:\:\$rating type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/GameRating.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\GameRating\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Gamification/GameRating.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Reward\:\:\$games type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Gamification\\Game\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Gamification/Reward.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Reward\:\:\$isActive type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Reward.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Reward\:\:\$name type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Reward.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Reward\:\:\$students type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\users\\StudentProfile\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Gamification/Reward.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Reward\:\:\$type type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Reward.php
+
+		-
+			message: '#^Property App\\Entity\\Gamification\\Reward\:\:\$value type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Gamification/Reward.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Book\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Book.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Book\:\:\$isDigital type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Book.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Book\:\:\$libraries type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Library\\Library\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Library/Book.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Book\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Book.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\DigitalPurchase\:\:\$book type mapping mismatch\: property can contain App\\Entity\\Library\\Book\|null but database expects App\\Entity\\Library\\Book\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Library/DigitalPurchase.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\DigitalPurchase\:\:\$purchasedAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/DigitalPurchase.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\DigitalPurchase\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Library/DigitalPurchase.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Library\:\:\$name type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Library.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Loan\:\:\$book type mapping mismatch\: property can contain App\\Entity\\Library\\Book\|null but database expects App\\Entity\\Library\\Book\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Library/Loan.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Loan\:\:\$requestedAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Loan.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Loan\:\:\$startAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Loan.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Loan\:\:\$status type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Loan.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Loan\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Library/Loan.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Payment\:\:\$amount type mapping mismatch\: property can contain string\|null but database expects float\|int\|string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Payment.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Payment\:\:\$book type mapping mismatch\: property can contain App\\Entity\\Library\\Book\|null but database expects App\\Entity\\Library\\Book\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Library/Payment.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Payment\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Payment.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Payment\:\:\$paymentMethod type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Payment.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Payment\:\:\$status type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Payment.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Payment\:\:\$transactionId type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/Payment.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\Payment\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Library/Payment.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\UserLibrary\:\:\$book type mapping mismatch\: property can contain App\\Entity\\Library\\Book\|null but database expects App\\Entity\\Library\\Book\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Library/UserLibrary.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\UserLibrary\:\:\$grantedAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Library/UserLibrary.php
+
+		-
+			message: '#^Property App\\Entity\\Library\\UserLibrary\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Library/UserLibrary.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Quiz.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\Choice\:\:\$content type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Quiz/Choice.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\Choice\:\:\$isCorrect type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Quiz/Choice.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\Choice\:\:\$question type mapping mismatch\: property can contain App\\Entity\\Quiz\\Question\|null but database expects App\\Entity\\Quiz\\Question\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Quiz/Choice.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\Question\:\:\$difficulty type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Quiz/Question.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\Question\:\:\$quiz type mapping mismatch\: property can contain App\\Entity\\Quiz\|null but database expects App\\Entity\\Quiz\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Quiz/Question.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\Question\:\:\$text type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Quiz/Question.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\Question\:\:\$xpValue type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Quiz/Question.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\QuizReport\:\:\$createdAt type mapping mismatch\: property can contain DateTimeInterface\|null but database expects DateTimeInterface\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Quiz/QuizReport.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\QuizReport\:\:\$quiz type mapping mismatch\: property can contain App\\Entity\\Quiz\|null but database expects App\\Entity\\Quiz\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Quiz/QuizReport.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\QuizReport\:\:\$reason type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Quiz/QuizReport.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\QuizReport\:\:\$reportedBy type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Quiz/QuizReport.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\\QuizReport\:\:\$status type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Quiz/QuizReport.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Course\:\:\$category type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Course.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Course\:\:\$courseName type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Course.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Course\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Course.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Course\:\:\$difficulty type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Course.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Course\:\:\$estimatedDuration type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Course.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Course\:\:\$isPublished type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Course.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Course\:\:\$plannings type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\StudySession\\Planning\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/Course.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Course\:\:\$resources type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\StudySession\\Resource\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/Course.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Course\:\:\$status type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Course.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\EnrollmentRequest\:\:\$course type mapping mismatch\: property can contain App\\Entity\\StudySession\\Course\|null but database expects App\\Entity\\StudySession\\Course\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/EnrollmentRequest.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\EnrollmentRequest\:\:\$requestedAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/EnrollmentRequest.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\EnrollmentRequest\:\:\$status type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/EnrollmentRequest.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\EnrollmentRequest\:\:\$student type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/EnrollmentRequest.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Note\:\:\$content type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Note.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Note\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Note.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Note\:\:\$studySession type mapping mismatch\: property can contain App\\Entity\\StudySession\\StudySession\|null but database expects App\\Entity\\StudySession\\StudySession\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/Note.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Note\:\:\$updatedAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Note.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Planning\:\:\$course type mapping mismatch\: property can contain App\\Entity\\StudySession\\Course\|null but database expects App\\Entity\\StudySession\\Course\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/Planning.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Planning\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Planning.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Planning\:\:\$plannedDuration type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Planning.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Planning\:\:\$reminder type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Planning.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Planning\:\:\$scheduledDate type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Planning.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Planning\:\:\$scheduledTime type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Planning.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Planning\:\:\$status type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Planning.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Planning\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Planning.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Resource\:\:\$fileSize type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Resource.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Resource\:\:\$filename type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Resource.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Resource\:\:\$mimeType type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Resource.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Resource\:\:\$storedFilename type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Resource.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Resource\:\:\$uploadedAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Resource.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudySession\:\:\$burnoutRisk type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/StudySession.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudySession\:\:\$duration type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/StudySession.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudySession\:\:\$notes type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\StudySession\\Note\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/StudySession.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudySession\:\:\$planning type mapping mismatch\: property can contain App\\Entity\\StudySession\\Planning\|null but database expects App\\Entity\\StudySession\\Planning\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/StudySession.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudySession\:\:\$resources type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\StudySession\\Resource\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/StudySession.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudySession\:\:\$startedAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/StudySession.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudySession\:\:\$tags type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\StudySession\\Tag\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/StudySession.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudySession\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/StudySession.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudyStreak\:\:\$updatedAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/StudyStreak.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\StudyStreak\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/StudyStreak.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Tag\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Tag.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Tag\:\:\$name type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/StudySession/Tag.php
+
+		-
+			message: '#^Property App\\Entity\\StudySession\\Tag\:\:\$studySessions type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\StudySession\\StudySession\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/StudySession/Tag.php
+
+		-
+			message: '#^Property App\\Entity\\users\\LoginHistory\:\:\$createdAt type mapping mismatch\: property can contain DateTimeInterface\|null but database expects DateTimeInterface\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/LoginHistory.php
+
+		-
+			message: '#^Property App\\Entity\\users\\LoginHistory\:\:\$is2faUsed type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/LoginHistory.php
+
+		-
+			message: '#^Property App\\Entity\\users\\LoginHistory\:\:\$status type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/LoginHistory.php
+
+		-
+			message: '#^Property App\\Entity\\users\\LoginHistory\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/LoginHistory.php
+
+		-
+			message: '#^Property App\\Entity\\users\\Notification\:\:\$createdAt type mapping mismatch\: property can contain DateTimeInterface\|null but database expects DateTimeInterface\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/Notification.php
+
+		-
+			message: '#^Property App\\Entity\\users\\Notification\:\:\$isRead type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/Notification.php
+
+		-
+			message: '#^Property App\\Entity\\users\\Notification\:\:\$message type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/Notification.php
+
+		-
+			message: '#^Property App\\Entity\\users\\Notification\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/Notification.php
+
+		-
+			message: '#^Property App\\Entity\\users\\Notification\:\:\$type type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/Notification.php
+
+		-
+			message: '#^Property App\\Entity\\users\\Notification\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/Notification.php
+
+		-
+			message: '#^Property App\\Entity\\users\\StudentProfile\:\:\$earnedRewards type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Gamification\\Reward\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/StudentProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\StudentProfile\:\:\$energy type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/StudentProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\StudentProfile\:\:\$firstName type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/StudentProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\StudentProfile\:\:\$lastName type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/StudentProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\StudentProfile\:\:\$level type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/StudentProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\StudentProfile\:\:\$totalTokens type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/StudentProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\StudentProfile\:\:\$totalXP type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/StudentProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\TutorProfile\:\:\$firstName type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/TutorProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\TutorProfile\:\:\$isAvailable type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/TutorProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\TutorProfile\:\:\$lastName type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/TutorProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\TutorProfile\:\:\$yearsOfExperience type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/TutorProfile.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$bookmarkedPosts type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Forum\\Post\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$books type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Library\\Book\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$comments type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Forum\\Comment\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$courses type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\StudySession\\Course\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$createdAt type mapping mismatch\: property can contain DateTimeInterface\|null but database expects DateTimeInterface\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$email type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$favoriteGames type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Gamification\\Game\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$games type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Gamification\\Game\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$isActive type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$isBanned type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$isVerified type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$password type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$posts type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Forum\\Post\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$questions type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Quiz\\Question\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$role type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$studySessions type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\StudySession\\StudySession\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$totpEnabled type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$updatedAt type mapping mismatch\: property can contain DateTimeInterface\|null but database expects DateTimeInterface\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$username type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\User\:\:\$xp type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/User.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserActivity\:\:\$activityType type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/UserActivity.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserActivity\:\:\$createdAt type mapping mismatch\: property can contain DateTimeInterface\|null but database expects DateTimeInterface\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/UserActivity.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserActivity\:\:\$description type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/UserActivity.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserActivity\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/UserActivity.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserSession\:\:\$createdAt type mapping mismatch\: property can contain DateTimeInterface\|null but database expects DateTimeInterface\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/UserSession.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserSession\:\:\$isActive type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/UserSession.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserSession\:\:\$isCurrent type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/UserSession.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserSession\:\:\$lastActivity type mapping mismatch\: property can contain DateTimeInterface\|null but database expects DateTimeInterface\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/UserSession.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserSession\:\:\$sessionToken type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/users/UserSession.php
+
+		-
+			message: '#^Property App\\Entity\\users\\UserSession\:\:\$user type mapping mismatch\: property can contain App\\Entity\\users\\User\|null but database expects App\\Entity\\users\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/users/UserSession.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Messenger\\Event\\WorkerMessageRetriedEvent\:\:getThrowable\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/EventListener/MessengerFailureListener.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Mime\\RawMessage\:\:getFrom\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/EventListener/MessengerFailureListener.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Mime\\RawMessage\:\:getSubject\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/EventListener/MessengerFailureListener.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Mime\\RawMessage\:\:getTo\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/EventListener/MessengerFailureListener.php
+
+		-
+			message: '#^Property App\\EventSubscriber\\LoginCaptchaSubscriber\:\:\$urlGenerator is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/EventSubscriber/LoginCaptchaSubscriber.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Symfony\\Component\\Security\\Http\\Authenticator\\Passport\\Passport and ''getUser'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/EventSubscriber/LoginHistorySubscriber.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\StudySession\\Course\:\:getName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Form/StudySession/StudySessionType.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\StudySession\\Planning\:\:getScheduledAt\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Form/StudySession/StudySessionType.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\HttpFoundation\\Session\\SessionInterface\:\:getFlashBag\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Security/OAuthAuthenticator.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''All Levels'' \(''All Levels'', ''All Levels''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: src/Service/FallbackTranslationService.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''Browse Games'' \(''Browse Games'', ''Browse Games''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: src/Service/FallbackTranslationService.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''Forgot Password\?'' \(''Forgot Password\?'', ''Forgot Password\?''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: src/Service/FallbackTranslationService.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''Login'' \(''Login'', ''Login''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: src/Service/FallbackTranslationService.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''Play Now'' \(''Play Now'', ''Play Now''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: src/Service/FallbackTranslationService.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''Register'' \(''Register'', ''Register''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: src/Service/FallbackTranslationService.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''View Details'' \(''View Details'', ''View Details''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: src/Service/FallbackTranslationService.php
+
+		-
+			message: '#^Call to method getResponse\(\) on an unknown class Symfony\\Contracts\\HttpClient\\Exception\\ClientException\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Service/Library/AiAssistantService.php
+
+		-
+			message: '#^Caught class Symfony\\Contracts\\HttpClient\\Exception\\ClientException not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Service/Library/AiAssistantService.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 4
+			path: src/Service/PasswordPolicyService.php
+
+		-
+			message: '#^Property App\\Service\\Quiz\\QuizStatisticsService\:\:\$questionRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/Quiz/QuizStatisticsService.php
+
+		-
+			message: '#^Property App\\Service\\Quiz\\QuizStatisticsService\:\:\$quizReportRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/Quiz/QuizStatisticsService.php
+
+		-
+			message: '#^Property App\\Service\\Quiz\\QuizStatisticsService\:\:\$quizRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/Quiz/QuizStatisticsService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$user\.$#'
+			identifier: closure.unusedUse
+			count: 1
+			path: src/Service/StudySession/AIRecommendationService.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Symfony\\Contracts\\HttpClient\\Exception\\ClientExceptionInterface\|Symfony\\Contracts\\HttpClient\\Exception\\ServerExceptionInterface and ''getResponse'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Service/StudySession/AIRecommendationService.php
+
+		-
+			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 4
+			path: src/Service/StudySession/AIRecommendationService.php
+
+		-
+			message: '#^Instanceof between Exception&Symfony\\Contracts\\HttpClient\\Exception\\ClientExceptionInterface and Symfony\\Contracts\\HttpClient\\Exception\\HttpExceptionInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Service/StudySession/ApiErrorHandler.php
+
+		-
+			message: '#^Instanceof between Exception&Symfony\\Contracts\\HttpClient\\Exception\\ServerExceptionInterface and Symfony\\Contracts\\HttpClient\\Exception\\HttpExceptionInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Service/StudySession/ApiErrorHandler.php
+
+		-
+			message: '#^Parameter \#1 \$exception of method App\\Service\\StudySession\\ApiErrorHandler\:\:parseException\(\) expects Exception, Throwable given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/StudySession/ApiErrorHandler.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Contracts\\Cache\\CacheInterface\:\:clear\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Service/StudySession/CacheService.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\HttpFoundation\\Session\\SessionInterface\:\:getFlashBag\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: src/Service/StudySession/CourseCompletionService.php
+
+		-
+			message: '#^Call to method getStudentProfile\(\) on an unknown class App\\Entity\\User\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Service/StudySession/CourseCompletionService.php
+
+		-
+			message: '#^Parameter \$user of method App\\Service\\StudySession\\CourseCompletionService\:\:completeCourse\(\) has invalid type App\\Entity\\User\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Service/StudySession/CourseCompletionService.php
+
+		-
+			message: '#^Property App\\Service\\StudySession\\CourseResourceService\:\:\$entityManager is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/StudySession/CourseResourceService.php
+
+		-
+			message: '#^Property App\\Service\\StudySession\\NotificationService\:\:\$mailer is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/StudySession/NotificationService.php
+
+		-
+			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Service/StudySession/YouTubeApiClient.php
+
+		-
+			message: '#^Anonymous function has an unused use \$studentData\.$#'
+			identifier: closure.unusedUse
+			count: 1
+			path: src/Service/game/AIRewardRecommendationService.php
+
+		-
+			message: '#^Method App\\Service\\game\\CertificateService\:\:generateFilename\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: src/Service/game/CertificateService.php
+
+		-
+			message: '#^Call to function method_exists\(\) with App\\Entity\\users\\StudentProfile and ''getEmail'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/game/RewardNotificationService.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Service\\Library\\NotificationService\:\:getUnreadNotifications\(\) expects App\\Entity\\users\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Twig/NotificationExtension.php
+
+		-
+			message: '#^Access to an undefined property Symfony\\Component\\Validator\\Constraint\:\:\$messageNoCorrect\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Validator/SingleCorrectAnswerValidator.php
+
+		-
+			message: '#^Access to an undefined property Symfony\\Component\\Validator\\Constraint\:\:\$messageTooManyCorrect\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Validator/SingleCorrectAnswerValidator.php

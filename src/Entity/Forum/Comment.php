@@ -40,10 +40,16 @@ class Comment
     private ?User $author = null;
 
     // --- VOTING FIELDS ---
+    /**
+     * @var Collection<int, User>
+     */
     #[ORM\ManyToMany(targetEntity: User::class)]
     #[ORM\JoinTable(name: 'comment_upvoters')]
     private Collection $upvoters;
 
+    /**
+     * @var Collection<int, User>
+     */
     #[ORM\ManyToMany(targetEntity: User::class)]
     #[ORM\JoinTable(name: 'comment_downvoters')]
     private Collection $downvoters;
@@ -53,6 +59,9 @@ class Comment
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?self $parent = null;
 
+    /**
+     * @var Collection<int, Comment>
+     */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent')]
     private Collection $replies;
 
@@ -92,16 +101,26 @@ class Comment
     public function getAuthor(): ?User { return $this->author; }
     public function setAuthor(?User $author): static { $this->author = $author; return $this; }
 
+    /**
+     * @return Collection<int, User>
+     */
     public function getUpvoters(): Collection { return $this->upvoters; }
     public function addUpvoter(User $upvoter): static { if (!$this->upvoters->contains($upvoter)) { $this->upvoters->add($upvoter); } return $this; }
     public function removeUpvoter(User $upvoter): static { $this->upvoters->removeElement($upvoter); return $this; }
 
+    /**
+     * @return Collection<int, User>
+     */
     public function getDownvoters(): Collection { return $this->downvoters; }
     public function addDownvoter(User $downvoter): static { if (!$this->downvoters->contains($downvoter)) { $this->downvoters->add($downvoter); } return $this; }
     public function removeDownvoter(User $downvoter): static { $this->downvoters->removeElement($downvoter); return $this; }
 
     public function getParent(): ?self { return $this->parent; }
     public function setParent(?self $parent): static { $this->parent = $parent; return $this; }
+    
+    /**
+     * @return Collection<int, Comment>
+     */
     public function getReplies(): Collection { return $this->replies; }
     public function addReply(self $reply): static { if (!$this->replies->contains($reply)) { $this->replies->add($reply); $reply->setParent($this); } return $this; }
     public function removeReply(self $reply): static { if ($this->replies->removeElement($reply)) { if ($reply->getParent() === $this) { $reply->setParent(null); } } return $this; }

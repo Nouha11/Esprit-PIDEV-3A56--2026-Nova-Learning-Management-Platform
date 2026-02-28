@@ -41,21 +41,33 @@ class Post
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null; 
 
+    /**
+     * @var Collection<int, Comment>
+     */
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['remove'])]
     private Collection $comments;
 
     #[ORM\Column]
     private ?bool $isLocked = false;
 
+    /**
+     * @var Collection<int, User>
+     */
     #[ORM\ManyToMany(targetEntity: User::class)]
     #[ORM\JoinTable(name: 'post_upvoters')]  
     private Collection $upvoters;
 
     // --- NEW: DOWNVOTERS TRACKING ---
+    /**
+     * @var Collection<int, User>
+     */
     #[ORM\ManyToMany(targetEntity: User::class)]
     #[ORM\JoinTable(name: 'post_downvoters')]  
     private Collection $downvoters;
 
+    /**
+     * @var Collection<int, Report>
+     */
     #[ORM\OneToMany(targetEntity: Report::class, mappedBy: 'post')]
     private Collection $reports;
 
@@ -89,6 +101,9 @@ class Post
     #[ORM\Column(type: Types::FLOAT)]
     private float $hotScore = 0.0;
 
+    /**
+     * @var Collection<int, Tag>
+     */
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'posts', cascade: ['persist'])]
     #[ORM\JoinTable(name: 'post_tags')]
     private Collection $tags;
@@ -120,11 +135,15 @@ class Post
         $this->createdAt = $createdAt;
         $this->updateHotScore(); // Calculate initial hotness
         return $this;
-    }    public function getAuthor(): ?User { return $this->author; }
-
+    }    
+    
+    public function getAuthor(): ?User { return $this->author; }
 
     public function setAuthor(?User $author): static { $this->author = $author; return $this; }
 
+    /**
+     * @return Collection<int, Comment>
+     */
     public function getComments(): Collection { return $this->comments; }
     public function addComment(Comment $comment): static
     {
@@ -146,6 +165,9 @@ class Post
     public function setIsLocked(bool $isLocked): static { $this->isLocked = $isLocked; return $this; }
 
     // --- UPVOTER METHODS ---
+    /**
+     * @return Collection<int, User>
+     */
     public function getUpvoters(): Collection { return $this->upvoters; }
     public function addUpvoter(User $upvoter): static
     {
@@ -169,6 +191,9 @@ class Post
     public function isUpvotedBy(User $user): bool { return $this->upvoters->contains($user); }
 
     // --- DOWNVOTER METHODS ---
+    /**
+     * @return Collection<int, User>
+     */
     public function getDownvoters(): Collection { return $this->downvoters; }
     public function addDownvoter(User $downvoter): static
     {
@@ -189,6 +214,9 @@ class Post
     }
     public function isDownvotedBy(User $user): bool { return $this->downvoters->contains($user); }
 
+    /**
+     * @return Collection<int, Report>
+     */
     public function getReports(): Collection { return $this->reports; }
     public function addReport(Report $report): static {
         if (!$this->reports->contains($report)) { $this->reports->add($report); $report->setPost($this); }
@@ -224,7 +252,8 @@ class Post
     public function getAttachmentFile(): ?File { return $this->attachmentFile; }
     public function setAttachmentFile(?File $attachmentFile = null): void {
         $this->attachmentFile = $attachmentFile;
-        if (null !== $attachmentFile && property_exists($this, 'updatedAt')) { $this->updatedAt = new \DateTimeImmutable(); }
+        // FIXED: Removed the useless property_exists() call that PHPStan flagged
+        if (null !== $attachmentFile) { $this->updatedAt = new \DateTimeImmutable(); }
     }
 
     public function getHotScore(): float

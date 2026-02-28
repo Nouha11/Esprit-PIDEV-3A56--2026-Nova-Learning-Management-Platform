@@ -25,6 +25,15 @@ class AIAssistantController extends AbstractController
     public function getRecommendation(): JsonResponse
     {
         $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
+            return $this->json([
+                'success' => false,
+                'message' => 'User not authenticated.'
+            ], 401);
+        }
+        
         $student = $user->getStudentProfile();
         
         if (!$student) {
@@ -46,6 +55,15 @@ class AIAssistantController extends AbstractController
     public function chat(Request $request): JsonResponse
     {
         $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
+            return $this->json([
+                'success' => false,
+                'message' => 'User not authenticated.'
+            ], 401);
+        }
+        
         $student = $user->getStudentProfile();
         
         if (!$student) {

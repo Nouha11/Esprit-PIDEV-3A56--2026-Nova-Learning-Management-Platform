@@ -3,7 +3,6 @@ namespace App\Controller\Front\Game;
 
 use App\Entity\Gamification\Reward;
 use App\Repository\Gamification\RewardRepository;
-use App\Service\game\RewardService;
 use App\Service\game\CertificateService;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
@@ -22,21 +21,24 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class RewardController extends AbstractController
 {
     public function __construct(
-        private RewardService $rewardService,
         private CertificateService $certificateService,
         private PaginatorInterface $paginator,
-        private RewardRepository $rewardRepository,
-        private \App\Service\game\LevelCalculatorService $levelCalculator
+        private RewardRepository $rewardRepository
     ) {
     }
 
     /**
-    * View my earned rewards (placeholder - rewards tracking removed)
-    */
+     * View my earned rewards (placeholder - rewards tracking removed)
+     */
     #[Route('/my-rewards', name: 'front_reward_my_rewards', methods: ['GET'])]
     public function myRewards(): Response
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            return $this->redirectToRoute('app_login');
+        }
+        
         $student = $user->getStudentProfile();
 
         if (!$student) {
@@ -50,13 +52,13 @@ class RewardController extends AbstractController
     }
 
     /**
-    * View all available rewards (gallery) with pagination and Ajax filters
-    */
+     * View all available rewards (gallery) with pagination and Ajax filters
+     */
     #[Route('/browse', name: 'front_reward_browse', methods: ['GET'])]
     public function browse(Request $request): Response
     {
         $user = $this->getUser();
-        $student = $user ? $user->getStudentProfile() : null;
+        $student = ($user instanceof \App\Entity\users\User) ? $user->getStudentProfile() : null;
 
         $search = $request->query->get('search', '');
         $type = $request->query->get('type', '');
@@ -128,7 +130,7 @@ class RewardController extends AbstractController
     public function show(Reward $reward): Response
     {
         $user = $this->getUser();
-        $student = $user ? $user->getStudentProfile() : null;
+        $student = ($user instanceof \App\Entity\users\User) ? $user->getStudentProfile() : null;
 
         // Generate QR code for this reward
         $rewardUrl = $this->generateUrl('front_reward_show', ['id' => $reward->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -167,6 +169,11 @@ class RewardController extends AbstractController
     public function downloadCertificate(Reward $reward): Response
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
+        
         $student = $user->getStudentProfile();
 
         if (!$student) {
