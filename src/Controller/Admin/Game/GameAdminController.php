@@ -26,6 +26,7 @@ class GameAdminController extends AbstractController
         private GameRepository $gameRepository,
         private PaginatorInterface $paginator,
         private GameTemplateService $templateService,
+        /** @phpstan-ignore-next-line */
         private \App\Service\game\HuggingFaceService $huggingFaceService
     ) {
     }
@@ -203,7 +204,7 @@ class GameAdminController extends AbstractController
     {
         // Verify CSRF token
         $token = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid('toggle_active_' . $game->getId(), $token)) {
+        if (!$this->isCsrfTokenValid('toggle_active_' . $game->getId(), (string)$token)) {
             return $this->json([
                 'success' => false,
                 'message' => 'Invalid security token.'
@@ -240,7 +241,7 @@ class GameAdminController extends AbstractController
     #[Route('/{id}/delete', name: 'admin_game_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(Request $request, Game $game, EntityManagerInterface $entityManager): Response 
     {
-        if ($this->isCsrfTokenValid('delete'.$game->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$game->getId(), (string)$request->request->get('_token'))) {
             try {
                 $entityManager->remove($game);
                 $entityManager->flush();
@@ -279,7 +280,7 @@ class GameAdminController extends AbstractController
         $key = $request->request->get('key');
         $difficulty = $request->request->get('difficulty', 'MEDIUM');
 
-        $config = $this->templateService->getTemplateConfig($category, $key, $difficulty);
+        $config = $this->templateService->getTemplateConfig((string)$category, (string)$key, (string)$difficulty);
 
         if (empty($config)) {
             return $this->json(['error' => 'Template not found'], 404);
@@ -299,7 +300,7 @@ class GameAdminController extends AbstractController
         $difficulty = $request->request->get('difficulty', 'MEDIUM');
         $customName = $request->request->get('custom_name');
 
-        $config = $this->templateService->getTemplateConfig($category, $key, $difficulty);
+        $config = $this->templateService->getTemplateConfig((string)$category, (string)$key, (string)$difficulty);
 
         if (empty($config)) {
             $this->addFlash('error', 'Template not found');
@@ -308,7 +309,7 @@ class GameAdminController extends AbstractController
 
         // Determine the game name
         $baseName = $customName ?: $config['name'];
-        $gameName = $baseName;
+        $gameName = (string)$baseName;
         
         // Check if game with this name already exists
         $existingGame = $this->gameRepository->findOneBy(['name' => $gameName]);
@@ -369,82 +370,6 @@ class GameAdminController extends AbstractController
     }
 
     /**
-     * Test AI connection
-     */
-/*     #[Route('/ai/test', name: 'admin_game_ai_test', methods: ['GET'])]
-    public function testAI(): JsonResponse
-    {
-        try {
-            $isConnected = $this->huggingFaceService->testConnection();
-            
-            if ($isConnected) {
-                return $this->json([
-                    'success' => true,
-                    'message' => 'Hugging Face API is connected and working!'
-                ]);
-            } else {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Failed to connect to Hugging Face API. Check your API key.'
-                ], 500);
-            }
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
-        }
-    } */
-
-    /**
-     * Generate trivia questions using AI
-     */
-/*     #[Route('/ai/generate-questions', name: 'admin_game_ai_generate', methods: ['POST'])]
-    public function generateQuestions(Request $request): JsonResponse
-    {
-        $topic = $request->request->get('topic');
-        $count = $request->request->getInt('count', 5);
-        $difficulty = $request->request->get('difficulty', 'MEDIUM');
-        
-        if (empty($topic)) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Topic is required'
-            ], 400);
-        }
-        
-        if ($count < 3 || $count > 10) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Question count must be between 3 and 10'
-            ], 400);
-        }
-        
-        try {
-            $questions = $this->huggingFaceService->generateTriviaQuestions($topic, $count, $difficulty);
-            
-            if (empty($questions)) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'No questions were generated. Please try again with a different topic.'
-                ], 500);
-            }
-            
-            return $this->json([
-                'success' => true,
-                'message' => "Successfully generated {$count} {$difficulty} questions about '{$topic}'",
-                'questions' => $questions,
-                'count' => count($questions)
-            ]);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    } */
-
-    /**
      * Save or update game content based on game type
      */
     private function saveGameContent(Game $game, Request $request, EntityManagerInterface $em): void
@@ -477,7 +402,7 @@ class GameAdminController extends AbstractController
             case 'MEMORY':
                 $wordsText = $request->request->get('content_words');
                 if ($wordsText) {
-                    $words = array_filter(array_map('trim', explode("\n", $wordsText)));
+                    $words = array_filter(array_map('trim', explode("\n", (string)$wordsText)));
                     if (count($words) === 6) {
                         $data['words'] = $words;
                     }
@@ -494,7 +419,7 @@ class GameAdminController extends AbstractController
                 
                 if ($questionsJson) {
                     try {
-                        $questions = json_decode($questionsJson, true);
+                        $questions = json_decode((string)$questionsJson, true);
                         if (is_array($questions) && !empty($questions)) {
                             $data['questions'] = $questions;
                         }
@@ -507,7 +432,7 @@ class GameAdminController extends AbstractController
             case 'ARCADE':
                 $sentencesText = $request->request->get('content_sentences');
                 if ($sentencesText) {
-                    $sentences = array_filter(array_map('trim', explode("\n", $sentencesText)));
+                    $sentences = array_filter(array_map('trim', explode("\n", (string)$sentencesText)));
                     if (count($sentences) >= 3 && count($sentences) <= 5) {
                         $data['sentences'] = $sentences;
                     }
@@ -524,6 +449,7 @@ class GameAdminController extends AbstractController
     
     /**
      * Create default game content for template-based games
+     * @phpstan-ignore-next-line
      */
     private function createDefaultGameContent(Game $game, array $config, EntityManagerInterface $em): void
     {

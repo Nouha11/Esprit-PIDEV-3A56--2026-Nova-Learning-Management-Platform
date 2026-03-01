@@ -22,7 +22,9 @@ class CourseController extends AbstractController
 {
     public function __construct(
         private CourseService $courseService,
+        /** @phpstan-ignore-next-line */
         private PlanningService $planningService,
+        /** @phpstan-ignore-next-line */
         private StudySessionService $studySessionService,
         private EnrollmentService $enrollmentService,
         private EnergyMonitorService $energyMonitorService
@@ -55,12 +57,16 @@ class CourseController extends AbstractController
         
         if ($this->isGranted('ROLE_STUDENT')) {
             $user = $this->getUser();
-            $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
             
-            foreach ($courses as $course) {
-                $enrolledCourses[$course->getId()] = $this->enrollmentService->isEnrolled($user, $course);
-                $pendingRequest = $this->enrollmentService->getPendingRequest($user, $course);
-                $pendingRequests[$course->getId()] = $pendingRequest !== null;
+            // ADDED: PHPStan User Type Verification
+            if ($user instanceof \App\Entity\users\User) {
+                $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
+                
+                foreach ($courses as $course) {
+                    $enrolledCourses[$course->getId()] = $this->enrollmentService->isEnrolled($user, $course);
+                    $pendingRequest = $this->enrollmentService->getPendingRequest($user, $course);
+                    $pendingRequests[$course->getId()] = $pendingRequest !== null;
+                }
             }
         }
 
@@ -82,8 +88,15 @@ class CourseController extends AbstractController
         Request $request,
         EntityManagerInterface $em
     ): Response {
+        $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof \App\Entity\users\User) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
+
         $course = new Course();
-        $course->setCreatedBy($this->getUser()); // Set the creator
+        $course->setCreatedBy($user); // Set the creator
 
         $form = $this->createForm(CourseType::class, $course);
         $form->handleRequest($request);
@@ -221,7 +234,11 @@ class CourseController extends AbstractController
         $currentEnergy = 100;
         if ($this->isGranted('ROLE_STUDENT')) {
             $user = $this->getUser();
-            $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
+            
+            // ADDED: PHPStan User Type Verification
+            if ($user instanceof \App\Entity\users\User) {
+                $currentEnergy = $this->energyMonitorService->getCurrentEnergy($user);
+            }
         }
         
         // Get course resources

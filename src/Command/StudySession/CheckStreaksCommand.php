@@ -4,6 +4,7 @@ namespace App\Command\StudySession;
 
 use App\Repository\StudySession\StudyStreakRepository;
 use App\Service\StudySession\StreakService;
+use Doctrine\ORM\EntityManagerInterface; // <-- ADDED THIS IMPORT
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,7 +19,8 @@ class CheckStreaksCommand extends Command
 {
     public function __construct(
         private StudyStreakRepository $streakRepository,
-        private StreakService $streakService
+        private StreakService $streakService,
+        private EntityManagerInterface $entityManager // <-- ADDED THIS INJECTION
     ) {
         parent::__construct();
     }
@@ -54,8 +56,9 @@ class CheckStreaksCommand extends Command
                 // Check for 24-hour gaps and reset streaks via StreakService
                 $this->streakService->checkAndResetStreak($user);
                 
-                // Refresh the streak entity to get updated values
-                $this->streakRepository->getEntityManager()->refresh($streak);
+                // FIXED: Use the injected EntityManager directly instead of the protected repository method
+                $this->entityManager->refresh($streak);
+                
                 $currentStreak = $streak->getCurrentStreak();
                 
                 if ($currentStreak === 0 && $previousStreak > 0) {

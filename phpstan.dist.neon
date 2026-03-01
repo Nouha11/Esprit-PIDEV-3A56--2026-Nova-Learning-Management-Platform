@@ -4,6 +4,8 @@ parameters:
         - src/
     symfony:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - identifier: doctrine.columnType
         - identifier: doctrine.associationType

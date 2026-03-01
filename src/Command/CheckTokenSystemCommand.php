@@ -77,34 +77,33 @@ class CheckTokenSystemCommand extends Command
         // Check 5: Test scenarios
         $io->section('Test Scenarios');
         
-        if (!empty($students) && !empty($games)) {
-            $student = $students[0];
-            $game = $games[0];
-            
-            $validation = $this->tokenService->validateTransaction($student, $game);
-            
-            $io->writeln(sprintf(
-                'Student: %s (ID: %d) with %d tokens',
-                $student->getFirstName() . ' ' . $student->getLastName(),
-                $student->getId(),
-                $student->getTotalTokens()
+        // FIXED: Removed redundant empty() checks since the code already returned FAILURE above if these were empty
+        $student = $students[0];
+        $game = $games[0];
+        
+        $validation = $this->tokenService->validateTransaction($student, $game);
+        
+        $io->writeln(sprintf(
+            'Student: %s (ID: %d) with %d tokens',
+            $student->getFirstName() . ' ' . $student->getLastName(),
+            $student->getId(),
+            $student->getTotalTokens()
+        ));
+        $io->writeln(sprintf(
+            'Game: %s (ID: %d) costs %d tokens',
+            $game->getName(),
+            $game->getId(),
+            $game->getTokenCost()
+        ));
+        $io->writeln('');
+        
+        if ($validation['valid']) {
+            $io->success('✓ Student CAN afford this game');
+        } else {
+            $io->warning(sprintf(
+                '✗ Student CANNOT afford this game (needs %d more tokens)',
+                $validation['missing']
             ));
-            $io->writeln(sprintf(
-                'Game: %s (ID: %d) costs %d tokens',
-                $game->getName(),
-                $game->getId(),
-                $game->getTokenCost()
-            ));
-            $io->writeln('');
-            
-            if ($validation['valid']) {
-                $io->success('✓ Student CAN afford this game');
-            } else {
-                $io->warning(sprintf(
-                    '✗ Student CANNOT afford this game (needs %d more tokens)',
-                    $validation['missing']
-                ));
-            }
         }
 
         // Check 6: Recommendations
@@ -114,15 +113,15 @@ class CheckTokenSystemCommand extends Command
         $hasSufficientScenario = false;
         $hasFreeGame = false;
         
-        foreach ($students as $student) {
-            foreach ($games as $game) {
-                if ($this->tokenService->isFreeGame($game)) {
+        foreach ($students as $studentItem) {
+            foreach ($games as $gameItem) {
+                if ($this->tokenService->isFreeGame($gameItem)) {
                     $hasFreeGame = true;
                 }
-                if ($this->tokenService->hasEnoughTokens($student, $game)) {
+                if ($this->tokenService->hasEnoughTokens($studentItem, $gameItem)) {
                     $hasSufficientScenario = true;
                 }
-                if (!$this->tokenService->hasEnoughTokens($student, $game) && !$this->tokenService->isFreeGame($game)) {
+                if (!$this->tokenService->hasEnoughTokens($studentItem, $gameItem) && !$this->tokenService->isFreeGame($gameItem)) {
                     $hasInsufficientScenario = true;
                 }
             }
@@ -149,21 +148,20 @@ class CheckTokenSystemCommand extends Command
         // Final recommendations
         $io->section('Quick Setup Commands');
         
-        if (!empty($students) && !empty($games)) {
-            $studentId = $students[0]->getId();
-            $gameId = $games[0]->getId();
-            
-            $io->writeln('Run these SQL commands to set up test scenarios:');
-            $io->writeln('');
-            $io->writeln(sprintf('-- Give student %d enough tokens', $studentId));
-            $io->writeln(sprintf('UPDATE student_profile SET total_tokens = 50 WHERE id = %d;', $studentId));
-            $io->writeln('');
-            $io->writeln(sprintf('-- Make game %d affordable (20 tokens)', $gameId));
-            $io->writeln(sprintf('UPDATE game SET token_cost = 20 WHERE id = %d;', $gameId));
-            $io->writeln('');
-            $io->writeln('-- Or use the setup script:');
-            $io->writeln('mysql -u root nova_db < database_seeds/setup_token_testing.sql');
-        }
+        // FIXED: Removed redundant empty() checks
+        $studentId = $students[0]->getId();
+        $gameId = $games[0]->getId();
+        
+        $io->writeln('Run these SQL commands to set up test scenarios:');
+        $io->writeln('');
+        $io->writeln(sprintf('-- Give student %d enough tokens', $studentId));
+        $io->writeln(sprintf('UPDATE student_profile SET total_tokens = 50 WHERE id = %d;', $studentId));
+        $io->writeln('');
+        $io->writeln(sprintf('-- Make game %d affordable (20 tokens)', $gameId));
+        $io->writeln(sprintf('UPDATE game SET token_cost = 20 WHERE id = %d;', $gameId));
+        $io->writeln('');
+        $io->writeln('-- Or use the setup script:');
+        $io->writeln('mysql -u root nova_db < database_seeds/setup_token_testing.sql');
 
         $io->success('Token system check complete!');
         $io->note('See QUICK_START_TOKEN_TESTING.md for detailed testing instructions');

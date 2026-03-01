@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\users\User; // <-- ADDED THIS IMPORT
 use App\Service\UsernameChangeService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,9 +22,12 @@ class UsernameChangeController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function change(Request $request): Response
     {
+        // ADDED: PHPDoc to make VS Code Intelephense happy
+        /** @var User $user */
         $user = $this->getUser();
         
-        if (!$user) {
+        // ADDED: Type verification to make PHPStan happy
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
@@ -31,7 +35,7 @@ class UsernameChangeController extends AbstractController
         $suggestions = [];
 
         if ($request->isMethod('POST')) {
-            $newUsername = trim($request->request->get('username'));
+            $newUsername = trim((string)$request->request->get('username'));
             
             // Validate username
             $validation = $this->usernameChangeService->validateUsername($newUsername, $user);
@@ -72,7 +76,7 @@ class UsernameChangeController extends AbstractController
     public function checkAvailability(Request $request): JsonResponse
     {
         $user = $this->getUser();
-        $username = trim($request->request->get('username', ''));
+        $username = trim((string)$request->request->get('username', ''));
 
         if (empty($username)) {
             return $this->json([
@@ -81,8 +85,11 @@ class UsernameChangeController extends AbstractController
             ]);
         }
 
+        // Only pass the user if it's actually an instance of your User class
+        $validUser = $user instanceof User ? $user : null;
+
         // Validate username (pass null for user if not authenticated - for signup)
-        $validation = $this->usernameChangeService->validateUsername($username, $user);
+        $validation = $this->usernameChangeService->validateUsername($username, $validUser);
 
         if (!$validation['valid']) {
             return $this->json([
@@ -101,7 +108,7 @@ class UsernameChangeController extends AbstractController
     #[Route('/suggestions', name: 'app_username_suggestions', methods: ['POST'])]
     public function getSuggestions(Request $request): JsonResponse
     {
-        $username = trim($request->request->get('username', ''));
+        $username = trim((string)$request->request->get('username', ''));
 
         if (empty($username)) {
             return $this->json([

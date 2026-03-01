@@ -13,22 +13,22 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/admin/books')]
 #[IsGranted('ROLE_ADMIN')]
 class AdminBookController extends AbstractController
 {
-    private string $booksDirectory = 'public/uploads/books';
-
-    public function __construct(private SluggerInterface $slugger)
-    {
-    }
+    // Removed unused $booksDirectory and $slugger to fix PHPStan property.onlyWritten errors
 
     #[Route('/analytics', name: 'admin_books_analytics')]
     public function analytics(EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
         
         // Get all books by this admin
         $books = $em->getRepository(Book::class)->findBy(
@@ -123,6 +123,11 @@ class AdminBookController extends AbstractController
     {
         $user = $this->getUser();
         
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+        
         // Get books uploaded by the current admin/author
         $books = $em->getRepository(Book::class)->findBy(
             ['uploaderId' => $user->getId()],
@@ -171,6 +176,13 @@ class AdminBookController extends AbstractController
         if (strlen($query) < 2) {
             return $this->json([]);
         }
+        
+        $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof User) {
+            return $this->json([]);
+        }
 
         // Recherche des livres par titre ou auteur
         $qb = $em->getRepository(Book::class)->createQueryBuilder('b');
@@ -182,7 +194,7 @@ class AdminBookController extends AbstractController
                     $qb->expr()->like('LOWER(b.author)', ':query')
                 )
             )
-            ->setParameter('userId', $this->getUser()->getId())
+            ->setParameter('userId', $user->getId())
             ->setParameter('query', '%' . strtolower($query) . '%')
             ->setMaxResults(5)
             ->getQuery()
@@ -207,8 +219,15 @@ class AdminBookController extends AbstractController
     #[Route('/new', name: 'admin_books_new')]
     public function new(Request $request, EntityManagerInterface $em, \App\Service\Library\FileUploadService $fileUploadService): Response
     {
+        $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+        
         $book = new Book();
-        $book->setUploaderId($this->getUser()->getId());
+        $book->setUploaderId($user->getId());
         $book->setCreatedAt(new \DateTimeImmutable());
 
         $form = $this->createForm(BookType::class, $book);
@@ -274,8 +293,15 @@ class AdminBookController extends AbstractController
             throw $this->createNotFoundException('Book not found');
         }
 
+        $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         // Check if user is the owner or admin
-        if ($book->getUploaderId() !== $this->getUser()->getId() && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+        if ($book->getUploaderId() !== $user->getId() && !$this->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException('You can only view your own books.');
         }
 
@@ -292,8 +318,15 @@ class AdminBookController extends AbstractController
             throw $this->createNotFoundException('Book not found');
         }
 
+        $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         // Check if user is the owner or admin
-        if ($book->getUploaderId() !== $this->getUser()->getId() && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+        if ($book->getUploaderId() !== $user->getId() && !$this->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException('You can only view your own books.');
         }
 
@@ -310,8 +343,15 @@ class AdminBookController extends AbstractController
             throw $this->createNotFoundException('Book not found');
         }
 
+        $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         // Check if user is the owner or admin
-        if ($book->getUploaderId() !== $this->getUser()->getId() && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+        if ($book->getUploaderId() !== $user->getId() && !$this->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException('You can only edit your own books.');
         }
 
@@ -399,12 +439,19 @@ class AdminBookController extends AbstractController
             throw $this->createNotFoundException('Book not found');
         }
 
+        $user = $this->getUser();
+        
+        // ADDED: PHPStan User Type Verification
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
         // Check if user is the owner or admin
-        if ($book->getUploaderId() !== $this->getUser()->getId() && !$this->isGranted('ROLE_SUPER_ADMIN')) {
+        if ($book->getUploaderId() !== $user->getId() && !$this->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException('You can only delete your own books.');
         }
 
-        if ($this->isCsrfTokenValid('delete' . $book->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $book->getId(), (string)$request->request->get('_token'))) {
             // Delete cover image if exists
             if ($book->getCoverImage()) {
                 $imagePath = $this->getParameter('kernel.project_dir') . '/public/' . $book->getCoverImage();
