@@ -4,14 +4,15 @@ namespace App\Service;
 
 class PasswordPolicyService
 {
-    // Password policy configuration
-    private const MIN_LENGTH = 8;
-    private const MAX_LENGTH = 128;
-    private const REQUIRE_UPPERCASE = true;
-    private const REQUIRE_LOWERCASE = true;
-    private const REQUIRE_NUMBERS = true;
-    private const REQUIRE_SPECIAL_CHARS = true;
-    private const MIN_STRENGTH_SCORE = 3; // 0-5 scale
+    // Modifié : Utilisation de propriétés typées au lieu de constantes
+    // Cela résout l'erreur de logique booléenne stricte de PHPStan et rend le service configurable
+    private int $minLength = 8;
+    private int $maxLength = 128;
+    private bool $requireUppercase = true;
+    private bool $requireLowercase = true;
+    private bool $requireNumbers = true;
+    private bool $requireSpecialChars = true;
+    private int $minStrengthScore = 3; // 0-5 scale
 
     /**
      * Validate password against policy
@@ -22,27 +23,27 @@ class PasswordPolicyService
         $checks = $this->checkPassword($password);
 
         if (!$checks['length']) {
-            $errors[] = sprintf('Password must be between %d and %d characters', self::MIN_LENGTH, self::MAX_LENGTH);
+            $errors[] = sprintf('Password must be between %d and %d characters', $this->minLength, $this->maxLength);
         }
 
-        if (self::REQUIRE_UPPERCASE && !$checks['uppercase']) {
+        if ($this->requireUppercase && !$checks['uppercase']) {
             $errors[] = 'Password must contain at least one uppercase letter';
         }
 
-        if (self::REQUIRE_LOWERCASE && !$checks['lowercase']) {
+        if ($this->requireLowercase && !$checks['lowercase']) {
             $errors[] = 'Password must contain at least one lowercase letter';
         }
 
-        if (self::REQUIRE_NUMBERS && !$checks['numbers']) {
+        if ($this->requireNumbers && !$checks['numbers']) {
             $errors[] = 'Password must contain at least one number';
         }
 
-        if (self::REQUIRE_SPECIAL_CHARS && !$checks['special']) {
+        if ($this->requireSpecialChars && !$checks['special']) {
             $errors[] = 'Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)';
         }
 
-        if ($checks['strength']['score'] < self::MIN_STRENGTH_SCORE) {
-            $errors[] = sprintf('Password is too weak. Minimum strength required: %s', $this->getStrengthLabel(self::MIN_STRENGTH_SCORE));
+        if ($checks['strength']['score'] < $this->minStrengthScore) {
+            $errors[] = sprintf('Password is too weak. Minimum strength required: %s', $this->getStrengthLabel($this->minStrengthScore));
         }
 
         return [
@@ -60,7 +61,7 @@ class PasswordPolicyService
         $length = strlen($password);
         
         return [
-            'length' => $length >= self::MIN_LENGTH && $length <= self::MAX_LENGTH,
+            'length' => $length >= $this->minLength && $length <= $this->maxLength,
             'uppercase' => preg_match('/[A-Z]/', $password) === 1,
             'lowercase' => preg_match('/[a-z]/', $password) === 1,
             'numbers' => preg_match('/[0-9]/', $password) === 1,
@@ -195,13 +196,13 @@ class PasswordPolicyService
     public function getPolicyRequirements(): array
     {
         return [
-            'minLength' => self::MIN_LENGTH,
-            'maxLength' => self::MAX_LENGTH,
-            'requireUppercase' => self::REQUIRE_UPPERCASE,
-            'requireLowercase' => self::REQUIRE_LOWERCASE,
-            'requireNumbers' => self::REQUIRE_NUMBERS,
-            'requireSpecialChars' => self::REQUIRE_SPECIAL_CHARS,
-            'minStrengthScore' => self::MIN_STRENGTH_SCORE,
+            'minLength' => $this->minLength,
+            'maxLength' => $this->maxLength,
+            'requireUppercase' => $this->requireUppercase,
+            'requireLowercase' => $this->requireLowercase,
+            'requireNumbers' => $this->requireNumbers,
+            'requireSpecialChars' => $this->requireSpecialChars,
+            'minStrengthScore' => $this->minStrengthScore,
         ];
     }
 

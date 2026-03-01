@@ -148,7 +148,6 @@ class FallbackTranslationService
         'Difficulty Level' => 'Niveau de Difficulté',
         
         // Games and Gaming
-        'Browse Games' => 'Parcourir les Jeux',
         'Discover Amazing Games' => 'Découvrez des Jeux Incroyables',
         'Challenge yourself and earn rewards!' => 'Défiez-vous et gagnez des récompenses !',
         'All Games' => 'Tous les Jeux',
@@ -172,9 +171,7 @@ class FallbackTranslationService
         'Read More' => 'Lire Plus',
         
         // Authentication
-        'Login' => 'Connexion',
         'Sign Up' => 'S\'inscrire',
-        'Register' => 'S\'inscrire',
         'Forgot Password?' => 'Mot de passe oublié ?',
         'Remember Me' => 'Se souvenir de moi',
         'Email Address' => 'Adresse Email',
@@ -277,13 +274,11 @@ class FallbackTranslationService
         'Maintenance Mode' => 'Mode Maintenance',
         
         // Course Page
-        'All Levels' => 'Tous les Niveaux',
         'All Categories' => 'Toutes les Catégories',
         'Apply Filters' => 'Appliquer les Filtres',
         'Clear Filters' => 'Effacer les Filtres',
         'Category' => 'Catégorie',
         'No description available' => 'Aucune description disponible',
-        'View Details' => 'Voir les Détails',
         'Plan Session' => 'Planifier une Session',
         'No courses found.' => 'Aucun cours trouvé.',
         'Create your first course' => 'Créez votre premier cours',
@@ -352,7 +347,6 @@ class FallbackTranslationService
         
         // Quiz Page
         'Qs' => 'Q',
-        'Play Now' => 'Jouer Maintenant',
         'No quizzes available right now. Check back later!' => 'Aucun quiz disponible pour le moment. Revenez plus tard !',
         
         // Email Verification
@@ -361,7 +355,6 @@ class FallbackTranslationService
         'Send Verification Email' => 'Envoyer l\'Email de Vérification',
         
         // Password Reset
-        'Forgot Password?' => 'Mot de passe oublié ?',
         'Reset Password' => 'Réinitialiser le mot de passe',
         'Reset Your Password' => 'Réinitialisez votre mot de passe',
         'New Password' => 'Nouveau mot de passe',

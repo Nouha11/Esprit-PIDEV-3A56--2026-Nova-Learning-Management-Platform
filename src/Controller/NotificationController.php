@@ -21,6 +21,11 @@ class NotificationController extends AbstractController
     public function index(): Response
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            throw $this->createAccessDeniedException();
+        }
+
         $notifications = $this->notificationService->getAllNotifications($user, 50);
 
         return $this->render('notifications/index.html.twig', [
@@ -32,6 +37,11 @@ class NotificationController extends AbstractController
     public function unread(): JsonResponse
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            return new JsonResponse(['count' => 0, 'notifications' => []]);
+        }
+
         $notifications = $this->notificationService->getUnreadNotifications($user, 10);
         $count = $this->notificationService->countUnread($user);
 
@@ -57,10 +67,15 @@ class NotificationController extends AbstractController
     public function markAsRead(int $id): JsonResponse
     {
         $user = $this->getUser();
-        $notification = $this->notificationService->getAllNotifications($user, 1000);
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $notifications = $this->notificationService->getAllNotifications($user, 1000);
         
         $targetNotification = null;
-        foreach ($notification as $notif) {
+        foreach ($notifications as $notif) {
             if ($notif->getId() === $id) {
                 $targetNotification = $notif;
                 break;
@@ -80,6 +95,11 @@ class NotificationController extends AbstractController
     public function markAllAsRead(): JsonResponse
     {
         $user = $this->getUser();
+        
+        if (!$user instanceof \App\Entity\users\User) {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
         $count = $this->notificationService->markAllAsRead($user);
 
         return new JsonResponse([

@@ -10,7 +10,7 @@ use App\Entity\Forum\Space;
 use App\Entity\Forum\Tag;
 use App\Form\PostType;
 use App\Repository\Forum\PostRepository;
-use App\Repository\Forum\TagRepository; // <-- NEEDED THIS IMPORT
+use App\Repository\Forum\TagRepository;
 use App\Entity\users\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -28,7 +28,7 @@ class ForumController extends AbstractController
     #[Route('/forum', name: 'app_forum')]
     public function index(
         PostRepository $postRepository,
-        TagRepository $tagRepository, // <-- INJECTED HERE
+        TagRepository $tagRepository, 
         Request $request, 
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
@@ -104,6 +104,9 @@ class ForumController extends AbstractController
 
         /** @var User|null $user */
         $user = $this->getUser();
+
+        // FIXED: Initialize $query to null to prevent the "might not be defined" crash
+        $query = null;
 
         if ($searchQuery) {
             $query = $postRepository->adminSearch($searchQuery);
@@ -529,7 +532,7 @@ class ForumController extends AbstractController
     #[Route('/forum/space/{id}', name: 'app_forum_space')]
     public function space(
         Space $space, 
-        TagRepository $tagRepository, // <-- INJECTED HERE
+        TagRepository $tagRepository, 
         Request $request, 
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,

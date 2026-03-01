@@ -12,8 +12,7 @@ use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 
 /**
  * Centralized API error handling service
- * 
- * Provides:
+ * * Provides:
  * - Timeout handling (10 seconds)
  * - Error response parsing
  * - Circuit breaker pattern (disable after 3 consecutive failures)
@@ -113,6 +112,8 @@ class ApiErrorHandler
 
             $failureCount++;
 
+            // Replace the value in cache
+            $this->cache->delete($cacheKey);
             $this->cache->get($cacheKey, function (ItemInterface $item) use ($failureCount) {
                 $item->expiresAfter(self::CIRCUIT_BREAKER_TTL);
                 return $failureCount;
@@ -168,7 +169,7 @@ class ApiErrorHandler
     /**
      * Parse an exception into structured error information
      *
-     * @param \Exception $exception The exception to parse
+     * @param \Throwable $exception The exception to parse
      * @return array Structured error information with keys: type, message, userMessage, statusCode
      */
     public function parseException(\Throwable $exception): array
@@ -192,42 +193,37 @@ class ApiErrorHandler
                 $errorInfo['userMessage'] = 'The request timed out. Please try again.';
             }
         } elseif ($exception instanceof ClientExceptionInterface) {
-            // 4xx error (client error)
+            // 4xx error (client error) - ClientExceptionInterface already extends HttpExceptionInterface
             $errorInfo['type'] = 'client_error';
             $errorInfo['userMessage'] = 'Invalid request. Please check your input and try again.';
             
-            if ($exception instanceof HttpExceptionInterface) {
-                $statusCode = $exception->getResponse()->getStatusCode();
-                $errorInfo['statusCode'] = $statusCode;
-                
-                // Provide more specific messages for common status codes
-                switch ($statusCode) {
-                    case 400:
-                        $errorInfo['userMessage'] = 'Bad request. Please check your input.';
-                        break;
-                    case 401:
-                        $errorInfo['userMessage'] = 'Authentication failed. Please check API credentials.';
-                        break;
-                    case 403:
-                        $errorInfo['userMessage'] = 'Access forbidden. You may not have permission to access this resource.';
-                        break;
-                    case 404:
-                        $errorInfo['userMessage'] = 'Resource not found.';
-                        break;
-                    case 429:
-                        $errorInfo['type'] = 'rate_limit';
-                        $errorInfo['userMessage'] = 'Rate limit exceeded. Please try again later.';
-                        break;
-                }
+            $statusCode = $exception->getResponse()->getStatusCode();
+            $errorInfo['statusCode'] = $statusCode;
+            
+            // Provide more specific messages for common status codes
+            switch ($statusCode) {
+                case 400:
+                    $errorInfo['userMessage'] = 'Bad request. Please check your input.';
+                    break;
+                case 401:
+                    $errorInfo['userMessage'] = 'Authentication failed. Please check API credentials.';
+                    break;
+                case 403:
+                    $errorInfo['userMessage'] = 'Access forbidden. You may not have permission to access this resource.';
+                    break;
+                case 404:
+                    $errorInfo['userMessage'] = 'Resource not found.';
+                    break;
+                case 429:
+                    $errorInfo['type'] = 'rate_limit';
+                    $errorInfo['userMessage'] = 'Rate limit exceeded. Please try again later.';
+                    break;
             }
         } elseif ($exception instanceof ServerExceptionInterface) {
-            // 5xx error (server error)
+            // 5xx error (server error) - ServerExceptionInterface already extends HttpExceptionInterface
             $errorInfo['type'] = 'server_error';
             $errorInfo['userMessage'] = 'The service is experiencing issues. Please try again later.';
-            
-            if ($exception instanceof HttpExceptionInterface) {
-                $errorInfo['statusCode'] = $exception->getResponse()->getStatusCode();
-            }
+            $errorInfo['statusCode'] = $exception->getResponse()->getStatusCode();
         }
 
         return $errorInfo;
