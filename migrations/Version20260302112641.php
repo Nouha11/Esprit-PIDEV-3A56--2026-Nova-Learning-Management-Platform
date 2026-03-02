@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260224072520 extends AbstractMigration
+final class Version20260302112641 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,26 +20,39 @@ final class Version20260224072520 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE TABLE library_notifications (id INT AUTO_INCREMENT NOT NULL, type VARCHAR(50) NOT NULL, title VARCHAR(255) NOT NULL, message LONGTEXT NOT NULL, link VARCHAR(255) DEFAULT NULL, is_read TINYINT NOT NULL, created_at DATETIME NOT NULL, read_at DATETIME DEFAULT NULL, user_id INT NOT NULL, INDEX IDX_D35A904EA76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE forum_tag (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(50) NOT NULL, UNIQUE INDEX UNIQ_EEA7C17E5E237E06 (name), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE payments (id INT AUTO_INCREMENT NOT NULL, amount NUMERIC(10, 2) NOT NULL, payment_method VARCHAR(20) NOT NULL, status VARCHAR(20) NOT NULL, transaction_id VARCHAR(100) NOT NULL, card_last_four VARCHAR(20) DEFAULT NULL, card_holder_name VARCHAR(50) DEFAULT NULL, failure_reason LONGTEXT DEFAULT NULL, created_at DATETIME NOT NULL, completed_at DATETIME DEFAULT NULL, user_id INT NOT NULL, book_id INT NOT NULL, UNIQUE INDEX UNIQ_65D29B322FC0CB0F (transaction_id), INDEX IDX_65D29B32A76ED395 (user_id), INDEX IDX_65D29B3216A2B381 (book_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('ALTER TABLE library_notifications ADD CONSTRAINT FK_D35A904EA76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
+        $this->addSql('CREATE TABLE post_downvoters (post_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_5E652F4B4B89032C (post_id), INDEX IDX_5E652F4BA76ED395 (user_id), PRIMARY KEY (post_id, user_id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE post_tags (post_id INT NOT NULL, tag_id INT NOT NULL, INDEX IDX_A6E9F32D4B89032C (post_id), INDEX IDX_A6E9F32DBAD26311 (tag_id), PRIMARY KEY (post_id, tag_id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('ALTER TABLE payments ADD CONSTRAINT FK_65D29B32A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE payments ADD CONSTRAINT FK_65D29B3216A2B381 FOREIGN KEY (book_id) REFERENCES books (id)');
+        $this->addSql('ALTER TABLE post_downvoters ADD CONSTRAINT FK_5E652F4B4B89032C FOREIGN KEY (post_id) REFERENCES post (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE post_downvoters ADD CONSTRAINT FK_5E652F4BA76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE post_tags ADD CONSTRAINT FK_A6E9F32D4B89032C FOREIGN KEY (post_id) REFERENCES post (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE post_tags ADD CONSTRAINT FK_A6E9F32DBAD26311 FOREIGN KEY (tag_id) REFERENCES forum_tag (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE books ADD pdf_url VARCHAR(500) DEFAULT NULL, CHANGE price price NUMERIC(10, 2) DEFAULT NULL, CHANGE cover_image cover_image VARCHAR(255) DEFAULT NULL, CHANGE author author VARCHAR(255) DEFAULT NULL, CHANGE isbn isbn VARCHAR(20) DEFAULT NULL, CHANGE published_at published_at DATETIME DEFAULT NULL, CHANGE updated_at updated_at DATETIME DEFAULT NULL');
-        $this->addSql('ALTER TABLE comment CHANGE image_name image_name VARCHAR(255) DEFAULT NULL, CHANGE updated_at updated_at DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE comment ADD image_name VARCHAR(255) DEFAULT NULL, ADD updated_at DATETIME DEFAULT NULL, ADD parent_id INT DEFAULT NULL');
+        $this->addSql('ALTER TABLE comment ADD CONSTRAINT FK_9474526C727ACA70 FOREIGN KEY (parent_id) REFERENCES comment (id) ON DELETE CASCADE');
+        $this->addSql('CREATE INDEX IDX_9474526C727ACA70 ON comment (parent_id)');
         $this->addSql('ALTER TABLE course CHANGE description description VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE enrollment_requests CHANGE responded_at responded_at DATETIME DEFAULT NULL');
         $this->addSql('ALTER TABLE game_content CHANGE data data JSON DEFAULT NULL');
         $this->addSql('ALTER TABLE game_rating CHANGE updated_at updated_at DATETIME DEFAULT NULL');
         $this->addSql('ALTER TABLE libraries ADD latitude NUMERIC(10, 7) DEFAULT NULL, ADD longitude NUMERIC(10, 7) DEFAULT NULL, CHANGE address address VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE library_notifications CHANGE link link VARCHAR(255) DEFAULT NULL, CHANGE read_at read_at DATETIME DEFAULT NULL');
         $this->addSql('ALTER TABLE loans ADD status VARCHAR(20) NOT NULL, ADD requested_at DATETIME NOT NULL, ADD approved_at DATETIME DEFAULT NULL, ADD rejection_reason LONGTEXT DEFAULT NULL, ADD library_id INT DEFAULT NULL, CHANGE end_at end_at DATETIME DEFAULT NULL');
         $this->addSql('ALTER TABLE loans ADD CONSTRAINT FK_82C24DBCFE2541D7 FOREIGN KEY (library_id) REFERENCES libraries (id)');
         $this->addSql('CREATE INDEX IDX_82C24DBCFE2541D7 ON loans (library_id)');
         $this->addSql('ALTER TABLE login_history CHANGE ip_address ip_address VARCHAR(45) DEFAULT NULL, CHANGE browser browser VARCHAR(100) DEFAULT NULL, CHANGE platform platform VARCHAR(100) DEFAULT NULL, CHANGE device device VARCHAR(100) DEFAULT NULL, CHANGE location location VARCHAR(100) DEFAULT NULL, CHANGE failure_reason failure_reason VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE notifications CHANGE metadata metadata JSON DEFAULT NULL, CHANGE read_at read_at DATETIME DEFAULT NULL, CHANGE action_url action_url VARCHAR(255) DEFAULT NULL, CHANGE icon icon VARCHAR(50) DEFAULT NULL, CHANGE color color VARCHAR(50) DEFAULT NULL');
-        $this->addSql('ALTER TABLE post CHANGE image_name image_name VARCHAR(255) DEFAULT NULL, CHANGE updated_at updated_at DATETIME DEFAULT NULL, CHANGE link link VARCHAR(255) DEFAULT NULL, CHANGE link_title link_title VARCHAR(255) DEFAULT NULL, CHANGE attachment_name attachment_name VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE post ADD attachment_name VARCHAR(255) DEFAULT NULL, ADD hot_score DOUBLE PRECISION NOT NULL, CHANGE image_name image_name VARCHAR(255) DEFAULT NULL, CHANGE updated_at updated_at DATETIME DEFAULT NULL, CHANGE link link VARCHAR(255) DEFAULT NULL, CHANGE link_title link_title VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE question CHANGE image_name image_name VARCHAR(255) DEFAULT NULL, CHANGE updated_at updated_at DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE quiz_report DROP FOREIGN KEY `FK_296B87DD853CD175`');
         $this->addSql('ALTER TABLE quiz_report CHANGE resolved_at resolved_at DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE quiz_report ADD CONSTRAINT FK_296B87DD853CD175 FOREIGN KEY (quiz_id) REFERENCES quiz (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE report ADD comment_id INT DEFAULT NULL, CHANGE post_id post_id INT DEFAULT NULL');
+        $this->addSql('ALTER TABLE report ADD CONSTRAINT FK_C42F7784F8697D13 FOREIGN KEY (comment_id) REFERENCES comment (id) ON DELETE CASCADE');
+        $this->addSql('CREATE INDEX IDX_C42F7784F8697D13 ON report (comment_id)');
         $this->addSql('ALTER TABLE reward CHANGE icon icon VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE student_profile CHANGE email email VARCHAR(180) DEFAULT NULL, CHANGE university university VARCHAR(100) DEFAULT NULL, CHANGE major major VARCHAR(100) DEFAULT NULL, CHANGE academic_level academic_level VARCHAR(50) DEFAULT NULL, CHANGE profile_picture profile_picture VARCHAR(255) DEFAULT NULL, CHANGE interests interests JSON DEFAULT NULL, CHANGE updated_at updated_at DATETIME DEFAULT NULL, CHANGE last_energy_update last_energy_update DATETIME DEFAULT NULL');
         $this->addSql('ALTER TABLE study_session CHANGE ended_at ended_at DATETIME DEFAULT NULL, CHANGE completed_at completed_at DATETIME DEFAULT NULL, CHANGE mood mood VARCHAR(20) DEFAULT NULL, CHANGE energy_level energy_level VARCHAR(20) DEFAULT NULL');
@@ -54,27 +67,40 @@ final class Version20260224072520 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE library_notifications DROP FOREIGN KEY FK_D35A904EA76ED395');
         $this->addSql('ALTER TABLE payments DROP FOREIGN KEY FK_65D29B32A76ED395');
         $this->addSql('ALTER TABLE payments DROP FOREIGN KEY FK_65D29B3216A2B381');
-        $this->addSql('DROP TABLE library_notifications');
+        $this->addSql('ALTER TABLE post_downvoters DROP FOREIGN KEY FK_5E652F4B4B89032C');
+        $this->addSql('ALTER TABLE post_downvoters DROP FOREIGN KEY FK_5E652F4BA76ED395');
+        $this->addSql('ALTER TABLE post_tags DROP FOREIGN KEY FK_A6E9F32D4B89032C');
+        $this->addSql('ALTER TABLE post_tags DROP FOREIGN KEY FK_A6E9F32DBAD26311');
+        $this->addSql('DROP TABLE forum_tag');
         $this->addSql('DROP TABLE payments');
+        $this->addSql('DROP TABLE post_downvoters');
+        $this->addSql('DROP TABLE post_tags');
         $this->addSql('ALTER TABLE books DROP pdf_url, CHANGE price price NUMERIC(10, 2) DEFAULT \'NULL\', CHANGE cover_image cover_image VARCHAR(255) DEFAULT \'NULL\', CHANGE author author VARCHAR(255) DEFAULT \'NULL\', CHANGE isbn isbn VARCHAR(20) DEFAULT \'NULL\', CHANGE published_at published_at DATETIME DEFAULT \'NULL\', CHANGE updated_at updated_at DATETIME DEFAULT \'NULL\'');
-        $this->addSql('ALTER TABLE comment CHANGE image_name image_name VARCHAR(255) DEFAULT \'NULL\', CHANGE updated_at updated_at DATETIME DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE comment DROP FOREIGN KEY FK_9474526C727ACA70');
+        $this->addSql('DROP INDEX IDX_9474526C727ACA70 ON comment');
+        $this->addSql('ALTER TABLE comment DROP image_name, DROP updated_at, DROP parent_id');
         $this->addSql('ALTER TABLE course CHANGE description description VARCHAR(255) DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE enrollment_requests CHANGE responded_at responded_at DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE game_content CHANGE data data LONGTEXT DEFAULT NULL COLLATE `utf8mb4_bin`');
         $this->addSql('ALTER TABLE game_rating CHANGE updated_at updated_at DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE libraries DROP latitude, DROP longitude, CHANGE address address VARCHAR(255) DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE library_notifications CHANGE link link VARCHAR(255) DEFAULT \'NULL\', CHANGE read_at read_at DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE loans DROP FOREIGN KEY FK_82C24DBCFE2541D7');
         $this->addSql('DROP INDEX IDX_82C24DBCFE2541D7 ON loans');
         $this->addSql('ALTER TABLE loans DROP status, DROP requested_at, DROP approved_at, DROP rejection_reason, DROP library_id, CHANGE end_at end_at DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE login_history CHANGE ip_address ip_address VARCHAR(45) DEFAULT \'NULL\', CHANGE browser browser VARCHAR(100) DEFAULT \'NULL\', CHANGE platform platform VARCHAR(100) DEFAULT \'NULL\', CHANGE device device VARCHAR(100) DEFAULT \'NULL\', CHANGE location location VARCHAR(100) DEFAULT \'NULL\', CHANGE failure_reason failure_reason VARCHAR(255) DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE messenger_messages CHANGE delivered_at delivered_at DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE notifications CHANGE metadata metadata LONGTEXT DEFAULT NULL COLLATE `utf8mb4_bin`, CHANGE read_at read_at DATETIME DEFAULT \'NULL\', CHANGE action_url action_url VARCHAR(255) DEFAULT \'NULL\', CHANGE icon icon VARCHAR(50) DEFAULT \'NULL\', CHANGE color color VARCHAR(50) DEFAULT \'NULL\'');
-        $this->addSql('ALTER TABLE post CHANGE image_name image_name VARCHAR(255) DEFAULT \'NULL\', CHANGE updated_at updated_at DATETIME DEFAULT \'NULL\', CHANGE link link VARCHAR(255) DEFAULT \'NULL\', CHANGE link_title link_title VARCHAR(255) DEFAULT \'NULL\', CHANGE attachment_name attachment_name VARCHAR(255) DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE post DROP attachment_name, DROP hot_score, CHANGE image_name image_name VARCHAR(255) DEFAULT \'NULL\', CHANGE updated_at updated_at DATETIME DEFAULT \'NULL\', CHANGE link link VARCHAR(255) DEFAULT \'NULL\', CHANGE link_title link_title VARCHAR(255) DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE question CHANGE image_name image_name VARCHAR(255) DEFAULT \'NULL\', CHANGE updated_at updated_at DATETIME DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE quiz_report DROP FOREIGN KEY FK_296B87DD853CD175');
         $this->addSql('ALTER TABLE quiz_report CHANGE resolved_at resolved_at DATETIME DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE quiz_report ADD CONSTRAINT `FK_296B87DD853CD175` FOREIGN KEY (quiz_id) REFERENCES quiz (id)');
+        $this->addSql('ALTER TABLE report DROP FOREIGN KEY FK_C42F7784F8697D13');
+        $this->addSql('DROP INDEX IDX_C42F7784F8697D13 ON report');
+        $this->addSql('ALTER TABLE report DROP comment_id, CHANGE post_id post_id INT NOT NULL');
         $this->addSql('ALTER TABLE reward CHANGE icon icon VARCHAR(255) DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE student_profile CHANGE email email VARCHAR(180) DEFAULT \'NULL\', CHANGE university university VARCHAR(100) DEFAULT \'NULL\', CHANGE major major VARCHAR(100) DEFAULT \'NULL\', CHANGE academic_level academic_level VARCHAR(50) DEFAULT \'NULL\', CHANGE profile_picture profile_picture VARCHAR(255) DEFAULT \'NULL\', CHANGE updated_at updated_at DATETIME DEFAULT \'NULL\', CHANGE interests interests LONGTEXT DEFAULT NULL COLLATE `utf8mb4_bin`, CHANGE last_energy_update last_energy_update DATETIME DEFAULT \'NULL\'');
         $this->addSql('ALTER TABLE study_session CHANGE ended_at ended_at DATETIME DEFAULT \'NULL\', CHANGE completed_at completed_at DATETIME DEFAULT \'NULL\', CHANGE mood mood VARCHAR(20) DEFAULT \'NULL\', CHANGE energy_level energy_level VARCHAR(20) DEFAULT \'NULL\'');

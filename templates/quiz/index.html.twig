@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
 
-{% block title %}My Quizzes{% endblock %}
+{% block title %}{{ t.t('My Quizzes') }}{% endblock %}
 
 {% block body %}
 
@@ -11,13 +12,13 @@
     
     <div class="row mb-4 align-items-center">
         <div class="col-md-8">
-            <h1 class="h3 mb-0">Quiz Manager</h1>
-            <p class="text-muted mb-0">Manage your assessments and questions.</p>
+            <h1 class="h3 mb-0">{{ t.t('Quiz Manager') }}</h1>
+            <p class="text-muted mb-0">{{ t.t('Manage your assessments and questions.') }}</p>
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
             {# FIX: Use dynamic prefix #}
             <a href="{{ path('app_quiz_new', {'prefix': current_prefix}) }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-1"></i> Create New Quiz
+                <i class="bi bi-plus-circle me-1"></i> {{ t.t('Create New Quiz') }}
             </a>
         </div>
     </div>
@@ -28,13 +29,13 @@
                 <div class="col-lg-5">
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control border-start-0 bg-light" placeholder="Search quizzes...">
+                        <input type="text" class="form-control border-start-0 bg-light" placeholder="{{ t.t('Search quizzes...') }}">
                     </div>
                 </div>
                 <div class="col-lg-3">
                     <select class="form-select border-0 bg-light">
-                        <option>Sort by Date</option>
-                        <option>Sort by Name</option>
+                        <option>{{ t.t('Sort by Date') }}</option>
+                        <option>{{ t.t('Sort by Name') }}</option>
                     </select>
                 </div>
             </form>
@@ -50,7 +51,7 @@
                     <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-circle mb-3">
                         <i class="bi bi-plus-lg"></i>
                     </div>
-                    <h5 class="text-primary">Create New</h5>
+                    <h5 class="text-primary">{{ t.t('Create New') }}</h5>
                 </div>
             </a>
         </div>
@@ -67,12 +68,12 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownShare{{ quiz.id }}">
                                     {# FIX: Combined ID and Prefix into ONE array #}
-                                    <li><a class="dropdown-item" href="{{ path('app_quiz_edit', {'id': quiz.id, 'prefix': current_prefix}) }}"><i class="bi bi-pencil-square me-2"></i>Edit Settings</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_quiz_edit', {'id': quiz.id, 'prefix': current_prefix}) }}"><i class="bi bi-pencil-square me-2"></i>{{ t.t('Edit Settings') }}</a></li>
                                     <li>
                                         {# FIX: Combined ID and Prefix into ONE array #}
-                                        <form method="post" action="{{ path('app_quiz_delete', {'id': quiz.id, 'prefix': current_prefix}) }}" onsubmit="return confirm('Delete this quiz?');" class="d-inline">
+                                        <form method="post" action="{{ path('app_quiz_delete', {'id': quiz.id, 'prefix': current_prefix}) }}" onsubmit="return confirm('{{ t.t('Delete this quiz?') }}');" class="d-inline">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
-                                            <button class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
+                                            <button class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>{{ t.t('Delete') }}</button>
                                         </form>
                                     </li>
                                 </ul>
@@ -95,13 +96,13 @@
 
                     <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
                         {# FIX: Added prefix #}
-                        <a href="{{ path('app_quiz_show', {'id': quiz.id, 'prefix': current_prefix}) }}" class="btn btn-sm btn-light w-100">Show Questions</a>
+                        <a href="{{ path('app_quiz_show', {'id': quiz.id, 'prefix': current_prefix}) }}" class="btn btn-sm btn-light w-100">{{ t.t('Show Questions') }}</a>
                     </div>
                 </div>
             </div>
         {% else %}
             <div class="col-12">
-                <div class="alert alert-info">No quizzes found. Create one to get started!</div>
+                <div class="alert alert-info">{{ t.t('No quizzes found. Create one to get started!') }}</div>
             </div>
         {% endfor %}
 

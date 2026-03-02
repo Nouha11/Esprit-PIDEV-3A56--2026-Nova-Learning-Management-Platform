@@ -138,34 +138,34 @@
                 <div class="sticky-sidebar">
                     <div class="p-3 shadow-sm rounded-4" style="background-color: var(--nova-card-bg); border: 1px solid var(--nova-border);">
                         
-                        <div class="left-nav-section-title pt-0">Feeds</div>
+                        <div class="left-nav-section-title pt-0">{{ t.t('Feeds') }}</div>
                         <a href="{{ path('app_forum') }}" class="left-nav-link {{ currentFilter is defined and currentFilter is null and currentSpace is defined and currentSpace is null ? 'active' : '' }}">
-                            <i class="bi bi-house-door"></i> Home
+                            <i class="bi bi-house-door"></i> {{ t.t('Home') }}
                         </a>
                         <a href="{{ path('app_forum', {'filter': 'popular'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'popular' ? 'active' : '' }}">
-                            <i class="bi bi-fire text-danger"></i> Popular
+                            <i class="bi bi-fire text-danger"></i> {{ t.t('Popular') }}
                         </a>
                         <a href="{{ path('app_forum', {'filter': 'unanswered'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'unanswered' ? 'active' : '' }}">
-                            <i class="bi bi-patch-question text-warning"></i> Unanswered
+                            <i class="bi bi-patch-question text-warning"></i> {{ t.t('Unanswered') }}
                         </a>
 
                         {# --- NEW NOVA AI ASSIST LINK --- #}
-                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Tutor</div>
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">{{ t.t('Tutor') }}</div>
                         <a href="{{ path('app_forum_ai_assist') }}" class="left-nav-link" style="background: rgba(111, 66, 193, 0.1); color: #6f42c1; border: 1px solid rgba(111, 66, 193, 0.2);">
-                            <i class="bi bi-stars"></i> <span class="fw-bold">NOVA AI</span>
+                            <i class="bi bi-stars"></i> <span class="fw-bold">{{ t.t('NOVA AI') }}</span>
                         </a>
 
-                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">My NOVA</div>
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">{{ t.t('My NOVA') }}</div>
                         <a href="{{ path('app_forum', {'filter': 'history'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'history' ? 'active' : '' }}">
-                            <i class="bi bi-clock-history text-secondary"></i> History
+                            <i class="bi bi-clock-history text-secondary"></i> {{ t.t('History') }}
                         </a>
                         {% if app.user %}
                             <a href="{{ path('app_forum', {'filter': 'bookmarks'}) }}" class="left-nav-link {{ currentFilter is defined and currentFilter == 'bookmarks' ? 'active' : '' }}">
-                                <i class="bi bi-bookmark-fill text-info"></i> Saved Posts
+                                <i class="bi bi-bookmark-fill text-info"></i> {{ t.t('Saved Posts') }}
                             </a>
                         {% endif %}
 
-                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Study Spaces</div>
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">{{ t.t('Study Spaces') }}</div>
                         {% for s in spaces|default([]) %}
                             {% set colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6610f2', '#fd7e14'] %}
                             {% set color = colors[s.id % colors|length] %}
@@ -175,9 +175,9 @@
                             </a>
                         {% endfor %}
 
-                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">Resources</div>
-                        <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link"><i class="bi bi-shield-check"></i> Guidelines</a>
-                        <a href="{{ path('app_forum_about') }}" class="left-nav-link"><i class="bi bi-info-circle"></i> About NOVA</a>
+                        <div class="left-nav-section-title mt-2 border-top pt-3" style="border-color: var(--nova-border) !important;">{{ t.t('Resources') }}</div>
+                        <a href="{{ path('app_forum_guidelines') }}" class="left-nav-link"><i class="bi bi-shield-check"></i> {{ t.t('Guidelines') }}</a>
+                        <a href="{{ path('app_forum_about') }}" class="left-nav-link"><i class="bi bi-info-circle"></i> {{ t.t('About NOVA') }}</a>
 
                     </div>
                 </div>
@@ -193,7 +193,7 @@
                         </div>
                     </div>
                     <div class="create-post-input" data-bs-toggle="collapse" data-bs-target="#addPostForm" style="user-select: none;">
-                        Create Post
+                        {{ t.t('Create Post') }}
                     </div>
                     <button class="btn btn-sm btn-outline-secondary border-0 p-2" id="quick-image-btn" data-bs-toggle="collapse" data-bs-target="#addPostForm"><i class="bi bi-image fs-5"></i></button>
                     <button class="btn btn-sm btn-outline-secondary border-0 p-2" id="quick-link-btn" data-bs-toggle="collapse" data-bs-target="#addPostForm"><i class="bi bi-link-45deg fs-4"></i></button>
@@ -211,18 +211,18 @@
                             </div>
 
                             <div class="border-bottom" style="border-color: var(--nova-border) !important;">
-                                {{ form_widget(form.title, {'attr': {'class': 'form-control nova-form-control fw-bold fs-5 py-3 px-3', 'placeholder': 'Title'}}) }}
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control nova-form-control fw-bold fs-5 py-3 px-3', 'placeholder': t.t('Title')}}) }}
                                 <div class="px-3 pb-2 text-danger small">{{ form_errors(form.title) }}</div>
                             </div>
                             
                             <div class="d-flex justify-content-end px-3 py-2" style="background: var(--nova-input-bg); border-bottom: 1px solid var(--nova-border);">
                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill py-1 px-3 fw-bold" id="ai-enhance-btn-global" data-url="{{ path('app_forum_ai_enhance') }}" style="font-size: 12px;">
-                                    <i class="bi bi-magic me-1"></i> Enhance with AI
+                                    <i class="bi bi-magic me-1"></i> {{ t.t('Enhance with AI') }}
                                 </button>
                             </div>
 
                             <div>
-                                {{ form_widget(form.content, {'attr': {'class': 'form-control nova-form-control post-content-textarea py-3 px-3', 'rows': '6', 'placeholder': 'Type your messy thoughts here, and let AI clean it up...', 'style': 'resize: none;'}}) }}
+                                {{ form_widget(form.content, {'attr': {'class': 'form-control nova-form-control post-content-textarea py-3 px-3', 'rows': '6', 'placeholder': t.t('Type your messy thoughts here, and let AI clean it up...'), 'style': 'resize: none;'}}) }}
                                 <div class="px-3 pb-2 text-danger small">{{ form_errors(form.content) }}</div>
                             </div>
 
@@ -246,8 +246,8 @@
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-end align-items-center mt-2 pt-3 border-top" style="border-color: var(--nova-border) !important;">
-                                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold me-2" data-bs-toggle="collapse" data-bs-target="#addPostForm" style="border: 1px solid var(--nova-border); background: var(--nova-card-bg); color: var(--nova-text-main);">Cancel</button>
-                                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Post</button>
+                                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold me-2" data-bs-toggle="collapse" data-bs-target="#addPostForm" style="border: 1px solid var(--nova-border); background: var(--nova-card-bg); color: var(--nova-text-main);">{{ t.t('Cancel') }}</button>
+                                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">{{ t.t('Post') }}</button>
                                 </div>
                             </div>
                         {{ form_end(form) }}
@@ -255,23 +255,23 @@
                 </div>
 
                 <div class="sort-bar shadow-sm">
-                    <a href="{{ path('app_forum', {'sortBy': 'hot', 'tag': currentTag}) }}" class="sort-btn {{ currentSort == 'hot' ? 'active' : '' }}"><i class="bi bi-fire fs-5"></i> Hot</a>
-                    <a href="{{ path('app_forum', {'sortBy': 'new', 'tag': currentTag}) }}" class="sort-btn {{ currentSort == 'new' ? 'active' : '' }}"><i class="bi bi-stars fs-5"></i> New</a>
-                    <a href="{{ path('app_forum', {'sortBy': 'top', 'tag': currentTag}) }}" class="sort-btn {{ currentSort == 'top' ? 'active' : '' }}"><i class="bi bi-bar-chart-line-fill fs-5"></i> Top</a>
+                    <a href="{{ path('app_forum', {'sortBy': 'hot', 'tag': currentTag}) }}" class="sort-btn {{ currentSort == 'hot' ? 'active' : '' }}"><i class="bi bi-fire fs-5"></i> {{ t.t('Hot') }}</a>
+                    <a href="{{ path('app_forum', {'sortBy': 'new', 'tag': currentTag}) }}" class="sort-btn {{ currentSort == 'new' ? 'active' : '' }}"><i class="bi bi-stars fs-5"></i> {{ t.t('New') }}</a>
+                    <a href="{{ path('app_forum', {'sortBy': 'top', 'tag': currentTag}) }}" class="sort-btn {{ currentSort == 'top' ? 'active' : '' }}"><i class="bi bi-bar-chart-line-fill fs-5"></i> {{ t.t('Top') }}</a>
                 </div>
 
                 {% if currentFilter == 'popular' or currentFilter == 'unanswered' or currentFilter == 'bookmarks' or currentFilter == 'history' or searchQuery or currentTag %}
                 <div class="d-flex align-items-center mb-3">
                     <h4 class="mb-0 me-3 nova-text-main">
                         {% if currentTag %}<i class="bi bi-tag-fill text-primary me-2"></i>#{{ currentTag }}
-                        {% elseif currentFilter == 'popular' %}<i class="bi bi-fire text-danger me-2"></i>Popular Posts
-                        {% elseif currentFilter == 'unanswered' %}<i class="bi bi-question-circle text-warning me-2"></i>Unanswered Posts
-                        {% elseif currentFilter == 'bookmarks' %}<i class="bi bi-bookmark-star text-info me-2"></i>My Bookmarks
-                        {% elseif currentFilter == 'history' %}<i class="bi bi-clock-history text-secondary me-2"></i>Recently Viewed
+                        {% elseif currentFilter == 'popular' %}<i class="bi bi-fire text-danger me-2"></i>{{ t.t('Popular Posts') }}
+                        {% elseif currentFilter == 'unanswered' %}<i class="bi bi-question-circle text-warning me-2"></i>{{ t.t('Unanswered Posts') }}
+                        {% elseif currentFilter == 'bookmarks' %}<i class="bi bi-bookmark-star text-info me-2"></i>{{ t.t('My Bookmarks') }}
+                        {% elseif currentFilter == 'history' %}<i class="bi bi-clock-history text-secondary me-2"></i>{{ t.t('Recently Viewed') }}
                         {% endif %}
                     </h4>
-                    {% if searchQuery %}<span class="nova-text-muted">Results for "{{ searchQuery }}"</span>{% endif %}
-                    {% if currentTag %}<a href="{{ path('app_forum') }}" class="btn btn-sm btn-outline-secondary rounded-pill ms-auto">Clear Filter</a>{% endif %}
+                    {% if searchQuery %}<span class="nova-text-muted">{{ t.t('Results for') }} "{{ searchQuery }}"</span>{% endif %}
+                    {% if currentTag %}<a href="{{ path('app_forum') }}" class="btn btn-sm btn-outline-secondary rounded-pill ms-auto">{{ t.t('Clear Filter') }}</a>{% endif %}
                 </div>
                 {% endif %}
 
@@ -376,12 +376,12 @@
                                 {% endif %}
 
                                 <div class="d-flex align-items-center mt-2">
-                                    <a href="{{ path('app_forum_show', {'id': post.id}) }}#comments" class="action-pill" onclick="event.stopPropagation();"><i class="bi bi-chat-square"></i> {{ post.comments|length }} Comments</a>
-                                    <button class="action-pill share-btn ms-1" data-url="{{ url('app_forum_show', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-share"></i> <span class="share-text">Share</span></button>
+                                    <a href="{{ path('app_forum_show', {'id': post.id}) }}#comments" class="action-pill" onclick="event.stopPropagation();"><i class="bi bi-chat-square"></i> {{ post.comments|length }} {{ t.t('Comments') }}</a>
+                                    <button class="action-pill share-btn ms-1" data-url="{{ url('app_forum_show', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-share"></i> <span class="share-text">{{ t.t('Share') }}</span></button>
                                     {% if app.user and app.user.hasBookmarkedPost(post) %}
-                                        <button class="action-pill ms-1 saved bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark-fill"></i> Saved</button>
+                                        <button class="action-pill ms-1 saved bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark-fill"></i> {{ t.t('Saved') }}</button>
                                     {% else %}
-                                        <button class="action-pill ms-1 bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark"></i> Save</button>
+                                        <button class="action-pill ms-1 bookmark-btn" data-url="{{ path('app_forum_post_bookmark', {'id': post.id}) }}" onclick="event.stopPropagation();"><i class="bi bi-bookmark"></i> {{ t.t('Save') }}</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -390,8 +390,8 @@
                         <div class="card border-0 bg-transparent text-center py-5 mt-4">
                             <div class="card-body">
                                 <i class="bi bi-moon-stars display-1 text-secondary opacity-25"></i>
-                                <h5 class="mt-4 fw-bold nova-text-main">Such empty...</h5>
-                                <p class="nova-text-muted">Be the first to start a discussion!</p>
+                                <h5 class="mt-4 fw-bold nova-text-main">{{ t.t('Such empty...') }}</h5>
+                                <p class="nova-text-muted">{{ t.t('Be the first to start a discussion!') }}</p>
                             </div>
                         </div>
                     {% endfor %}
@@ -409,7 +409,7 @@
                             <form method="get" action="{{ path('app_forum') }}" class="position-relative">
                                 <div class="d-flex align-items-center rounded-pill border" style="padding: 6px 12px; background: var(--nova-input-bg); border-color: var(--nova-border) !important;">
                                     <i class="bi bi-search text-secondary me-2"></i>
-                                    <input type="search" name="q" value="{{ searchQuery|default('') }}" placeholder="Search NOVA..." class="border-0 bg-transparent shadow-none w-100 nova-text-main" style="outline: none; font-size: 14px;">
+                                    <input type="search" name="q" value="{{ searchQuery|default('') }}" placeholder="{{ t.t('Search NOVA...') }}" class="border-0 bg-transparent shadow-none w-100 nova-text-main" style="outline: none; font-size: 14px;">
                                 </div>
                             </form>
                         </div>
@@ -425,13 +425,13 @@
                             </div>
                         </div>
                         <div class="card-body nova-text-main" style="padding: 32px 16px 16px 16px; font-size: 14px;">
-                            <h2 class="h6 fw-bold mb-2">Home</h2>
-                            <p class="mb-3 nova-text-muted" style="font-size: 13px;">Your personal NOVA frontpage. Come here to check in with your favorite study spaces, ask questions, and help your peers.</p>
+                            <h2 class="h6 fw-bold mb-2">{{ t.t('Home') }}</h2>
+                            <p class="mb-3 nova-text-muted" style="font-size: 13px;">{{ t.t('Your personal NOVA frontpage. Come here to check in with your favorite study spaces, ask questions, and help your peers.') }}</p>
                             
                             <hr style="border-color: var(--nova-border); opacity: 1; margin: 16px 0;">
                             
                             <button class="btn w-100 rounded-pill fw-bold text-white mb-2" style="background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%); border: none; font-size: 14px;" type="button" data-bs-toggle="collapse" data-bs-target="#addPostForm">
-                                Create Post
+                                {{ t.t('Create Post') }}
                             </button>
                         </div>
                     </div>

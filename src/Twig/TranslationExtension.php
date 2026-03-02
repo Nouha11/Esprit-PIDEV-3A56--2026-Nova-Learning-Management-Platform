@@ -43,6 +43,13 @@ class TranslationExtension extends AbstractExtension
         $request = $this->requestStack->getCurrentRequest();
         
         if ($request) {
+            // First try to get from request locale (set by LocaleListener)
+            $locale = $request->getLocale();
+            if ($locale && in_array($locale, ['en', 'fr'])) {
+                return $locale;
+            }
+            
+            // Fallback to session
             return $request->getSession()->get('_locale', 'en');
         }
         

@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/translation.html.twig' as t %}
 
-{% block title %}Payment History{% endblock %}
+{% block title %}{{ t.t('Payment History') }}{% endblock %}
 
 {% block body %}
 
@@ -25,11 +26,11 @@
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h1 class="h3 mb-0">Payment History</h1>
+                            <h1 class="h3 mb-0">{{ t.t('Payment History') }}</h1>
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb breadcrumb-dots mb-0">
-                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Payment History</li>
+                                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">{{ t.t('Home') }}</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">{{ t.t('Payment History') }}</li>
                                 </ol>
                             </nav>
                         </div>
@@ -50,7 +51,7 @@
                     <div class="card border-primary">
                         <div class="card-body text-center">
                             <h3 class="text-primary mb-0">{{ stats.total }}</h3>
-                            <small class="text-muted">Total Transactions</small>
+                            <small class="text-muted">{{ t.t('Total Transactions') }}</small>
                         </div>
                     </div>
                 </div>
@@ -58,7 +59,7 @@
                     <div class="card border-success">
                         <div class="card-body text-center">
                             <h3 class="text-success mb-0">{{ stats.completed }}</h3>
-                            <small class="text-muted">Successful</small>
+                            <small class="text-muted">{{ t.t('Successful') }}</small>
                         </div>
                     </div>
                 </div>
@@ -66,7 +67,7 @@
                     <div class="card border-danger">
                         <div class="card-body text-center">
                             <h3 class="text-danger mb-0">{{ stats.failed }}</h3>
-                            <small class="text-muted">Failed</small>
+                            <small class="text-muted">{{ t.t('Failed') }}</small>
                         </div>
                     </div>
                 </div>
@@ -74,7 +75,7 @@
                     <div class="card border-info">
                         <div class="card-body text-center">
                             <h3 class="text-info mb-0">${{ stats.totalAmount|number_format(2) }}</h3>
-                            <small class="text-muted">Total Spent</small>
+                            <small class="text-muted">{{ t.t('Total Spent') }}</small>
                         </div>
                     </div>
                 </div>
@@ -83,7 +84,7 @@
             <!-- Payments Table -->
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>Transaction History</h5>
+                    <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>{{ t.t('Transaction History') }}</h5>
                 </div>
                 <div class="card-body">
                     {% if payments|length > 0 %}
@@ -91,13 +92,13 @@
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Transaction ID</th>
-                                        <th>Book</th>
-                                        <th>Amount</th>
-                                        <th>Method</th>
-                                        <th>Date</th>
-                                        <th>Status</th>
-                                        <th>Details</th>
+                                        <th>{{ t.t('Transaction ID') }}</th>
+                                        <th>{{ t.t('Book') }}</th>
+                                        <th>{{ t.t('Amount') }}</th>
+                                        <th>{{ t.t('Method') }}</th>
+                                        <th>{{ t.t('Date') }}</th>
+                                        <th>{{ t.t('Status') }}</th>
+                                        <th>{{ t.t('Details') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -147,9 +148,9 @@
                     {% else %}
                         <div class="text-center py-5">
                             <i class="bi bi-receipt fs-1 text-muted"></i>
-                            <p class="text-muted mt-3">No payment history yet.</p>
+                            <p class="text-muted mt-3">{{ t.t('No payment history yet.') }}</p>
                             <a href="{{ path('book_list') }}" class="btn btn-primary">
-                                <i class="bi bi-shop me-2"></i>Browse Books
+                                <i class="bi bi-shop me-2"></i>{{ t.t('Browse Books') }}
                             </a>
                         </div>
                     {% endif %}
@@ -159,7 +160,7 @@
             <!-- Back Button -->
             <div class="mt-4">
                 <a href="{{ path('my_library') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Back to My Library
+                    <i class="bi bi-arrow-left me-2"></i>{{ t.t('Back to My Library') }}
                 </a>
             </div>
         </section>
