@@ -47,7 +47,8 @@ class HuggingFaceService
                     'max_tokens' => 2000,
                     'temperature' => 0.7,
                 ],
-                'timeout' => 30,
+                'timeout' => 60,
+                'max_duration' => 60,
             ]);
 
             $statusCode = $response->getStatusCode();
@@ -245,6 +246,7 @@ PROMPT;
     public function testConnection(): bool
     {
         if (empty($this->huggingFaceApiKey)) {
+            $this->logger->error('Hugging Face API key is empty');
             return false;
         }
         try {
@@ -258,13 +260,17 @@ PROMPT;
                     'messages' => [['role' => 'user', 'content' => 'Say hello']],
                     'max_tokens' => 10,
                 ],
-                'timeout' => 15,
+                'timeout' => 60,
+                'max_duration' => 60,
                 'verify_peer' => false,
                 'verify_host' => false,
             ]);
-            return $response->getStatusCode() === 200;
+            
+            $statusCode = $response->getStatusCode();
+            $this->logger->info('HF test connection status: ' . $statusCode);
+            return $statusCode === 200;
         } catch (\Exception $e) {
-            $this->logger->error('HF error: ' . $e->getMessage());
+            $this->logger->error('HF test connection error: ' . $e->getMessage());
             return false;
         }
     }
@@ -305,7 +311,8 @@ PROMPT;
                     'max_tokens' => 100,
                     'temperature' => 0.3,
                 ],
-                'timeout' => 20,
+                'timeout' => 60,
+                'max_duration' => 60,
             ]);
 
             if ($response->getStatusCode() !== 200) {

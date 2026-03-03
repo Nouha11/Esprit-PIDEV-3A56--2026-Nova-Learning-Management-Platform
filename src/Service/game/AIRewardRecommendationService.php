@@ -54,7 +54,8 @@ class AIRewardRecommendationService
                     'max_tokens' => 150,
                     'temperature' => 0.3,
                 ],
-                'timeout' => 15,
+                'timeout' => 60,
+                'max_duration' => 60,
             ]);
 
             if ($response->getStatusCode() !== 200) {
@@ -117,7 +118,8 @@ class AIRewardRecommendationService
                     'max_tokens' => 150,
                     'temperature' => 0.3,
                 ],
-                'timeout' => 20,
+                'timeout' => 60,
+                'max_duration' => 60,
             ]);
 
             if ($response->getStatusCode() !== 200) {

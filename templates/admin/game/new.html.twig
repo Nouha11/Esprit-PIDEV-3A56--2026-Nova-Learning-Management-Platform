@@ -68,12 +68,11 @@
                             </div>
                         </div>
 
-                        {# Rewards association field if it exists in the form #}
                         {% if form.rewards is defined %}
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="card bg-light">
-                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div class="card bg-body-secondary">
+                                        <div class="card-header d-flex justify-content-between align-items-center bg-body-tertiary">
                                             <h6 class="mb-0">
                                                 <i class="bi bi-trophy me-1"></i>Special Rewards (Optional)
                                             </h6>
@@ -90,7 +89,7 @@
                                             <div class="mb-2">
                                                 <input type="text" id="rewardSearch" class="form-control form-control-sm" placeholder="Search rewards...">
                                             </div>
-                                            <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: var(--bs-body-bg);">
+                                            <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
                                                 <div class="row g-2" id="rewardsList">
                                                     {% for reward_checkbox in form.rewards %}
                                                         <div class="col-md-6 reward-item" data-reward-name="{{ reward_checkbox.vars.label|lower }}">
@@ -166,6 +165,7 @@
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle me-2"></i>
                                     Use AI to automatically generate trivia questions. Review and edit them before saving.
+                                    <br><small class="text-muted">Note: The test connection button is optional. You can directly generate questions even if the test times out.</small>
                                 </div>
                                 
                                 <div class="row">
@@ -201,8 +201,9 @@
                                 
                                 <button type="button" 
                                         class="btn btn-outline-secondary ms-2" 
-                                        id="test-ai-btn">
-                                    <i class="bi bi-wifi"></i> Test AI Connection
+                                        id="test-ai-btn"
+                                        title="Optional: Test if the AI service is responding">
+                                    <i class="bi bi-wifi"></i> Test Connection (Optional)
                                 </button>
                                 
                                 <div id="ai-loading" class="mt-3" style="display: none;">
@@ -314,8 +315,8 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card bg-light sticky-top" style="top: 20px;">
-            <div class="card-header">
+        <div class="card bg-body-secondary sticky-top" style="top: 20px;">
+            <div class="card-header bg-body-tertiary">
                 <h6 class="mb-0"><i class="bi bi-info-circle me-1"></i>Quick Guide</h6>
             </div>
             <div class="card-body" id="helpContent">
@@ -445,18 +446,38 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const typeField = document.getElementById('game_form_type');
-        const categoryField = document.getElementById('game_form_category');
+        // Try multiple possible field ID patterns
+        const typeField = document.getElementById('game_form_type') || 
+                         document.querySelector('select[name="game_form[type]"]') ||
+                         document.querySelector('[id$="_type"]');
+        const categoryField = document.getElementById('game_form_category') || 
+                             document.querySelector('select[name="game_form[category]"]') ||
+                             document.querySelector('[data-game-category="true"]');
         const aiSection = document.getElementById('ai-generator-section');
         const contentSection = document.getElementById('custom-content-section');
 
+        if (!typeField) {
+            console.error('Type field not found');
+            return;
+        }
+
         function updateSections() {
             const gameType = typeField.value;
-            aiSection.style.display = gameType === 'TRIVIA' ? 'block' : 'none';
-            contentSection.style.display = gameType ? 'block' : 'none';
+            console.log('Game type changed to:', gameType); // Debug log
+            
+            if (aiSection) {
+                aiSection.style.display = gameType === 'TRIVIA' ? 'block' : 'none';
+                console.log('AI section display:', aiSection.style.display); // Debug log
+            }
+            
+            if (contentSection) {
+                contentSection.style.display = gameType ? 'block' : 'none';
+            }
+            
             document.querySelectorAll('[id^="content-"]').forEach(el => {
                 el.style.display = 'none';
             });
+            
             if (gameType) {
                 const contentDiv = document.getElementById('content-' + gameType.toLowerCase());
                 if (contentDiv) contentDiv.style.display = 'block';
@@ -464,7 +485,9 @@
         }
 
         typeField.addEventListener('change', updateSections);
-        categoryField.addEventListener('change', updateSections);
+        if (categoryField) {
+            categoryField.addEventListener('change', updateSections);
+        }
         updateSections();
 
         // Test AI Connection
@@ -479,10 +502,10 @@
                 if (data.success) {
                     showSuccess(data.message);
                 } else {
-                    showError(data.message);
+                    showError(data.message + ' (You can still try generating questions - the test might timeout but generation works)');
                 }
             } catch (error) {
-                showError('Connection test failed: ' + error.message);
+                showError('Connection test failed: ' + error.message + ' (You can still try generating questions)');
             } finally {
                 this.disabled = false;
                 this.innerHTML = originalText;
@@ -493,7 +516,9 @@
         document.getElementById('generate-questions-btn').addEventListener('click', async function() {
             const topic = document.getElementById('ai-topic').value.trim();
             const count = document.getElementById('ai-count').value;
-            const difficulty = document.getElementById('game_form_difficulty').value || 'MEDIUM';
+            const difficultyField = document.getElementById('game_form_difficulty') || 
+                                   document.querySelector('select[name="game_form[difficulty]"]');
+            const difficulty = difficultyField ? difficultyField.value : 'MEDIUM';
 
             if (!topic) {
                 showError('Please enter a topic');
@@ -571,6 +596,10 @@
             const el = document.getElementById('ai-error');
             el.textContent = message;
             el.style.display = 'block';
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => { 
+                el.style.display = 'none'; 
+            }, 10000);
         }
 
         function escapeHtml(text) {
