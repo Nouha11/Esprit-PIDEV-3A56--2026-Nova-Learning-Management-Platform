@@ -58,6 +58,9 @@ RUN mkdir -p /var/www/html/var/cache /var/www/html/var/log \
 RUN echo '<Directory /var/www/html/public>\nAllowOverride All\nRequire all granted\n</Directory>' \
     >> /etc/apache2/apache2.conf
 
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+
 EXPOSE 80
 
 # Startup script
