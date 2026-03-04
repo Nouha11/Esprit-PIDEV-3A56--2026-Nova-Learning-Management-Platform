@@ -8,13 +8,20 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libicu-dev \
+    libzip-dev \
     zip \
     unzip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Configure GD extension
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd intl
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd intl zip
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
