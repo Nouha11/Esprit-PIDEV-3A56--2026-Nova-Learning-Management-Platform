@@ -50,7 +50,8 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html/var \
+RUN mkdir -p /var/www/html/var/cache /var/www/html/var/log \
+    && chown -R www-data:www-data /var/www/html/var \
     && chmod -R 775 /var/www/html/var
 
 # Apache .htaccess support
