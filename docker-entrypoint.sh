@@ -18,26 +18,21 @@ openssl pkey -in /var/www/html/config/jwt/private.pem \
 chmod 644 /var/www/html/config/jwt/private.pem
 chmod 644 /var/www/html/config/jwt/public.pem
 
-# Fix permissions
+# Install frontend assets
+php bin/console importmap:install
+php bin/console asset-map:compile
+
+# Clear and warm cache
+php bin/console cache:clear --env=prod --no-debug
+php bin/console assets:install public --env=prod --no-debug
+
+# Fix permissions AFTER cache:clear recreates directories
 mkdir -p /var/www/html/var/cache/prod/vich_uploader
 mkdir -p /var/www/html/var/cache/prod/pools
 mkdir -p /var/www/html/var/log
 chmod -R 777 /var/www/html/var
 chown -R www-data:www-data /var/www/html/var
-chmod -R 777 /var/www/html/var/cache
-chmod -R 777 /var/www/html/var/log
-
-# Install frontend assets
-php bin/console importmap:install
-php bin/console asset-map:compile
-
-# Run migrations
-
-#php bin/console doctrine:migrations:migrate --no-interaction --env=prod
-
-# Clear and warm cache
-php bin/console cache:clear --env=prod --no-debug
-php bin/console assets:install public --env=prod --no-debug
+chmod -R 777 /var/www/html/var
 
 # Start Apache
 apache2-foreground
