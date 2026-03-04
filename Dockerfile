@@ -63,6 +63,12 @@ ENV APP_DEBUG=0
 
 EXPOSE 80
 
+# Pre-create cache directories with proper permissions
+RUN mkdir -p /var/www/html/var/cache/prod/vich_uploader \
+    && mkdir -p /var/www/html/var/cache/prod/pools \
+    && mkdir -p /var/www/html/var/log \
+    && chmod -R 777 /var/www/html/var
+
 # Startup script
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

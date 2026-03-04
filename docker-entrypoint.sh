@@ -19,10 +19,13 @@ chmod 644 /var/www/html/config/jwt/private.pem
 chmod 644 /var/www/html/config/jwt/public.pem
 
 # Fix permissions
-mkdir -p /var/www/html/var/cache/prod
+mkdir -p /var/www/html/var/cache/prod/vich_uploader
+mkdir -p /var/www/html/var/cache/prod/pools
 mkdir -p /var/www/html/var/log
+chmod -R 777 /var/www/html/var
 chown -R www-data:www-data /var/www/html/var
-chmod -R 775 /var/www/html/var
+chmod -R 777 /var/www/html/var/cache
+chmod -R 777 /var/www/html/var/log
 
 # Install frontend assets
 php bin/console importmap:install
