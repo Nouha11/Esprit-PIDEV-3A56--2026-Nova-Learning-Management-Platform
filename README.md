@@ -11,6 +11,15 @@ NOVA is a comprehensive full-stack learning management system that combines trad
 ### 🎮 Gamification & Rewards System
 - **AI-Powered Question Generator**: Generate trivia questions using Hugging Face AI
 - **Multiple Game Types**: PUZZLE, MEMORY, TRIVIA, ARCADE
+- **Game Categories**:
+  - **Full Games**: Reward-based games that cost tokens and provide XP/tokens
+  - **Mini Games**: Free energy regeneration games for quick breaks
+- **Energy Regeneration Mini Games**:
+  - **Breathing Exercise**: Guided breathing patterns to restore focus (3-5 energy points)
+  - **Eye Rest**: Visual relaxation exercises to reduce eye strain (3-5 energy points)
+  - **Hydration Reminder**: Interactive water intake tracking (3-5 energy points)
+  - **Stretch Break**: Quick stretching exercises with animations (3-5 energy points)
+  - All mini games are free to play and designed for 2-3 minute breaks
 - **Token Economy**: Earn and spend tokens on games
 - **XP & Leveling**: 60-level progression system with milestone rewards
 - **Achievement System**: Unlock badges and special rewards for completing challenges
@@ -54,6 +63,24 @@ NOVA is a comprehensive full-stack learning management system that combines trad
 - **Resource Management**: Upload and attach PDF study materials
 - **Note-Taking System**: Create, edit, and search notes
 - **Tag-Based Organization**: Categorize sessions with custom tags
+
+### 📚 Library Management System
+- **Book Inventory**: Comprehensive catalog of available books with details
+- **Book Borrowing**: Students can borrow books with automated tracking
+- **Loan Management**: Track borrowed books, due dates, and return status
+- **Late Fee System**: Automatic calculation of late fees for overdue books
+- **Payment Processing**: Handle book purchase and late fee payments
+- **Search & Filter**: Find books by title, author, category, or availability
+- **Book Reservations**: Reserve books that are currently borrowed
+- **Inventory Analytics**: Track popular books and borrowing patterns
+
+### 🎯 Quiz System with AI Assistance
+- **Quiz Creation**: Tutors can create multiple-choice quizzes with images
+- **AI-Powered Hints**: Students can request AI-generated hints for difficult questions
+  - Context-aware hints based on question content
+  - Progressive hint system (subtle → detailed)
+  - Powered by Hugging Face AI
+- **Quiz Reporting**: Students can report inappropriate or incorrect questions
 
 ### 💬 Forum & Collaboration
 - **Discussion Forums**: Create posts and engage in discussions
