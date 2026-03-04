@@ -3,6 +3,8 @@ set -e
 
 export APP_ENV=prod
 export APP_DEBUG=0
+export WKHTMLTOPDF_PATH=/usr/bin/wkhtmltopdf
+export WKHTMLTOIMAGE_PATH=/usr/bin/wkhtmltoimage
 
 # Generate JWT keys
 openssl genpkey -out /var/www/html/config/jwt/private.pem -aes256 \
@@ -13,14 +15,16 @@ openssl pkey -in /var/www/html/config/jwt/private.pem \
   -out /var/www/html/config/jwt/public.pem -pubout \
   -passin pass:${JWT_PASSPHRASE}
 
-# Set JWT key permissions
 chmod 644 /var/www/html/config/jwt/private.pem
 chmod 644 /var/www/html/config/jwt/public.pem
 
-export WKHTMLTOPDF_PATH=/usr/bin/wkhtmltopdf
-export WKHTMLTOIMAGE_PATH=/usr/bin/wkhtmltoimage
+# Fix cache and log permissions
+mkdir -p /var/www/html/var/cache/prod
+mkdir -p /var/www/html/var/log
+chown -R www-data:www-data /var/www/html/var
+chmod -R 775 /var/www/html/var
 
-# Clear and warm cache for prod
+# Clear and warm cache
 php bin/console cache:clear --env=prod --no-debug
 php bin/console assets:install public --env=prod --no-debug
 
