@@ -16,3 +16,6 @@ php bin/console assets:install public --env=prod
 
 # Start Apache
 apache2-foreground
+
+WKHTMLTOPDF_PATH=/usr/bin/wkhtmltopdf
+WKHTMLTOIMAGE_PATH=/usr/bin/wkhtmltoimage
