@@ -9,6 +9,8 @@ var/log/
 var/cache/
 config/jwt/
 /vendor/
+.env
+
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
