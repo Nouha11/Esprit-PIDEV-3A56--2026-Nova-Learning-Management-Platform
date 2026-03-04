@@ -82,11 +82,21 @@ NOVA is a comprehensive full-stack learning management system that combines trad
   - Powered by Hugging Face AI
 - **Quiz Reporting**: Students can report inappropriate or incorrect questions
 
-### 💬 Forum & Collaboration
-- **Discussion Forums**: Create posts and engage in discussions
-- **Comment System**: Reply to posts and participate in conversations
-- **AI Summaries**: Get AI-generated summaries of discussions
-- **Text Enhancement**: AI-powered grammar and formatting improvements
+### 💬 Forum & Peer-to-Peer Collaboration
+- **Advanced Discussion Spaces**: Organized categories (Spaces) for targeted academic discussions with automatic OpenGraph link previews.
+- **Reputation & Voting System**: Reddit-style upvote/downvote mechanics for both posts and comments to surface high-quality answers.
+- **Solution Tracking**: Post authors and admins can mark the most helpful comment as the "Accepted Solution".
+- **Smart Search & Filtering**: Sort discussions by Hot, New, or Top. Filter by Unanswered, Popular, user's Reading History, Bookmarks, or specific Tags.
+- **Content Moderation & Safety**: 
+  - Automated profanity and inappropriate content filter (`CensorshipService`).
+  - User reporting system for flagging problematic posts/comments to administrators.
+  - Ability for authors/admins to lock specific discussion threads.
+- **Rich Media Replies**: Commenting system supporting threaded replies and direct image file uploads.
+- **Trending Topics**: Real-time tracking and display of trending academic tags.
+- **AI-Powered Forum Assistants**:
+  - **Thread Summarization**: Instantly generate AI summaries of long, complex discussions.
+  - **Text Enhancement**: AI tool to help students improve their grammar and post formatting before publishing.
+  - **NOVA AI Tutor**: Built-in conversational AI to directly answer student queries when peers are unavailable.
 
 ### 🔐 Authentication & Security
 - **OAuth Integration**: Google and LinkedIn authentication
