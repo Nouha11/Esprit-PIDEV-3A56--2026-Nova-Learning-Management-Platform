@@ -1,5 +1,5 @@
 <?php
-namespace App\Form\Admin;
+namespace App\Form\Admin\gamification;
 
 use App\Entity\Gamification\Game;
 use App\Entity\Gamification\Reward;

@@ -4,7 +4,7 @@ namespace App\Controller\Admin\Game;
 
 use App\Entity\Gamification\Game;
 use App\Entity\Gamification\GameContent;
-use App\Form\Admin\GameFormType;
+use App\Form\Admin\gamification\GameFormType;
 use App\Repository\Gamification\GameRepository;
 use App\Service\game\GameService;
 use App\Service\game\GameTemplateService;
