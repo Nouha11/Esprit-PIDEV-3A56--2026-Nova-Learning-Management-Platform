@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libicu-dev \
     libzip-dev \
+    libssl-dev \
+    zlib1g-dev \
     zip \
     unzip \
     && apt-get clean \
@@ -21,7 +23,7 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd intl zip
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd intl zip soap opcache
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -34,6 +36,9 @@ WORKDIR /var/www/html
 
 # Copy project files
 COPY . .
+
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
