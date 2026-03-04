@@ -13,16 +13,28 @@ NOVA is a comprehensive full-stack learning management system that combines trad
 - **Multiple Game Types**: PUZZLE, MEMORY, TRIVIA, ARCADE
 - **Token Economy**: Earn and spend tokens on games
 - **XP & Leveling**: 60-level progression system with milestone rewards
+- **Achievement System**: Unlock badges and special rewards for completing challenges
+- **Reward Types**: Badges, bonus tokens, bonus XP, and level milestone rewards
 - **Leaderboards**: Real-time rankings and competition
 - **Rating System**: 5-star game ratings with statistics
 - **Favorite Games**: Personalized game collections
+- **PDF Certificates**: Download achievement certificates with QR codes
 
 ### 📚 Study Session Management
 - **Session Tracking**: Create, edit, and manage study sessions with detailed metadata
-- **Pomodoro Timer**: Built-in 25-minute focus timer with break management
+- **Pomodoro Timer**: Built-in productivity timer with customizable work/break intervals
+  - 25-minute focus sessions with 5-minute short breaks
+  - 15-minute long breaks after 4 completed sessions
+  - Visual countdown timer with progress tracking
+  - Audio notifications for session completion
+  - Automatic session logging and statistics
 - **Energy System**: Track and regenerate energy through mini-games
+  - Energy depletes during study sessions
+  - Restore energy by playing mini-games (breathing exercises, quick puzzles)
+  - Energy level affects study effectiveness
 - **Mood & Energy Tracking**: Record emotional state during study sessions
 - **Study Streak Tracking**: Monitor current and longest study streaks
+- **Break Management**: Track break duration and count for better productivity
 
 ### 📊 Analytics & Visualization
 - **Analytics Dashboard**: Comprehensive metrics with Chart.js visualizations
