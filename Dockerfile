@@ -19,10 +19,8 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure GD extension
+# Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-
-# Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd intl zip soap opcache
 
 # Enable Apache mod_rewrite
@@ -37,13 +35,11 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . .
 
-# Install dependencies
+# Install dependencies (no scripts to avoid MakerBundle issue)
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
 RUN composer dump-autoload --optimize --no-dev
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader
 
-# Generate JWT keys
+# Generate JWT keys directory
 RUN mkdir -p config/jwt
 
 # Set Apache document root to Symfony public/
@@ -58,10 +54,8 @@ RUN chown -R www-data:www-data /var/www/html/var \
     && chmod -R 775 /var/www/html/var
 
 # Apache .htaccess support
-RUN echo '<Directory /var/www/html/public>\n\
-    AllowOverride All\n\
-    Require all granted\n\
-</Directory>' >> /etc/apache2/apache2.conf
+RUN echo '<Directory /var/www/html/public>\nAllowOverride All\nRequire all granted\n</Directory>' \
+    >> /etc/apache2/apache2.conf
 
 EXPOSE 80
 
