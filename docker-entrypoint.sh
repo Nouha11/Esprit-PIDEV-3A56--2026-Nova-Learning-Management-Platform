@@ -24,6 +24,10 @@ mkdir -p /var/www/html/var/log
 chown -R www-data:www-data /var/www/html/var
 chmod -R 775 /var/www/html/var
 
+# Install frontend assets
+php bin/console importmap:install
+php bin/console asset-map:compile
+
 # Run migrations
 php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
