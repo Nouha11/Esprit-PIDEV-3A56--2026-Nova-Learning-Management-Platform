@@ -55,6 +55,29 @@ NOVA is a comprehensive full-stack learning management system that combines trad
 - **Note-Taking System**: Create, edit, and search notes
 - **Tag-Based Organization**: Categorize sessions with custom tags
 
+### 📚 Library Management System
+- **Book Inventory**: Comprehensive catalog of available books with details
+- **Book Borrowing**: Students can borrow books with automated tracking
+- **Loan Management**: Track borrowed books, due dates, and return status
+- **Late Fee System**: Automatic calculation of late fees for overdue books
+- **Payment Processing**: Handle book purchase and late fee payments
+- **Search & Filter**: Find books by title, author, category, or availability
+- **Book Reservations**: Reserve books that are currently borrowed
+- **Inventory Analytics**: Track popular books and borrowing patterns
+
+### 🎯 Quiz System with AI Assistance
+- **Quiz Creation**: Tutors can create multiple-choice quizzes with images
+- **AI-Powered Hints**: Students can request AI-generated hints for difficult questions
+  - Context-aware hints based on question content
+  - Progressive hint system (subtle → detailed)
+  - Powered by Hugging Face AI
+- **Quiz Reporting**: Students can report inappropriate or incorrect questions
+- **Admin Moderation**: Review and manage reported quizzes
+- **Quiz Statistics**: Track completion rates, average scores, and performance
+- **Image Support**: Add visual elements to quiz questions
+- **Pagination**: Browse quizzes efficiently with paginated views
+- **Filtering & Sorting**: Filter quizzes by difficulty, category, or status
+
 ### 💬 Forum & Collaboration
 - **Discussion Forums**: Create posts and engage in discussions
 - **Comment System**: Reply to posts and participate in conversations
