@@ -38,8 +38,8 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
-
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
+RUN composer dump-autoload --optimize --no-dev
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
