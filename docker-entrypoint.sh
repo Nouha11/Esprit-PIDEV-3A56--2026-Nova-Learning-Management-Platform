@@ -18,11 +18,14 @@ openssl pkey -in /var/www/html/config/jwt/private.pem \
 chmod 644 /var/www/html/config/jwt/private.pem
 chmod 644 /var/www/html/config/jwt/public.pem
 
-# Fix cache and log permissions
+# Fix permissions
 mkdir -p /var/www/html/var/cache/prod
 mkdir -p /var/www/html/var/log
 chown -R www-data:www-data /var/www/html/var
 chmod -R 775 /var/www/html/var
+
+# Run migrations
+php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
 # Clear and warm cache
 php bin/console cache:clear --env=prod --no-debug
