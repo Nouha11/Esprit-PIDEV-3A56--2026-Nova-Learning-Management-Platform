@@ -2,7 +2,7 @@
 namespace App\Controller\Admin\Game;
 
 use App\Entity\Gamification\Reward;
-use App\Form\Admin\RewardFormType;
+use App\Form\Admin\gamification\RewardFormType;
 use App\Repository\Gamification\RewardRepository;
 use App\Service\game\RewardService;
 use Doctrine\ORM\EntityManagerInterface;
