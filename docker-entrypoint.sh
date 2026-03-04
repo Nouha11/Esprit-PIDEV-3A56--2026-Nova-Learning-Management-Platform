@@ -32,7 +32,8 @@ php bin/console importmap:install
 php bin/console asset-map:compile
 
 # Run migrations
-php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+
+#php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
 # Clear and warm cache
 php bin/console cache:clear --env=prod --no-debug
