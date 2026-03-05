@@ -34,5 +34,8 @@ chmod -R 777 /var/www/html/var
 chown -R www-data:www-data /var/www/html/var
 chmod -R 777 /var/www/html/var
 
+# Debug: print env vars (remove after debugging)
+echo "HF KEY EXISTS: ${HUGGING_FACE_API_KEY:0:10}..."
+
 # Start Apache
 apache2-foreground
