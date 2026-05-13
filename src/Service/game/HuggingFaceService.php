@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 
 class HuggingFaceService
 {
-    private const API_URL = 'https://router.huggingface.co/novita/v3/openai/chat/completions';
+    private const API_URL = 'https://router.huggingface.co/v1/chat/completions';
     
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -40,7 +40,7 @@ class HuggingFaceService
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'qwen/qwen2.5-7b-instruct',
+                    'model' => 'Qwen/Qwen2.5-7B-Instruct',
                     'messages' => [
                         ['role' => 'user', 'content' => $prompt]
                     ],
@@ -250,13 +250,13 @@ PROMPT;
             return false;
         }
         try {
-            $response = $this->httpClient->request('POST', 'https://router.huggingface.co/novita/v3/openai/chat/completions', [
+            $response = $this->httpClient->request('POST', 'https://router.huggingface.co/v1/chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->huggingFaceApiKey,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'qwen/qwen2.5-7b-instruct',
+                    'model' => 'Qwen/Qwen2.5-7B-Instruct',
                     'messages' => [['role' => 'user', 'content' => 'Say hello']],
                     'max_tokens' => 10,
                 ],
@@ -306,7 +306,7 @@ PROMPT;
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'qwen/qwen2.5-7b-instruct',
+                    'model' => 'Qwen/Qwen2.5-7B-Instruct',
                     'messages' => $messages,
                     'max_tokens' => 100,
                     'temperature' => 0.3,

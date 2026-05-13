@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 
 class AIRewardRecommendationService
 {
-    private const API_URL = 'https://router.huggingface.co/novita/v3/openai/chat/completions';
+    private const API_URL = 'https://router.huggingface.co/v1/chat/completions';
     
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -47,7 +47,7 @@ class AIRewardRecommendationService
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'qwen/qwen2.5-7b-instruct',
+                    'model' => 'Qwen/Qwen2.5-7B-Instruct',
                     'messages' => [
                         ['role' => 'user', 'content' => $prompt]
                     ],
@@ -111,7 +111,7 @@ class AIRewardRecommendationService
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'qwen/qwen2.5-7b-instruct',
+                    'model' => 'Qwen/Qwen2.5-7B-Instruct',
                     'messages' => [
                         ['role' => 'user', 'content' => $prompt]
                     ],
