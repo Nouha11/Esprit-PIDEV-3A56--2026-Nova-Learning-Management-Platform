@@ -36,3 +36,7 @@ TEAM_CREDENTIALS.md
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
+
+# Java project (separate repository)
+/Pi_Java/
+Pi_Java/
