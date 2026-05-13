@@ -103,10 +103,15 @@
                         </div>
                         <div class="card-body">
                             <div class="text-center mb-3">
-                                {% if reward.icon %}
-                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="reward-icon mb-2">
+                            {% if reward.icon %}
+                                {# Smart icon resolution: handle Symfony filename, Java full path, or URL #}
+                                {% if reward.icon starts with 'http' or reward.icon starts with '/' %}
+                                    <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="reward-icon mb-2">
                                 {% else %}
-                                    <div class="reward-icon-placeholder achievement-icon-bg mb-2">
+                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon|split('\\')|last|split('/')|last) }}" alt="{{ reward.name }}" class="reward-icon mb-2">
+                                {% endif %}
+                            {% else %}
+                                <div class="reward-icon-placeholder achievement-icon-bg mb-2">
                                         <i class="bi bi-trophy-fill"></i>
                                     </div>
                                 {% endif %}
@@ -178,7 +183,12 @@
                         <div class="card-body">
                             <div class="text-center mb-3">
                                 {% if reward.icon %}
-                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="milestone-icon mb-2">
+                                    {# Smart icon resolution: handle Symfony filename, Java full path, or URL #}
+                                    {% if reward.icon starts with 'http' or reward.icon starts with '/' %}
+                                        <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="milestone-icon mb-2">
+                                    {% else %}
+                                        <img src="{{ asset('uploads/rewards/' ~ reward.icon|split('\\')|last|split('/')|last) }}" alt="{{ reward.name }}" class="milestone-icon mb-2">
+                                    {% endif %}
                                 {% else %}
                                     <div class="milestone-icon-placeholder mb-2">
                                         <i class="bi bi-award-fill"></i>
@@ -245,7 +255,12 @@
                         <div class="badge-shine"></div>
                         <div class="card-body text-center">
                             {% if reward.icon %}
-                                <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="badge-icon mb-3">
+                                {# Smart icon resolution: handle Symfony filename, Java full path, or URL #}
+                                {% if reward.icon starts with 'http' or reward.icon starts with '/' %}
+                                    <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="badge-icon mb-3">
+                                {% else %}
+                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon|split('\\')|last|split('/')|last) }}" alt="{{ reward.name }}" class="badge-icon mb-3">
+                                {% endif %}
                             {% else %}
                                 <div class="badge-icon-placeholder mb-3">
                                     <i class="bi bi-award-fill"></i>

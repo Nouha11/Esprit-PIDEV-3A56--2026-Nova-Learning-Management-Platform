@@ -58,11 +58,8 @@ class LeaderboardController extends AbstractController
         foreach ($students as $student) {
             $levelInfo = $this->levelCalculator->calculateLevel($student->getTotalXP());
             
-            // Get profile picture URL or null
-            $profilePictureUrl = null;
-            if ($student->getProfilePicture()) {
-                $profilePictureUrl = '/uploads/avatars/' . $student->getProfilePicture();
-            }
+            // Get profile picture URL - handle both Symfony (filename) and Java (full path) formats
+            $profilePictureUrl = $this->resolveProfilePictureUrl($student->getProfilePicture());
             
             $leaderboardData[] = [
                 'rank' => $rank++,
@@ -144,5 +141,37 @@ class LeaderboardController extends AbstractController
                 'progress' => $levelInfo['progress'],
             ]
         ]);
+    }
+
+    /**
+     * Resolve profile picture to a web-accessible URL.
+     * Handles three formats stored in the shared DB:
+     *  1. Symfony: plain filename  → "avatar.jpg"         → /uploads/avatars/avatar.jpg
+     *  2. Java:    full local path → "C:\Users\...\a.jpg" → extract filename → /uploads/avatars/a.jpg
+     *  3. Java:    starts with "/" → "/uploads/avatars/a" → use as-is
+     */
+    private function resolveProfilePictureUrl(?string $pic): ?string
+    {
+        if (empty($pic)) {
+            return null;
+        }
+
+        // Already a relative web path (starts with /)
+        if (str_starts_with($pic, '/')) {
+            return $pic;
+        }
+
+        // Full Windows or Unix local path stored by Java (contains \ or drive letter like C:)
+        if (str_contains($pic, '\\') || preg_match('/^[A-Za-z]:/', $pic)) {
+            // Extract just the filename from the full path
+            $filename = basename(str_replace('\\', '/', $pic));
+            if (!empty($filename)) {
+                return '/uploads/avatars/' . $filename;
+            }
+            return null;
+        }
+
+        // Plain filename stored by Symfony VichUploader
+        return '/uploads/avatars/' . $pic;
     }
 }
