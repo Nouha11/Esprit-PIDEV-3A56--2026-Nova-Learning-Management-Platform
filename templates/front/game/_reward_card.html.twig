@@ -2,7 +2,36 @@
     <div class="card h-100 reward-card">
         <div class="card-header text-center py-4 reward-header">
             {% if reward.icon %}
-                <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="reward-icon" style="width: 80px; height: 80px; object-fit: contain;">
+                {#
+                    Smart icon resolution for shared Java/Symfony database:
+                    - Java stores full Windows paths: C:\Users\...\image.png  → show type fallback icon
+                    - Symfony stores plain filenames: reward-icon.png         → /uploads/rewards/reward-icon.png
+                    - Already a URL: https://... or /uploads/...              → use as-is
+                #}
+                {% set icon = reward.icon %}
+                {% if icon starts with 'http' %}
+                    <img src="{{ icon }}" alt="{{ reward.name }}" class="reward-icon" style="width: 80px; height: 80px; object-fit: contain;">
+                {% elseif icon starts with '/' %}
+                    <img src="{{ icon }}" alt="{{ reward.name }}" class="reward-icon" style="width: 80px; height: 80px; object-fit: contain;">
+                {% elseif ':' in icon or '\\' in icon %}
+                    {# Full local path from Java — not accessible on web, show type icon instead #}
+                    {% if reward.type == 'BADGE' %}
+                        <i class="bi bi-patch-check-fill display-3 text-primary"></i>
+                    {% elseif reward.type == 'ACHIEVEMENT' %}
+                        <i class="bi bi-trophy-fill display-3 text-warning"></i>
+                    {% elseif reward.type == 'BONUS_XP' %}
+                        <i class="bi bi-star-fill display-3 text-info"></i>
+                    {% elseif reward.type == 'BONUS_TOKENS' %}
+                        <i class="bi bi-coin display-3 text-success"></i>
+                    {% elseif reward.type == 'LEVEL_MILESTONE' %}
+                        <i class="bi bi-award-fill display-3 text-danger"></i>
+                    {% else %}
+                        <i class="bi bi-gift-fill display-3 text-secondary"></i>
+                    {% endif %}
+                {% else %}
+                    {# Plain filename from Symfony #}
+                    <img src="{{ asset('uploads/rewards/' ~ icon) }}" alt="{{ reward.name }}" class="reward-icon" style="width: 80px; height: 80px; object-fit: contain;">
+                {% endif %}
             {% else %}
                 {% if reward.type == 'BADGE' %}
                     <i class="bi bi-patch-check-fill display-3 text-primary"></i>

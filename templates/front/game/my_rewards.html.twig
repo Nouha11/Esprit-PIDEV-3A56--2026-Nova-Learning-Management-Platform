@@ -107,8 +107,10 @@
                                 {# Smart icon resolution: handle Symfony filename, Java full path, or URL #}
                                 {% if reward.icon starts with 'http' or reward.icon starts with '/' %}
                                     <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="reward-icon mb-2">
+                                {% elseif ':' in reward.icon or '\\' in reward.icon %}
+                                    <i class="bi bi-trophy-fill display-3 text-warning"></i>
                                 {% else %}
-                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon|split('\\')|last|split('/')|last) }}" alt="{{ reward.name }}" class="reward-icon mb-2">
+                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="reward-icon mb-2">
                                 {% endif %}
                             {% else %}
                                 <div class="reward-icon-placeholder achievement-icon-bg mb-2">
@@ -186,8 +188,10 @@
                                     {# Smart icon resolution: handle Symfony filename, Java full path, or URL #}
                                     {% if reward.icon starts with 'http' or reward.icon starts with '/' %}
                                         <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="milestone-icon mb-2">
+                                    {% elseif ':' in reward.icon or '\\' in reward.icon %}
+                                        <i class="bi bi-award-fill display-3 text-danger"></i>
                                     {% else %}
-                                        <img src="{{ asset('uploads/rewards/' ~ reward.icon|split('\\')|last|split('/')|last) }}" alt="{{ reward.name }}" class="milestone-icon mb-2">
+                                        <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="milestone-icon mb-2">
                                     {% endif %}
                                 {% else %}
                                     <div class="milestone-icon-placeholder mb-2">
@@ -258,8 +262,10 @@
                                 {# Smart icon resolution: handle Symfony filename, Java full path, or URL #}
                                 {% if reward.icon starts with 'http' or reward.icon starts with '/' %}
                                     <img src="{{ reward.icon }}" alt="{{ reward.name }}" class="badge-icon mb-3">
+                                {% elseif ':' in reward.icon or '\\' in reward.icon %}
+                                    <i class="bi bi-patch-check-fill display-3 text-primary"></i>
                                 {% else %}
-                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon|split('\\')|last|split('/')|last) }}" alt="{{ reward.name }}" class="badge-icon mb-3">
+                                    <img src="{{ asset('uploads/rewards/' ~ reward.icon) }}" alt="{{ reward.name }}" class="badge-icon mb-3">
                                 {% endif %}
                             {% else %}
                                 <div class="badge-icon-placeholder mb-3">
