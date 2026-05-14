@@ -287,9 +287,9 @@
                     {% include 'components/notification_bell.html.twig' %}
                     <li class="nav-item dropdown">
                         <a class="avatar avatar-sm p-0 d-block transition-base" href="#" id="profileDropdown" data-bs-toggle="dropdown" style="transform: scale(1); transition: transform 0.2s;">
-                            {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and app.user.studentProfile.profilePicture %}
+                            {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and avatar_url(app.user.studentProfile) %}
                                 <img class="avatar-img rounded-circle border border-2 border-primary" src="{{ avatar_url(app.user.studentProfile) }}" alt="avatar" onmouseover="this.parentElement.style.transform='scale(1.1)'" onmouseout="this.parentElement.style.transform='scale(1)'">
-                            {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and app.user.tutorProfile.profilePicture %}
+                            {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and avatar_url(app.user.tutorProfile) %}
                                 <img class="avatar-img rounded-circle border border-2 border-primary" src="{{ avatar_url(app.user.tutorProfile) }}" alt="avatar" onmouseover="this.parentElement.style.transform='scale(1.1)'" onmouseout="this.parentElement.style.transform='scale(1)'">
                             {% else %}
                                 <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center border border-2 border-primary shadow-sm" style="width: 42px; height: 42px;" onmouseover="this.parentElement.style.transform='scale(1.1)'" onmouseout="this.parentElement.style.transform='scale(1)'"><span class="fw-bold">{{ app.user.username|first|upper }}</span></div>
@@ -300,9 +300,9 @@
                             <li class="px-4 mb-3">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar me-3">
-                                        {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and app.user.studentProfile.profilePicture %}
+                                        {% if 'ROLE_STUDENT' in app.user.roles and app.user.studentProfile and avatar_url(app.user.studentProfile) %}
                                             <img class="avatar-img rounded-circle" src="{{ avatar_url(app.user.studentProfile) }}">
-                                        {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and app.user.tutorProfile.profilePicture %}
+                                        {% elseif 'ROLE_TUTOR' in app.user.roles and app.user.tutorProfile and avatar_url(app.user.tutorProfile) %}
                                             <img class="avatar-img rounded-circle" src="{{ avatar_url(app.user.tutorProfile) }}">
                                         {% else %}
                                             <div class="avatar-img rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;"><span class="fw-bold fs-5">{{ app.user.username|first|upper }}</span></div>
@@ -382,7 +382,7 @@
                                     <div class="leaderboard-item d-flex align-items-center p-3 rounded-3">
                                         <div class="fw-black fs-4 me-3 nova-text-muted opacity-50" style="width: 30px; font-family: 'Press Start 2P', cursive; font-size: 1rem;">{{ loop.index }}</div>
                                         <div class="avatar avatar-md me-3 position-relative">
-                                            {% if data.student.profilePicture %}
+                                            {% if data.avatar_url(student) %}
                                                 <img class="avatar-img rounded-circle shadow" style="border: 2px solid var(--nova-border);" src="{{ avatar_url(data.student) }}" alt="{{ data.student.firstName }}">
                                             {% else %}
                                                 <div class="avatar-img rounded-circle bg-{{ get_level_badge_color(data.levelInfo.level) }} text-white d-flex align-items-center justify-content-center shadow fw-bold" style="border: 2px solid var(--nova-border);">

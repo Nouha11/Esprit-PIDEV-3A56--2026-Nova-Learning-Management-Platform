@@ -23,7 +23,7 @@
                         </div>
                         <div class="d-flex align-items-center gap-3">
                             <div class="avatar avatar-lg">
-                                {% if student.profilePicture %}
+                                {% if avatar_url(student) %}
                                     <img src="{{ avatar_url(student) }}" 
                                          class="avatar-img rounded-circle" 
                                          alt="Profile Picture">

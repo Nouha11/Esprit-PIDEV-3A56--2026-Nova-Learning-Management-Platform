@@ -1,5 +1,5 @@
 {# Avatar Upload Component #}
-{% set currentAvatar = profile.profilePicture %}
+{% set currentAvatar = avatar_url(profile) %}
 {% set defaultAvatar = asset('assets/images/avatar/default-avatar.png') %}
 
 <div class="avatar-upload-container mb-4">

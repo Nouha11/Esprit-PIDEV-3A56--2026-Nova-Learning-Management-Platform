@@ -104,9 +104,9 @@
                                         <div class="d-flex align-items-center">
                                             <!-- Avatar -->
                                             <div class="avatar avatar-md mb-2 mb-md-0">
-                                                {% if user.studentProfile and user.studentProfile.profilePicture %}
+                                                {% if user.studentProfile and avatar_url(user.studentProfile) %}
                                                     <img src="{{ avatar_url(user.studentProfile) }}" class="rounded-circle" alt="{{ user.username }}">
-                                                {% elseif user.tutorProfile and user.tutorProfile.profilePicture %}
+                                                {% elseif user.tutorProfile and avatar_url(user.tutorProfile) %}
                                                     <img src="{{ avatar_url(user.tutorProfile) }}" class="rounded-circle" alt="{{ user.username }}">
                                                 {% else %}
                                                     <div class="avatar-img rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center">

@@ -14,7 +14,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3 text-center">
-                                {% if tutor.profilePicture %}
+                                {% if avatar_url(tutor) %}
                                     <img src="{{ avatar_url(tutor) }}" class="img-fluid rounded-circle mb-3" alt="Profile Picture" style="max-width: 150px; height: 150px; object-fit: cover;">
                                 {% else %}
                                     <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">

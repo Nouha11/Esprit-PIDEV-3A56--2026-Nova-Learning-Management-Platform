@@ -35,7 +35,7 @@
 {% endif %}
 
 <div class="avatar {{ sizeClasses[size] }} {{ additionalClass }}">
-    {% if profile and profile.profilePicture %}
+    {% if profile and avatar_url(profile) %}
         <img class="avatar-img rounded-circle" 
              src="{{ avatar_url(profile) }}" 
              alt="{{ profile.firstName ?? user.username }}">
