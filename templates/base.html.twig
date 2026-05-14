@@ -379,10 +379,11 @@
                             {% if topStudents is defined and topStudents|length > 0 %}
                                 <div class="d-flex flex-column gap-3">
                                 {% for index, data in topStudents|slice(0, 3) %}
+                                    {% if data.student is defined %}
                                     <div class="leaderboard-item d-flex align-items-center p-3 rounded-3">
                                         <div class="fw-black fs-4 me-3 nova-text-muted opacity-50" style="width: 30px; font-family: 'Press Start 2P', cursive; font-size: 1rem;">{{ loop.index }}</div>
                                         <div class="avatar avatar-md me-3 position-relative">
-                                            {% if data.avatar_url(student) %}
+                                            {% if avatar_url(data.student) %}
                                                 <img class="avatar-img rounded-circle shadow" style="border: 2px solid var(--nova-border);" src="{{ avatar_url(data.student) }}" alt="{{ data.student.firstName }}">
                                             {% else %}
                                                 <div class="avatar-img rounded-circle bg-{{ get_level_badge_color(data.levelInfo.level) }} text-white d-flex align-items-center justify-content-center shadow fw-bold" style="border: 2px solid var(--nova-border);">
@@ -401,6 +402,7 @@
                                             <span class="fw-black text-primary fs-5" style="font-family: 'Inter', sans-serif; font-weight: 800;">{{ data.student.totalXP|number_format }}</span> <small class="fw-bold text-muted">XP</small>
                                         </div>
                                     </div>
+                                    {% endif %}
                                 {% endfor %}
                                 </div>
                                 <div class="mt-4 pt-3 text-center">
