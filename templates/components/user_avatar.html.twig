@@ -37,7 +37,7 @@
 <div class="avatar {{ sizeClasses[size] }} {{ additionalClass }}">
     {% if profile and profile.profilePicture %}
         <img class="avatar-img rounded-circle" 
-             src="{{ vich_uploader_asset(profile, 'avatarFile') }}" 
+             src="{{ avatar_url(profile) }}" 
              alt="{{ profile.firstName ?? user.username }}">
     {% else %}
         <div class="avatar-img rounded-circle {{ bgColor }} text-white d-flex align-items-center justify-content-center">

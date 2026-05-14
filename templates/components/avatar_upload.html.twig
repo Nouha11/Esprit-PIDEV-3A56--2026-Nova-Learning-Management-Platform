@@ -12,7 +12,7 @@
             {# Current Avatar Display #}
             <div class="avatar-preview mb-3">
                 {% if currentAvatar %}
-                    <img src="{{ vich_uploader_asset(profile, 'avatarFile') }}" 
+                    <img src="{{ avatar_url(profile) }}" 
                          alt="Profile Picture" 
                          class="rounded-circle img-thumbnail"
                          id="avatar-preview"

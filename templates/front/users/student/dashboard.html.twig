@@ -18,7 +18,7 @@
                         <div class="col-auto">
                             <div class="avatar avatar-xxl position-relative mt-n3">
                                 {% if student and student.profilePicture %}
-                                    <img class="avatar-img rounded-circle border border-white border-3 shadow" src="{{ vich_uploader_asset(student, 'avatarFile') }}" alt="avatar">
+                                    <img class="avatar-img rounded-circle border border-white border-3 shadow" src="{{ avatar_url(student) }}" alt="avatar">
                                 {% else %}
                                     <div class="avatar-img rounded-circle border border-white border-3 shadow bg-primary text-white d-flex align-items-center justify-content-center" style="width: 100%; height: 100%; font-size: 3rem; font-weight: bold;">
                                         {{ student.firstName|first|upper }}{{ student.lastName|first|upper }}

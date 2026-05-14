@@ -38,9 +38,9 @@
             <div class="card-body text-center">
                 <div class="avatar avatar-xxl mb-3">
                     {% if user.role == 'ROLE_STUDENT' and user.studentProfile and user.studentProfile.profilePicture %}
-                        <img class="avatar-img rounded-circle border border-3" src="{{ vich_uploader_asset(user.studentProfile, 'avatarFile') }}" alt="{{ user.username }}">
+                        <img class="avatar-img rounded-circle border border-3" src="{{ avatar_url(user.studentProfile) }}" alt="{{ user.username }}">
                     {% elseif user.role == 'ROLE_TUTOR' and user.tutorProfile and user.tutorProfile.profilePicture %}
-                        <img class="avatar-img rounded-circle border border-3" src="{{ vich_uploader_asset(user.tutorProfile, 'avatarFile') }}" alt="{{ user.username }}">
+                        <img class="avatar-img rounded-circle border border-3" src="{{ avatar_url(user.tutorProfile) }}" alt="{{ user.username }}">
                     {% else %}
                         <img class="avatar-img rounded-circle border border-3" src="{{ asset('assets/images/avatar/01.jpg') }}" alt="{{ user.username }}">
                     {% endif %}

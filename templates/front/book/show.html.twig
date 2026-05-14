@@ -67,8 +67,8 @@
                                         <div class="text-center">
                                             <!-- Buttons -->
                                             {% if book.isDigital %}
-                                                <a href="{{ path('book_purchase', {'id': book.id}) }}" class="btn btn-success-soft mb-2 mb-sm-0 me-0 me-sm-3">
-                                                    <i class="bi bi-cart3 me-2"></i>Buy Digital
+                                                <a href="{{ path('book_stripe_purchase', {'id': book.id}) }}" class="btn btn-success mb-2 mb-sm-0 me-0 me-sm-3">
+                                                    <i class="bi bi-credit-card me-2"></i>Buy with Stripe
                                                 </a>
                                             {% endif %}
                                             <a href="{{ path('book_libraries', {'id': book.id}) }}" class="btn btn-primary mb-2 mb-sm-0">
@@ -161,8 +161,8 @@
                         <h4>Get this book</h4>
                         <div class="d-flex gap-2 flex-wrap">
                             {% if book.isDigital %}
-                                <a href="{{ path('book_purchase', {'id': book.id}) }}" class="btn btn-success">
-                                    <i class="bi bi-cart-check me-2"></i>Purchase Digital Copy
+                                <a href="{{ path('book_stripe_purchase', {'id': book.id}) }}" class="btn btn-success">
+                                    <i class="bi bi-credit-card me-2"></i>Buy with Stripe
                                 </a>
                             {% endif %}
                             <a href="{{ path('book_libraries', {'id': book.id}) }}" class="btn btn-primary">

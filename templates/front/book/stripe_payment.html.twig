@@ -1,0 +1,205 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Purchase – {{ book.title }}{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+
+        {# ── Left: Stripe card form ── #}
+        <div class="col-lg-7 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-credit-card-2-front-fill fs-5"></i>
+                    <h5 class="mb-0">Credit Card — Stripe</h5>
+                </div>
+                <div class="card-body p-4">
+
+                    {# Stripe card element mounts here #}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Card details</label>
+                        <div id="card-element" class="form-control py-3" style="min-height: 46px;"></div>
+                        <div id="card-errors" class="text-danger small mt-2" role="alert"></div>
+                    </div>
+
+                    <button id="pay-btn" class="btn btn-primary w-100 py-3 fw-bold fs-5">
+                        <span id="pay-btn-text">
+                            <i class="bi bi-lock-fill me-2"></i>
+                            Pay ${{ book.price }}
+                        </span>
+                        <span id="pay-btn-spinner" class="d-none">
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            Processing…
+                        </span>
+                    </button>
+
+                    {# Success message (hidden until payment succeeds) #}
+                    <div id="payment-success" class="alert alert-success mt-3 d-none">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <strong>Payment successful!</strong> Redirecting to your book…
+                    </div>
+
+                    {# Error message #}
+                    <div id="payment-error" class="alert alert-danger mt-3 d-none"></div>
+
+                    <p class="text-muted small text-center mt-3 mb-0">
+                        <i class="bi bi-shield-lock me-1"></i>
+                        Secured by <strong>Stripe</strong>. Your card details are never stored on our servers.
+                    </p>
+                </div>
+            </div>
+
+            {# Test card hint #}
+            <div class="alert alert-info mt-3 small">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Test card:</strong> 4242 4242 4242 4242 · Any future date · Any 3-digit CVC
+            </div>
+        </div>
+
+        {# ── Right: Order summary ── #}
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-body-secondary">
+                    <h6 class="mb-0"><i class="bi bi-receipt me-2"></i>Order Summary</h6>
+                </div>
+                <div class="card-body">
+                    {% if book.coverImage %}
+                        <img src="{{ asset(book.coverImage) }}"
+                             alt="{{ book.title }}"
+                             class="img-fluid rounded mb-3 w-100"
+                             style="max-height: 200px; object-fit: cover;">
+                    {% endif %}
+
+                    <h6 class="fw-bold">{{ book.title }}</h6>
+                    {% if book.author %}
+                        <p class="text-muted small mb-2">by {{ book.author }}</p>
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Price</span>
+                        <strong>${{ book.price }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span>Type</span>
+                        <span><i class="bi bi-file-earmark-pdf me-1"></i>Digital PDF</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                        <span>Total</span>
+                        <span class="text-primary">${{ book.price }}</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ path('book_show', {id: book.id}) }}" class="btn btn-outline-secondary w-100 btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i>Back to book
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+
+{# Load Stripe.js from Stripe's CDN — never self-host this #}
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+(function () {
+    // ── 1. Initialise Stripe with the publishable key ──────────────────────
+    const stripe = Stripe('{{ publishableKey }}');
+    const elements = stripe.elements();
+
+    // ── 2. Mount the card element ──────────────────────────────────────────
+    const cardElement = elements.create('card', {
+        style: {
+            base: {
+                fontSize: '16px',
+                color: getComputedStyle(document.documentElement)
+                         .getPropertyValue('--bs-body-color').trim() || '#32325d',
+                fontFamily: 'system-ui, sans-serif',
+                '::placeholder': { color: '#aab7c4' },
+            },
+            invalid: { color: '#dc3545' },
+        },
+        hidePostalCode: true,
+    });
+    cardElement.mount('#card-element');
+
+    // Show real-time validation errors
+    cardElement.on('change', function (event) {
+        const display = document.getElementById('card-errors');
+        display.textContent = event.error ? event.error.message : '';
+    });
+
+    // ── 3. Handle form submission ──────────────────────────────────────────
+    const payBtn     = document.getElementById('pay-btn');
+    const btnText    = document.getElementById('pay-btn-text');
+    const btnSpinner = document.getElementById('pay-btn-spinner');
+    const errBox     = document.getElementById('payment-error');
+    const successBox = document.getElementById('payment-success');
+
+    // The client_secret created server-side by StripeService.createPaymentIntent()
+    const clientSecret = '{{ clientSecret }}';
+    const confirmUrl   = '{{ path('book_stripe_confirm', {id: book.id}) }}';
+
+    payBtn.addEventListener('click', async function () {
+        // Disable button & show spinner
+        payBtn.disabled = true;
+        btnText.classList.add('d-none');
+        btnSpinner.classList.remove('d-none');
+        errBox.classList.add('d-none');
+
+        // ── 4. Confirm the card payment with Stripe.js ─────────────────────
+        const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: { card: cardElement },
+        });
+
+        if (error) {
+            // Show Stripe's error message
+            errBox.textContent = error.message;
+            errBox.classList.remove('d-none');
+            payBtn.disabled = false;
+            btnText.classList.remove('d-none');
+            btnSpinner.classList.add('d-none');
+            return;
+        }
+
+        if (paymentIntent.status === 'succeeded') {
+            // ── 5. Send paymentIntentId to Symfony to save to DB ───────────
+            successBox.classList.remove('d-none');
+            payBtn.disabled = true;
+
+            try {
+                const res = await fetch(confirmUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    // Redirect to PDF reader
+                    setTimeout(() => { window.location.href = data.redirectUrl; }, 1500);
+                } else {
+                    errBox.textContent = 'Payment was charged but we could not save the record: ' + data.message;
+                    errBox.classList.remove('d-none');
+                    successBox.classList.add('d-none');
+                }
+            } catch (fetchErr) {
+                errBox.textContent = 'Network error: ' + fetchErr.message;
+                errBox.classList.remove('d-none');
+                successBox.classList.add('d-none');
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}
